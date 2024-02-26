@@ -1,0 +1,21 @@
+[[package]]
+name = "core"
+source = "path+from-root-B672DC9E3D340CD2"
+
+[[package]]
+name = "i64"
+source = "git+https://github.com/compolabs/i64?default-branch#b983e37ec72b60a3544bde52babebec61b15c710"
+dependencies = ["std"]
+
+[[package]]
+name = "orderbook"
+source = "member"
+dependencies = [
+    "i64",
+    "std",
+]
+
+[[package]]
+name = "std"
+source = "git+https://github.com/fuellabs/sway?tag=v0.49.2#a70c746d27b3300beef896ccd1dcce1299836192"
+dependencies = ["core"]

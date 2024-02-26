@@ -1,0 +1,31 @@
+[package]
+name = "orderbook"
+description = "A cargo-generate template for Rust + Sway integration testing."
+version = "0.1.0"
+edition = "2021"
+authors = ["alexey <alexnagornnyy.an@gmail.com>"]
+license = "Apache-2.0"
+
+[dependencies]
+fuels = { version = "0.55.0", features = ["fuel-core-lib"] }
+rand = "0.8.5"
+tokio = { version = "1.12", features = ["rt", "macros"] }
+src20_sdk = { git = "https://github.com/compolabs/src-20.git", branch = "master" }
+
+[[test]]
+harness = true
+name = "integration_tests"
+path = "tests/harness.rs"
+
+
+[[bin]]
+name = "create_market"
+path = "scripts/create_market.rs"
+
+[[bin]]
+name = "create_order"
+path = "scripts/create_order.rs"
+
+[[bin]]
+name = "deploy"
+path = "scripts/deploy.rs"
