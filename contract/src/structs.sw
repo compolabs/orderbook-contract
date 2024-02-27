@@ -6,7 +6,7 @@ pub struct Order {
     trader: Address,
     base_token: AssetId,
     base_size: I64,
-    order_price: u64,
+    base_price: u64,
 }
 
 pub struct Market {

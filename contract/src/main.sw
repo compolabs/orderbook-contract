@@ -1,10 +1,12 @@
 contract;
+
 mod structs;
 mod events;
+
 use i64::*;
 use structs::*;
 use events::*;
-use std::storage::*;
+
 use std::constants::{BASE_ASSET_ID};
 use std::hash::*;
 use std::storage::storage_vec::*;
@@ -17,7 +19,7 @@ const FEE_RATE: u64 = 500;
 const HUNDRED_PERCENT: u64 = 1000000;
 
 configurable {
-    USDC_ADDRESS: AssetId = BASE_ASSET_ID,
+    QUOTE_TOKEN: AssetId = BASE_ASSET_ID,
 }
 
 
@@ -25,6 +27,7 @@ storage {
     orders: StorageMap<b256, Order> = StorageMap{},
     markets: StorageMap<AssetId, Market> = StorageMap{},
     orders_by_trader: StorageMap<Address, StorageVec<b256>> = StorageMap{},
+    order_positions_by_trader: StorageMap<Address, StorageMap<b256, u64>> = StorageMap{},
 }
 
 //todo fix reentrancy issues
@@ -46,72 +49,82 @@ abi OrderBook {
     #[storage(read)]
     fn orders_by_trader(trader: Address) -> Vec<b256>;
 
+    #[storage(read)]
+    fn order_by_id(order: b256) -> Option<Order>;
+
+    #[storage(read)]
+    fn market_exists(asset_id: AssetId) -> bool;
 }
 
 impl OrderBook for Contract {
     
     #[storage(read, write)]
     fn create_market(asset_id: AssetId, decimal: u32){
-        //todo verify admin only
-        require(storage.markets.get(asset_id).try_read().is_none(), "Market already exists or uninitialized");
+        require(storage.markets.get(asset_id).try_read().is_none(), "Market already exists");
         let market = Market {asset_id, decimal};
         storage.markets.insert(asset_id, market);
     }
 
+    #[storage(read)]
+    fn market_exists(asset_id: AssetId) -> bool{
+        !storage.markets.get(asset_id).try_read().is_none()
+    }
+
     #[storage(read, write), payable]
-    fn open_order(base_token: AssetId, base_size: I64, order_price: u64) { //price decimal = 9
-        require(order_price > 0, "Invalid order price");
-        
-        let trader = msg_sender_address();
-
+    fn open_order(base_token: AssetId, base_size: I64, base_price: u64 /* decimal = 9 */) {
         let market = storage.markets.get(base_token).try_read();
-        require(market.is_some(), "Market is not found");
-        let market = market.unwrap();
-
-        if base_size < I64::new() {
-            let size = base_size.value;
-            require(msg_amount() == size, "Incorrect amount sent");
-            require(msg_asset_id() == base_token, "Incorrect asset sent");
+        require(market.is_some(), "Market not found");
+        require(base_price != 0, "Zero base price");
+        
+        if base_size.negative {
+            require(msg_amount() == base_size.value, "Bad amount transfered");
+            require(msg_asset_id() == base_token, "Bad base token");
         } else {
-            let scale = 10_u64.pow(market.decimal + 9 - 6);
-            let trade_value = (base_size.value * order_price) / scale;
-            require(msg_amount() == trade_value, "Incorrect trade value");
-            require(msg_asset_id() == USDC_ADDRESS, "Incorrect asset (expected USDC)");
+            let market_scale = 10_u64.pow(market.unwrap().decimal);
+            let trade_value = base_size.value * base_price / market_scale / 1000; /* 10**(9 Price - 6 Quote decimals) */
+            require(msg_amount() == trade_value, "Bad trade value");
+            require(msg_asset_id() == QUOTE_TOKEN, "Bad quote Token");
         }
 
-        let id = calc_order_id(trader, base_token, order_price);
-        let existing_order = storage.orders.get(id).try_read();
+        let trader_address = msg_sender_address();
 
-        if existing_order.is_some() {
-            let mut order = existing_order.unwrap();
-            if order.base_size * base_size < I64::new() {
+
+        let order_id = gen_order_id(trader_address, base_token, base_price);
+        let order = storage.orders.get(order_id).try_read();
+
+        if order.is_some() {
+            let mut order = order.unwrap();
+            if (order.base_size * base_size).negative {
                 // todo Логика возврата токенов аккаунту trader. transfer_to_address(to, asset_id, amount);
             }
 
             order.base_size += base_size;
-            if order.base_size != I64::new() {
-                storage.orders.insert(id, order);
-            } else {
-                remove_order_internal(id);
-            }
+            update_remove_order_internal(order);
             // todo Логирование события изменения заказа
         } else {
-            let new_order = Order {
-                id,
-                trader,
+            let order = Order {
+                id: order_id,
+                trader: trader_address,
                 base_token,
                 base_size,
-                order_price
+                base_price
             };
-            storage.orders.insert(id, new_order);
-            storage.orders_by_trader.get(trader).push(id);
+            add_order_internal(order);
             // todo Логирование события создания нового заказа
         }
     }
     
     #[storage(read, write)]
-    fn remove_order(order_id: b256){
-        //todo
+    fn remove_order(order_id: b256) {
+        let order = storage.orders.get(order_id).try_read();
+        require(order.is_none(), "Bad order");
+
+        let mut order = order.unwrap();
+        require(msg_sender_address() == order.trader, "Not an order owner");
+
+        order.base_size.value = 0;
+        update_remove_order_internal(order);
+        // transfer funds
     }
     
     #[storage(read, write)]
@@ -120,37 +133,39 @@ impl OrderBook for Contract {
     }
         
     #[storage(read)]
-    fn orders_by_trader(trader: Address)-> Vec<b256>{
-        //todo
-        Vec::new()
+    fn orders_by_trader(trader: Address) -> Vec<b256>{
+        storage.orders_by_trader.get(trader).load_vec()
     }
 
+    #[storage(read)]
+    fn order_by_id(order: b256) -> Option<Order> {
+        storage.orders.get(order).try_read()
+    }
 }
+
 #[storage(read, write)]
-fn remove_order_internal(order_id: b256) {
-    let order = storage.orders.get(order_id).read();
-    let orders = storage.orders_by_trader.get(order.trader);
-    let success = storage.orders.remove(order_id);
-    assert(success);
+fn add_order_internal(order: Order) {
+    storage.orders.insert(order.id, order);
+    storage.orders_by_trader.get(order.trader).push(order.id);
+    storage.order_positions_by_trader.get(order.trader).insert(
+        order.id, storage.orders_by_trader.get(order.trader).len()); // pos + 1 indexed
+}
 
-    //удаляем заказ из storage.orders
-    let mut i = 0;
-    while i < orders.len() {
-        let id = orders.get(i).unwrap().read();
-        if id == order_id{
-            let _res = storage.orders_by_trader.get(order.trader).remove(i);
-            break;
-        }
-        i += 1;
+#[storage(read, write)]
+fn update_remove_order_internal(order: Order) {
+    if order.base_size.value == 0 {
+        let pos_id = storage.order_positions_by_trader.get(order.trader).get(order.id).read() - 1; // pos + 1 indexed
+        assert(storage.order_positions_by_trader.get(order.trader).remove(order.id));
+        storage.orders_by_trader.get(order.trader).swap_remove(pos_id);
+        assert(storage.orders.remove(order.id));
+    } else {
+        storage.orders.insert(order.id, order);
     }
-
 }
 
-
-fn calc_order_id(trader: Address, base_token: AssetId, price: u64) -> b256 {
-    sha256((trader, base_token, price))
+fn gen_order_id(trader_address: Address, base_token: AssetId, base_price: u64) -> b256 {
+    sha256((trader_address, base_token, base_price))
 }
-
 
 pub fn msg_sender_address() -> Address {
     match std::auth::msg_sender().unwrap() {
