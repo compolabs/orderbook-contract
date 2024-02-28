@@ -81,8 +81,8 @@ impl Orderbook {
         let salt = rng.gen::<[u8; 32]>();
 
         let configurables = OrderbookContractConfigurables::default()
-        .with_QUOTE_TOKEN(quote_token)
-        .with_QUOTE_TOKEN_DECIMALS(quote_token_decimals);
+        .with_QUOTE_TOKEN(quote_token);
+        // .with_QUOTE_TOKEN_DECIMALS(quote_token_decimals);
         let config = LoadConfiguration::default().with_configurables(configurables);
 
         let id = Contract::load_from("contract/out/debug/orderbook.bin", config)

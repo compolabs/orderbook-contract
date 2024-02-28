@@ -13,8 +13,9 @@ async fn create_market_test() {
 
     let token_contract = deploy_token_contract(&admin).await;
     let btc = Asset::new(admin.clone(), token_contract.contract_id().into(), "BTC");
+    let usdc = Asset::new(admin.clone(), token_contract.contract_id().into(), "USDC");
 
-    let orderbook = Orderbook::deploy(&admin).await;
+    let orderbook = Orderbook::deploy(&admin, usdc.asset_id, usdc.decimals).await;
 
     orderbook
         ._create_market(btc.asset_id, btc.decimals as u32)
@@ -40,10 +41,11 @@ async fn open_cancel_negative_order_test() {
         .unwrap();
     let admin = &wallets[0];
 
-    let orderbook = Orderbook::deploy(&admin).await;
-
     let token_contract = deploy_token_contract(&admin).await;
     let btc = Asset::new(admin.clone(), token_contract.contract_id().into(), "BTC");
+    let usdc = Asset::new(admin.clone(), token_contract.contract_id().into(), "USDC");
+
+    let orderbook = Orderbook::deploy(&admin, usdc.asset_id, usdc.decimals).await;
 
     orderbook
         ._create_market(btc.asset_id, btc.decimals as u32)
