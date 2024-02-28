@@ -2,16 +2,16 @@ use fuels::prelude::abigen;
 
 pub mod orderbook_interactions {
 
-    use fuels::accounts::predicate::Predicate;
+//    use fuels::accounts::predicate::Predicate;
     use fuels::accounts::wallet::WalletUnlocked;
     use fuels::prelude::Account;
     use fuels::prelude::Bech32Address;
     use fuels::prelude::TxPolicies;
-    use fuels::programs::call_response::FuelCallResponse;
-    use fuels::programs::script_calls::ScriptCallHandler;
+//    use fuels::programs::call_response::FuelCallResponse;
+//    use fuels::programs::script_calls::ScriptCallHandler;
     use fuels::tx::Bytes32;
     use fuels::tx::Receipt;
-    use fuels::types::unresolved_bytes::UnresolvedBytes;
+//    use fuels::types::unresolved_bytes::UnresolvedBytes;
     use fuels::types::AssetId;
 
     pub async fn _create_market(

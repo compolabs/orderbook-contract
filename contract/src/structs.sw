@@ -11,5 +11,5 @@ pub struct Order {
 
 pub struct Market {
     asset_id: AssetId,
-    decimal: u32
+    asset_decimals: u32
 }
