@@ -2,16 +2,16 @@ use fuels::prelude::abigen;
 
 pub mod orderbook_interactions {
 
-//    use fuels::accounts::predicate::Predicate;
+    //    use fuels::accounts::predicate::Predicate;
     use fuels::accounts::wallet::WalletUnlocked;
     use fuels::prelude::Account;
     use fuels::prelude::Bech32Address;
     use fuels::prelude::TxPolicies;
-//    use fuels::programs::call_response::FuelCallResponse;
-//    use fuels::programs::script_calls::ScriptCallHandler;
+    //    use fuels::programs::call_response::FuelCallResponse;
+    //    use fuels::programs::script_calls::ScriptCallHandler;
     use fuels::tx::Bytes32;
     use fuels::tx::Receipt;
-//    use fuels::types::unresolved_bytes::UnresolvedBytes;
+    //    use fuels::types::unresolved_bytes::UnresolvedBytes;
     use fuels::types::AssetId;
 
     pub async fn _create_market(
@@ -76,11 +76,17 @@ impl Orderbook {
         }
     }
 
-    pub async fn deploy(wallet: &WalletUnlocked) -> Self {
+    pub async fn deploy(
+        wallet: &WalletUnlocked,
+        quote_token: AssetId,
+        quote_token_decimals: u64,
+    ) -> Self {
         let mut rng = rand::thread_rng();
         let salt = rng.gen::<[u8; 32]>();
 
-        let configurables = OrderbookContractConfigurables::default();
+        let configurables = OrderbookContractConfigurables::default()
+            .with_QUOTE_TOKEN(quote_token)
+            .with_QUOTE_TOKEN_DECIMALS(quote_token_decimals.try_into().unwrap());
         let config = LoadConfiguration::default().with_configurables(configurables);
 
         let id = Contract::load_from("contract/out/debug/orderbook.bin", config)

@@ -14,13 +14,11 @@ use std::context::msg_amount;
 use std::hash::*;
 use std::storage::storage_vec::*;
 
-
-//const DUST: u64 = 10;
-//const FEE_RATE: u64 = 500;
-//const HUNDRED_PERCENT: u64 = 1000000;
+const PRICE_DECIMALS = 9;
 
 configurable {
     QUOTE_TOKEN: AssetId = BASE_ASSET_ID,
+    QUOTE_TOKEN_DECIMALS: u32 = 9,
 }
 
 storage {
@@ -79,42 +77,35 @@ impl OrderBook for Contract {
 
         let market = market.unwrap();
         if base_size.negative {
-            require(msg_amount() == base_size_to_base_amount(base_size.value, market.asset_decimals), "Bad amount transfered");
+            require(msg_amount() == base_size.value, "Bad base value");
             require(msg_asset_id() == base_token, "Bad base token");
         } else {
-            require(msg_amount() == base_size_to_quote_amount(base_size.value, market.asset_decimals, base_price), "Bad trade value");
+            require(msg_amount() == base_size_to_quote_amount(base_size.value, market.asset_decimals, base_price), "Bad quote value");
             require(msg_asset_id() == QUOTE_TOKEN, "Bad quote Token");
         }
 
-        let trader_address = msg_sender_address();
+        let msg_sender = msg_sender_address();
 
-        let order_id = gen_order_id(trader_address, base_token, base_price);
+        let order_id = gen_order_id(msg_sender, base_token, base_price);
         let order = storage.orders.get(order_id).try_read();
 
         if order.is_some() {
             let order = order.unwrap();
-            let mut refund = (BASE_ASSET_ID, 1);
-            if (order.base_size + base_size).value == 0 {
-                refund = cancel_order_internal(order);
-            } else {
-                let mut order = order;
-                order.base_size += base_size;
-                update_order_internal(order);
-                // todo Логирование события изменения заказа
-                if (order.base_size * base_size).negative {
-                    // todo Логика возврата токенов аккаунту trader. transfer_to_address(to, asset_id, amount);
-                }
+            let (asset_id, refund) = update_order_base_size_internal(order, base_size);
+            // log
+            if refund > 0 {
+                transfer_to_address(msg_sender, asset_id, refund);
             }
         } else {
             let order = Order {
                 id: order_id,
-                trader: trader_address,
+                trader: msg_sender,
                 base_token,
                 base_size,
                 base_price
             };
             add_order_internal(order);
-            // todo Логирование события создания нового заказа
+            // log
         }
     }
     
@@ -129,10 +120,8 @@ impl OrderBook for Contract {
 
         // log event
 
-        let refund = cancel_order_internal(order);
-        assert(refund.0 == order.base_token);
-        assert(refund.1 == order.base_size.value * 100000000);
-        //transfer_to_address(msg_sender, refund.0, refund.1);
+        let (asset_id, refund) = cancel_order_internal(order);
+        transfer_to_address(msg_sender, asset_id, refund);
     }
     
     #[storage(read, write)]
@@ -160,9 +149,26 @@ fn add_order_internal(order: Order) {
 }
 
 #[storage(read, write)]
-fn update_order_internal(order: Order) {
+fn update_order_base_size_internal(order: Order, base_size: I64) -> (AssetId, u64) {
     assert(order.base_size.value != 0);
-    storage.orders.insert(order.id, order);
+    let mut refund = (BASE_ASSET_ID, 0);
+    if (order.base_size + base_size).value == 0 {
+        cancel_order_internal(order);
+    } else {
+        if !order.base_size.is_same_sign(base_size) {
+            let mut tmp = order;
+            if order.base_size.value > base_size.value {
+                tmp.base_size = base_size;
+            } else {
+                tmp.base_size = order.base_size.flip();
+            }
+            refund = order_return_asset_amount(tmp);
+        }
+        let mut order = order;
+        order.base_size += base_size;
+        storage.orders.insert(order.id, order);
+    }
+    refund
 }
 
 #[storage(read, write)]
@@ -177,22 +183,16 @@ fn cancel_order_internal(order: Order) -> (AssetId, u64) {
 
 #[storage(read)]
 fn order_return_asset_amount(order: Order) -> (AssetId, u64) {
-    let market = storage.markets.get(order.base_token).try_read().unwrap();
     return if order.base_size.negative {
-        (order.base_token, base_size_to_base_amount(order.base_size.value, market.asset_decimals))
+        (order.base_token, order.base_size.value)
     } else {
-        assert(false);
+        let market = storage.markets.get(order.base_token).try_read().unwrap();
         (QUOTE_TOKEN, base_size_to_quote_amount(order.base_size.value, market.asset_decimals, order.base_price))
     } 
 }
 
-fn base_size_to_base_amount(base_size: u64, base_decimals: u32) -> u64 {
-    base_size * 10_u64.pow(base_decimals)
-}
-
 fn base_size_to_quote_amount(base_size: u64, base_decimals: u32, base_price: u64) -> u64 {
-    // Rework Price and USDC decimals
-    base_size * base_price / 10_u64.pow(base_decimals) / 1000 /* 10**(9 Price - 6 Quote decimals) */
+    base_size * base_price / 10_u64.pow(base_decimals + PRICE_DECIMALS - QUOTE_TOKEN_DECIMALS)
 }
 
 fn gen_order_id(trader_address: Address, base_token: AssetId, base_price: u64) -> b256 {
