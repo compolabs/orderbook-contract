@@ -13,7 +13,7 @@ use std::constants::BASE_ASSET_ID;
 use std::context::msg_amount;
 use std::hash::*;
 use std::storage::storage_vec::*;
-
+use std::context::{this_balance};
 
 //const DUST: u64 = 10;
 //const FEE_RATE: u64 = 500;
@@ -21,6 +21,8 @@ use std::storage::storage_vec::*;
 
 configurable {
     QUOTE_TOKEN: AssetId = BASE_ASSET_ID,
+    QUOTE_TOKEN_DECIMALS: u64 = 9,
+    PRICE_DECIMALS: u64 = 9,
 }
 
 storage {
@@ -131,8 +133,13 @@ impl OrderBook for Contract {
 
         let refund = cancel_order_internal(order);
         assert(refund.0 == order.base_token);
-        assert(refund.1 == order.base_size.value * 100000000);
-        //transfer_to_address(msg_sender, refund.0, refund.1);
+        assert(refund.1 == order.base_size.value * 100_000_000);
+        
+        //fixme transfer_to_address(msg_sender, refund.0, refund.1);
+        let balance = this_balance(refund.0);
+        assert(balance > 0);
+
+        transfer_to_address(msg_sender, refund.0, this_balance(refund.0));
     }
     
     #[storage(read, write)]
@@ -181,7 +188,7 @@ fn order_return_asset_amount(order: Order) -> (AssetId, u64) {
     return if order.base_size.negative {
         (order.base_token, base_size_to_base_amount(order.base_size.value, market.asset_decimals))
     } else {
-        assert(false);
+        // assert(false);
         (QUOTE_TOKEN, base_size_to_quote_amount(order.base_size.value, market.asset_decimals, order.base_price))
     } 
 }
