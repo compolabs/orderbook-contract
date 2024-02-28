@@ -76,11 +76,13 @@ impl Orderbook {
         }
     }
 
-    pub async fn deploy(wallet: &WalletUnlocked) -> Self {
+    pub async fn deploy(wallet: &WalletUnlocked, quote_token: AssetId, quote_token_decimals: u64) -> Self {
         let mut rng = rand::thread_rng();
         let salt = rng.gen::<[u8; 32]>();
 
-        let configurables = OrderbookContractConfigurables::default();
+        let configurables = OrderbookContractConfigurables::default()
+        .with_QUOTE_TOKEN(quote_token)
+        .with_QUOTE_TOKEN_DECIMALS(quote_token_decimals);
         let config = LoadConfiguration::default().with_configurables(configurables);
 
         let id = Contract::load_from("contract/out/debug/orderbook.bin", config)
