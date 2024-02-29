@@ -229,14 +229,13 @@ async fn open_cancel_base_token_order_test() {
 
     // Cancel order
 
-    orderbook
-        .instance
-        .methods()
+    let res = orderbook
+        .with_account(user)
         .cancel_order(*order_id)
-        .append_variable_outputs(1)
-        .call()
         .await
-        .unwrap();
+        .is_err();
+    assert!(res);
+    orderbook.cancel_order(*order_id).await.unwrap();
 
     let response = orderbook
         .instance
@@ -370,14 +369,7 @@ async fn open_cancel_quote_token_order_test() {
 
     // Cancel order
 
-    orderbook
-        .instance
-        .methods()
-        .cancel_order(*order_id)
-        .append_variable_outputs(1)
-        .call()
-        .await
-        .unwrap();
+    orderbook.cancel_order(*order_id).await.unwrap();
 
     let response = orderbook
         .instance

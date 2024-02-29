@@ -1,4 +1,4 @@
-use fuels::prelude::abigen;
+use fuels::{prelude::abigen, programs::call_utils::TxDependencyExtension, types::Bits256};
 
 pub mod orderbook_interactions {
 
@@ -57,6 +57,18 @@ impl Orderbook {
         self.instance
             .methods()
             .create_market(asset_id, decimal)
+            .call()
+            .await
+    }
+
+    pub async fn cancel_order(
+        &self,
+        order_id: Bits256,
+    ) -> Result<FuelCallResponse<()>, fuels::types::errors::Error> {
+        self.instance
+            .methods()
+            .cancel_order(order_id)
+            .append_variable_outputs(1)
             .call()
             .await
     }
