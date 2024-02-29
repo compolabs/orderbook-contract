@@ -1,10 +1,12 @@
 contract;
 
-mod structs;
 mod events;
+mod math;
+mod structs;
 
 use events::*;
 use i64::*;
+use math::*;
 use structs::*;
 
 use std::asset::*;
@@ -91,10 +93,13 @@ impl OrderBook for Contract {
 
         if order.is_some() {
             let order = order.unwrap();
-            let (asset_id, refund) = update_order_base_size_internal(order, base_size);
+            let ((asset_id_0, refund_0), (asset_id_1, refund_1)) = update_order_base_size_internal(order, base_size);
             // log
-            if refund > 0 {
-                transfer_to_address(msg_sender, asset_id, refund);
+            if refund_0 > 0 {
+                transfer_to_address(msg_sender, asset_id_0, refund_0);
+            }
+            if refund_1 > 0 {
+                transfer_to_address(msg_sender, asset_id_1, refund_1);
             }
         } else {
             let order = Order {
@@ -149,20 +154,21 @@ fn add_order_internal(order: Order) {
 }
 
 #[storage(read, write)]
-fn update_order_base_size_internal(order: Order, base_size: I64) -> (AssetId, u64) {
+fn update_order_base_size_internal(order: Order, base_size: I64) -> ((AssetId, u64), (AssetId, u64)) {
     assert(order.base_size.value != 0);
-    let mut refund = (BASE_ASSET_ID, 0);
-    if (order.base_size + base_size).value == 0 {
-        cancel_order_internal(order);
+    let mut refund = ((BASE_ASSET_ID, 0), (BASE_ASSET_ID, 0));
+    if order.base_size == base_size.flip() {
+        let mut tmp = order;
+        refund.0 = cancel_order_internal(order);
+        tmp.base_size.flip();
+        refund.1 = order_return_asset_amount(tmp);
     } else {
         if !order.base_size.is_same_sign(base_size) {
             let mut tmp = order;
-            if order.base_size.value > base_size.value {
-                tmp.base_size = base_size;
-            } else {
-                tmp.base_size = order.base_size.flip();
-            }
-            refund = order_return_asset_amount(tmp);
+            tmp.base_size.value = min(order.base_size.value, base_size.value);
+            refund.0 = order_return_asset_amount(tmp);
+            tmp.base_size = tmp.base_size.flip();
+            refund.1 = order_return_asset_amount(tmp);
         }
         let mut order = order;
         order.base_size += base_size;
@@ -192,7 +198,7 @@ fn order_return_asset_amount(order: Order) -> (AssetId, u64) {
 }
 
 fn base_size_to_quote_amount(base_size: u64, base_decimals: u32, base_price: u64) -> u64 {
-    base_size * base_price / 10_u64.pow(base_decimals + PRICE_DECIMALS - QUOTE_TOKEN_DECIMALS)
+    base_size.mul_div(base_price, 10_u64.pow(base_decimals + PRICE_DECIMALS - QUOTE_TOKEN_DECIMALS))
 }
 
 fn gen_order_id(trader_address: Address, base_token: AssetId, base_price: u64) -> b256 {
