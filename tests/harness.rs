@@ -3,7 +3,7 @@ use orderbook::orderbook_utils::{Orderbook, I64};
 use src20_sdk::token_utils::{deploy_token_contract, Asset};
 
 #[tokio::test]
-async fn open_cancel_base_token_order_test() {
+async fn open_base_token_order_cancel_test() {
     //--------------- WALLETS ---------------
     let wallets_config = WalletsConfig::new(Some(5), Some(1), Some(1_000_000_000));
     let wallets = launch_custom_provider_and_get_wallets(wallets_config, None, None)
@@ -104,7 +104,7 @@ async fn open_cancel_base_token_order_test() {
     assert_eq!(base_price, order.base_price);
     assert_eq!(base_size_n1, order.base_size);
 
-    // Add order btc value
+    // Add btc value to order
     btc.mint(admin.address().into(), amount_btc).await.unwrap();
 
     let call_params = CallParameters::default()
@@ -155,8 +155,8 @@ async fn open_cancel_base_token_order_test() {
 
     let usd = 250000;
     let amount_usdc = usd * 10u64.pow(usdc.decimals.try_into().unwrap());
-    let base_size_p: I64 = I64 {
-        value: usd * 10u64.pow(btc.decimals.try_into().unwrap()) / price,
+    let base_size_p1: I64 = I64 {
+        value: amount_btc,
         negative: false,
     };
 
@@ -169,7 +169,7 @@ async fn open_cancel_base_token_order_test() {
         amount_usdc
     );
 
-    // Add order usdc value
+    // Add usdc value to order
     let call_params = CallParameters::default()
         .with_asset_id(usdc.asset_id)
         .with_amount(amount_usdc);
@@ -177,7 +177,7 @@ async fn open_cancel_base_token_order_test() {
     orderbook
         .instance
         .methods()
-        .open_order(btc.asset_id, base_size_p.clone(), base_price)
+        .open_order(btc.asset_id, base_size_p1.clone(), base_price)
         .call_params(call_params)
         .unwrap()
         .append_variable_outputs(2)
@@ -217,18 +217,81 @@ async fn open_cancel_base_token_order_test() {
     assert_eq!(base_price, order.base_price);
     assert_eq!(base_size_n1, order.base_size);
 
+    // Mint USDC
+    usdc.mint(admin.address().into(), amount_usdc)
+        .await
+        .unwrap();
+
+    assert_eq!(
+        admin.get_asset_balance(&usdc.asset_id).await.unwrap(),
+        amount_usdc * 2
+    );
+
+    // Add more usdc value to order
+    let base_size_p2: I64 = I64 {
+        value: 2 * usd * 10u64.pow(btc.decimals.try_into().unwrap()) / price,
+        negative: false,
+    };
+
+    let call_params = CallParameters::default()
+        .with_asset_id(usdc.asset_id)
+        .with_amount(amount_usdc * 2);
+
+    orderbook
+        .instance
+        .methods()
+        .open_order(btc.asset_id, base_size_p2.clone(), base_price)
+        .call_params(call_params)
+        .unwrap()
+        .append_variable_outputs(2)
+        .call()
+        .await
+        .unwrap();
+
+    assert_eq!(
+        admin.get_asset_balance(&usdc.asset_id).await.unwrap(),
+        amount_usdc
+    );
+    assert_eq!(
+        admin.get_asset_balance(&btc.asset_id).await.unwrap(),
+        amount_btc * 2
+    );
+
+    let response = orderbook
+        .instance
+        .methods()
+        .orders_by_trader(admin.address())
+        .call()
+        .await
+        .unwrap();
+
+    assert_eq!(1, response.value.len());
+
+    let order_id = response.value.get(0).unwrap();
+    let response = orderbook
+        .instance
+        .methods()
+        .order_by_id(*order_id)
+        .call()
+        .await
+        .unwrap();
+
+    let order = response.value.unwrap();
+    assert_eq!(base_price, order.base_price);
+    assert_eq!(base_size_p1, order.base_size);
+
     // Cancel by not order owner
-    /*orderbook
-    .instance
-    .methods()
-    .cancel_order(*order_id)
-    .append_variable_outputs(1)
-    .call()
-    .await
-    .unwrap();*/
+    orderbook
+        .with_account(user)
+        .instance
+        .methods()
+        .cancel_order(*order_id)
+        .append_variable_outputs(1)
+        .call()
+        .await
+        .expect_err("Order cancelled by another user");
 
     // Cancel order
-
     orderbook
         .instance
         .methods()
@@ -258,16 +321,18 @@ async fn open_cancel_base_token_order_test() {
 
     assert!(response.value.is_none());
 
-    let amount: u64 = btcv * 10u64.pow(btc.decimals.try_into().unwrap());
-
     assert_eq!(
         admin.get_asset_balance(&btc.asset_id).await.unwrap(),
-        2 * amount
+        2 * amount_btc
+    );
+    assert_eq!(
+        admin.get_asset_balance(&usdc.asset_id).await.unwrap(),
+        2 * amount_usdc
     );
 }
 
 #[tokio::test]
-async fn open_cancel_quote_token_order_test() {
+async fn open_quote_token_order_cancel_by_reverse_order_test() {
     //--------------- WALLETS ---------------
     let wallets_config = WalletsConfig::new(Some(5), Some(1), Some(1_000_000_000));
     let wallets = launch_custom_provider_and_get_wallets(wallets_config, None, None)
@@ -313,30 +378,42 @@ async fn open_cancel_quote_token_order_test() {
     let usd = 250000;
     let btcv = 5;
     let price = 50000;
-    let amount = usd * 10u64.pow(usdc.decimals.try_into().unwrap());
+    let amount_usdc = usd * 10u64.pow(usdc.decimals.try_into().unwrap());
+    let amount_btc = btcv * 10u64.pow(btc.decimals.try_into().unwrap());
     let base_price = price * 10u64.pow(price_decimals);
-    let base_size: I64 = I64 {
-        value: btcv * 10u64.pow(btc.decimals.try_into().unwrap()),
+    let base_size_p1: I64 = I64 {
+        value: amount_btc,
         negative: false,
     };
+    let base_size_n1: I64 = I64 {
+        value: amount_btc,
+        negative: true,
+    };
 
-    usdc.mint(admin.address().into(), amount).await.unwrap();
+    usdc.mint(admin.address().into(), amount_usdc)
+        .await
+        .unwrap();
+    btc.mint(admin.address().into(), amount_btc).await.unwrap();
 
     assert_eq!(
         admin.get_asset_balance(&usdc.asset_id).await.unwrap(),
-        amount
+        amount_usdc
+    );
+    assert_eq!(
+        admin.get_asset_balance(&btc.asset_id).await.unwrap(),
+        amount_btc
     );
 
     // Open order
 
     let call_params = CallParameters::default()
         .with_asset_id(usdc.asset_id)
-        .with_amount(amount);
+        .with_amount(amount_usdc);
 
     orderbook
         .instance
         .methods()
-        .open_order(btc.asset_id, base_size.clone(), base_price)
+        .open_order(btc.asset_id, base_size_p1.clone(), base_price)
         .call_params(call_params)
         .unwrap()
         .call()
@@ -366,15 +443,20 @@ async fn open_cancel_quote_token_order_test() {
 
     let order = response.value.unwrap();
     assert_eq!(base_price, order.base_price);
-    assert_eq!(base_size, order.base_size);
+    assert_eq!(base_size_p1, order.base_size);
 
-    // Cancel order
+    // Cancel order by submitting btc
+    let call_params = CallParameters::default()
+        .with_asset_id(btc.asset_id)
+        .with_amount(amount_btc);
 
     orderbook
         .instance
         .methods()
-        .cancel_order(*order_id)
-        .append_variable_outputs(1)
+        .open_order(btc.asset_id, base_size_n1.clone(), base_price)
+        .append_variable_outputs(2)
+        .call_params(call_params)
+        .unwrap()
         .call()
         .await
         .unwrap();
@@ -401,6 +483,10 @@ async fn open_cancel_quote_token_order_test() {
 
     assert_eq!(
         admin.get_asset_balance(&usdc.asset_id).await.unwrap(),
-        amount
+        amount_usdc
+    );
+    assert_eq!(
+        admin.get_asset_balance(&btc.asset_id).await.unwrap(),
+        amount_btc
     );
 }

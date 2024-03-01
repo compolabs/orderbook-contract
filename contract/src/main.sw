@@ -160,7 +160,7 @@ fn update_order_base_size_internal(order: Order, base_size: I64) -> ((AssetId, u
     if order.base_size == base_size.flip() {
         let mut tmp = order;
         refund.0 = cancel_order_internal(order);
-        tmp.base_size.flip();
+        tmp.base_size = tmp.base_size.flip();
         refund.1 = order_return_asset_amount(tmp);
     } else {
         if !order.base_size.is_same_sign(base_size) {
