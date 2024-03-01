@@ -1,9 +1,11 @@
 contract;
 
+mod errors;
 mod events;
 mod math;
 mod structs;
 
+use errors::*;
 use events::*;
 use i64::*;
 use math::*;
@@ -74,7 +76,7 @@ impl OrderBook for Contract {
     #[storage(read, write), payable]
     fn open_order(base_token: AssetId, base_size: I64, base_price: u64 /* decimal = 9 */) {
         let market = storage.markets.get(base_token).try_read();
-        require(market.is_some(), "Market not found");
+        require(market.is_some(), Error::NoMarketFound);
         require(base_price != 0, "Zero base price");
 
         let market = market.unwrap();
@@ -93,14 +95,17 @@ impl OrderBook for Contract {
 
         if order.is_some() {
             let order = order.unwrap();
-            let ((asset_id_0, refund_0), (asset_id_1, refund_1)) = update_order_base_size_internal(order, base_size);
+            let ((asset_id_0, refund_0), (asset_id_1, refund_1)) = update_order_internal(order, base_size);
+
             // log
+
             if refund_0 > 0 {
                 transfer_to_address(msg_sender, asset_id_0, refund_0);
             }
             if refund_1 > 0 {
                 transfer_to_address(msg_sender, asset_id_1, refund_1);
             }
+
         } else {
             let order = Order {
                 id: order_id,
@@ -117,11 +122,11 @@ impl OrderBook for Contract {
     #[storage(read, write)]
     fn cancel_order(order_id: b256) {
         let order = storage.orders.get(order_id).try_read();
-        require(order.is_some(), "Bad order");
+        require(order.is_some(), Error::NoOrdersFound);
 
         let order = order.unwrap();
         let msg_sender = msg_sender_address();
-        require(msg_sender == order.trader, "Not an order owner");
+        require(msg_sender == order.trader, Error::AccessDenied);
 
         // log event
 
@@ -131,7 +136,34 @@ impl OrderBook for Contract {
     
     #[storage(read, write)]
     fn match_orders(order_sell_id: b256, order_buy_id: b256) {
+        let order_sell = storage.orders.get(order_sell_id).try_read();
+    	let order_buy = storage.orders.get(order_buy_id).try_read();
+        require(order_sell.is_some() && order_buy.is_some(), Error::NoOrdersFound);
+
+        let order_sell = order_sell.unwrap();
+        let order_buy = order_buy.unwrap();
+        require(order_sell.base_size.negative && !order_buy.base_size.negative, Error::FirstArgumentShouldBeOrderSellSecondOrderBuy);
+        require(order_sell.base_token == order_buy.base_token && order_sell.base_price <= order_buy.base_price, Error::OrdersCantBeMatched); 
+
+        let mut tmp = order_buy;
+        tmp.base_size.value = min(order_sell.base_size.value, order_buy.base_size.value);        
+
+        let seller: Address = order_sell.trader;
+        let (sellerDealAssetId, sellerDealRefund) = order_return_asset_amount(tmp);
+        remove_update_order_internal(order_sell, tmp.base_size);
+
+        tmp.base_size = tmp.base_size.flip();
+
+        let buyer: Address = order_buy.trader;
+        let (buyerDealAssetId, buyerDealRefund) = order_return_asset_amount(tmp);
+        remove_update_order_internal(order_buy, tmp.base_size);
+
+        require(sellerDealRefund != 0 && buyerDealRefund != 0 , Error::ZeroAssetAmountToSend);
+
         // log event
+
+        transfer_to_address(seller, sellerDealAssetId, sellerDealRefund);
+        transfer_to_address(buyer, buyerDealAssetId, buyerDealRefund);
     }
         
     #[storage(read)]
@@ -154,7 +186,7 @@ fn add_order_internal(order: Order) {
 }
 
 #[storage(read, write)]
-fn update_order_base_size_internal(order: Order, base_size: I64) -> ((AssetId, u64), (AssetId, u64)) {
+fn update_order_internal(order: Order, base_size: I64) -> ((AssetId, u64), (AssetId, u64)) {
     assert(order.base_size.value != 0);
     let mut refund = ((BASE_ASSET_ID, 0), (BASE_ASSET_ID, 0));
     if order.base_size == base_size.flip() {
@@ -170,9 +202,7 @@ fn update_order_base_size_internal(order: Order, base_size: I64) -> ((AssetId, u
             tmp.base_size = tmp.base_size.flip();
             refund.1 = order_return_asset_amount(tmp);
         }
-        let mut order = order;
-        order.base_size += base_size;
-        storage.orders.insert(order.id, order);
+        remove_update_order_internal(order, base_size);
     }
     refund
 }
@@ -180,11 +210,23 @@ fn update_order_base_size_internal(order: Order, base_size: I64) -> ((AssetId, u
 #[storage(read, write)]
 fn cancel_order_internal(order: Order) -> (AssetId, u64) {
     assert(order.base_size.value != 0);
-    let pos_id = storage.order_positions_by_trader.get(order.trader).get(order.id).read() - 1; // pos + 1 indexed
-    assert(storage.order_positions_by_trader.get(order.trader).remove(order.id));
-    assert(storage.orders_by_trader.get(order.trader).swap_remove(pos_id) == order.id);
-    assert(storage.orders.remove(order.id));
-    order_return_asset_amount(order)
+    let refund = order_return_asset_amount(order);
+    remove_update_order_internal(order, order.base_size.flip());
+    refund
+}
+
+#[storage(read, write)]
+fn remove_update_order_internal(order: Order, base_size: I64) {
+    if (order.base_size == base_size.flip()) {
+        let pos_id = storage.order_positions_by_trader.get(order.trader).get(order.id).read() - 1; // pos + 1 indexed
+        assert(storage.order_positions_by_trader.get(order.trader).remove(order.id));
+        assert(storage.orders_by_trader.get(order.trader).swap_remove(pos_id) == order.id);
+        assert(storage.orders.remove(order.id));
+    } else {
+        let mut order = order;
+        order.base_size += base_size;
+        storage.orders.insert(order.id, order);
+    }
 }
 
 #[storage(read)]
