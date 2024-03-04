@@ -2327,6 +2327,7 @@ checksum = "ff011a302c396a5197692431fc1948019154afc178baf7d8e37367442a4601cf"
 name = "orderbook"
 version = "0.1.0"
 dependencies = [
+ "dotenv",
  "fuels",
  "rand",
  "src20_sdk",

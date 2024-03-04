@@ -11,6 +11,7 @@ fuels = { version = "0.55.0", features = ["fuel-core-lib"] }
 rand = "0.8.5"
 tokio = { version = "1.12", features = ["rt", "macros"] }
 src20_sdk = { git = "https://github.com/compolabs/src-20.git", branch = "master" }
+dotenv = "0.15.0"
 
 [[test]]
 harness = true
