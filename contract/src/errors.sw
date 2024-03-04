@@ -9,4 +9,8 @@ pub enum Error {
     NoMarketPriceForMarket: (),
     FirstArgumentShouldBeOrderSellSecondOrderBuy: (),
     ZeroAssetAmountToSend: (),
+    MarketAlreadyExists: (),
+    BadAsset: (),
+    BadValue: (),
+    BadPrice: (),
 }

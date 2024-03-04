@@ -2,25 +2,25 @@ library;
 use ::structs::*;
 use i64::I64;
 
-struct MarketCreateEvent {
+pub struct MarketCreateEvent {
     asset_id: AssetId,
-    decimal: u32,
+    asset_decimals: u32,
     timestamp: u64,
 }
 
-struct OrderChangeEvent {
-    id: b256,
+pub struct OrderChangeEvent {
+    order_id: b256,
     trader: Address,
     base_token: AssetId,
-    base_size: I64,
-    order_price: u64,
+    base_size_change: I64,
+    base_price: u64,
     timestamp: u64,
 }
 
-struct TradeEvent {
+pub struct TradeEvent {
     base_token: AssetId,
-    matcher: Address,
-    trade_amount: u64,
-    price: u64,
+    order_matcher: Address,
+    trade_size: u64,
+    trade_price: u64,
     timestamp: u64,
 }

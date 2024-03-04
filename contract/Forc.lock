@@ -12,8 +12,14 @@ name = "orderbook"
 source = "member"
 dependencies = [
     "i64",
+    "reentrancy",
     "std",
 ]
+
+[[package]]
+name = "reentrancy"
+source = "git+https://github.com/FuelLabs/sway-libs?default-branch#7765aff5ed9cf76c789a95b1fde9ff19462623fd"
+dependencies = ["std"]
 
 [[package]]
 name = "std"
