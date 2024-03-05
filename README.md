@@ -5,6 +5,9 @@ The Spark Contract Orderbook is a decentralized order book implementation on the
 ## Integration Constants
 https://github.com/compolabs/orderbook-contract/blob/master/src/constants.rs
 
+## Main contract file
+https://github.com/compolabs/orderbook-contract/blob/master/contract/src/main.sw
+
 ## Features
 
 - **Market Creation**: Enables the creation of new markets for different asset pairs.
