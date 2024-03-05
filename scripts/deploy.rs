@@ -28,7 +28,7 @@ async fn main() {
         wallet.clone(),
     );
     let usdc = Asset::new(wallet.clone(), token_contarct.contract_id().into(), "USDC");
-    let contract = Orderbook::deploy(&wallet, usdc.asset_id, usdc.decimals).await;
+    let contract = Orderbook::deploy(&wallet, usdc.asset_id, usdc.decimals, 9).await;
     println!(
         "The orderbook contract has been deployed {}\n",
         contract.instance.contract_id().hash
