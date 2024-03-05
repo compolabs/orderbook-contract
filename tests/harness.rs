@@ -2,11 +2,6 @@ use fuels::prelude::*;
 use orderbook::orderbook_utils::{Orderbook, I64};
 use src20_sdk::token_utils::{deploy_token_contract, Asset};
 
-//todo протестировать на ETH и UNI маркетех
-//todo было бы удобно если с open_order возвращал order_id
-//fixme что значит _n1, p1..? мб лучше назвать _sell, _buy
-//todo вынести в отдельный файл имплементации I64
-//todo переписать остальные тесты с использованием orderbook_utils как в open_base_token_order_cancel_test
 const PRICE_DECIMALS: u64 = 9;
 
 #[tokio::test]
