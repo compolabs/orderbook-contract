@@ -21,11 +21,11 @@ use std::context::msg_amount;
 use std::hash::*;
 use std::storage::storage_vec::*;
 
-const PRICE_DECIMALS = 9;
 
 configurable {
     QUOTE_TOKEN: AssetId = BASE_ASSET_ID,
     QUOTE_TOKEN_DECIMALS: u32 = 9,
+    PRICE_DECIMALS: u32 = 9
 }
 
 storage {
@@ -34,8 +34,6 @@ storage {
     orders_by_trader: StorageMap<Address, StorageVec<b256>> = StorageMap {},
     order_positions_by_trader: StorageMap<Address, StorageMap<b256, u64>> = StorageMap {},
 }
-
-//todo fix reentrancy issues
 
 abi OrderBook {
     #[storage(read, write)]
@@ -58,6 +56,11 @@ abi OrderBook {
 
     #[storage(read)]
     fn market_exists(asset_id: AssetId) -> bool;
+    
+    #[storage(read)]
+    fn get_market_by_id(asset_id: AssetId) -> Market;
+
+    fn get_configurables() -> (AssetId, u32, u32);
 }
 
 impl OrderBook for Contract {
@@ -82,6 +85,11 @@ impl OrderBook for Contract {
             asset_decimals: asset_decimals,
             timestamp: timestamp(),
         });
+    }
+
+    #[storage(read)]
+    fn get_market_by_id(asset_id: AssetId) -> Market{
+        storage.markets.get(asset_id).read()
     }
 
     #[storage(read)]
@@ -239,6 +247,10 @@ impl OrderBook for Contract {
     #[storage(read)]
     fn order_by_id(order: b256) -> Option<Order> {
         storage.orders.get(order).try_read()
+    }
+
+    fn get_configurables() -> (AssetId, u32, u32){
+        (QUOTE_TOKEN, QUOTE_TOKEN_DECIMALS, PRICE_DECIMALS)
     }
 }
 

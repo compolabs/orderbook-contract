@@ -3216,7 +3216,7 @@ dependencies = [
 [[package]]
 name = "src20_sdk"
 version = "0.0.3"
-source = "git+https://github.com/compolabs/src-20.git?branch=master#d8e148f9815db48c703f51261e373f3f355c20d5"
+source = "git+https://github.com/compolabs/src-20.git?branch=master#d05776384daab572e16f54038db1d266ba908883"
 dependencies = [
  "dotenv",
  "fuels",
