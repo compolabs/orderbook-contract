@@ -110,9 +110,6 @@ impl OrderBook for Contract {
             require(msg_amount() == base_size.value, Error::BadValue);
             require(msg_asset_id() == base_token, Error::BadAsset);
         } else {
-
-            //! base_size_to_quote_amount(base_size.value, market.asset_decimals, base_price)
-            //! почему то это значение в 9м децимале
             require(
                 msg_amount() == base_size_to_quote_amount(base_size.value, market.asset_decimals, base_price),
                 Error::BadValue,
