@@ -15,7 +15,7 @@ const MARKET_SYMBOL: &str = "UNI";
 
 #[tokio::main]
 async fn main() {
-    print_title("Create order");
+    print_title("Cancel order");
     dotenv().ok();
     let provider = Provider::connect(RPC).await.unwrap();
     let secret = std::env::var("ADMIN").unwrap();
@@ -34,23 +34,10 @@ async fn main() {
     );
 
     let orderbook = Orderbook::new(&wallet, ORDERBOOK_CONTRACT_ID).await;
-    let base_size = 100;
-    let base_price = 10;
+    orderbook.order_by_id(id);
 
     orderbook
-        .open_order(asset.asset_id, base_size, base_price)
+        .cancel_order()
         .await
         .unwrap();
-
-    // match result {
-    //     Ok(response) => {
-    //         println!(
-    //             "Order opened successfully. Transaction hash",
-    //             // response.transaction_hash
-    //         );
-    //     }
-    //     Err(error) => {
-    //         eprintln!("Failed to open order: {:?}", error);
-    //     }
-    // }
 }
