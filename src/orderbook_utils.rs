@@ -4,33 +4,6 @@ use fuels::{
     types::{bech32::Bech32Address, Bits256},
 };
 
-pub mod orderbook_interactions {
-
-    //    use fuels::accounts::predicate::Predicate;
-    use fuels::accounts::wallet::WalletUnlocked;
-    use fuels::prelude::Account;
-    use fuels::prelude::Bech32Address;
-    use fuels::prelude::TxPolicies;
-    //    use fuels::programs::call_response::FuelCallResponse;
-    //    use fuels::programs::script_calls::ScriptCallHandler;
-    use fuels::tx::Bytes32;
-    use fuels::tx::Receipt;
-    //    use fuels::types::unresolved_bytes::UnresolvedBytes;
-    use fuels::types::AssetId;
-
-    pub async fn _create_market(
-        wallet: &WalletUnlocked,
-        predicate_root: &Bech32Address,
-        asset_id: AssetId,
-        amount: u64,
-    ) -> Result<(Bytes32, Vec<Receipt>), fuels::prelude::Error> {
-        let policies = TxPolicies::default().with_gas_price(1);
-        wallet
-            .transfer(predicate_root, amount, asset_id, policies)
-            .await
-    }
-}
-
 use std::str::FromStr;
 
 use fuels::{
