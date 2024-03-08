@@ -37,24 +37,23 @@ async fn main() {
     let base_size = 100;
     let base_price = 10;
 
-    let result = orderbook
+    let sell_order_id = orderbook
+        .open_order(asset.asset_id, -1 * base_size, base_price)
+        .await
+        .unwrap()
+        .value;
+
+    let buy_order_id = orderbook
         .open_order(asset.asset_id, base_size, base_price)
-        .await;
+        .await
+        .unwrap()
+        .value;
 
-    //todo open another order
     //todo match orders
+    orderbook
+        .match_orders(&sell_order_id, &buy_order_id)
+        .await
+        .unwrap();
 
-    match result {
-        Ok(response) => {
-            let id = Address::from(response.value.0).to_string();
-            println!("Order opened successfully. OrderId: 0x{id}");
-            // println!("Value: {:?}", response.value);
-            // println!("Receipts: {:?}", response.receipts);
-            println!("Gas Used: {:?}", response.gas_used);
-            println!("Transaction ID: {:?}", response.tx_id.unwrap());
-        }
-        Err(error) => {
-            eprintln!("Failed to open order: {:?}", error);
-        }
-    }
+
 }

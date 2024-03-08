@@ -145,6 +145,20 @@ impl Orderbook {
         self.instance
             .methods()
             .cancel_order(*order_id)
+            .append_variable_outputs(1)
+            .call()
+            .await
+    }
+
+
+    pub async fn match_orders(
+        &self,
+        sell_order_id: &Bits256,
+        buy_order_id: &Bits256,
+    ) -> Result<FuelCallResponse<()>, fuels::types::errors::Error> {
+        self.instance
+            .methods()
+            .match_orders(*sell_order_id, *buy_order_id)
             .append_variable_outputs(2)
             .call()
             .await
