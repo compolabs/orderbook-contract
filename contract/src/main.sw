@@ -234,6 +234,8 @@ impl OrderBook for Contract {
         log(TradeEvent {
             base_token: order_sell.base_token,
             order_matcher: msg_sender,
+            buyer: order_buy.trader,
+            seller: order_sell.trader,
             trade_size: tmp.base_size.value,
             trade_price: order_sell.base_price,
             timestamp: timestamp(),
