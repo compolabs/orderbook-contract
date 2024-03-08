@@ -149,6 +149,7 @@ impl Orderbook {
         self.instance
             .methods()
             .cancel_order(*order_id)
+            .with_tx_policies(TxPolicies::default().with_gas_price(1))
             .append_variable_outputs(1)
             .call()
             .await

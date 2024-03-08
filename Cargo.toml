@@ -34,3 +34,7 @@ path = "scripts/cancel_order.rs"
 [[bin]]
 name = "deploy"
 path = "scripts/deploy.rs"
+
+[[bin]]
+name = "match_orders"
+path = "scripts/match_orders.rs"
