@@ -150,7 +150,6 @@ impl Orderbook {
             .await
     }
 
-
     pub async fn match_orders(
         &self,
         sell_order_id: &Bits256,

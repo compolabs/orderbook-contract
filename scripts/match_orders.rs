@@ -1,7 +1,7 @@
 use dotenv::dotenv;
 use fuels::{
     prelude::{Provider, WalletUnlocked},
-    types::{Address, ContractId},
+    types::ContractId,
 };
 use orderbook::{constants::ORDERBOOK_CONTRACT_ID, orderbook_utils::Orderbook, print_title};
 use src20_sdk::{
@@ -11,6 +11,8 @@ use src20_sdk::{
 use std::str::FromStr;
 
 const MARKET_SYMBOL: &str = "UNI";
+const BASE_SIZE: u64 = 100; //units
+const BASE_PRICE: u64 = 10; //units
 
 #[tokio::main]
 async fn main() {
@@ -26,25 +28,37 @@ async fn main() {
         wallet.clone(),
     );
 
-    let asset = Asset::new(
-        wallet.clone(),
-        token_contract.contract_id().into(),
-        MARKET_SYMBOL,
-    );
+    let token_contract_id = token_contract.contract_id().into();
+    let base_asset = Asset::new(wallet.clone(), token_contract_id, MARKET_SYMBOL);
+    let quote_asset = Asset::new(wallet.clone(), token_contract_id, "USDC");
 
     let orderbook = Orderbook::new(&wallet, ORDERBOOK_CONTRACT_ID).await;
+    let price = BASE_PRICE * 10u64.pow(orderbook.price_decimals as u32);
 
-    let base_size = 100;
-    let base_price = 10;
+    //mint base asset to sell
+    let base_size = base_asset.parse_units(BASE_SIZE as f64) as u64;
+    base_asset
+        .mint(wallet.address().into(), base_size)
+        .await
+        .unwrap();
 
+    // sell
     let sell_order_id = orderbook
-        .open_order(asset.asset_id, -1 * base_size, base_price)
+        .open_order(base_asset.asset_id, -1 * base_size as i64, price) //fixme Response errors; Validity(InsufficientFeeAmount { expected: 326087, provided: 0 })" })
         .await
         .unwrap()
         .value;
 
+    //mint quote asset to buy
+    let quote_size = quote_asset.parse_units(BASE_SIZE as f64 * BASE_PRICE as f64);
+    quote_asset
+        .mint(wallet.address().into(), quote_size as u64)
+        .await
+        .unwrap();
+
+    //buy
     let buy_order_id = orderbook
-        .open_order(asset.asset_id, base_size, base_price)
+        .open_order(base_asset.asset_id, base_size as i64, price)
         .await
         .unwrap()
         .value;
@@ -54,6 +68,4 @@ async fn main() {
         .match_orders(&sell_order_id, &buy_order_id)
         .await
         .unwrap();
-
-
 }
