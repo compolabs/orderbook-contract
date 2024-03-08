@@ -6,16 +6,12 @@ use fuels::{
 
 pub mod orderbook_interactions {
 
-    //    use fuels::accounts::predicate::Predicate;
     use fuels::accounts::wallet::WalletUnlocked;
     use fuels::prelude::Account;
     use fuels::prelude::Bech32Address;
     use fuels::prelude::TxPolicies;
-    //    use fuels::programs::call_response::FuelCallResponse;
-    //    use fuels::programs::script_calls::ScriptCallHandler;
     use fuels::tx::Bytes32;
     use fuels::tx::Receipt;
-    //    use fuels::types::unresolved_bytes::UnresolvedBytes;
     use fuels::types::AssetId;
 
     pub async fn _create_market(
@@ -115,7 +111,7 @@ impl Orderbook {
         market: AssetId,
         base_size: i64,
         base_price: u64,
-    ) -> Result<FuelCallResponse<()>, fuels::types::errors::Error> {
+    ) -> Result<FuelCallResponse<Bits256>, fuels::types::errors::Error> {
         let call_params: CallParameters = if base_size.is_negative() {
             CallParameters::default()
                 .with_asset_id(market)
@@ -149,8 +145,7 @@ impl Orderbook {
         self.instance
             .methods()
             .cancel_order(*order_id)
-            .with_tx_policies(TxPolicies::default().with_gas_price(1))
-            .append_variable_outputs(1)
+            .append_variable_outputs(2)
             .call()
             .await
     }

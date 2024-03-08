@@ -1,7 +1,7 @@
 use dotenv::dotenv;
 use fuels::{
     prelude::{Provider, WalletUnlocked},
-    types::ContractId,
+    types::{Address, ContractId},
 };
 use orderbook::{constants::ORDERBOOK_CONTRACT_ID, orderbook_utils::Orderbook, print_title};
 use src20_sdk::{
@@ -43,11 +43,12 @@ async fn main() {
 
     match result {
         Ok(response) => {
-            println!("Order opened successfully.");
+            let id = Address::from(response.value.0).to_string();
+            println!("Order opened successfully. OrderId: 0x{id}");
             // println!("Value: {:?}", response.value);
             // println!("Receipts: {:?}", response.receipts);
             println!("Gas Used: {:?}", response.gas_used);
-            println!("Transaction ID: {:?}", response.tx_id);
+            println!("Transaction ID: {:?}", response.tx_id.unwrap());
         }
         Err(error) => {
             eprintln!("Failed to open order: {:?}", error);
