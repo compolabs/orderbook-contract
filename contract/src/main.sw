@@ -40,7 +40,7 @@ abi OrderBook {
     fn create_market(asset_id: AssetId, decimal: u32);
 
     #[storage(read, write), payable]
-    fn open_order(base_token: AssetId, base_size: I64, order_price: u64);
+    fn open_order(base_token: AssetId, base_size: I64, order_price: u64) -> b256;
 
     #[storage(read, write)]
     fn cancel_order(order_id: b256);
@@ -98,7 +98,7 @@ impl OrderBook for Contract {
     }
 
     #[storage(read, write), payable]
-    fn open_order(base_token: AssetId, base_size: I64, base_price: u64 /* decimal = 9 */ ) {
+    fn open_order(base_token: AssetId, base_size: I64, base_price: u64 /* decimal = 9 */ ) -> b256 {
         reentrancy_guard();
 
         let market = storage.markets.get(base_token).try_read();
@@ -151,6 +151,7 @@ impl OrderBook for Contract {
             base_price: base_price,
             timestamp: timestamp(),
         });
+        order_id
     }
 
     #[storage(read, write)]
@@ -233,6 +234,8 @@ impl OrderBook for Contract {
         log(TradeEvent {
             base_token: order_sell.base_token,
             order_matcher: msg_sender,
+            buyer: order_buy.trader,
+            seller: order_sell.trader,
             trade_size: tmp.base_size.value,
             trade_price: order_sell.base_price,
             timestamp: timestamp(),

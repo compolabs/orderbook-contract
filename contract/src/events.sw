@@ -20,6 +20,8 @@ pub struct OrderChangeEvent {
 pub struct TradeEvent {
     base_token: AssetId,
     order_matcher: Address,
+    seller: Address,
+    buyer: Address,
     trade_size: u64,
     trade_price: u64,
     timestamp: u64,
