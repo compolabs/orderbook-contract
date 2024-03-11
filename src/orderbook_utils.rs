@@ -88,7 +88,7 @@ impl Orderbook {
         market: AssetId,
         base_size: i64,
         base_price: u64,
-    ) -> Result<FuelCallResponse<()>, fuels::types::errors::Error> {
+    ) -> Result<FuelCallResponse<Bits256>, fuels::types::errors::Error> {
         let call_params: CallParameters = if base_size.is_negative() {
             CallParameters::default()
                 .with_asset_id(market)
