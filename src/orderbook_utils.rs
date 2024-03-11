@@ -88,7 +88,7 @@ impl Orderbook {
         market: AssetId,
         base_size: i64,
         base_price: u64,
-    ) -> Result<FuelCallResponse<()>, fuels::types::errors::Error> {
+    ) -> Result<FuelCallResponse<Bits256>, fuels::types::errors::Error> {
         let call_params: CallParameters = if base_size.is_negative() {
             CallParameters::default()
                 .with_asset_id(market)
@@ -123,6 +123,19 @@ impl Orderbook {
             .methods()
             .cancel_order(*order_id)
             .append_variable_outputs(1)
+            .call()
+            .await
+    }
+
+    pub async fn match_orders(
+        &self,
+        sell_order_id: &Bits256,
+        buy_order_id: &Bits256,
+    ) -> Result<FuelCallResponse<()>, fuels::types::errors::Error> {
+        self.instance
+            .methods()
+            .match_orders(*sell_order_id, *buy_order_id)
+            .append_variable_outputs(2)
             .call()
             .await
     }
