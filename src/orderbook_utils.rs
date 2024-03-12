@@ -85,16 +85,16 @@ impl Orderbook {
 
     pub async fn open_order(
         &self,
-        market: AssetId,
+        base_token: AssetId,
         base_size: i64,
         base_price: u64,
     ) -> Result<FuelCallResponse<Bits256>, fuels::types::errors::Error> {
         let call_params: CallParameters = if base_size.is_negative() {
             CallParameters::default()
-                .with_asset_id(market)
+                .with_asset_id(base_token)
                 .with_amount(base_size.abs() as u64)
         } else {
-            let market = self.get_market_by_id(market).await.unwrap().value;
+            let market = self.get_market_by_id(base_token).await.unwrap().value;
             let quote_size = base_size.abs() as u128 * base_price as u128
                 / 10u128.pow(
                     self.price_decimals as u32 + market.asset_decimals
@@ -107,7 +107,7 @@ impl Orderbook {
 
         self.instance
             .methods()
-            .open_order(market, I64::from(base_size), base_price)
+            .open_order(base_token, I64::from(base_size), base_price)
             .append_variable_outputs(2)
             .call_params(call_params)
             .unwrap()
