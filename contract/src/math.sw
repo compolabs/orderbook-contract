@@ -9,6 +9,14 @@ impl u64 {
         div_result.as_u64().unwrap()
     }
 
+    pub fn mul_div_rounding_up(self, mul_to: u64, div_to: u64) -> u64{
+        let mul_result = U128::from((0, self)) * U128::from((0, mul_to));
+        let div_to = U128::from((0, div_to));
+        let div_result = mul_result / div_to;
+        let add = if div_result * div_to < mul_result {1} else {0};
+        div_result.as_u64().unwrap() + add
+    }
+
     pub fn as_i64(self) -> I64 {
         I64::from(self)
     }

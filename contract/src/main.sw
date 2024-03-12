@@ -209,8 +209,12 @@ impl OrderBook for Contract {
                 .base_price,
             Error::OrdersCantBeMatched,
         );
-        let mut tmp = order_buy;
-        tmp.base_size.value = min(order_sell.base_size.value, order_buy.base_size.value);
+
+        let mut tmp = order_sell;
+        tmp.base_size = tmp.base_size.flip();
+        let trade_size = min(order_sell.base_size.value, order_buy.base_size.value.mul_div(order_buy.base_price, order_sell.base_price));
+        tmp.base_size.value = trade_size;
+        
         let seller: Address = order_sell.trader;
         let (sellerDealAssetId, sellerDealRefund) = order_return_asset_amount(tmp);
         remove_update_order_internal(order_sell, tmp.base_size);
@@ -219,6 +223,7 @@ impl OrderBook for Contract {
 
         let buyer: Address = order_buy.trader;
         let (buyerDealAssetId, buyerDealRefund) = order_return_asset_amount(tmp);
+        tmp.base_size.value = tmp.base_size.value.mul_div_rounding_up(order_sell.base_price, order_buy.base_price);
         remove_update_order_internal(order_buy, tmp.base_size);
 
         require(
@@ -236,7 +241,7 @@ impl OrderBook for Contract {
             order_matcher: msg_sender,
             buyer: order_buy.trader,
             seller: order_sell.trader,
-            trade_size: tmp.base_size.value,
+            trade_size: trade_size,
             trade_price: order_sell.base_price,
             timestamp: timestamp(),
         });
