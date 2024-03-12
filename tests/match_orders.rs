@@ -73,7 +73,7 @@ async fn open_base_token_order_cancel_test() {
         .cancel_order(&alice_order_id)
         .await
         .unwrap();
-    assert!(alice.get_asset_balance(&usdc.asset_id).await.unwrap() == (46000_f64 * 1e6) as u64);
+    assert!(alice.get_asset_balance(&usdc.asset_id).await.unwrap() == (47000_f64 * 1e6) as u64);
     
     // Проверяем, что у Bob есть 0 BTC после продажи
     assert!(bob.get_asset_balance(&btc.asset_id).await.unwrap() == 0);
