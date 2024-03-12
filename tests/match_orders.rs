@@ -31,8 +31,11 @@ async fn open_base_token_order_cancel_test() {
         .unwrap();
 
     // Mint BTC & USDC
+    const BASE_BUY_SIZE: i64 = 2; //units
+    const BASE_BUY_PRICE: u64 = 46000; //units
 
-    let buy_price = usdc.parse_units(46000_f64) as u64; // Higher buy price
+    let buy_price = BASE_BUY_PRICE * 10u64.pow(orderbook.price_decimals as u32); // Higher buy price
+    // let buy_price = usdc.parse_units(46000_f64) as u64; // Higher buy price
     let sell_price = usdc.parse_units(45000_f64) as u64; // Lower sell price
 
     let buy_size = btc.parse_units(2.0) as i64; // Larger buy size
@@ -48,10 +51,16 @@ async fn open_base_token_order_cancel_test() {
 
     // bob mints 1 btc
     btc.mint(bob.address().into(), amount_btc).await.unwrap();
+    assert_eq!(
+        alice.get_asset_balance(&usdc.asset_id).await.unwrap(),
+        amount_usdc
+    );
+    println!("Value: {:?}", buy_size);
+    println!("Value: {:?}", buy_price);
 
     // alice opens order
     let alice_order_id = orderbook
-        .open_order(btc.asset_id, buy_size, buy_price)
+        .open_order(btc.asset_id, BASE_BUY_SIZE, buy_price)
         .await
         .unwrap()
         .value;
