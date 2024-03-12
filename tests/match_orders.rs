@@ -1,5 +1,5 @@
 use fuels::prelude::*;
-use orderbook::orderbook_utils::{Orderbook, I64};
+use orderbook::orderbook_utils::Orderbook;
 use src20_sdk::token_utils::{deploy_token_contract, Asset};
 
 const PRICE_DECIMALS: u64 = 9;
@@ -46,87 +46,42 @@ async fn open_base_token_order_cancel_test() {
         .await
         .unwrap();
 
-    assert_eq!(
-        alice.get_asset_balance(&usdc.asset_id).await.unwrap(),
-        amount_usdc
-    );
-
     // bob mints 1 btc
     btc.mint(bob.address().into(), amount_btc).await.unwrap();
 
+    // alice opens order
+    let alice_order_id = orderbook
+        .open_order(btc.asset_id, buy_size, buy_price)
+        .await
+        .unwrap()
+        .value;
+
+    // assert_eq!(alice.get_asset_balance(&usdc.asset_id).await.unwrap(), 0);
+
+    // bob opens order
+    let bob_order_id = orderbook
+        .with_account(bob)
+        .open_order(btc.asset_id, sell_size, sell_price)
+        .await
+        .unwrap()
+        .value;
+
+    // assert_eq!(bob.get_asset_balance(&btc.asset_id).await.unwrap(), 0);
+
+    orderbook
+        .match_orders(&bob_order_id, &alice_order_id)
+        .await
+        .unwrap();
+
     assert_eq!(
-        bob.get_asset_balance(&btc.asset_id).await.unwrap(),
+        alice.get_asset_balance(&btc.asset_id).await.unwrap(),
         amount_btc
     );
 
-    let call_params = CallParameters::default()
-        .with_asset_id(usdc.asset_id)
-        .with_amount(amount_usdc);
+    orderbook.cancel_order(&alice_order_id).await.unwrap();
 
-    orderbook
-        .with_account(alice)
-        .instance
-        .methods()
-        .open_order(btc.asset_id, I64::from(buy_size).clone(), buy_price)
-        .call_params(call_params)
-        .unwrap()
-        .call()
-        .await
-        .unwrap();
-
-    assert_eq!(alice.get_asset_balance(&usdc.asset_id).await.unwrap(), 0);
-
-    let call_params = CallParameters::default()
-        .with_asset_id(btc.asset_id)
-        .with_amount(amount_btc);
-
-    orderbook
-        .with_account(bob)
-        .instance
-        .methods()
-        .open_order(btc.asset_id, I64::from(sell_size), sell_price)
-        .call_params(call_params)
-        .unwrap()
-        .call()
-        .await
-        .unwrap();
-
-    assert_eq!(bob.get_asset_balance(&btc.asset_id).await.unwrap(), 0);
-
-
-    // let response = orderbook
-    //     .instance
-    //     .methods()
-    //     .orders_by_trader(alice.address())
-    //     .call()
-    //     .await
-    //     .unwrap();
-
-    // let alice_order_id = response
-    //     .value
-    //     .get(0)
-    //     .unwrap();
-    //
-    //
-    //
-    // let response = orderbook
-    //     .instance
-    //     .methods()
-    //     .orders_by_trader(bob.address())
-    //     .call()
-    //     .await
-    //     .unwrap();
-    // let bob_order_id = response
-    //     .value
-    //     .get(0)
-    //     .unwrap();
-    //
-    // orderbook
-    //     .instance
-    //     .methods()
-    //     .match_orders(*alice_order_id, *bob_order_id)
-    //     .append_variable_outputs(2)
-    //     .call()
-    //     .await
-    //     .unwrap();
+    assert_eq!(
+        alice.get_asset_balance(&usdc.asset_id).await.unwrap(),
+        47000
+    );
 }

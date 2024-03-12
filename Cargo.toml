@@ -36,5 +36,5 @@ name = "deploy"
 path = "scripts/deploy.rs"
 
 [[bin]]
-name = "match_orders"
+name = "match_orders_script"
 path = "scripts/match_orders.rs"
