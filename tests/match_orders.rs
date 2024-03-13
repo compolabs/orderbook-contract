@@ -4,23 +4,29 @@ use src20_sdk::token_utils::{deploy_token_contract, Asset};
 
 const PRICE_DECIMALS: u64 = 9;
 
-//noinspection RsVariableNaming
-#[tokio::test]
-async fn match1() {
-    // ✅ buyOrder.orderPrice > sellOrder.orderPrice & buyOrder.baseSize > sellOrder.baseSize
+async fn init() -> (WalletUnlocked, WalletUnlocked, Asset, Asset, Orderbook) {
     //--------------- WALLETS ---------------
     let wallets_config = WalletsConfig::new(Some(5), Some(1), Some(1_000_000_000));
     let wallets = launch_custom_provider_and_get_wallets(wallets_config, None, None)
         .await
-        .unwrap();
-    let admin = &wallets[0];
-    let alice = &wallets[1];
-    let bob = &wallets[2];
+        .expect("Failed to initialize wallets");
+    let admin = wallets[0].clone();
+    let alice = wallets[1].clone();
+    let bob = wallets[2].clone();
 
-    let token_contract = deploy_token_contract(&admin).await;
-    let btc = Asset::new(admin.clone(), token_contract.contract_id().into(), "BTC");
-    let token_contract = deploy_token_contract(&admin).await;
-    let usdc = Asset::new(admin.clone(), token_contract.contract_id().into(), "USDC");
+    let btc_token_contract = deploy_token_contract(&admin).await;
+    let btc = Asset::new(
+        admin.clone(),
+        btc_token_contract.contract_id().into(),
+        "BTC",
+    );
+
+    let usdc_token_contract = deploy_token_contract(&admin).await;
+    let usdc = Asset::new(
+        admin.clone(),
+        usdc_token_contract.contract_id().into(),
+        "USDC",
+    );
 
     let orderbook = Orderbook::deploy(&admin, usdc.asset_id, usdc.decimals, PRICE_DECIMALS).await;
 
@@ -28,7 +34,16 @@ async fn match1() {
     orderbook
         ._create_market(btc.asset_id, btc.decimals as u32)
         .await
-        .unwrap();
+        .expect("Failed to create market");
+
+    (alice, bob, btc, usdc, orderbook)
+}
+
+#[tokio::test]
+async fn match1() {
+    // ✅ buyOrder.orderPrice > sellOrder.orderPrice & buyOrder.baseSize > sellOrder.baseSize
+
+    let (alice, bob, btc, usdc, orderbook) = init().await;
 
     let buy_price = 46_000_f64 * 1e9; // Higher buy price
     let sell_price = 45_000_f64 * 1e9; // Lower sell price
@@ -47,14 +62,14 @@ async fn match1() {
         .unwrap();
 
     let alice_order_id = orderbook
-        .with_account(alice)
+        .with_account(&alice)
         .open_order(btc.asset_id, buy_size as i64, buy_price as u64)
         .await
         .unwrap()
         .value;
 
     let bob_order_id = orderbook
-        .with_account(bob)
+        .with_account(&bob)
         .open_order(btc.asset_id, -1 * sell_size as i64, sell_price as u64)
         .await
         .unwrap()
@@ -72,7 +87,7 @@ async fn match1() {
     );
 
     orderbook
-        .with_account(alice)
+        .with_account(&alice)
         .cancel_order(&alice_order_id)
         .await
         .unwrap();
@@ -96,27 +111,8 @@ async fn match1() {
 #[tokio::test]
 async fn match2() {
     // ✅ buyOrder.orderPrice > sellOrder.orderPrice & buyOrder.baseSize < sellOrder.baseSize
-    //--------------- WALLETS ---------------
-    let wallets_config = WalletsConfig::new(Some(5), Some(1), Some(1_000_000_000));
-    let wallets = launch_custom_provider_and_get_wallets(wallets_config, None, None)
-        .await
-        .unwrap();
-    let admin = &wallets[0];
-    let alice = &wallets[1];
-    let bob = &wallets[2];
 
-    let token_contract = deploy_token_contract(&admin).await;
-    let btc = Asset::new(admin.clone(), token_contract.contract_id().into(), "BTC");
-    let token_contract = deploy_token_contract(&admin).await;
-    let usdc = Asset::new(admin.clone(), token_contract.contract_id().into(), "USDC");
-
-    let orderbook = Orderbook::deploy(&admin, usdc.asset_id, usdc.decimals, PRICE_DECIMALS).await;
-
-    // Create Market
-    orderbook
-        ._create_market(btc.asset_id, btc.decimals as u32)
-        .await
-        .unwrap();
+    let (alice, bob, btc, usdc, orderbook) = init().await;
 
     let buy_price = 46_000_f64 * 1e9; // Higher buy price
     let sell_price = 45_000_f64 * 1e9; // Lower sell price
@@ -135,14 +131,14 @@ async fn match2() {
         .unwrap();
 
     let alice_order_id = orderbook
-        .with_account(alice)
+        .with_account(&alice)
         .open_order(btc.asset_id, buy_size as i64, buy_price as u64)
         .await
         .unwrap()
         .value;
 
     let bob_order_id = orderbook
-        .with_account(bob)
+        .with_account(&bob)
         .open_order(btc.asset_id, -1 * sell_size as i64, sell_price as u64)
         .await
         .unwrap()
@@ -167,7 +163,7 @@ async fn match2() {
 
     // Проверяем, что у Bob остался 1 BTC после продажи 1 BTC из 2
     orderbook
-        .with_account(bob)
+        .with_account(&bob)
         .cancel_order(&bob_order_id)
         .await
         .unwrap();
@@ -187,27 +183,8 @@ async fn match2() {
 #[tokio::test]
 async fn match3() {
     // ✅ buyOrder.orderPrice > sellOrder.orderPrice & buyOrder.baseSize = sellOrder.baseSize
-    //--------------- WALLETS ---------------
-    let wallets_config = WalletsConfig::new(Some(5), Some(1), Some(1_000_000_000));
-    let wallets = launch_custom_provider_and_get_wallets(wallets_config, None, None)
-        .await
-        .unwrap();
-    let admin = &wallets[0];
-    let alice = &wallets[1];
-    let bob = &wallets[2];
 
-    let token_contract = deploy_token_contract(&admin).await;
-    let btc = Asset::new(admin.clone(), token_contract.contract_id().into(), "BTC");
-    let token_contract = deploy_token_contract(&admin).await;
-    let usdc = Asset::new(admin.clone(), token_contract.contract_id().into(), "USDC");
-
-    let orderbook = Orderbook::deploy(&admin, usdc.asset_id, usdc.decimals, PRICE_DECIMALS).await;
-
-    // Create Market
-    orderbook
-        ._create_market(btc.asset_id, btc.decimals as u32)
-        .await
-        .unwrap();
+    let (alice, bob, btc, usdc, orderbook) = init().await;
 
     let buy_price = 46_000_f64 * 1e9;
     let sell_price = 45_000_f64 * 1e9;
@@ -225,14 +202,14 @@ async fn match3() {
         .unwrap();
 
     let alice_order_id = orderbook
-        .with_account(alice)
+        .with_account(&alice)
         .open_order(btc.asset_id, size as i64, buy_price as u64)
         .await
         .unwrap()
         .value;
 
     let bob_order_id = orderbook
-        .with_account(bob)
+        .with_account(&bob)
         .open_order(btc.asset_id, -1 * size as i64, sell_price as u64)
         .await
         .unwrap()
@@ -268,27 +245,8 @@ async fn match3() {
 #[tokio::test]
 async fn match4() {
     // ❌ buyOrder.orderPrice < sellOrder.orderPrice & buyOrder.baseSize > sellOrder.baseSize
-    //--------------- WALLETS ---------------
-    let wallets_config = WalletsConfig::new(Some(5), Some(1), Some(1_000_000_000));
-    let wallets = launch_custom_provider_and_get_wallets(wallets_config, None, None)
-        .await
-        .unwrap();
-    let admin = &wallets[0];
-    let alice = &wallets[1];
-    let bob = &wallets[2];
 
-    let token_contract = deploy_token_contract(&admin).await;
-    let btc = Asset::new(admin.clone(), token_contract.contract_id().into(), "BTC");
-    let token_contract = deploy_token_contract(&admin).await;
-    let usdc = Asset::new(admin.clone(), token_contract.contract_id().into(), "USDC");
-
-    let orderbook = Orderbook::deploy(&admin, usdc.asset_id, usdc.decimals, PRICE_DECIMALS).await;
-
-    // Create Market
-    orderbook
-        ._create_market(btc.asset_id, btc.decimals as u32)
-        .await
-        .unwrap();
+    let (alice, bob, btc, usdc, orderbook) = init().await;
 
     let buy_price = 44_000_f64 * 1e9;
     let sell_price = 45_000_f64 * 1e9;
@@ -307,14 +265,14 @@ async fn match4() {
         .unwrap();
 
     let alice_order_id = orderbook
-        .with_account(alice)
+        .with_account(&alice)
         .open_order(btc.asset_id, buy_size as i64, buy_price as u64)
         .await
         .unwrap()
         .value;
 
     let bob_order_id = orderbook
-        .with_account(bob)
+        .with_account(&bob)
         .open_order(btc.asset_id, -1 * sell_size as i64, sell_price as u64)
         .await
         .unwrap()
@@ -329,27 +287,8 @@ async fn match4() {
 #[tokio::test]
 async fn match5() {
     // ❌ buyOrder.orderPrice < sellOrder.orderPrice & buyOrder.baseSize < sellOrder.baseSize
-    //--------------- WALLETS ---------------
-    let wallets_config = WalletsConfig::new(Some(5), Some(1), Some(1_000_000_000));
-    let wallets = launch_custom_provider_and_get_wallets(wallets_config, None, None)
-        .await
-        .unwrap();
-    let admin = &wallets[0];
-    let alice = &wallets[1];
-    let bob = &wallets[2];
 
-    let token_contract = deploy_token_contract(&admin).await;
-    let btc = Asset::new(admin.clone(), token_contract.contract_id().into(), "BTC");
-    let token_contract = deploy_token_contract(&admin).await;
-    let usdc = Asset::new(admin.clone(), token_contract.contract_id().into(), "USDC");
-
-    let orderbook = Orderbook::deploy(&admin, usdc.asset_id, usdc.decimals, PRICE_DECIMALS).await;
-
-    // Create Market
-    orderbook
-        ._create_market(btc.asset_id, btc.decimals as u32)
-        .await
-        .unwrap();
+    let (alice, bob, btc, usdc, orderbook) = init().await;
 
     let buy_price = 44_000_f64 * 1e9;
     let sell_price = 45_000_f64 * 1e9;
@@ -368,14 +307,14 @@ async fn match5() {
         .unwrap();
 
     let alice_order_id = orderbook
-        .with_account(alice)
+        .with_account(&alice)
         .open_order(btc.asset_id, buy_size as i64, buy_price as u64)
         .await
         .unwrap()
         .value;
 
     let bob_order_id = orderbook
-        .with_account(bob)
+        .with_account(&bob)
         .open_order(btc.asset_id, -1 * sell_size as i64, sell_price as u64)
         .await
         .unwrap()
@@ -390,27 +329,8 @@ async fn match5() {
 #[tokio::test]
 async fn match6() {
     // ❌ buyOrder.orderPrice < sellOrder.orderPrice & buyOrder.baseSize = sellOrder.baseSize
-    //--------------- WALLETS ---------------
-    let wallets_config = WalletsConfig::new(Some(5), Some(1), Some(1_000_000_000));
-    let wallets = launch_custom_provider_and_get_wallets(wallets_config, None, None)
-        .await
-        .unwrap();
-    let admin = &wallets[0];
-    let alice = &wallets[1];
-    let bob = &wallets[2];
 
-    let token_contract = deploy_token_contract(&admin).await;
-    let btc = Asset::new(admin.clone(), token_contract.contract_id().into(), "BTC");
-    let token_contract = deploy_token_contract(&admin).await;
-    let usdc = Asset::new(admin.clone(), token_contract.contract_id().into(), "USDC");
-
-    let orderbook = Orderbook::deploy(&admin, usdc.asset_id, usdc.decimals, PRICE_DECIMALS).await;
-
-    // Create Market
-    orderbook
-        ._create_market(btc.asset_id, btc.decimals as u32)
-        .await
-        .unwrap();
+    let (alice, bob, btc, usdc, orderbook) = init().await;
 
     let buy_price = 44_000_f64 * 1e9;
     let sell_price = 45_000_f64 * 1e9;
@@ -429,14 +349,14 @@ async fn match6() {
         .unwrap();
 
     let alice_order_id = orderbook
-        .with_account(alice)
+        .with_account(&alice)
         .open_order(btc.asset_id, buy_size as i64, buy_price as u64)
         .await
         .unwrap()
         .value;
 
     let bob_order_id = orderbook
-        .with_account(bob)
+        .with_account(&bob)
         .open_order(btc.asset_id, -1 * sell_size as i64, sell_price as u64)
         .await
         .unwrap()
@@ -452,26 +372,7 @@ async fn match6() {
 async fn match7() {
     // ✅ buyOrder.orderPrice = sellOrder.orderPrice & buyOrder.baseSize > sellOrder.baseSize
     //--------------- WALLETS ---------------
-    let wallets_config = WalletsConfig::new(Some(5), Some(1), Some(1_000_000_000));
-    let wallets = launch_custom_provider_and_get_wallets(wallets_config, None, None)
-        .await
-        .unwrap();
-    let admin = &wallets[0];
-    let alice = &wallets[1];
-    let bob = &wallets[2];
-
-    let token_contract = deploy_token_contract(&admin).await;
-    let btc = Asset::new(admin.clone(), token_contract.contract_id().into(), "BTC");
-    let token_contract = deploy_token_contract(&admin).await;
-    let usdc = Asset::new(admin.clone(), token_contract.contract_id().into(), "USDC");
-
-    let orderbook = Orderbook::deploy(&admin, usdc.asset_id, usdc.decimals, PRICE_DECIMALS).await;
-
-    // Create Market
-    orderbook
-        ._create_market(btc.asset_id, btc.decimals as u32)
-        .await
-        .unwrap();
+    let (alice, bob, btc, usdc, orderbook) = init().await;
 
     let price = 45_000_f64 * 1e9;
     let buy_size = 2_f64 * 1e8;
@@ -489,14 +390,14 @@ async fn match7() {
         .unwrap();
 
     let alice_order_id = orderbook
-        .with_account(alice)
+        .with_account(&alice)
         .open_order(btc.asset_id, buy_size as i64, price as u64)
         .await
         .unwrap()
         .value;
 
     let bob_order_id = orderbook
-        .with_account(bob)
+        .with_account(&bob)
         .open_order(btc.asset_id, -1 * sell_size as i64, price as u64)
         .await
         .unwrap()
@@ -533,26 +434,7 @@ async fn match7() {
 async fn match8() {
     // ✅ buyOrder.orderPrice = sellOrder.orderPrice & buyOrder.baseSize < sellOrder.baseSize
     //--------------- WALLETS ---------------
-    let wallets_config = WalletsConfig::new(Some(5), Some(1), Some(1_000_000_000));
-    let wallets = launch_custom_provider_and_get_wallets(wallets_config, None, None)
-        .await
-        .unwrap();
-    let admin = &wallets[0];
-    let alice = &wallets[1];
-    let bob = &wallets[2];
-
-    let token_contract = deploy_token_contract(&admin).await;
-    let btc = Asset::new(admin.clone(), token_contract.contract_id().into(), "BTC");
-    let token_contract = deploy_token_contract(&admin).await;
-    let usdc = Asset::new(admin.clone(), token_contract.contract_id().into(), "USDC");
-
-    let orderbook = Orderbook::deploy(&admin, usdc.asset_id, usdc.decimals, PRICE_DECIMALS).await;
-
-    // Create Market
-    orderbook
-        ._create_market(btc.asset_id, btc.decimals as u32)
-        .await
-        .unwrap();
+    let (alice, bob, btc, usdc, orderbook) = init().await;
 
     let price = 45_000_f64 * 1e9;
     let buy_size = 1_f64 * 1e8;
@@ -570,14 +452,14 @@ async fn match8() {
         .unwrap();
 
     let alice_order_id = orderbook
-        .with_account(alice)
+        .with_account(&alice)
         .open_order(btc.asset_id, buy_size as i64, price as u64)
         .await
         .unwrap()
         .value;
 
     let bob_order_id = orderbook
-        .with_account(bob)
+        .with_account(&bob)
         .open_order(btc.asset_id, -1 * sell_size as i64, price as u64)
         .await
         .unwrap()
@@ -598,7 +480,7 @@ async fn match8() {
     assert_eq!(alice.get_asset_balance(&usdc.asset_id).await.unwrap(), 0);
 
     orderbook
-        .with_account(bob)
+        .with_account(&bob)
         .cancel_order(&bob_order_id)
         .await
         .unwrap();
@@ -619,27 +501,8 @@ async fn match8() {
 #[tokio::test]
 async fn match9() {
     //✅ buyOrder.orderPrice = sellOrder.orderPrice & buyOrder.baseSize = sellOrder.baseSize
-    //--------------- WALLETS ---------------
-    let wallets_config = WalletsConfig::new(Some(5), Some(1), Some(1_000_000_000));
-    let wallets = launch_custom_provider_and_get_wallets(wallets_config, None, None)
-        .await
-        .unwrap();
-    let admin = &wallets[0];
-    let alice = &wallets[1];
-    let bob = &wallets[2];
 
-    let token_contract = deploy_token_contract(&admin).await;
-    let btc = Asset::new(admin.clone(), token_contract.contract_id().into(), "BTC");
-    let token_contract = deploy_token_contract(&admin).await;
-    let usdc = Asset::new(admin.clone(), token_contract.contract_id().into(), "USDC");
-
-    let orderbook = Orderbook::deploy(&admin, usdc.asset_id, usdc.decimals, PRICE_DECIMALS).await;
-
-    // Create Market
-    orderbook
-        ._create_market(btc.asset_id, btc.decimals as u32)
-        .await
-        .unwrap();
+    let (alice, bob, btc, usdc, orderbook) = init().await;
 
     let price = 45_000_f64 * 1e9;
     let size = 1_f64 * 1e8;
@@ -656,14 +519,14 @@ async fn match9() {
         .unwrap();
 
     let alice_order_id = orderbook
-        .with_account(alice)
+        .with_account(&alice)
         .open_order(btc.asset_id, size as i64, price as u64)
         .await
         .unwrap()
         .value;
 
     let bob_order_id = orderbook
-        .with_account(bob)
+        .with_account(&bob)
         .open_order(btc.asset_id, -1 * size as i64, price as u64)
         .await
         .unwrap()
