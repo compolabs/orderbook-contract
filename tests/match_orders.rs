@@ -160,10 +160,10 @@ async fn match2() {
     // );
 
     // Проверяем, что у Alice осталось 1000 USDC сдачи после покупки 1 BTC по цене 45,000 USDC
-    // assert_eq!(
-    //     alice.get_asset_balance(&usdc.asset_id).await.unwrap(),
-    //     (1_000_f64 * 1e6) as u64
-    // );
+    assert_eq!(
+        alice.get_asset_balance(&usdc.asset_id).await.unwrap(),
+        (1_000_f64 * 1e6) as u64
+    );
 
     // Проверяем, что у Bob остался 1 BTC после продажи 1 BTC из 2
     orderbook
