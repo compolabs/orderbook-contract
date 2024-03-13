@@ -1,4 +1,4 @@
-use fuels::prelude::*;
+use fuels::{accounts::wallet::Wallet, prelude::*};
 use orderbook::orderbook_utils::Orderbook;
 use src20_sdk::token_utils::{deploy_token_contract, Asset};
 
@@ -39,10 +39,26 @@ async fn init() -> (WalletUnlocked, WalletUnlocked, Asset, Asset, Orderbook) {
     (alice, bob, btc, usdc, orderbook)
 }
 
+async fn mint_tokens(
+    usdc: &Asset,
+    btc: &Asset,
+    alice: &Wallet,
+    bob: &Wallet,
+    usdc_mint_amount: u64,
+    btc_mint_amount: u64,
+) {
+    usdc.mint(alice.address().into(), usdc_mint_amount)
+        .await
+        .unwrap();
+    btc.mint(bob.address().into(), btc_mint_amount)
+        .await
+        .unwrap();
+}
+
 #[tokio::test]
 async fn match1() {
     // ✅ buyOrder.orderPrice > sellOrder.orderPrice & buyOrder.baseSize > sellOrder.baseSize
-
+    
     let (alice, bob, btc, usdc, orderbook) = init().await;
 
     let buy_price = 46_000_f64 * 1e9; // Higher buy price
@@ -53,13 +69,7 @@ async fn match1() {
     // Mint BTC & USDC
     let usdc_mint_amount = usdc.parse_units(92_000_f64) as u64;
     let btc_mint_amount = usdc.parse_units(1_f64) as u64;
-
-    usdc.mint(alice.address().into(), usdc_mint_amount)
-        .await
-        .unwrap();
-    btc.mint(bob.address().into(), btc_mint_amount)
-        .await
-        .unwrap();
+    mint_tokens(&usdc, &btc, &alice, &bob, usdc_mint_amount, btc_mint_amount).await;
 
     let alice_order_id = orderbook
         .with_account(&alice)
@@ -119,16 +129,10 @@ async fn match2() {
     let buy_size = 1_f64 * 1e8; // Smaller buy size
     let sell_size = 2_f64 * 1e8; // Lager sell size
 
+    // Mint BTC & USDC
     let usdc_mint_amount = usdc.parse_units(46_000_f64) as u64;
     let btc_mint_amount = btc.parse_units(2_f64) as u64;
-
-    usdc.mint(alice.address().into(), usdc_mint_amount)
-        .await
-        .unwrap();
-
-    btc.mint(bob.address().into(), btc_mint_amount)
-        .await
-        .unwrap();
+    mint_tokens(&usdc, &btc, &alice, &bob, usdc_mint_amount, btc_mint_amount).await;
 
     let alice_order_id = orderbook
         .with_account(&alice)
@@ -190,16 +194,10 @@ async fn match3() {
     let sell_price = 45_000_f64 * 1e9;
     let size = 1_f64 * 1e8;
 
+    // Mint BTC & USDC
     let usdc_mint_amount = usdc.parse_units(46_000_f64) as u64;
     let btc_mint_amount = btc.parse_units(1_f64) as u64;
-
-    usdc.mint(alice.address().into(), usdc_mint_amount)
-        .await
-        .unwrap();
-
-    btc.mint(bob.address().into(), btc_mint_amount)
-        .await
-        .unwrap();
+    mint_tokens(&usdc, &btc, &alice, &bob, usdc_mint_amount, btc_mint_amount).await;
 
     let alice_order_id = orderbook
         .with_account(&alice)
@@ -253,16 +251,10 @@ async fn match4() {
     let buy_size = 2_f64 * 1e8;
     let sell_size = 1_f64 * 1e8;
 
+    // Mint BTC & USDC
     let usdc_mint_amount = usdc.parse_units(88_000_f64) as u64;
     let btc_mint_amount = btc.parse_units(1_f64) as u64;
-
-    usdc.mint(alice.address().into(), usdc_mint_amount)
-        .await
-        .unwrap();
-
-    btc.mint(bob.address().into(), btc_mint_amount)
-        .await
-        .unwrap();
+    mint_tokens(&usdc, &btc, &alice, &bob, usdc_mint_amount, btc_mint_amount).await;
 
     let alice_order_id = orderbook
         .with_account(&alice)
@@ -295,16 +287,10 @@ async fn match5() {
     let buy_size = 1_f64 * 1e8;
     let sell_size = 2_f64 * 1e8;
 
+    // Mint BTC & USDC
     let usdc_mint_amount = usdc.parse_units(44_000_f64) as u64;
     let btc_mint_amount = btc.parse_units(2_f64) as u64;
-
-    usdc.mint(alice.address().into(), usdc_mint_amount)
-        .await
-        .unwrap();
-
-    btc.mint(bob.address().into(), btc_mint_amount)
-        .await
-        .unwrap();
+    mint_tokens(&usdc, &btc, &alice, &bob, usdc_mint_amount, btc_mint_amount).await;
 
     let alice_order_id = orderbook
         .with_account(&alice)
@@ -337,16 +323,10 @@ async fn match6() {
     let buy_size = 1_f64 * 1e8;
     let sell_size = 1_f64 * 1e8;
 
+    // Mint BTC & USDC
     let usdc_mint_amount = usdc.parse_units(44_000_f64) as u64;
     let btc_mint_amount = btc.parse_units(1_f64) as u64;
-
-    usdc.mint(alice.address().into(), usdc_mint_amount)
-        .await
-        .unwrap();
-
-    btc.mint(bob.address().into(), btc_mint_amount)
-        .await
-        .unwrap();
+    mint_tokens(&usdc, &btc, &alice, &bob, usdc_mint_amount, btc_mint_amount).await;
 
     let alice_order_id = orderbook
         .with_account(&alice)
@@ -378,16 +358,10 @@ async fn match7() {
     let buy_size = 2_f64 * 1e8;
     let sell_size = 1_f64 * 1e8;
 
+    // Mint BTC & USDC
     let usdc_mint_amount = usdc.parse_units(90_000_f64) as u64;
     let btc_mint_amount = btc.parse_units(1_f64) as u64;
-
-    usdc.mint(alice.address().into(), usdc_mint_amount)
-        .await
-        .unwrap();
-
-    btc.mint(bob.address().into(), btc_mint_amount)
-        .await
-        .unwrap();
+    mint_tokens(&usdc, &btc, &alice, &bob, usdc_mint_amount, btc_mint_amount).await;
 
     let alice_order_id = orderbook
         .with_account(&alice)
@@ -440,16 +414,10 @@ async fn match8() {
     let buy_size = 1_f64 * 1e8;
     let sell_size = 2_f64 * 1e8;
 
+    // Mint BTC & USDC
     let usdc_mint_amount = usdc.parse_units(45_000_f64) as u64;
     let btc_mint_amount = btc.parse_units(2_f64) as u64;
-
-    usdc.mint(alice.address().into(), usdc_mint_amount)
-        .await
-        .unwrap();
-
-    btc.mint(bob.address().into(), btc_mint_amount)
-        .await
-        .unwrap();
+    mint_tokens(&usdc, &btc, &alice, &bob, usdc_mint_amount, btc_mint_amount).await;
 
     let alice_order_id = orderbook
         .with_account(&alice)
@@ -501,22 +469,15 @@ async fn match8() {
 #[tokio::test]
 async fn match9() {
     //✅ buyOrder.orderPrice = sellOrder.orderPrice & buyOrder.baseSize = sellOrder.baseSize
-
     let (alice, bob, btc, usdc, orderbook) = init().await;
 
     let price = 45_000_f64 * 1e9;
     let size = 1_f64 * 1e8;
 
+    // Mint BTC & USDC
     let usdc_mint_amount = usdc.parse_units(45_000_f64) as u64;
     let btc_mint_amount = btc.parse_units(1_f64) as u64;
-
-    usdc.mint(alice.address().into(), usdc_mint_amount)
-        .await
-        .unwrap();
-
-    btc.mint(bob.address().into(), btc_mint_amount)
-        .await
-        .unwrap();
+    mint_tokens(&usdc, &btc, &alice, &bob, usdc_mint_amount, btc_mint_amount).await;
 
     let alice_order_id = orderbook
         .with_account(&alice)
