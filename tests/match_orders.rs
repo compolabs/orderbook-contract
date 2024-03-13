@@ -66,6 +66,7 @@ async fn open_base_token_order_cancel_test() {
 
     // Проверяем, что у Alice есть 1 BTC после совершения сделки
     assert!(alice.get_asset_balance(&btc.asset_id).await.unwrap() == (1_f64 * 1e8) as u64);
+    assert_eq!(alice.get_asset_balance(&usdc.asset_id).await.unwrap(), 0);
 
     // Проверяем, что у Alice осталось 47,000 USDC после покупки 1 BTC по цене 45,000 USDC
     orderbook
@@ -73,7 +74,7 @@ async fn open_base_token_order_cancel_test() {
         .cancel_order(&alice_order_id)
         .await
         .unwrap();
-    assert!(alice.get_asset_balance(&usdc.asset_id).await.unwrap() == (47000_f64 * 1e6) as u64);
+    assert_eq!(alice.get_asset_balance(&usdc.asset_id).await.unwrap(), (47000_f64 * 1e6) as u64);
     
     // Проверяем, что у Bob есть 0 BTC после продажи
     assert!(bob.get_asset_balance(&btc.asset_id).await.unwrap() == 0);
