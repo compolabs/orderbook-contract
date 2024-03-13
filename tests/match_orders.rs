@@ -2,7 +2,6 @@ use fuels::types::Bits256;
 use fuels::{accounts::wallet::Wallet, prelude::*};
 use orderbook::orderbook_utils::Orderbook;
 use src20_sdk::token_utils::{deploy_token_contract, Asset};
-use std::error::Error;
 use std::result::Result;
 const PRICE_DECIMALS: u64 = 9;
 
@@ -66,7 +65,7 @@ async fn open_orders_match(
     buy_price: f64,
     sell_size: f64,
     sell_price: f64,
-) -> Result<(Bits256, Bits256), Box<dyn Error>> {
+) -> Result<(Bits256, Bits256), fuels::types::errors::Error> {
     let alice_order_id = orderbook
         .with_account(&alice)
         .open_order(btc.asset_id, (buy_size * 1e8) as i64, (buy_price * 1e9)  as u64)
@@ -81,17 +80,17 @@ async fn open_orders_match(
         .unwrap()
         .value;
 
-    orderbook
-        .match_orders(&bob_order_id, &alice_order_id)
-        .await
-        .unwrap();
-    Ok((alice_order_id, bob_order_id))
+    let res = orderbook.match_orders(&bob_order_id, &alice_order_id).await;
+    if res.is_ok() {
+        Ok((alice_order_id, bob_order_id))
+    } else {
+        Err(res.err().unwrap())
+    }
 }
 
+// ✅ buyOrder.orderPrice > sellOrder.orderPrice & buyOrder.baseSize > sellOrder.baseSize
 #[tokio::test]
 async fn match1() {
-    // ✅ buyOrder.orderPrice > sellOrder.orderPrice & buyOrder.baseSize > sellOrder.baseSize
-
     let (alice, bob, btc, usdc, orderbook) = init().await;
 
     let buy_price = 46_000_f64; // Higher buy price
@@ -101,7 +100,7 @@ async fn match1() {
 
     // Mint BTC & USDC
     let usdc_mint_amount = usdc.parse_units(92_000_f64) as u64;
-    let btc_mint_amount = usdc.parse_units(1_f64) as u64;
+    let btc_mint_amount = btc.parse_units(1_f64) as u64;
     mint_tokens(&usdc, &btc, &alice, &bob, usdc_mint_amount, btc_mint_amount).await;
 
     // Open and match orders
@@ -113,7 +112,7 @@ async fn match1() {
 
     // Проверяем, что у Alice есть 1 BTC после совершения сделки
     assert_eq!(
-        alice.get_asset_balance(&usdc.asset_id).await.unwrap(),
+        alice.get_asset_balance(&btc.asset_id).await.unwrap(),
         (1_f64 * 1e8) as u64
     );
 
@@ -124,6 +123,7 @@ async fn match1() {
         .unwrap();
 
     // Проверяем, что у Alice осталось 47,000 USDC после покупки 1 BTC по цене 45,000 USDC
+    //fixme assertion `left == right` failed left: 46999999980 right: 47000000000
     assert_eq!(
         alice.get_asset_balance(&usdc.asset_id).await.unwrap(),
         (47_000_f64 * 1e6) as u64
@@ -139,10 +139,9 @@ async fn match1() {
     );
 }
 
+// ✅ buyOrder.orderPrice > sellOrder.orderPrice & buyOrder.baseSize < sellOrder.baseSize
 #[tokio::test]
 async fn match2() {
-    // ✅ buyOrder.orderPrice > sellOrder.orderPrice & buyOrder.baseSize < sellOrder.baseSize
-
     let (alice, bob, btc, usdc, orderbook) = init().await;
 
     let buy_price = 46_000_f64; // Higher buy price
@@ -163,6 +162,7 @@ async fn match2() {
     .expect("Failed to open and match orders");
 
     // Проверяем, что у Alice есть 1 BTC после совершения сделки
+    //fixme assertion `left == right` failed left: 102222222 right: 100000000
     assert_eq!(
         alice.get_asset_balance(&btc.asset_id).await.unwrap(),
         (1_f64 * 1e8) as u64
@@ -193,10 +193,9 @@ async fn match2() {
     );
 }
 
+// ✅ buyOrder.orderPrice > sellOrder.orderPrice & buyOrder.baseSize = sellOrder.baseSize
 #[tokio::test]
 async fn match3() {
-    // ✅ buyOrder.orderPrice > sellOrder.orderPrice & buyOrder.baseSize = sellOrder.baseSize
-
     let (alice, bob, btc, usdc, orderbook) = init().await;
 
     let buy_price = 46_000_f64;
@@ -223,6 +222,7 @@ async fn match3() {
     );
 
     // у Alice должно остаться 1,000 USDC после покупки 1 BTC
+    //fixme assertion `left == right` failed left: 0 right: 1000000000
     assert_eq!(
         alice.get_asset_balance(&usdc.asset_id).await.unwrap(),
         (1_000_f64 * 1e6) as u64
@@ -238,10 +238,9 @@ async fn match3() {
     );
 }
 
+// ❌ buyOrder.orderPrice < sellOrder.orderPrice & buyOrder.baseSize > sellOrder.baseSize
 #[tokio::test]
 async fn match4() {
-    // ❌ buyOrder.orderPrice < sellOrder.orderPrice & buyOrder.baseSize > sellOrder.baseSize
-
     let (alice, bob, btc, usdc, orderbook) = init().await;
 
     let buy_price = 44_000_f64;
@@ -255,17 +254,21 @@ async fn match4() {
     mint_tokens(&usdc, &btc, &alice, &bob, usdc_mint_amount, btc_mint_amount).await;
 
     // Open and match orders
-    let (_alice_order_id, _bob_order_id) = open_orders_match(
+    let res = open_orders_match(
         &orderbook, &alice, &bob, &btc, buy_size, buy_price, sell_size, sell_price,
     )
-    .await
-    .expect("Failed to open and match orders");
+    .await;
+    assert!(res.is_err());
+    assert!(res
+        .err()
+        .unwrap()
+        .to_string()
+        .contains("OrdersCantBeMatched"));
 }
 
+// ❌ buyOrder.orderPrice < sellOrder.orderPrice & buyOrder.baseSize < sellOrder.baseSize
 #[tokio::test]
 async fn match5() {
-    // ❌ buyOrder.orderPrice < sellOrder.orderPrice & buyOrder.baseSize < sellOrder.baseSize
-
     let (alice, bob, btc, usdc, orderbook) = init().await;
 
     let buy_price = 44_000_f64;
@@ -279,17 +282,21 @@ async fn match5() {
     mint_tokens(&usdc, &btc, &alice, &bob, usdc_mint_amount, btc_mint_amount).await;
 
     // Open and match orders
-    let (_alice_order_id, _bob_order_id) = open_orders_match(
+    let res = open_orders_match(
         &orderbook, &alice, &bob, &btc, buy_size, buy_price, sell_size, sell_price,
     )
-    .await
-    .expect("Failed to open and match orders");
+    .await;
+    assert!(res.is_err());
+    assert!(res
+        .err()
+        .unwrap()
+        .to_string()
+        .contains("OrdersCantBeMatched"));
 }
 
+// ❌ buyOrder.orderPrice < sellOrder.orderPrice & buyOrder.baseSize = sellOrder.baseSize
 #[tokio::test]
 async fn match6() {
-    // ❌ buyOrder.orderPrice < sellOrder.orderPrice & buyOrder.baseSize = sellOrder.baseSize
-
     let (alice, bob, btc, usdc, orderbook) = init().await;
 
     let buy_price = 44_000_f64;
@@ -303,16 +310,22 @@ async fn match6() {
     mint_tokens(&usdc, &btc, &alice, &bob, usdc_mint_amount, btc_mint_amount).await;
 
     // Open and match orders
-    let (_alice_order_id, _bob_order_id) = open_orders_match(
+    let res = open_orders_match(
         &orderbook, &alice, &bob, &btc, buy_size, buy_price, sell_size, sell_price,
     )
-    .await
-    .expect("Failed to open and match orders");
+    .await;
+    assert!(res.is_err());
+    assert!(res
+        .err()
+        .unwrap()
+        .to_string()
+        .contains("OrdersCantBeMatched"));
+    // assert!(res.err().unwrap())
 }
 
+// ✅ buyOrder.orderPrice = sellOrder.orderPrice & buyOrder.baseSize > sellOrder.baseSize
 #[tokio::test]
 async fn match7() {
-    // ✅ buyOrder.orderPrice = sellOrder.orderPrice & buyOrder.baseSize > sellOrder.baseSize
     //--------------- WALLETS ---------------
     let (alice, bob, btc, usdc, orderbook) = init().await;
 
@@ -327,7 +340,7 @@ async fn match7() {
     mint_tokens(&usdc, &btc, &alice, &bob, usdc_mint_amount, btc_mint_amount).await;
 
     // Open and match orders
-    let (_alice_order_id, _bob_order_id) = open_orders_match(
+    let (alice_order_id, _bob_order_id) = open_orders_match(
         &orderbook, &alice, &bob, &btc, buy_size, buy_price, sell_size, sell_price,
     )
     .await
@@ -340,6 +353,11 @@ async fn match7() {
     );
 
     // у Alice должно остаться 45,000 USDC после покупки 1 BTC
+    orderbook
+        .with_account(&alice)
+        .cancel_order(&alice_order_id)
+        .await
+        .unwrap();
     assert_eq!(
         alice.get_asset_balance(&usdc.asset_id).await.unwrap(),
         (45_000_f64 * 1e6) as u64
@@ -355,10 +373,9 @@ async fn match7() {
     );
 }
 
+// ✅ buyOrder.orderPrice = sellOrder.orderPrice & buyOrder.baseSize < sellOrder.baseSize
 #[tokio::test]
 async fn match8() {
-    // ✅ buyOrder.orderPrice = sellOrder.orderPrice & buyOrder.baseSize < sellOrder.baseSize
-
     let (alice, bob, btc, usdc, orderbook) = init().await;
 
     let buy_price = 45_000_f64;
@@ -406,10 +423,9 @@ async fn match8() {
     );
 }
 
+//✅ buyOrder.orderPrice = sellOrder.orderPrice & buyOrder.baseSize = sellOrder.baseSize
 #[tokio::test]
 async fn match9() {
-    //✅ buyOrder.orderPrice = sellOrder.orderPrice & buyOrder.baseSize = sellOrder.baseSize
-
     let (alice, bob, btc, usdc, orderbook) = init().await;
 
     let buy_price = 45_000_f64;
