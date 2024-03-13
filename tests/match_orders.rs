@@ -36,8 +36,8 @@ async fn match1() {
     let sell_size = 1_f64 * 1e8; // Smaller sell size
 
     // Mint BTC & USDC
-    let usdc_mint_amount = usdc.parse_units((46_000 * 2) as f64) as u64;
-    let btc_mint_amount = usdc.parse_units(1 as f64) as u64;
+    let usdc_mint_amount = usdc.parse_units(92_000_f64) as u64;
+    let btc_mint_amount = usdc.parse_units(1_f64) as u64;
 
     usdc.mint(alice.address().into(), usdc_mint_amount)
         .await
@@ -80,7 +80,7 @@ async fn match1() {
     // Проверяем, что у Alice осталось 47,000 USDC после покупки 1 BTC по цене 45,000 USDC
     assert_eq!(
         alice.get_asset_balance(&usdc.asset_id).await.unwrap(),
-        (47000_f64 * 1e6) as u64
+        (47_000_f64 * 1e6) as u64
     );
 
     // Проверяем, что у Bob есть 0 BTC после продажи
@@ -89,7 +89,7 @@ async fn match1() {
     // Проверяем, что у Bob есть 45,000 USDC после продажи своего BTC
     assert_eq!(
         bob.get_asset_balance(&usdc.asset_id).await.unwrap(),
-        (45000_f64 * 1e6) as u64
+        (45_000_f64 * 1e6) as u64
     );
 }
 
@@ -123,14 +123,14 @@ async fn match2() {
     let buy_size = 1_f64 * 1e8; // Smaller buy size
     let sell_size = 2_f64 * 1e8; // Lager sell size
 
-    let usdc_mint_amount = usdc.parse_units((46_000) as f64) as u64;
+    let usdc_mint_amount = usdc.parse_units(46_000_f64) as u64;
     let btc_mint_amount = btc.parse_units(2_f64) as u64;
 
     usdc.mint(alice.address().into(), usdc_mint_amount)
         .await
         .unwrap();
 
-    btc.mint(bob.address().into(), btc_mint_amount as u64)
+    btc.mint(bob.address().into(), btc_mint_amount)
         .await
         .unwrap();
 
@@ -159,10 +159,10 @@ async fn match2() {
     //     (1_f64 * 1e8) as u64
     // );
 
-    // Проверяем, что у Alice осталось 1000 USDC сдачи после покупки 1 BTC по цене 46,000 USDC
+    // Проверяем, что у Alice осталось 1000 USDC сдачи после покупки 1 BTC по цене 45,000 USDC
     // assert_eq!(
     //     alice.get_asset_balance(&usdc.asset_id).await.unwrap(),
-    //     (1000_f64 * 1e6) as u64
+    //     (1_000_f64 * 1e6) as u64
     // );
 
     // Проверяем, что у Bob остался 1 BTC после продажи 1 BTC из 2
@@ -172,15 +172,15 @@ async fn match2() {
         .await
         .unwrap();
 
-    // assert_eq!(
-    //     bob.get_asset_balance(&btc.asset_id).await.unwrap(),
-    //     (1_f64 * 1e8) as u64
-    // );
+    assert_eq!(
+        bob.get_asset_balance(&btc.asset_id).await.unwrap(),
+        (1_f64 * 1e8) as u64
+    );
 
     // Проверяем, что у Bob есть 45,000 USDC после продажи своего BTC
     assert_eq!(
         bob.get_asset_balance(&usdc.asset_id).await.unwrap(),
-        (45000_f64 * 1e6) as u64
+        (45_000_f64 * 1e6) as u64
     );
 }
 
@@ -213,14 +213,14 @@ async fn match3() {
     let sell_price = 45_000_f64 * 1e9;
     let size = 1_f64 * 1e8;
 
-    let usdc_mint_amount = usdc.parse_units((46_000) as f64) as u64;
+    let usdc_mint_amount = usdc.parse_units(46_000_f64) as u64;
     let btc_mint_amount = btc.parse_units(1_f64) as u64;
 
     usdc.mint(alice.address().into(), usdc_mint_amount)
         .await
         .unwrap();
 
-    btc.mint(bob.address().into(), btc_mint_amount as u64)
+    btc.mint(bob.address().into(), btc_mint_amount)
         .await
         .unwrap();
 
@@ -250,10 +250,10 @@ async fn match3() {
     );
 
     // у Alice должно остаться 1,000 USDC после покупки 1 BTC
-    // assert_eq!(
-    //     alice.get_asset_balance(&usdc.asset_id).await.unwrap(),
-    //     (1000_f64 * 1e6) as u64
-    // );
+    assert_eq!(
+        alice.get_asset_balance(&usdc.asset_id).await.unwrap(),
+        (1_000_f64 * 1e6) as u64
+    );
 
     // Проверяем, что у Bob остался 0 BTC после продажи 1 BTC
     assert_eq!(bob.get_asset_balance(&btc.asset_id).await.unwrap(), 0);
@@ -261,7 +261,7 @@ async fn match3() {
     // Проверяем, что у Bob есть 45,000 USDC после продажи своего BTC
     assert_eq!(
         bob.get_asset_balance(&usdc.asset_id).await.unwrap(),
-        (45000_f64 * 1e6) as u64
+        (45_000_f64 * 1e6) as u64
     );
 }
 
@@ -295,14 +295,14 @@ async fn match4() {
     let buy_size = 2_f64 * 1e8;
     let sell_size = 1_f64 * 1e8;
 
-    let usdc_mint_amount = usdc.parse_units((88_000) as f64) as u64;
-    let btc_mint_amount = btc.parse_units(1 as f64) as u64;
+    let usdc_mint_amount = usdc.parse_units(88_000_f64) as u64;
+    let btc_mint_amount = btc.parse_units(1_f64) as u64;
 
     usdc.mint(alice.address().into(), usdc_mint_amount)
         .await
         .unwrap();
 
-    btc.mint(bob.address().into(), btc_mint_amount as u64)
+    btc.mint(bob.address().into(), btc_mint_amount)
         .await
         .unwrap();
 
@@ -356,14 +356,14 @@ async fn match5() {
     let buy_size = 1_f64 * 1e8;
     let sell_size = 2_f64 * 1e8;
 
-    let usdc_mint_amount = usdc.parse_units((44_000) as f64) as u64;
-    let btc_mint_amount = btc.parse_units(2 as f64) as u64;
+    let usdc_mint_amount = usdc.parse_units(44_000_f64) as u64;
+    let btc_mint_amount = btc.parse_units(2_f64) as u64;
 
     usdc.mint(alice.address().into(), usdc_mint_amount)
         .await
         .unwrap();
 
-    btc.mint(bob.address().into(), btc_mint_amount as u64)
+    btc.mint(bob.address().into(), btc_mint_amount)
         .await
         .unwrap();
 
@@ -417,14 +417,14 @@ async fn match6() {
     let buy_size = 1_f64 * 1e8;
     let sell_size = 1_f64 * 1e8;
 
-    let usdc_mint_amount = usdc.parse_units((44_000) as f64) as u64;
-    let btc_mint_amount = btc.parse_units(1 as f64) as u64;
+    let usdc_mint_amount = usdc.parse_units(44_000_f64) as u64;
+    let btc_mint_amount = btc.parse_units(1_f64) as u64;
 
     usdc.mint(alice.address().into(), usdc_mint_amount)
         .await
         .unwrap();
 
-    btc.mint(bob.address().into(), btc_mint_amount as u64)
+    btc.mint(bob.address().into(), btc_mint_amount)
         .await
         .unwrap();
 
@@ -477,14 +477,14 @@ async fn match7() {
     let buy_size = 2_f64 * 1e8;
     let sell_size = 1_f64 * 1e8;
 
-    let usdc_mint_amount = usdc.parse_units((90_000) as f64) as u64;
+    let usdc_mint_amount = usdc.parse_units(90_000_f64) as u64;
     let btc_mint_amount = btc.parse_units(1_f64) as u64;
 
     usdc.mint(alice.address().into(), usdc_mint_amount)
         .await
         .unwrap();
 
-    btc.mint(bob.address().into(), btc_mint_amount as u64)
+    btc.mint(bob.address().into(), btc_mint_amount)
         .await
         .unwrap();
 
@@ -514,10 +514,10 @@ async fn match7() {
     );
 
     // у Alice должно остаться 45,000 USDC после покупки 1 BTC
-    // assert_eq!(
-    //     alice.get_asset_balance(&usdc.asset_id).await.unwrap(),
-    //     (45000_f64 * 1e6) as u64
-    // );
+    assert_eq!(
+        alice.get_asset_balance(&usdc.asset_id).await.unwrap(),
+        (45_000_f64 * 1e6) as u64
+    );
 
     // Проверяем, что у Bob остался 0 BTC после продажи 1 BTC
     assert_eq!(bob.get_asset_balance(&btc.asset_id).await.unwrap(), 0);
@@ -525,7 +525,7 @@ async fn match7() {
     // Проверяем, что у Bob есть 45,000 USDC после продажи своего BTC
     assert_eq!(
         bob.get_asset_balance(&usdc.asset_id).await.unwrap(),
-        (45000_f64 * 1e6) as u64
+        (45_000_f64 * 1e6) as u64
     );
 }
 
@@ -612,7 +612,7 @@ async fn match8() {
     // Проверяем, что у Bob есть 45,000 USDC после продажи своего BTC
     assert_eq!(
         bob.get_asset_balance(&usdc.asset_id).await.unwrap(),
-        (45000_f64 * 1e6) as u64
+        (45_000_f64 * 1e6) as u64
     );
 }
 
@@ -644,7 +644,7 @@ async fn match9() {
     let price = 45_000_f64 * 1e9;
     let size = 1_f64 * 1e8;
 
-    let usdc_mint_amount = usdc.parse_units((45_000) as f64) as u64;
+    let usdc_mint_amount = usdc.parse_units(45_000_f64) as u64;
     let btc_mint_amount = btc.parse_units(1_f64) as u64;
 
     usdc.mint(alice.address().into(), usdc_mint_amount)
@@ -689,6 +689,6 @@ async fn match9() {
     // Проверяем, что у Bob есть 45,000 USDC после продажи своего BTC
     assert_eq!(
         bob.get_asset_balance(&usdc.asset_id).await.unwrap(),
-        (45000_f64 * 1e6) as u64
+        (45_000_f64 * 1e6) as u64
     );
 }
