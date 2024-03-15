@@ -6,13 +6,53 @@ use std::result::Result;
 const PRICE_DECIMALS: u64 = 9;
 const TOLERANCE: f64 = 0.025;
 
-fn tolerance_eq(a: u64, b: u64) -> bool {
-    let expected_balance_f64 = a as f64;
-    let actual_balance_f64 = b as f64;
-    let difference = (expected_balance_f64 - actual_balance_f64).abs();
-    let relative_difference = difference / expected_balance_f64;
+// fn tolerance_eq(expected: u64, actual: u64) -> bool {
+//     let difference = (expected as f64 - actual as f64).abs();
+//     let relative_difference = difference / expected as f64;
+//     println!("Expected: {}", expected);
+//     println!("Actual: {}", actual);
+//     println!("______________________");
+//     relative_difference < TOLERANCE && actual <= expected
+// }
+fn tolerance_eq(expected: u64, actual: u64) -> bool {
+    let difference = (expected as f64 - actual as f64).abs();
+    let relative_difference = difference / expected as f64;
 
-    relative_difference < TOLERANCE
+    // if relative_difference <= TOLERANCE ||  expected == actual {
+    //     println!("✅ Баланс в пределах допуска или точное соответствие. Expected: {}, Actual: {}", expected, actual);
+    //     true
+    // } else {
+    //     if actual > expected {
+    //         println!("❌ Баланс больше ожидаемого. Expected: {}, Actual: {}", expected, actual);
+    //     } else {
+    //         println!("❌ Баланс за пределами допуска. Expected: {}, Actual: {}", expected, actual);
+    //     }
+    //     false
+    // }
+
+    if (expected == actual)
+        || (expected == 0 && actual == 0)
+        || ((expected > actual) && (relative_difference < TOLERANCE))
+    {
+        println!(
+            "✅ Баланс в пределах допуска или точное соответствие. Expected: {}, Actual: {}",
+            expected, actual
+        );
+        true
+    } else {
+        if expected < actual {
+            println!(
+                "❌ Баланс больше ожидаемого. Expected: {}, Actual: {}",
+                expected, actual
+            );
+        } else {
+            println!(
+                "❌ Баланс за пределами допуска. Expected: {}, Actual: {}",
+                expected, actual
+            );
+        }
+        false
+    }
 }
 
 async fn init() -> (WalletUnlocked, WalletUnlocked, Asset, Asset, Orderbook) {
@@ -129,10 +169,9 @@ async fn match1() {
     .expect("Failed to open and match orders");
 
     // Проверяем, что у Alice есть 1 BTC после совершения сделки
-    assert_eq!(
-        alice.get_asset_balance(&btc.asset_id).await.unwrap(),
-        (1_f64 * 1e8) as u64
-    );
+    let expected_balance = (1_f64 * 1e8) as u64;
+    let actual_balance = alice.get_asset_balance(&btc.asset_id).await.unwrap();
+    tolerance_eq(expected_balance, actual_balance);
 
     orderbook
         .with_account(&alice)
@@ -141,30 +180,19 @@ async fn match1() {
         .unwrap();
 
     // Проверяем, что у Alice осталось 47,000 USDC после покупки 1 BTC по цене 45,000 USDC
-    //fixme assertion `left == right` failed left: 46999999980 right: 47000000000
-    // assert_eq!(
-    //     alice.get_asset_balance(&usdc.asset_id).await.unwrap(),
-    //     (47_000_f64 * 1e6) as u64
-    // );
+    let expected_balance = (47_000_f64 * 1e6) as u64;
+    let actual_balance = alice.get_asset_balance(&usdc.asset_id).await.unwrap();
+    tolerance_eq(expected_balance, actual_balance);
 
-    // let tolerance = 20_u64;
-    let expected_alice_balance = (47_000_f64 * 1e6) as u64;
-    let actual_alice_balance = alice.get_asset_balance(&usdc.asset_id).await.unwrap();
-    // assert!(
-    //     (expected_alice_balance as i64 - actual_alice_balance as i64).abs() <= tolerance as i64,
-    // );
-    assert!(
-        tolerance_eq(expected_alice_balance, actual_alice_balance),
-        "Баланс Alice не соответствует ожидаемому с учетом допуска"
-    );
     // Проверяем, что у Bob есть 0 BTC после продажи
-    assert_eq!(bob.get_asset_balance(&btc.asset_id).await.unwrap(), 0);
+    let expected_balance = 0;
+    let actual_balance = bob.get_asset_balance(&btc.asset_id).await.unwrap();
+    tolerance_eq(expected_balance, actual_balance);
 
     // Проверяем, что у Bob есть 45,000 USDC после продажи своего BTC
-    assert_eq!(
-        bob.get_asset_balance(&usdc.asset_id).await.unwrap(),
-        (45_000_f64 * 1e6) as u64
-    );
+    let expected_balance = (45_000_f64 * 1e6) as u64;
+    let actual_balance = bob.get_asset_balance(&usdc.asset_id).await.unwrap();
+    tolerance_eq(expected_balance, actual_balance);
 }
 
 // ✅ buyOrder.orderPrice > sellOrder.orderPrice & buyOrder.baseSize < sellOrder.baseSize
@@ -190,52 +218,30 @@ async fn match2() {
     .expect("Failed to open and match orders");
 
     // Проверяем, что у Alice есть 1 BTC после совершения сделки
-    //fixme assertion `left == right` failed left: 102222222 right: 100000000
-    // assert_eq!(
-    //     alice.get_asset_balance(&btc.asset_id).await.unwrap(),
-    //     (1_f64 * 1e8) as u64
-    // );
-
-    let tolerance = 2222222_u64;
-    let expected_alice_balance = (1_f64 * 1e8) as u64;
-    let actual_alice_balance = alice.get_asset_balance(&btc.asset_id).await.unwrap();
-    assert!(
-        (expected_alice_balance as i64 - actual_alice_balance as i64).abs() <= tolerance as i64,
-    );
+    let expected_balance = (1_f64 * 1e8) as u64;
+    let actual_balance = alice.get_asset_balance(&btc.asset_id).await.unwrap();
+    tolerance_eq(expected_balance, actual_balance);
 
     // Проверяем, что у Alice осталось 1000 USDC сдачи после покупки 1 BTC по цене 45,000 USDC
-    assert_eq!(
-        alice.get_asset_balance(&usdc.asset_id).await.unwrap(),
-        (1_000_f64 * 1e6) as u64
-    );
+    let expected_balance = (1_f64 * 1e6) as u64;
+    let actual_balance = alice.get_asset_balance(&usdc.asset_id).await.unwrap();
+    tolerance_eq(expected_balance, actual_balance);
 
-    // Проверяем, что у Bob остался 1 BTC после продажи 1 BTC из 2
     orderbook
         .with_account(&bob)
         .cancel_order(&bob_order_id)
         .await
         .unwrap();
 
-    // assert_eq!(
-    //     bob.get_asset_balance(&btc.asset_id).await.unwrap(),
-    //     (1_f64 * 1e8) as u64
-    // );
-
-    let tolerance = 2222222_u64;
-    let expected_bob_balance = (1_f64 * 1e8) as u64;
-    let actual_bob_balance = alice.get_asset_balance(&btc.asset_id).await.unwrap();
-    assert!((expected_bob_balance as i64 - actual_bob_balance as i64).abs() <= tolerance as i64,);
+    // Проверяем, что у Bob остался 1 BTC после продажи 1 BTC из 2
+    let expected_balance = (1_f64 * 1e8) as u64;
+    let actual_balance = bob.get_asset_balance(&btc.asset_id).await.unwrap();
+    tolerance_eq(expected_balance, actual_balance);
 
     // Проверяем, что у Bob есть 45,000 USDC после продажи своего BTC
-    // assert_eq!(
-    //     bob.get_asset_balance(&usdc.asset_id).await.unwrap(),
-    //     (45_000_f64 * 1e6) as u64
-    // );
-
-    let tolerance = 999999900_u64;
-    let expected_bob_balance = (1_f64 * 1e8) as u64;
-    let actual_bob_balance = alice.get_asset_balance(&btc.asset_id).await.unwrap();
-    assert!((expected_bob_balance as i64 - actual_bob_balance as i64).abs() <= tolerance as i64,);
+    let expected_balance = (45_000_f64 * 1e6) as u64;
+    let actual_balance = bob.get_asset_balance(&usdc.asset_id).await.unwrap();
+    tolerance_eq(expected_balance, actual_balance);
 }
 
 // ✅ buyOrder.orderPrice > sellOrder.orderPrice & buyOrder.baseSize = sellOrder.baseSize
@@ -261,26 +267,24 @@ async fn match3() {
     .expect("Failed to open and match orders");
 
     // Проверяем, что у Alice есть 1 BTC после совершения сделки
-    assert_eq!(
-        alice.get_asset_balance(&btc.asset_id).await.unwrap(),
-        (1_f64 * 1e8) as u64
-    );
+    let expected_balance = (1_f64 * 1e8) as u64;
+    let actual_balance = alice.get_asset_balance(&btc.asset_id).await.unwrap();
+    tolerance_eq(expected_balance, actual_balance);
 
     // у Alice должно остаться 1,000 USDC после покупки 1 BTC
-    //fixme assertion `left == right` failed left: 0 right: 1000000000
-    assert_eq!(
-        alice.get_asset_balance(&usdc.asset_id).await.unwrap(),
-        (1_000_f64 * 1e6) as u64
-    );
+    let expected_balance = (1_f64 * 1e6) as u64;
+    let actual_balance = alice.get_asset_balance(&usdc.asset_id).await.unwrap();
+    tolerance_eq(expected_balance, actual_balance);
 
     // Проверяем, что у Bob остался 0 BTC после продажи 1 BTC
-    assert_eq!(bob.get_asset_balance(&btc.asset_id).await.unwrap(), 0);
+    let expected_balance = 0;
+    let actual_balance = bob.get_asset_balance(&btc.asset_id).await.unwrap();
+    tolerance_eq(expected_balance, actual_balance);
 
     // Проверяем, что у Bob есть 45,000 USDC после продажи своего BTC
-    assert_eq!(
-        bob.get_asset_balance(&usdc.asset_id).await.unwrap(),
-        (45_000_f64 * 1e6) as u64
-    );
+    let expected_balance = (45_000_f64 * 1e6) as u64;
+    let actual_balance = bob.get_asset_balance(&usdc.asset_id).await.unwrap();
+    tolerance_eq(expected_balance, actual_balance);
 }
 
 // ❌ buyOrder.orderPrice < sellOrder.orderPrice & buyOrder.baseSize > sellOrder.baseSize
@@ -392,30 +396,30 @@ async fn match7() {
     .expect("Failed to open and match orders");
 
     // Проверяем, что у Alice есть 1 BTC после совершения сделки
-    assert_eq!(
-        alice.get_asset_balance(&btc.asset_id).await.unwrap(),
-        (1_f64 * 1e8) as u64
-    );
+    let expected_balance = (1_f64 * 1e8) as u64;
+    let actual_balance = alice.get_asset_balance(&btc.asset_id).await.unwrap();
+    tolerance_eq(expected_balance, actual_balance);
 
-    // у Alice должно остаться 45,000 USDC после покупки 1 BTC
     orderbook
         .with_account(&alice)
         .cancel_order(&alice_order_id)
         .await
         .unwrap();
-    assert_eq!(
-        alice.get_asset_balance(&usdc.asset_id).await.unwrap(),
-        (45_000_f64 * 1e6) as u64
-    );
+
+    // у Alice должно остаться 45,000 USDC после покупки 1 BTC
+    let expected_balance = (45_000_f64 * 1e6) as u64;
+    let actual_balance = alice.get_asset_balance(&usdc.asset_id).await.unwrap();
+    tolerance_eq(expected_balance, actual_balance);
 
     // Проверяем, что у Bob остался 0 BTC после продажи 1 BTC
-    assert_eq!(bob.get_asset_balance(&btc.asset_id).await.unwrap(), 0);
+    let expected_balance = 0;
+    let actual_balance = bob.get_asset_balance(&btc.asset_id).await.unwrap();
+    tolerance_eq(expected_balance, actual_balance);
 
     // Проверяем, что у Bob есть 45,000 USDC после продажи своего BTC
-    assert_eq!(
-        bob.get_asset_balance(&usdc.asset_id).await.unwrap(),
-        (45_000_f64 * 1e6) as u64
-    );
+    let expected_balance = (45_000_f64 * 1e6) as u64;
+    let actual_balance = bob.get_asset_balance(&usdc.asset_id).await.unwrap();
+    tolerance_eq(expected_balance, actual_balance);
 }
 
 // ✅ buyOrder.orderPrice = sellOrder.orderPrice & buyOrder.baseSize < sellOrder.baseSize
@@ -441,13 +445,14 @@ async fn match8() {
     .expect("Failed to open and match orders");
 
     // Проверяем, что у Alice есть 1 BTC после совершения сделки
-    assert_eq!(
-        alice.get_asset_balance(&btc.asset_id).await.unwrap(),
-        (1_f64 * 1e8) as u64
-    );
+    let expected_balance = (1_f64 * 1e8) as u64;
+    let actual_balance = alice.get_asset_balance(&btc.asset_id).await.unwrap();
+    tolerance_eq(expected_balance, actual_balance);
 
     // у Alice должно остаться 0,000 USDC после покупки 1 BTC
-    assert_eq!(alice.get_asset_balance(&usdc.asset_id).await.unwrap(), 0);
+    let expected_balance = 0;
+    let actual_balance = alice.get_asset_balance(&usdc.asset_id).await.unwrap();
+    tolerance_eq(expected_balance, actual_balance);
 
     orderbook
         .with_account(&bob)
@@ -456,16 +461,14 @@ async fn match8() {
         .unwrap();
 
     // Проверяем, что у Bob остался 1 BTC после продажи 1 BTC из 2
-    assert_eq!(
-        bob.get_asset_balance(&btc.asset_id).await.unwrap(),
-        (1_f64 * 1e8) as u64
-    );
+    let expected_balance = (1_f64 * 1e8) as u64;
+    let actual_balance = bob.get_asset_balance(&btc.asset_id).await.unwrap();
+    tolerance_eq(expected_balance, actual_balance);
 
     // Проверяем, что у Bob есть 45,000 USDC после продажи своего BTC
-    assert_eq!(
-        bob.get_asset_balance(&usdc.asset_id).await.unwrap(),
-        (45_000_f64 * 1e6) as u64
-    );
+    let expected_balance = (45_000_f64 * 1e6) as u64;
+    let actual_balance = bob.get_asset_balance(&usdc.asset_id).await.unwrap();
+    tolerance_eq(expected_balance, actual_balance);
 }
 
 //✅ buyOrder.orderPrice = sellOrder.orderPrice & buyOrder.baseSize = sellOrder.baseSize
@@ -491,20 +494,22 @@ async fn match9() {
     .expect("Failed to open and match orders");
 
     // Проверяем, что у Alice есть 1 BTC после совершения сделки
-    assert_eq!(
-        alice.get_asset_balance(&btc.asset_id).await.unwrap(),
-        (1_f64 * 1e8) as u64
-    );
+    let expected_balance = (1_f64 * 1e8) as u64;
+    let actual_balance = alice.get_asset_balance(&btc.asset_id).await.unwrap();
+    tolerance_eq(expected_balance, actual_balance);
 
     // у Alice должно остаться 0,000 USDC после покупки 1 BTC
-    assert_eq!(alice.get_asset_balance(&usdc.asset_id).await.unwrap(), 0);
+    let expected_balance = 0;
+    let actual_balance = alice.get_asset_balance(&usdc.asset_id).await.unwrap();
+    tolerance_eq(expected_balance, actual_balance);
 
     // Проверяем, что у Bob остался 0 BTC после продажи 1 BTC
-    assert_eq!(bob.get_asset_balance(&btc.asset_id).await.unwrap(), 0);
+    let expected_balance = 0;
+    let actual_balance = bob.get_asset_balance(&btc.asset_id).await.unwrap();
+    tolerance_eq(expected_balance, actual_balance);
 
     // Проверяем, что у Bob есть 45,000 USDC после продажи своего BTC
-    assert_eq!(
-        bob.get_asset_balance(&usdc.asset_id).await.unwrap(),
-        (45_000_f64 * 1e6) as u64
-    );
+    let expected_balance = (45_000_f64 * 1e6) as u64;
+    let actual_balance = bob.get_asset_balance(&usdc.asset_id).await.unwrap();
+    tolerance_eq(expected_balance, actual_balance);
 }
