@@ -6,29 +6,9 @@ use std::result::Result;
 const PRICE_DECIMALS: u64 = 9;
 const TOLERANCE: f64 = 0.025;
 
-// fn tolerance_eq(expected: u64, actual: u64) -> bool {
-//     let difference = (expected as f64 - actual as f64).abs();
-//     let relative_difference = difference / expected as f64;
-//     println!("Expected: {}", expected);
-//     println!("Actual: {}", actual);
-//     println!("______________________");
-//     relative_difference < TOLERANCE && actual <= expected
-// }
 fn tolerance_eq(expected: u64, actual: u64) -> bool {
     let difference = (expected as f64 - actual as f64).abs();
     let relative_difference = difference / expected as f64;
-
-    // if relative_difference <= TOLERANCE ||  expected == actual {
-    //     println!("✅ Баланс в пределах допуска или точное соответствие. Expected: {}, Actual: {}", expected, actual);
-    //     true
-    // } else {
-    //     if actual > expected {
-    //         println!("❌ Баланс больше ожидаемого. Expected: {}, Actual: {}", expected, actual);
-    //     } else {
-    //         println!("❌ Баланс за пределами допуска. Expected: {}, Actual: {}", expected, actual);
-    //     }
-    //     false
-    // }
 
     if (expected == actual)
         || (expected == 0 && actual == 0)
