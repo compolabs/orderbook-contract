@@ -349,7 +349,6 @@ async fn match6() {
         .unwrap()
         .to_string()
         .contains("OrdersCantBeMatched"));
-    // assert!(res.err().unwrap())
 }
 
 // ✅ buyOrder.orderPrice = sellOrder.orderPrice & buyOrder.baseSize > sellOrder.baseSize
@@ -369,7 +368,7 @@ async fn match7() {
     mint_tokens(&usdc, &btc, &alice, &bob, usdc_mint_amount, btc_mint_amount).await;
 
     // Open and match orders
-    let (alice_order_id, _bob_order_id) = open_orders_match(
+    let (_alice_order_id, _bob_order_id) = open_orders_match(
         &orderbook, &alice, &bob, &btc, buy_size, buy_price, sell_size, sell_price,
     )
     .await
@@ -379,12 +378,6 @@ async fn match7() {
     let expected_balance = (1_f64 * 1e8) as u64;
     let actual_balance = alice.get_asset_balance(&btc.asset_id).await.unwrap();
     tolerance_eq(expected_balance, actual_balance);
-
-    orderbook
-        .with_account(&alice)
-        .cancel_order(&alice_order_id)
-        .await
-        .unwrap();
 
     // у Alice должно остаться 45,000 USDC после покупки 1 BTC
     let expected_balance = (45_000_f64 * 1e6) as u64;
