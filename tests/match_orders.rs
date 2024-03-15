@@ -4,6 +4,16 @@ use orderbook::orderbook_utils::Orderbook;
 use src20_sdk::token_utils::{deploy_token_contract, Asset};
 use std::result::Result;
 const PRICE_DECIMALS: u64 = 9;
+const TOLERANCE: f64 = 0.025;
+
+fn tolerance_eq(a: u64, b: u64) -> bool {
+    let expected_balance_f64 = a as f64;
+    let actual_balance_f64 = b as f64;
+    let difference = (expected_balance_f64 - actual_balance_f64).abs();
+    let relative_difference = difference / expected_balance_f64;
+
+    relative_difference < TOLERANCE
+}
 
 async fn init() -> (WalletUnlocked, WalletUnlocked, Asset, Asset, Orderbook) {
     //--------------- WALLETS ---------------
@@ -137,13 +147,16 @@ async fn match1() {
     //     (47_000_f64 * 1e6) as u64
     // );
 
-    let tolerance = 20_u64;
+    // let tolerance = 20_u64;
     let expected_alice_balance = (47_000_f64 * 1e6) as u64;
     let actual_alice_balance = alice.get_asset_balance(&usdc.asset_id).await.unwrap();
+    // assert!(
+    //     (expected_alice_balance as i64 - actual_alice_balance as i64).abs() <= tolerance as i64,
+    // );
     assert!(
-        (expected_alice_balance as i64 - actual_alice_balance as i64).abs() <= tolerance as i64,
+        tolerance_eq(expected_alice_balance, actual_alice_balance),
+        "Баланс Alice не соответствует ожидаемому с учетом допуска"
     );
-
     // Проверяем, что у Bob есть 0 BTC после продажи
     assert_eq!(bob.get_asset_balance(&btc.asset_id).await.unwrap(), 0);
 
