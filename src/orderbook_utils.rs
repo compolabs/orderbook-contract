@@ -1,18 +1,14 @@
-use fuels::{
-    prelude::abigen,
-    programs::{call_utils::TxDependencyExtension, contract::CallParameters},
-    types::{bech32::Bech32Address, Bits256},
-};
-
 use std::str::FromStr;
 
 use fuels::{
     accounts::wallet::WalletUnlocked,
+    macros::abigen,
     programs::{
         call_response::FuelCallResponse,
-        contract::{Contract, LoadConfiguration},
+        call_utils::TxDependencyExtension,
+        contract::{CallParameters, Contract, LoadConfiguration},
     },
-    types::{transaction::TxPolicies, AssetId, ContractId},
+    types::{bech32::Bech32Address, transaction::TxPolicies, AssetId, Bits256, ContractId},
 };
 use rand::Rng;
 
@@ -107,7 +103,11 @@ impl Orderbook {
 
         self.instance
             .methods()
-            .open_order(base_token, I64::from(base_size), base_price)
+            .open_order(
+                base_token,
+                I64::new(base_size.unsigned_abs(), base_size < 0),
+                base_price,
+            )
             .append_variable_outputs(2)
             .call_params(call_params)
             .unwrap()
@@ -202,33 +202,8 @@ impl Orderbook {
     }
 }
 
-//todo вынести в отдельный файл
 impl I64 {
-    pub fn neg_from(value: u64) -> Self {
-        I64::new(value, true)
-    }
-
-    pub fn as_i64(&self) -> i64 {
-        if self.negative {
-            -(self.value as i64)
-        } else {
-            self.value as i64
-        }
-    }
-}
-
-impl From<u64> for I64 {
-    fn from(value: u64) -> Self {
-        I64::new(value, false)
-    }
-}
-impl From<i64> for I64 {
-    fn from(value: i64) -> Self {
-        I64::new(value.abs() as u64, value.is_negative())
-    }
-}
-impl From<f64> for I64 {
-    fn from(value: f64) -> Self {
-        I64::new(value.abs() as u64, value.is_sign_negative())
+    pub fn as_i64(self) -> i64 {
+        self.value as i64 * if self.negative { -1 } else { 1 }
     }
 }
