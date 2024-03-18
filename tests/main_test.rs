@@ -1,5 +1,5 @@
 use fuels::prelude::*;
-use orderbook::orderbook_utils::{Orderbook, I64};
+use orderbook::orderbook_utils::{Orderbook};
 use src20_sdk::token_utils::{deploy_token_contract, Asset};
 
 const PRICE_DECIMALS: u64 = 9;

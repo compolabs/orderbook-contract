@@ -4,7 +4,7 @@ use orderbook::orderbook_utils::Orderbook;
 use src20_sdk::token_utils::{deploy_token_contract, Asset};
 use std::result::Result;
 const PRICE_DECIMALS: u64 = 9;
-const TOLERANCE: f64 = 0.025;
+const TOLERANCE: f64 = 0.0005;
 
 fn tolerance_eq(expected: u64, actual: u64) -> bool {
     let difference = (expected as f64 - actual as f64).abs();
@@ -240,19 +240,23 @@ async fn match3() {
     mint_tokens(&usdc, &btc, &alice, &bob, usdc_mint_amount, btc_mint_amount).await;
 
     // Open and match orders
-    let (_alice_order_id, _bob_order_id) = open_orders_match(
+    let (alice_order_id, _bob_order_id) = open_orders_match(
         &orderbook, &alice, &bob, &btc, buy_size, buy_price, sell_size, sell_price,
     )
     .await
     .expect("Failed to open and match orders");
-
+    orderbook
+        .with_account(&alice)
+        .cancel_order(&alice_order_id)
+        .await
+        .unwrap();
     // Проверяем, что у Alice есть 1 BTC после совершения сделки
     let expected_balance = (1_f64 * 1e8) as u64;
     let actual_balance = alice.get_asset_balance(&btc.asset_id).await.unwrap();
     tolerance_eq(expected_balance, actual_balance);
 
-    // у Alice должно остаться 1,000 USDC после покупки 1 BTC
-    let expected_balance = (1_f64 * 1e6) as u64;
+    // у Alice должно остаться 1000 USDC после покупки 1 BTC
+    let expected_balance = (1000_f64 * 1e6) as u64;
     let actual_balance = alice.get_asset_balance(&usdc.asset_id).await.unwrap();
     tolerance_eq(expected_balance, actual_balance);
 
@@ -368,11 +372,17 @@ async fn match7() {
     mint_tokens(&usdc, &btc, &alice, &bob, usdc_mint_amount, btc_mint_amount).await;
 
     // Open and match orders
-    let (_alice_order_id, _bob_order_id) = open_orders_match(
+    let (alice_order_id, _bob_order_id) = open_orders_match(
         &orderbook, &alice, &bob, &btc, buy_size, buy_price, sell_size, sell_price,
     )
     .await
     .expect("Failed to open and match orders");
+
+    orderbook
+        .with_account(&alice)
+        .cancel_order(&alice_order_id)
+        .await
+        .unwrap();
 
     // Проверяем, что у Alice есть 1 BTC после совершения сделки
     let expected_balance = (1_f64 * 1e8) as u64;
