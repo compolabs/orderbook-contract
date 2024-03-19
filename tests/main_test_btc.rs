@@ -279,7 +279,7 @@ async fn open_quote_token_order_cancel_by_reverse_order_test() {
 }
 
 #[tokio::test]
-async fn match_orders_test() {
+async fn match_test() {
     //--------------- WALLETS ---------------
     let wallets_config = WalletsConfig::new(Some(5), Some(1), Some(1_000_000_000));
     let wallets = launch_custom_provider_and_get_wallets(wallets_config, None, None)
