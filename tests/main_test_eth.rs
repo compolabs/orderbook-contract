@@ -1,7 +1,5 @@
-use fuels::prelude::*;
-use orderbook::orderbook_utils::Orderbook;
-use src20_sdk::token_utils::{deploy_token_contract, Asset};
-
+use orderbook::test_utils::*;
+pub use pretty_assertions::assert_eq;
 const PRICE_DECIMALS: u64 = 9;
 
 #[tokio::test]
@@ -292,7 +290,7 @@ async fn match_orders_test() {
     let user2 = &wallets[2];
 
     let token_contract = deploy_token_contract(&admin).await;
-    let eth = Asset::new(admin.clone(), token_contract.contract_id().into(), "eth");
+    let eth = Asset::new(admin.clone(), token_contract.contract_id().into(), "ETH");
     let token_contract = deploy_token_contract(&admin).await;
     let usdc = Asset::new(admin.clone(), token_contract.contract_id().into(), "USDC");
 
@@ -318,6 +316,7 @@ async fn match_orders_test() {
     usdc.mint(user1.address().into(), amount_usdc)
         .await
         .unwrap();
+
     eth.mint(user2.address().into(), amount_eth).await.unwrap();
 
     assert_eq!(
@@ -370,7 +369,8 @@ async fn match_orders_test() {
 
     let order = response.value.unwrap();
     assert_eq!(base_price, order.base_price);
-    assert_eq!(base_size_sell1, order.base_size.value as i64);
+    // assert_eq!(base_size_sell1, order.base_size.value as i64);
+    assert_eq!(base_size_sell1, order.base_size.value as i64 * (-1));
     assert!(order.base_size.negative);
 
     // Match orders

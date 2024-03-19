@@ -1,7 +1,5 @@
-use fuels::prelude::*;
-use orderbook::orderbook_utils::Orderbook;
-use src20_sdk::token_utils::{deploy_token_contract, Asset};
-
+use orderbook::test_utils::*;
+pub use pretty_assertions::assert_eq;
 const PRICE_DECIMALS: u64 = 9;
 
 #[tokio::test]
@@ -370,7 +368,7 @@ async fn match_orders_test() {
 
     let order = response.value.unwrap();
     assert_eq!(base_price, order.base_price);
-    assert_eq!(base_size_sell1, order.base_size.value as i64);
+    assert_eq!(base_size_sell1, order.base_size.value as i64 * (-1));
     assert!(order.base_size.negative);
 
     // Match orders
