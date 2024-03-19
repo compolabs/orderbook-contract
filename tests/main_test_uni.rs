@@ -15,7 +15,7 @@ async fn open_base_token_order_cancel_test() {
     let user = &wallets[1];
 
     let token_contract = deploy_token_contract(&admin).await;
-    let btc = Asset::new(admin.clone(), token_contract.contract_id().into(), "BTC");
+    let uni = Asset::new(admin.clone(), token_contract.contract_id().into(), "UNI");
     let token_contract = deploy_token_contract(&admin).await;
     let usdc = Asset::new(admin.clone(), token_contract.contract_id().into(), "USDC");
 
@@ -23,36 +23,36 @@ async fn open_base_token_order_cancel_test() {
 
     // Create Market
     orderbook
-        ._create_market(btc.asset_id, btc.decimals as u32)
+        ._create_market(uni.asset_id, uni.decimals as u32)
         .await
         .unwrap();
 
-    let response = orderbook.market_exists(btc.asset_id).await.unwrap();
+    let response = orderbook.market_exists(uni.asset_id).await.unwrap();
     assert_eq!(true, response.value);
 
     let response = orderbook.orders_by_trader(admin.address()).await.unwrap();
     assert_eq!(0, response.value.len());
 
-    // SELL 5btc, price 50000
+    // SELL 5uni, price 50000
     let price = 50000;
-    let btcv: f64 = -5.0;
+    let univ: f64 = -5.0;
 
     let base_price = price * 10u64.pow(PRICE_DECIMALS as u32);
-    let base_size_sell1 = btc.parse_units(btcv) as i64; //? тут мы имеем i64 а не f64 потому что мы уже домнлжили на scale
-    let amount_btc = base_size_sell1.abs() as u64;
+    let base_size_sell1 = uni.parse_units(univ) as i64; //? тут мы имеем i64 а не f64 потому что мы уже домнлжили на scale
+    let amount_uni = base_size_sell1.abs() as u64;
 
-    // Mint BTC
-    btc.mint(admin.address().into(), amount_btc).await.unwrap();
-    let balance = admin.get_asset_balance(&btc.asset_id).await.unwrap();
-    assert_eq!(balance, amount_btc);
+    // Mint uni
+    uni.mint(admin.address().into(), amount_uni).await.unwrap();
+    let balance = admin.get_asset_balance(&uni.asset_id).await.unwrap();
+    assert_eq!(balance, amount_uni);
 
     // Open order
     orderbook
-        .open_order(btc.asset_id, base_size_sell1, base_price)
+        .open_order(uni.asset_id, base_size_sell1, base_price)
         .await
         .unwrap();
 
-    assert_eq!(admin.get_asset_balance(&btc.asset_id).await.unwrap(), 0);
+    assert_eq!(admin.get_asset_balance(&uni.asset_id).await.unwrap(), 0);
 
     let response = orderbook.orders_by_trader(admin.address()).await.unwrap();
 
@@ -65,15 +65,15 @@ async fn open_base_token_order_cancel_test() {
     assert_eq!(base_price, order.base_price);
     assert_eq!(base_size_sell1, order.base_size.as_i64());
 
-    // Add btc value to order
-    btc.mint(admin.address().into(), amount_btc).await.unwrap();
+    // Add uni value to order
+    uni.mint(admin.address().into(), amount_uni).await.unwrap();
 
     orderbook
-        .open_order(btc.asset_id, base_size_sell1, base_price)
+        .open_order(uni.asset_id, base_size_sell1, base_price)
         .await
         .unwrap();
 
-    assert_eq!(admin.get_asset_balance(&btc.asset_id).await.unwrap(), 0);
+    assert_eq!(admin.get_asset_balance(&uni.asset_id).await.unwrap(), 0);
 
     let response = orderbook.orders_by_trader(admin.address()).await.unwrap();
 
@@ -88,11 +88,11 @@ async fn open_base_token_order_cancel_test() {
     assert_eq!(base_price, order.base_price);
     assert_eq!(base_size_sell2, order.base_size.as_i64());
 
-    // BUY 5btc, price 5000
-    let btcv = 5.0;
+    // BUY 5uni, price 5000
+    let univ = 5.0;
     let usdv = 5.0 * price as f64; // 250k usdc
 
-    let base_size_buy1 = btc.parse_units(btcv) as i64;
+    let base_size_buy1 = uni.parse_units(univ) as i64;
     let quote_size_buy1 = usdc.parse_units(usdv) as i64;
     let amount_usdc = quote_size_buy1 as u64;
 
@@ -106,15 +106,15 @@ async fn open_base_token_order_cancel_test() {
 
     // Add usdc value to order
     orderbook
-        .open_order(btc.asset_id, base_size_buy1, base_price)
+        .open_order(uni.asset_id, base_size_buy1, base_price)
         .await
         .unwrap();
 
     let balance = admin.get_asset_balance(&usdc.asset_id).await.unwrap();
     assert_eq!(balance, amount_usdc);
 
-    let balance = admin.get_asset_balance(&btc.asset_id).await.unwrap();
-    assert_eq!(balance, amount_btc);
+    let balance = admin.get_asset_balance(&uni.asset_id).await.unwrap();
+    assert_eq!(balance, amount_uni);
 
     let response = orderbook.orders_by_trader(admin.address()).await.unwrap();
 
@@ -139,15 +139,15 @@ async fn open_base_token_order_cancel_test() {
     let base_size_buy2 = base_size_buy1 * 2;
 
     orderbook
-        .open_order(btc.asset_id, base_size_buy2.clone(), base_price)
+        .open_order(uni.asset_id, base_size_buy2.clone(), base_price)
         .await
         .unwrap();
 
     let balance = admin.get_asset_balance(&usdc.asset_id).await.unwrap();
     assert_eq!(balance, amount_usdc);
 
-    let balance = admin.get_asset_balance(&btc.asset_id).await.unwrap();
-    assert_eq!(balance, amount_btc * 2);
+    let balance = admin.get_asset_balance(&uni.asset_id).await.unwrap();
+    assert_eq!(balance, amount_uni * 2);
 
     let response = orderbook.orders_by_trader(admin.address()).await.unwrap();
     assert_eq!(1, response.value.len());
@@ -175,8 +175,8 @@ async fn open_base_token_order_cancel_test() {
     let response = orderbook.order_by_id(order_id).await.unwrap();
     assert!(response.value.is_none());
 
-    let balance = admin.get_asset_balance(&btc.asset_id).await.unwrap();
-    assert_eq!(balance, 2 * amount_btc);
+    let balance = admin.get_asset_balance(&uni.asset_id).await.unwrap();
+    assert_eq!(balance, 2 * amount_uni);
 
     let balance = admin.get_asset_balance(&usdc.asset_id).await.unwrap();
     assert_eq!(balance, 2 * amount_usdc);
@@ -192,7 +192,7 @@ async fn open_quote_token_order_cancel_by_reverse_order_test() {
     let admin = &wallets[0];
 
     let token_contract = deploy_token_contract(&admin).await;
-    let btc = Asset::new(admin.clone(), token_contract.contract_id().into(), "BTC");
+    let uni = Asset::new(admin.clone(), token_contract.contract_id().into(), "UNI");
     let token_contract = deploy_token_contract(&admin).await;
     let usdc = Asset::new(admin.clone(), token_contract.contract_id().into(), "USDC");
 
@@ -200,46 +200,46 @@ async fn open_quote_token_order_cancel_by_reverse_order_test() {
 
     // Create Market
     orderbook
-        ._create_market(btc.asset_id, btc.decimals as u32)
+        ._create_market(uni.asset_id, uni.decimals as u32)
         .await
         .unwrap();
 
-    let response = orderbook.market_exists(btc.asset_id).await.unwrap();
+    let response = orderbook.market_exists(uni.asset_id).await.unwrap();
     assert_eq!(true, response.value);
 
     let response = orderbook.orders_by_trader(admin.address()).await.unwrap();
 
     assert_eq!(0, response.value.len());
 
-    // Mint BTC & USDC
+    // Mint uni & USDC
 
     let usdv = 250000.0;
-    let btcv = 5.0;
+    let univ = 5.0;
     let price = 50000;
     let base_price = price * 10u64.pow(PRICE_DECIMALS as u32);
-    let base_size_buy1 = btc.parse_units(btcv) as i64;
-    let amount_btc = base_size_buy1.abs() as u64;
+    let base_size_buy1 = uni.parse_units(univ) as i64;
+    let amount_uni = base_size_buy1.abs() as u64;
     let base_size_sell1 = -base_size_buy1;
     let amount_usdc = usdc.parse_units(usdv) as u64;
 
     usdc.mint(admin.address().into(), amount_usdc)
         .await
         .unwrap();
-    btc.mint(admin.address().into(), amount_btc).await.unwrap();
+    uni.mint(admin.address().into(), amount_uni).await.unwrap();
 
     assert_eq!(
         admin.get_asset_balance(&usdc.asset_id).await.unwrap(),
         amount_usdc
     );
     assert_eq!(
-        admin.get_asset_balance(&btc.asset_id).await.unwrap(),
-        amount_btc
+        admin.get_asset_balance(&uni.asset_id).await.unwrap(),
+        amount_uni
     );
 
     // Open order
 
     orderbook
-        .open_order(btc.asset_id, base_size_buy1.clone(), base_price)
+        .open_order(uni.asset_id, base_size_buy1.clone(), base_price)
         .await
         .unwrap();
 
@@ -258,7 +258,7 @@ async fn open_quote_token_order_cancel_by_reverse_order_test() {
     assert!(!order.base_size.negative);
 
     orderbook
-        .open_order(btc.asset_id, base_size_sell1.clone(), base_price)
+        .open_order(uni.asset_id, base_size_sell1.clone(), base_price)
         .await
         .unwrap();
 
@@ -275,8 +275,8 @@ async fn open_quote_token_order_cancel_by_reverse_order_test() {
         amount_usdc
     );
     assert_eq!(
-        admin.get_asset_balance(&btc.asset_id).await.unwrap(),
-        amount_btc
+        admin.get_asset_balance(&uni.asset_id).await.unwrap(),
+        amount_uni
     );
 }
 
@@ -292,7 +292,7 @@ async fn match_orders_test() {
     let user2 = &wallets[2];
 
     let token_contract = deploy_token_contract(&admin).await;
-    let btc = Asset::new(admin.clone(), token_contract.contract_id().into(), "BTC");
+    let uni = Asset::new(admin.clone(), token_contract.contract_id().into(), "UNI");
     let token_contract = deploy_token_contract(&admin).await;
     let usdc = Asset::new(admin.clone(), token_contract.contract_id().into(), "USDC");
 
@@ -300,40 +300,40 @@ async fn match_orders_test() {
 
     // Create Market
     orderbook
-        ._create_market(btc.asset_id, btc.decimals as u32)
+        ._create_market(uni.asset_id, uni.decimals as u32)
         .await
         .unwrap();
 
-    // Mint BTC & USDC
+    // Mint uni & USDC
 
     let usdv = 250000.0;
-    let btcv = 5.0;
+    let univ = 5.0;
     let price = 50000;
     let base_price = price * 10u64.pow(PRICE_DECIMALS as u32);
-    let base_size_buy1 = btc.parse_units(btcv) as i64;
-    let amount_btc = base_size_buy1.abs() as u64;
+    let base_size_buy1 = uni.parse_units(univ) as i64;
+    let amount_uni = base_size_buy1.abs() as u64;
     let base_size_sell1 = -base_size_buy1;
     let amount_usdc = usdc.parse_units(usdv) as u64;
 
     usdc.mint(user1.address().into(), amount_usdc)
         .await
         .unwrap();
-    btc.mint(user2.address().into(), amount_btc).await.unwrap();
+    uni.mint(user2.address().into(), amount_uni).await.unwrap();
 
     assert_eq!(
         user1.get_asset_balance(&usdc.asset_id).await.unwrap(),
         amount_usdc
     );
     assert_eq!(
-        user2.get_asset_balance(&btc.asset_id).await.unwrap(),
-        amount_btc
+        user2.get_asset_balance(&uni.asset_id).await.unwrap(),
+        amount_uni
     );
 
     // Open USDC order
 
     orderbook
         .with_account(user1)
-        .open_order(btc.asset_id, base_size_buy1.clone(), base_price)
+        .open_order(uni.asset_id, base_size_buy1.clone(), base_price)
         .await
         .unwrap();
 
@@ -351,15 +351,15 @@ async fn match_orders_test() {
     assert_eq!(base_size_buy1, order.base_size.value as i64);
     assert!(!order.base_size.negative);
 
-    // Open BTC order
+    // Open uni order
 
     orderbook
         .with_account(user2)
-        .open_order(btc.asset_id, base_size_sell1.clone(), base_price)
+        .open_order(uni.asset_id, base_size_sell1.clone(), base_price)
         .await
         .unwrap();
 
-    assert_eq!(user2.get_asset_balance(&btc.asset_id).await.unwrap(), 0);
+    assert_eq!(user2.get_asset_balance(&uni.asset_id).await.unwrap(), 0);
 
     let response = orderbook.orders_by_trader(user2.address()).await.unwrap();
 
@@ -392,7 +392,7 @@ async fn match_orders_test() {
         amount_usdc
     );
     assert_eq!(
-        user1.get_asset_balance(&btc.asset_id).await.unwrap(),
-        amount_btc
+        user1.get_asset_balance(&uni.asset_id).await.unwrap(),
+        amount_uni
     );
 }
