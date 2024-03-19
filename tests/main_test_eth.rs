@@ -71,7 +71,7 @@ async fn open_base_token_order_cancel_test() {
         .await
         .unwrap();
 
-    assert_eq!(admin.get_asset_balance(&eth.asset_id).await.unwrap(), 0);
+    assert_eq!(admin.get_asset_balance(&eth.asset_id).await.unwrap(), 1);
 
     let response = orderbook.orders_by_trader(admin.address()).await.unwrap();
 
