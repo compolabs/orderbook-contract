@@ -303,6 +303,8 @@ mod revert {
 
     // ❌ buyOrder.orderPrice < sellOrder.orderPrice & buyOrder.baseSize > sellOrder.baseSize
     #[tokio::test]
+    #[should_panic(expected = "OrdersCantBeMatched")]
+
     async fn match4() {
         let (alice, bob, btc, usdc, orderbook) = init().await;
 
@@ -321,6 +323,7 @@ mod revert {
             &orderbook, &alice, &bob, &btc, buy_size, buy_price, sell_size, sell_price,
         )
         .await;
+        
         assert!(res.is_err());
         assert!(res
             .err()
@@ -331,6 +334,7 @@ mod revert {
 
     // ❌ buyOrder.orderPrice < sellOrder.orderPrice & buyOrder.baseSize < sellOrder.baseSize
     #[tokio::test]
+    #[should_panic(expected = "OrdersCantBeMatched")]
     async fn match5() {
         let (alice, bob, btc, usdc, orderbook) = init().await;
 
@@ -359,6 +363,7 @@ mod revert {
 
     // ❌ buyOrder.orderPrice < sellOrder.orderPrice & buyOrder.baseSize = sellOrder.baseSize
     #[tokio::test]
+    #[should_panic(expected = "OrdersCantBeMatched")]
     async fn match6() {
         let (alice, bob, btc, usdc, orderbook) = init().await;
 
