@@ -7,7 +7,7 @@ use orderbook::test_utils::*;
 //todo учитывать начальное состояние системы после выполнения теста
 //todo допуск сделать меньше и понять его адекватность
 
-mod tests {
+mod success {
     use super::*;
 
     // ✅ buyOrder.orderPrice > sellOrder.orderPrice & buyOrder.baseSize > sellOrder.baseSize
