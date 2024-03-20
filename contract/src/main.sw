@@ -11,21 +11,19 @@ use i64::*;
 use math::*;
 use structs::*;
 
-//todo не импортировать все содержимое библиотеки, к примеру не use std::some::*, а use std::some::{foo, Bar}
 use reentrancy::reentrancy_guard;
 use std::asset::transfer_to_address;
 use std::block::timestamp;
 use std::call_frames::msg_asset_id;
 use std::constants::BASE_ASSET_ID;
 use std::context::msg_amount;
-use std::hash::*;
+use std::hash::{Hash, sha256};
 use std::storage::storage_vec::*;
-
 
 configurable {
     QUOTE_TOKEN: AssetId = BASE_ASSET_ID,
     QUOTE_TOKEN_DECIMALS: u32 = 9,
-    PRICE_DECIMALS: u32 = 9
+    PRICE_DECIMALS: u32 = 9,
 }
 
 storage {
@@ -37,7 +35,6 @@ storage {
 }
 
 //todo переместить аби из main файла в отдельный
-//todo разделить аби и блок impl на функции с записью abi OrderBook и abi Info - ридонли
 abi OrderBook {
     #[storage(read, write)]
     fn create_market(asset_id: AssetId, decimal: u32);
@@ -51,6 +48,9 @@ abi OrderBook {
     #[storage(read, write)]
     fn match_orders(order_sell_id: b256, order_buy_id: b256);
 
+}
+
+abi Info {
     #[storage(read)]
     fn orders_by_trader(trader: Address) -> Vec<b256>;
 
@@ -59,7 +59,7 @@ abi OrderBook {
 
     #[storage(read)]
     fn market_exists(asset_id: AssetId) -> bool;
-    
+
     #[storage(read)]
     fn get_market_by_id(asset_id: AssetId) -> Market;
 
@@ -90,17 +90,6 @@ impl OrderBook for Contract {
         });
     }
 
-    #[storage(read)]
-    fn get_market_by_id(asset_id: AssetId) -> Market{
-        storage.markets.get(asset_id).read()
-    }
-
-    #[storage(read)]
-    fn market_exists(asset_id: AssetId) -> bool {
-        !storage.markets.get(asset_id).try_read().is_none()
-    }
-
-    //todo разделять декораторы по логике
     #[payable]
     #[storage(read, write)]
     fn open_order(base_token: AssetId, base_size: I64, base_price: u64 /* decimal = 9 */ ) -> b256 {
@@ -217,9 +206,17 @@ impl OrderBook for Contract {
 
         let mut tmp = order_sell;
         tmp.base_size = tmp.base_size.flip();
-        let trade_size = min(order_sell.base_size.value, order_buy.base_size.value.mul_div(order_buy.base_price, order_sell.base_price));
+        let trade_size = min(
+            order_sell
+                .base_size
+                .value,
+            order_buy
+                .base_size
+                .value
+                .mul_div(order_buy.base_price, order_sell.base_price),
+        );
         tmp.base_size.value = trade_size;
-        
+
         let seller: Address = order_sell.trader;
         let (sellerDealAssetId, sellerDealRefund) = order_return_asset_amount(tmp);
         remove_update_order_internal(order_sell, tmp.base_size);
@@ -252,6 +249,9 @@ impl OrderBook for Contract {
         });
     }
 
+}
+
+impl Info for Contract {
     #[storage(read)]
     fn orders_by_trader(trader: Address) -> Vec<b256> {
         storage.orders_by_trader.get(trader).load_vec()
@@ -262,9 +262,19 @@ impl OrderBook for Contract {
         storage.orders.get(order).try_read()
     }
 
-    fn get_configurables() -> (AssetId, u32, u32){
+    #[storage(read)]
+    fn get_market_by_id(asset_id: AssetId) -> Market {
+        storage.markets.get(asset_id).read()
+    }
+
+    #[storage(read)]
+    fn market_exists(asset_id: AssetId) -> bool {
+        !storage.markets.get(asset_id).try_read().is_none()
+    }
+    fn get_configurables() -> (AssetId, u32, u32) {
         (QUOTE_TOKEN, QUOTE_TOKEN_DECIMALS, PRICE_DECIMALS)
     }
+
 }
 
 #[storage(read, write)]
