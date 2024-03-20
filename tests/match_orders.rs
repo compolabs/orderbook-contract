@@ -13,9 +13,9 @@ const TOLERANCE: f64 = 0.0005;
 //todo во время тестирования покрывать кейсы с числами в min max, в диапазоне и вне диапазона
 //todo выносить повторяющиеся блоки кода, перетспользлваь код по максимуму чтоб было меньше строк
 //todo учитывать начальное состояние системы после выполнения теста
-//todo делать понятный нейминг файов
 
 
+//todo допуск сделать меньше и понять его адекватность
 fn tolerance_eq(expected: u64, actual: u64) -> bool {
     let difference = (expected as f64 - actual as f64).abs();
     let relative_difference = difference / expected as f64;

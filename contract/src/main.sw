@@ -13,7 +13,7 @@ use structs::*;
 
 //todo не импортировать все содержимое библиотеки, к примеру не use std::some::*, а use std::some::{foo, Bar}
 use reentrancy::reentrancy_guard;
-use std::asset::*;
+use std::asset::transfer_to_address;
 use std::block::timestamp;
 use std::call_frames::msg_asset_id;
 use std::constants::BASE_ASSET_ID;
@@ -33,7 +33,7 @@ storage {
     markets: StorageMap<AssetId, Market> = StorageMap {},
     orders_by_trader: StorageMap<Address, StorageVec<b256>> = StorageMap {},
     //todo лучше делать нейминг переменных и полей структур
-    order_positions_by_trader: StorageMap<Address, StorageMap<b256, u64>> = StorageMap {},
+    order_indexes_by_trader: StorageMap<Address, StorageMap<b256, u64>> = StorageMap {},
 }
 
 //todo переместить аби из main файла в отдельный
@@ -272,7 +272,7 @@ fn add_order_internal(order: Order) {
     storage.orders.insert(order.id, order);
     storage.orders_by_trader.get(order.trader).push(order.id);
     storage
-        .order_positions_by_trader
+        .order_indexes_by_trader
         .get(order.trader)
         .insert(order.id, storage.orders_by_trader.get(order.trader).len()); // pos + 1 indexed
 }
@@ -310,8 +310,8 @@ fn cancel_order_internal(order: Order) -> (AssetId, u64) {
 #[storage(read, write)]
 fn remove_update_order_internal(order: Order, base_size: I64) {
     if (order.base_size == base_size.flip()) {
-        let pos_id = storage.order_positions_by_trader.get(order.trader).get(order.id).read() - 1; // pos + 1 indexed
-        assert(storage.order_positions_by_trader.get(order.trader).remove(order.id));
+        let pos_id = storage.order_indexes_by_trader.get(order.trader).get(order.id).read() - 1; // pos + 1 indexed
+        assert(storage.order_indexes_by_trader.get(order.trader).remove(order.id));
         assert(storage.orders_by_trader.get(order.trader).swap_remove(pos_id) == order.id);
         assert(storage.orders.remove(order.id));
     } else {
