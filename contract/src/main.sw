@@ -11,8 +11,8 @@ use i64::*;
 use math::*;
 use structs::*;
 
+//todo не импортировать все содержимое библиотеки, к примеру не use std::some::*, а use std::some::{foo, Bar}
 use reentrancy::reentrancy_guard;
-
 use std::asset::*;
 use std::block::timestamp;
 use std::call_frames::msg_asset_id;
@@ -32,9 +32,12 @@ storage {
     orders: StorageMap<b256, Order> = StorageMap {},
     markets: StorageMap<AssetId, Market> = StorageMap {},
     orders_by_trader: StorageMap<Address, StorageVec<b256>> = StorageMap {},
+    //todo лучше делать нейминг переменных и полей структур
     order_positions_by_trader: StorageMap<Address, StorageMap<b256, u64>> = StorageMap {},
 }
 
+//todo переместить аби из main файла в отдельный
+//todo разделить аби и блок impl на функции с записью abi OrderBook и abi Info - ридонли
 abi OrderBook {
     #[storage(read, write)]
     fn create_market(asset_id: AssetId, decimal: u32);
@@ -97,7 +100,9 @@ impl OrderBook for Contract {
         !storage.markets.get(asset_id).try_read().is_none()
     }
 
-    #[storage(read, write), payable]
+    //todo разделять декораторы по логике
+    #[payable]
+    #[storage(read, write)]
     fn open_order(base_token: AssetId, base_size: I64, base_price: u64 /* decimal = 9 */ ) -> b256 {
         reentrancy_guard();
 
