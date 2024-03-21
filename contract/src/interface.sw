@@ -1,13 +1,14 @@
 library;
 
-use ::data_structures::{Order, Market};
+use ::data_structures::{Market, Order};
 use i64::I64;
 
 abi OrderBook {
     #[storage(read, write)]
     fn create_market(asset_id: AssetId, decimal: u32);
 
-    #[storage(read, write), payable]
+    #[payable]
+    #[storage(read, write)]
     fn open_order(base_token: AssetId, base_size: I64, order_price: u64) -> b256;
 
     #[storage(read, write)]
@@ -15,7 +16,6 @@ abi OrderBook {
 
     #[storage(read, write)]
     fn match_orders(order_sell_id: b256, order_buy_id: b256);
-
 }
 
 abi Info {
