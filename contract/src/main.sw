@@ -32,7 +32,6 @@ storage {
     orders: StorageMap<b256, Order> = StorageMap {},
     markets: StorageMap<AssetId, Market> = StorageMap {},
     orders_by_trader: StorageMap<Address, StorageVec<b256>> = StorageMap {},
-    //todo лучше делать нейминг переменных и полей структур
     order_indexes_by_trader: StorageMap<Address, StorageMap<b256, u64>> = StorageMap {},
 }
 
