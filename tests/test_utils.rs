@@ -1,4 +1,5 @@
-pub use crate::orderbook_utils::Orderbook;
+use orderbook::orderbook_utils;
+pub use orderbook_utils::Orderbook;
 #[cfg(test)]
 pub use pretty_assertions::assert_eq;
 pub use src20_sdk::token_utils::{deploy_token_contract, Asset};

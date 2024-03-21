@@ -1,5 +1,5 @@
 library;
-use ::structs::*;
+
 use i64::I64;
 
 pub struct MarketCreateEvent {
