@@ -2,11 +2,11 @@ library;
 
 pub enum Error {
     AccessDenied: (),
-    FreeCollateralMoreThanZero: (),
+    // FreeCollateralMoreThanZero: (),
     NoOrdersFound: (),
     NoMarketFound: (),
     OrdersCantBeMatched: (),
-    NoMarketPriceForMarket: (),
+    // NoMarketPriceForMarket: (),
     FirstArgumentShouldBeOrderSellSecondOrderBuy: (),
     ZeroAssetAmountToSend: (),
     MarketAlreadyExists: (),

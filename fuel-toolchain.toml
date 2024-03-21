@@ -1,0 +1,6 @@
+[toolchain]
+channel = "latest-aarch64-apple-darwin"
+
+[components]
+forc = "0.49.3"
+fuel-core = "0.22.1"

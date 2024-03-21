@@ -2,17 +2,17 @@ contract;
 
 mod errors;
 mod events;
-mod math;
+mod utils;
 mod data_structures;
 mod interface;
 
-use errors::*;
-use events::*;
-use math::*;
-use data_structures::*;
-use interface::*;
+use errors::Error;
+use events::{MarketCreateEvent, OrderChangeEvent, TradeEvent};
+use utils::min;
+use data_structures::{Order, Market};
+use interface::{OrderBook, Info};
 
-use i64::*;
+use i64::I64;
 use reentrancy::reentrancy_guard;
 use std::asset::transfer_to_address;
 use std::block::timestamp;
@@ -36,8 +36,8 @@ storage {
     order_indexes_by_trader: StorageMap<Address, StorageMap<b256, u64>> = StorageMap {},
 }
 
-//todo переместить аби из main файла в отдельный
 impl OrderBook for Contract {
+
     #[storage(read, write)]
     fn create_market(asset_id: AssetId, asset_decimals: u32) {
         require(asset_id != QUOTE_TOKEN, Error::BadAsset);
