@@ -9,8 +9,8 @@ mod interface;
 use errors::Error;
 use events::{MarketCreateEvent, OrderChangeEvent, TradeEvent};
 use utils::min;
-use data_structures::{Order, Market};
-use interface::{OrderBook, Info};
+use data_structures::{Market, Order};
+use interface::{Info, OrderBook};
 
 use i64::I64;
 use reentrancy::reentrancy_guard;
@@ -36,7 +36,6 @@ storage {
 }
 
 impl OrderBook for Contract {
-
     #[storage(read, write)]
     fn create_market(asset_id: AssetId, asset_decimals: u32) {
         require(asset_id != QUOTE_TOKEN, Error::BadAsset);
@@ -218,7 +217,6 @@ impl OrderBook for Contract {
             timestamp: timestamp(),
         });
     }
-
 }
 
 impl Info for Contract {
@@ -244,7 +242,6 @@ impl Info for Contract {
     fn get_configurables() -> (AssetId, u32, u32) {
         (QUOTE_TOKEN, QUOTE_TOKEN_DECIMALS, PRICE_DECIMALS)
     }
-
 }
 
 #[storage(read, write)]
