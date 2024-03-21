@@ -1,4 +1,5 @@
 use orderbook::test_utils::*;
+
 //todo делать название тестов так, чтоб было понятно о чем тест
 //todo все отдельные тесты разделать по файлам
 //todo выбрать определенную структуру файлов и стиль кода и придерживаться во всех проектах
@@ -323,7 +324,7 @@ mod revert {
             &orderbook, &alice, &bob, &btc, buy_size, buy_price, sell_size, sell_price,
         )
         .await;
-        
+
         assert!(res.is_err());
         assert!(res
             .err()
