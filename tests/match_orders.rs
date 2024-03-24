@@ -7,8 +7,13 @@ struct TestContext {
     usdc: Asset,
     token: Asset,
     orderbook: Orderbook,
-    alice_order_id: Bits256, // Добавлено
-    bob_order_id: Bits256,   // Добавлено
+    alice_order_id: Bits256,
+    bob_order_id: Bits256,
+}
+
+async fn check_balance(wallet: &WalletUnlocked, asset: &Asset, expected_balance: u64) {
+    let actual_balance = wallet.get_asset_balance(&asset.asset_id).await.unwrap();
+    tolerance_eq(expected_balance, actual_balance);
 }
 
 async fn setup() -> TestContext {
@@ -40,6 +45,22 @@ async fn setup() -> TestContext {
     .await
     .expect("Failed to open and match orders");
 
+    // Проверяем, что у Alice есть 1 BTC после совершения сделки
+    let expected_balance = (1_f64 * 1e8) as u64;
+    check_balance(&alice, &token, expected_balance).await;
+
+    // Проверяем, что у Alice осталось 47,000 USDC после покупки 1 BTC по цене 45,000 USDC
+    let expected_balance = (47_000_f64 * 1e6) as u64;
+    check_balance(&alice, &usdc, expected_balance).await;
+
+    // Проверяем, что у Bob есть 0 BTC после продажи
+    let expected_balance = 0;
+    check_balance(&bob, &token, expected_balance).await;
+
+    // Проверяем, что у Bob есть 45,000 USDC после продажи своего BTC
+    let expected_balance = (45_000_f64 * 1e6) as u64;
+    check_balance(&bob, &usdc, expected_balance).await;
+
     TestContext {
         admin,
         alice,
@@ -59,48 +80,12 @@ mod success {
     async fn match1() {
         let context = setup().await;
 
-        // Проверяем, что у Alice есть 1 BTC после совершения сделки
-        let expected_balance = (1_f64 * 1e8) as u64;
-        let actual_balance = context
-            .alice
-            .get_asset_balance(&context.token.asset_id)
-            .await
-            .unwrap();
-        tolerance_eq(expected_balance, actual_balance);
-
         context
             .orderbook
             .with_account(&context.alice)
             .cancel_order(&context.alice_order_id)
             .await
             .unwrap();
-
-        // Проверяем, что у Alice осталось 47,000 USDC после покупки 1 BTC по цене 45,000 USDC
-        let expected_balance = (47_000_f64 * 1e6) as u64;
-        let actual_balance = context
-            .alice
-            .get_asset_balance(&context.usdc.asset_id)
-            .await
-            .unwrap();
-        tolerance_eq(expected_balance, actual_balance);
-
-        // Проверяем, что у Bob есть 0 BTC после продажи
-        let expected_balance = 0;
-        let actual_balance = context
-            .bob
-            .get_asset_balance(&context.token.asset_id)
-            .await
-            .unwrap();
-        tolerance_eq(expected_balance, actual_balance);
-
-        // Проверяем, что у Bob есть 45,000 USDC после продажи своего BTC
-        let expected_balance = (45_000_f64 * 1e6) as u64;
-        let actual_balance = context
-            .bob
-            .get_asset_balance(&context.usdc.asset_id)
-            .await
-            .unwrap();
-        tolerance_eq(expected_balance, actual_balance);
     }
 
     // ✅ buyOrder.orderPrice > sellOrder.orderPrice & buyOrder.baseSize < sellOrder.baseSize
