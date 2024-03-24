@@ -57,10 +57,10 @@ async fn setup() -> TestContext {
     let buy_size = 2_f64;
     let sell_size = -1_f64;
 
-    let buy_price = 46_000_f64; // Higher buy price
-    let sell_price = 45_000_f64; // Lower sell price
-    let buy_size = 1_f64; // Smaller buy size
-    let sell_size = -2_f64; // Lager sell size
+    let buy_price = 46_000_f64;
+    let sell_price = 45_000_f64; 
+    let buy_size = 1_f64; 
+    let sell_size = -2_f64;
 
     let buy_price = 46_000_f64;
     let sell_price = 45_000_f64;
