@@ -1,20 +1,15 @@
 use orderbook::test_utils::*;
 
-//todo делать название тестов так, чтоб было понятно о чем тест
-//todo все отдельные тесты разделать по файлам
-//todo выбрать определенную структуру файлов и стиль кода и придерживаться во всех проектах
-//todo во время тестирования покрывать кейсы с числами в min max, в диапазоне и вне диапазона
-//todo выносить повторяющиеся блоки кода, перетспользлваь код по максимуму чтоб было меньше строк
-//todo учитывать начальное состояние системы после выполнения теста
-//todo допуск сделать меньше и понять его адекватность
-
 mod success {
     use super::*;
 
     // ✅ buyOrder.orderPrice > sellOrder.orderPrice & buyOrder.baseSize > sellOrder.baseSize
     #[tokio::test]
     async fn match1() {
-        let (alice, bob, btc, usdc, orderbook) = init().await;
+        // let (alice, bob, btc, usdc, orderbook) = init().await;
+        let (admin, alice, bob) = init_wallets().await;
+        let (usdc, token) = init_token(&admin, "BTC").await;
+        let orderbook = init_orderbook(&admin, &usdc, &token);
 
         let buy_price = 46_000_f64; // Higher buy price
         let sell_price = 45_000_f64; // Lower sell price
@@ -23,12 +18,12 @@ mod success {
 
         // Mint BTC & USDC
         let usdc_mint_amount = usdc.parse_units(92_000_f64) as u64;
-        let btc_mint_amount = btc.parse_units(1_f64) as u64;
-        mint_tokens(&usdc, &btc, &alice, &bob, usdc_mint_amount, btc_mint_amount).await;
+        let btc_mint_amount = token.parse_units(1_f64) as u64;
+        mint_tokens(&usdc, &token, &alice, &bob, usdc_mint_amount, btc_mint_amount).await;
 
         // Open and match orders
         let (alice_order_id, _bob_order_id) = open_orders_match(
-            &orderbook, &alice, &bob, &btc, buy_size, buy_price, sell_size, sell_price,
+            &orderbook, &alice, &bob, &token, buy_size, buy_price, sell_size, sell_price,
         )
         .await
         .expect("Failed to open and match orders");
