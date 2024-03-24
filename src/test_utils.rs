@@ -85,13 +85,14 @@ pub async fn init_wallets() -> (WalletUnlocked, WalletUnlocked, WalletUnlocked) 
     (admin, alice, bob)
 }
 
-pub async fn init_token(admin: &WalletUnlocked, symbol: &str) -> (Asset, Asset) {
+pub async fn init_tokens(admin: &WalletUnlocked, symbol: &str) -> (Asset, Asset) {
     let usdc_token_contract = deploy_token_contract(&admin).await;
     let usdc = Asset::new(
         admin.clone(),
         usdc_token_contract.contract_id().into(),
         "USDC",
     );
+
     let token_contract = deploy_token_contract(&admin).await;
     let token = Asset::new(admin.clone(), token_contract.contract_id().into(), symbol);
     (usdc, token)
@@ -110,16 +111,16 @@ pub async fn init_orderbook(admin: &WalletUnlocked, usdc: &Asset, token: &Asset)
 
 pub async fn mint_tokens(
     usdc: &Asset,
-    btc: &Asset,
+    token: &Asset,
     alice: &Wallet,
     bob: &Wallet,
     usdc_mint_amount: u64,
-    btc_mint_amount: u64,
+    token_mint_amount: u64,
 ) {
     usdc.mint(alice.address().into(), usdc_mint_amount)
         .await
         .unwrap();
-    btc.mint(bob.address().into(), btc_mint_amount)
+    token.mint(bob.address().into(), token_mint_amount)
         .await
         .unwrap();
 }
@@ -128,7 +129,7 @@ pub async fn open_orders_match(
     orderbook: &Orderbook,
     alice: &WalletUnlocked,
     bob: &WalletUnlocked,
-    btc: &Asset,
+    token: &Asset,
     buy_size: f64,
     buy_price: f64,
     sell_size: f64,
@@ -137,7 +138,7 @@ pub async fn open_orders_match(
     let alice_order_id = orderbook
         .with_account(&alice)
         .open_order(
-            btc.asset_id,
+            token.asset_id,
             (buy_size * 1e8) as i64,
             (buy_price * 1e9) as u64,
         )
@@ -148,7 +149,7 @@ pub async fn open_orders_match(
     let bob_order_id = orderbook
         .with_account(&bob)
         .open_order(
-            btc.asset_id,
+            token.asset_id,
             (sell_size * 1e8) as i64,
             (sell_price * 1e9) as u64,
         )
