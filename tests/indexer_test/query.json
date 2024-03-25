@@ -1,0 +1,70 @@
+
+{
+    "max_num_transactions": 1,
+    "from_block": 0,
+    "transactions": [
+      {
+        "owner": [
+          "0x1ad65e67c522dc0355f17792417aeb3269b5adc84ba13549b94b98b2db34c1e0"
+        ]
+      }
+    ],
+    "field_selection": {
+      "output": [
+        "tx_id",
+        "output_type",
+        "to",
+        "amount",
+        "asset_id",
+        "input_index",
+        "balance_root",
+        "state_root",
+        "contract"
+      ],
+      "input": [
+        "tx_id",
+        "input_type",
+        "utxo_id",
+        "owner",
+        "amount",
+        "asset_id",
+        "predicate_data",
+        "contract",
+        "sender",
+        "recipient",
+        "nonce",
+        "data"
+      ],
+      "receipt": [
+        "tx_id",
+        "pc",
+        "is",
+        "to",
+        "to_address",
+        "amount",
+        "param1",
+        "param2",
+        "val",
+        "reason",
+        "ra",
+        "rb",
+        "rc",
+        "rd",
+        "receipt_type",
+        "result",
+        "data",
+        "sender",
+        "recipient",
+        "contract_id"
+      ],
+      "transaction": [
+        "block_height",
+        "id",
+        "tx_type",
+        "status",
+        "reason",
+        "script",
+        "script_data"
+      ]
+    }
+  }
