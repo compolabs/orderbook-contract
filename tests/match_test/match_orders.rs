@@ -1,4 +1,13 @@
-use orderbook::test_utils::*;
+use fuels::{
+    accounts::{wallet::WalletUnlocked, ViewOnlyAccount},
+    types::Bits256,
+};
+use orderbook::orderbook_utils::Orderbook;
+use src20_sdk::token_utils::Asset;
+
+use super::test_utils::{
+    init_orderbook, init_tokens, init_wallets, mint_tokens, open_orders_match, tolerance_eq,
+};
 
 struct TestContext {
     alice: WalletUnlocked,

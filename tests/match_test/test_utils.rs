@@ -1,6 +1,6 @@
-pub use crate::orderbook_utils::Orderbook;
 pub use fuels::types::Bits256;
 pub use fuels::{accounts::wallet::Wallet, prelude::*};
+use orderbook::orderbook_utils::Orderbook;
 pub use src20_sdk::token_utils::{deploy_token_contract, Asset};
 pub use std::result::Result;
 
