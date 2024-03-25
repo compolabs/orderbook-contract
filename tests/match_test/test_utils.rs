@@ -6,7 +6,24 @@ pub use std::result::Result;
 
 const TOLERANCE: f64 = 0.0005;
 const PRICE_DECIMALS: u64 = 9;
+pub struct TestContext {
+    pub(crate) alice: WalletUnlocked,
+    pub(crate) bob: WalletUnlocked,
+    pub(crate) usdc: Asset,
+    pub(crate) token: Asset,
+    pub(crate) orderbook: Orderbook,
+    pub(crate) alice_order_id: Bits256,
+    pub(crate) bob_order_id: Bits256,
+    pub(crate) alice_token_expected_balance: u64,
+    pub(crate) alice_usdc_expected_balance: u64,
+    pub(crate) bob_token_expected_balance: u64,
+    pub(crate) bob_usdc_expected_balance: u64,
+}
 
+pub async fn check_balance(wallet: &WalletUnlocked, asset: &Asset, expected_balance: u64) {
+    let actual_balance = wallet.get_asset_balance(&asset.asset_id).await.unwrap();
+    tolerance_eq(expected_balance, actual_balance);
+}
 pub fn tolerance_eq(expected: u64, actual: u64) -> bool {
     let difference = (expected as f64 - actual as f64).abs();
     let relative_difference = difference / expected as f64;
