@@ -1,10 +1,7 @@
 pub use crate::orderbook_utils::Orderbook;
-#[cfg(test)]
-pub use pretty_assertions::assert_eq;
-pub use src20_sdk::token_utils::{deploy_token_contract, Asset};
-
 pub use fuels::types::Bits256;
 pub use fuels::{accounts::wallet::Wallet, prelude::*};
+pub use src20_sdk::token_utils::{deploy_token_contract, Asset};
 pub use std::result::Result;
 
 const TOLERANCE: f64 = 0.0005;
@@ -37,39 +34,6 @@ pub fn tolerance_eq(expected: u64, actual: u64) -> bool {
         }
         false
     }
-}
-
-pub async fn init() -> (WalletUnlocked, WalletUnlocked, Asset, Asset, Orderbook) {
-    let wallets_config = WalletsConfig::new(Some(5), Some(1), Some(1_000_000_000));
-    let wallets = launch_custom_provider_and_get_wallets(wallets_config, None, None)
-        .await
-        .expect("Failed to initialize wallets");
-    let admin = wallets[0].clone();
-    let alice = wallets[1].clone();
-    let bob = wallets[2].clone();
-
-    let btc_token_contract = deploy_token_contract(&admin).await;
-    let btc = Asset::new(
-        admin.clone(),
-        btc_token_contract.contract_id().into(),
-        "BTC",
-    );
-
-    let usdc_token_contract = deploy_token_contract(&admin).await;
-    let usdc = Asset::new(
-        admin.clone(),
-        usdc_token_contract.contract_id().into(),
-        "USDC",
-    );
-
-    let orderbook = Orderbook::deploy(&admin, usdc.asset_id, usdc.decimals, PRICE_DECIMALS).await;
-
-    orderbook
-        ._create_market(btc.asset_id, btc.decimals as u32)
-        .await
-        .expect("Failed to create market");
-
-    (alice, bob, btc, usdc, orderbook)
 }
 
 pub async fn init_wallets() -> (WalletUnlocked, WalletUnlocked, WalletUnlocked) {
@@ -120,7 +84,8 @@ pub async fn mint_tokens(
     usdc.mint(alice.address().into(), usdc_mint_amount)
         .await
         .unwrap();
-    token.mint(bob.address().into(), token_mint_amount)
+    token
+        .mint(bob.address().into(), token_mint_amount)
         .await
         .unwrap();
 }

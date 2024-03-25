@@ -27,20 +27,20 @@ async fn setup() -> TestContext {
     let usdc_mint_amount = usdc.parse_units(92_000_f64) as u64;
     let token_mint_amount = token.parse_units(1_f64) as u64;
 
-    let usdc_mint_amount = usdc.parse_units(46_000_f64) as u64;
-    let token_mint_amount = token.parse_units(2_f64) as u64;
+    // let usdc_mint_amount = usdc.parse_units(46_000_f64) as u64;
+    // let token_mint_amount = token.parse_units(2_f64) as u64;
 
-    let usdc_mint_amount = usdc.parse_units(46_000_f64) as u64;
-    let token_mint_amount = token.parse_units(1_f64) as u64;
+    // let usdc_mint_amount = usdc.parse_units(46_000_f64) as u64;
+    // let token_mint_amount = token.parse_units(1_f64) as u64;
 
-    let usdc_mint_amount = usdc.parse_units(90_000_f64) as u64;
-    let token_mint_amount = token.parse_units(1_f64) as u64;
+    // let usdc_mint_amount = usdc.parse_units(90_000_f64) as u64;
+    // let token_mint_amount = token.parse_units(1_f64) as u64;
 
-    let usdc_mint_amount = usdc.parse_units(45_000_f64) as u64;
-    let token_mint_amount = token.parse_units(2_f64) as u64;
+    // let usdc_mint_amount = usdc.parse_units(45_000_f64) as u64;
+    // let token_mint_amount = token.parse_units(2_f64) as u64;
 
-    let usdc_mint_amount = usdc.parse_units(45_000_f64) as u64;
-    let token_mint_amount = token.parse_units(1_f64) as u64;
+    // let usdc_mint_amount = usdc.parse_units(45_000_f64) as u64;
+    // let token_mint_amount = token.parse_units(1_f64) as u64;
 
     mint_tokens(
         &usdc,
@@ -57,65 +57,65 @@ async fn setup() -> TestContext {
     let buy_size = 2_f64;
     let sell_size = -1_f64;
 
-    let buy_price = 46_000_f64;
-    let sell_price = 45_000_f64; 
-    let buy_size = 1_f64; 
-    let sell_size = -2_f64;
+    // let buy_price = 46_000_f64;
+    // let sell_price = 45_000_f64;
+    // let buy_size = 1_f64;
+    // let sell_size = -2_f64;
 
-    let buy_price = 46_000_f64;
-    let sell_price = 45_000_f64;
-    let buy_size = 1_f64;
-    let sell_size = -1_f64;
+    // let buy_price = 46_000_f64;
+    // let sell_price = 45_000_f64;
+    // let buy_size = 1_f64;
+    // let sell_size = -1_f64;
 
-    let buy_price = 45_000_f64;
-    let sell_price = 45_000_f64;
-    let buy_size = 2_f64;
-    let sell_size = -1_f64;
+    // let buy_price = 45_000_f64;
+    // let sell_price = 45_000_f64;
+    // let buy_size = 2_f64;
+    // let sell_size = -1_f64;
 
-    let buy_price = 45_000_f64;
-    let sell_price = 45_000_f64;
-    let buy_size = 1_f64;
-    let sell_size = -2_f64;
+    // let buy_price = 45_000_f64;
+    // let sell_price = 45_000_f64;
+    // let buy_size = 1_f64;
+    // let sell_size = -2_f64;
 
-    let buy_price = 45_000_f64;
-    let sell_price = 45_000_f64;
-    let buy_size = 1_f64;
-    let sell_size = -1_f64;
+    // let buy_price = 45_000_f64;
+    // let sell_price = 45_000_f64;
+    // let buy_size = 1_f64;
+    // let sell_size = -1_f64;
 
-    let buy_price = 44_000_f64;
-    let sell_price = 45_000_f64;
-    let buy_size = 2_f64;
-    let sell_size = -1_f64;
+    // let buy_price = 44_000_f64;
+    // let sell_price = 45_000_f64;
+    // let buy_size = 2_f64;
+    // let sell_size = -1_f64;
 
     let alice_token_expected_balance = (1_f64 * 1e8) as u64;
     let alice_usdc_expected_balance = (47_000_f64 * 1e6) as u64;
     let bob_token_expected_balance = 0;
     let bob_usdc_expected_balance = (45_000_f64 * 1e6) as u64;
 
-    let alice_token_expected_balance = 102_222_222 as u64;
-    let alice_usdc_expected_balance = 0;
-    let bob_token_expected_balance = 97_777_778 as u64;
-    let bob_usdc_expected_balance = 45_999_999_900 as u64;
+    // let alice_token_expected_balance = 102_222_222 as u64;
+    // let alice_usdc_expected_balance = 0;
+    // let bob_token_expected_balance = 97_777_778 as u64;
+    // let bob_usdc_expected_balance = 45_999_999_900 as u64;
 
-    let alice_token_expected_balance = (1_f64 * 1e8) as u64;
-    let alice_usdc_expected_balance = (1_000_f64 * 1e6) as u64;
-    let bob_token_expected_balance = 0;
-    let bob_usdc_expected_balance = (45_000_f64 * 1e6) as u64;
+    // let alice_token_expected_balance = (1_f64 * 1e8) as u64;
+    // let alice_usdc_expected_balance = (1_000_f64 * 1e6) as u64;
+    // let bob_token_expected_balance = 0;
+    // let bob_usdc_expected_balance = (45_000_f64 * 1e6) as u64;
 
-    let alice_token_expected_balance = (1_f64 * 1e8) as u64;
-    let alice_usdc_expected_balance = (45_000_f64 * 1e6) as u64;
-    let bob_token_expected_balance = 0;
-    let bob_usdc_expected_balance = (45_000_f64 * 1e6) as u64;
+    // let alice_token_expected_balance = (1_f64 * 1e8) as u64;
+    // let alice_usdc_expected_balance = (45_000_f64 * 1e6) as u64;
+    // let bob_token_expected_balance = 0;
+    // let bob_usdc_expected_balance = (45_000_f64 * 1e6) as u64;
 
-    let alice_token_expected_balance = (1_f64 * 1e8) as u64;
-    let alice_usdc_expected_balance = 0;
-    let bob_token_expected_balance = (1_f64 * 1e8) as u64;
-    let bob_usdc_expected_balance = (45_000_f64 * 1e6) as u64;
+    // let alice_token_expected_balance = (1_f64 * 1e8) as u64;
+    // let alice_usdc_expected_balance = 0;
+    // let bob_token_expected_balance = (1_f64 * 1e8) as u64;
+    // let bob_usdc_expected_balance = (45_000_f64 * 1e6) as u64;
 
-    let alice_token_expected_balance = (1_f64 * 1e8) as u64;
-    let alice_usdc_expected_balance = 0;
-    let bob_token_expected_balance = 0;
-    let bob_usdc_expected_balance = (45_000_f64 * 1e6) as u64;
+    // let alice_token_expected_balance = (1_f64 * 1e8) as u64;
+    // let alice_usdc_expected_balance = 0;
+    // let bob_token_expected_balance = 0;
+    // let bob_usdc_expected_balance = (45_000_f64 * 1e6) as u64;
 
     let (alice_order_id, bob_order_id) = open_orders_match(
         &orderbook, &alice, &bob, &token, buy_size, buy_price, sell_size, sell_price,
