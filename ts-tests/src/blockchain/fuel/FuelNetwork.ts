@@ -263,7 +263,7 @@ export class FuelNetwork extends BlockchainNetwork {
     );
   };
 
-  private getProviderWallet = async () => {
+  getProviderWallet = async () => {
     const provider = await this.providerPromise;
     return Wallet.generate({ provider });
   };
