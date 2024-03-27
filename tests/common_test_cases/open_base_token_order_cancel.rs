@@ -1,27 +1,12 @@
-use orderbook::test_utils::*;
-pub use pretty_assertions::assert_eq;
+use fuels::accounts::ViewOnlyAccount;
+use orderbook::orderbook_utils::Orderbook;
+use src20_sdk::token_utils::{deploy_token_contract, Asset};
+
+use crate::utils::setup::init_wallets;
+use crate::utils::setup::setup;
+
 const PRICE_DECIMALS: u64 = 9;
 
-struct TestContext {
-    admin: WalletUnlocked,
-    user: WalletUnlocked,
-    usdc: Asset,
-    token: Asset,
-    orderbook: Orderbook,
-}
-async fn setup() -> TestContext {
-    let (admin, user, _user2) = init_wallets().await;
-    let (usdc, token) = init_tokens(&admin, "BTC").await;
-    let orderbook = init_orderbook(&admin, &usdc, &token).await;
-
-    TestContext {
-        admin,
-        user,
-        usdc,
-        token,
-        orderbook,
-    }
-}
 #[tokio::test]
 async fn open_base_token_order_cancel_test() {
     let context = setup().await;

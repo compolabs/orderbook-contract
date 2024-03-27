@@ -1,5 +1,9 @@
-use orderbook::test_utils::*;
-pub use pretty_assertions::assert_eq;
+use fuels::accounts::{wallet::WalletUnlocked, ViewOnlyAccount};
+use orderbook::orderbook_utils::Orderbook;
+use src20_sdk::token_utils::Asset;
+
+use crate::utils::setup::{init_orderbook, init_tokens, init_wallets};
+
 const PRICE_DECIMALS: u64 = 9;
 
 struct TestContext {
