@@ -26,5 +26,5 @@ pub enum OrderError {
 }
 
 pub enum AuthError {
-    EOAOnly: ()
+    EOAOnly: (),
 }
