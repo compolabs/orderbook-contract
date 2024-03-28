@@ -13,6 +13,9 @@ tokio = { version = "1.12", features = ["rt", "macros"] }
 src20_sdk = { git = "https://github.com/compolabs/src-20.git", branch = "master" }
 dotenv = "0.15.0"
 
+[dev-dependencies]
+pretty_assertions = "1"
+
 [[test]]
 harness = true
 name = "integration_tests"

@@ -52,7 +52,8 @@ async fn main() {
         .open_order(base_asset.asset_id, BASE_SIZE, price)
         .await;
 
-    //fixme Failed to open order: IOError(Custom { kind: Other, error: "Response errors; Validity(InsufficientFeeAmount { expected: 326087, provided: 0 })" })
+    //todo прикладывать ссылку на задачу в случае todo и на топик в случае fixme
+    //fixme https://forum.fuel.network/t/error-ioerror-custom-kind-other-error-response-errors-running-open-order-function/4725
     match result {
         Ok(response) => {
             let id = Address::from(response.value.0).to_string();
