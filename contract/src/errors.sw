@@ -14,15 +14,14 @@ pub enum MarketError {
     NoMarketFound: (),
 }
 
-pub enum PriceError {
-    PriceCannotBeZero: (),
-}
-
 pub enum OrderError {
+    AssetMismatch: (),
     NoOrdersFound: (),
     AccessDenied: (),
-    OrdersCantBeMatched: (),
+    InsufficientBuyPrice: (),
     DuplicateOrder: (),
+    PriceCannotBeZero: (),
+    SizeCannotBeZero: (),
 }
 
 pub enum AuthError {

@@ -2,8 +2,8 @@ library;
 
 use i64::I64;
 use std::hash::{Hash, sha256};
-use ::errors::MarketError;
-use ::math::size_to_quote;
+use ::errors::{MarketError, OrderError};
+use ::math::quote;
 
 pub struct Asset {
     amount: u64,
@@ -25,6 +25,9 @@ pub struct Order {
 
 impl Order {
     pub fn new(trader: Address, asset: AssetId, size: I64, price: u64) -> Self {
+        require(price != 0, OrderError::PriceCannotBeZero);
+        require(size.value != 0, OrderError::SizeCannotBeZero);
+
         Self {
             trader,
             asset,
@@ -41,37 +44,21 @@ impl Order {
         sha256((self.trader, self.asset, self.price))
     }
 
-    #[storage(read)]
-    pub fn calculate_deposit(
-        self,
-        markets: StorageKey<StorageMap<AssetId, u32>>,
-        size: I64,
-        price: u64,
-        PRICE_DECIMALS: u32,
-        QUOTE_TOKEN_DECIMALS: u32,
-        QUOTE_TOKEN: AssetId,
-) -> (u64, AssetId) {
-        match size.negative {
-            true => (size.value, self.asset),
-            false => {
-                // Assumes check for the market has been made in caller
-                let market = markets.get(self.asset).read();
-                (
-                    size_to_quote(
-                        size.value,
-                        market,
-                        price,
-                        PRICE_DECIMALS,
-                        QUOTE_TOKEN_DECIMALS,
-                    ),
-                    QUOTE_TOKEN,
-                )
-            },
-        }
+    pub fn set_price(ref mut self, price: u64) -> Self {
+        require(price != 0, OrderError::PriceCannotBeZero);
+        self.price = price;
+        self
     }
 
+    pub fn set_size(ref mut self, size: I64) -> Self {
+        require(size.value != 0, OrderError::SizeCannotBeZero);
+        self.size = size;
+        self
+    }
+
+    // calc deposit to open / update order, or refund
     #[storage(read)]
-    pub fn calculate_refund(
+    pub fn calculate_deposit(
         self,
         markets: StorageKey<StorageMap<AssetId, u32>>,
         PRICE_DECIMALS: u32,
@@ -83,16 +70,18 @@ impl Order {
             false => {
                 // Assumes check for the market has been made in caller
                 let market = markets.get(self.asset).read();
-                let amount = size_to_quote(
-                    self.size
-                        .value,
-                    market,
-                    self.price,
-                    PRICE_DECIMALS,
-                    QUOTE_TOKEN_DECIMALS,
-                );
-                Asset::new(amount, QUOTE_TOKEN)
-            }
+                Asset::new(
+                    quote(
+                        self.size
+                            .value,
+                        market,
+                        self.price,
+                        PRICE_DECIMALS,
+                        QUOTE_TOKEN_DECIMALS,
+                    ),
+                    QUOTE_TOKEN,
+                )
+            },
         }
     }
 }

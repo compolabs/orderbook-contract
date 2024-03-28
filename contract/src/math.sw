@@ -39,7 +39,7 @@ pub fn min(a: u64, b: u64) -> u64 {
     if a < b { a } else { b }
 }
 
-pub fn size_to_quote(
+pub fn quote(
     size: u64,
     decimals: u32,
     price: u64,

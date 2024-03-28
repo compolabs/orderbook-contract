@@ -8,10 +8,10 @@ mod math;
 mod utils;
 
 use ::data_structures::{Asset, Order};
-use ::errors::{AssetError, Error, MarketError, OrderError, PriceError};
+use ::errors::{AssetError, Error, MarketError, OrderError};
 use ::events::{CancelOrderEvent, CreateMarketEvent, OpenOrderEvent, TradeEvent, UpdateOrderEvent};
 use ::interface::{Info, OrderBook};
-use ::math::{min, size_to_quote};
+use ::math::min;
 use ::utils::trader;
 
 use i64::I64;
@@ -64,14 +64,14 @@ impl OrderBook for Contract {
 
     #[payable]
     #[storage(read, write)]
-    fn open_order(asset: AssetId, size: I64, price: u64) -> b256 {
+    fn open_order(asset_id: AssetId, size: I64, price: u64) -> b256 {
         let trader = trader();
 
         // Market must exist to place an order
-        let market = storage.markets.get(asset).try_read();
+        let market = storage.markets.get(asset_id).try_read();
         require(market.is_some(), MarketError::NoMarketFound);
 
-        let order = Order::new(trader, asset, size, price);
+        let order = Order::new(trader, asset_id, size, price);
         let order_id = order.id();
 
         // Reject duplicate orders
@@ -84,22 +84,17 @@ impl OrderBook for Contract {
             OrderError::DuplicateOrder,
         );
 
-        // Reject free orders
-        require(price != 0, PriceError::PriceCannotBeZero);
-
         // Based on size determine the required deposit to open the order
-        let (amount, asset) = order.calculate_deposit(
+        let asset = order.calculate_deposit(
             storage
                 .markets,
-            size,
-            price,
             PRICE_DECIMALS,
             QUOTE_TOKEN_DECIMALS,
             QUOTE_TOKEN,
         );
 
-        require(msg_amount() == amount, AssetError::InvalidAssetAmount);
-        require(msg_asset_id() == asset, AssetError::InvalidAsset);
+        require(msg_amount() == asset.amount, AssetError::InvalidAssetAmount);
+        require(msg_asset_id() == asset.id, AssetError::InvalidAsset);
 
         storage.orders.insert(order_id, order);
         storage.trader_orders.get(trader).push(order_id);
@@ -111,7 +106,7 @@ impl OrderBook for Contract {
         log(OpenOrderEvent {
             order_id,
             trader,
-            asset,
+            asset: asset_id,
             size,
             price,
         });
@@ -122,51 +117,46 @@ impl OrderBook for Contract {
     #[payable]
     #[storage(read, write)]
     fn update_order(order_id: b256, size: I64, price: u64) {
-        // Market must already exist to place order, no need to check the market again
-        // Check the order exists in order to update
+        // Order should not be able to exist without a market already being created therefore no check here
+        // Prove order exists in order to update
         let order = storage.orders.get(order_id).try_read();
         require(order.is_some(), OrderError::NoOrdersFound);
 
         let trader = trader();
-        let order = order.unwrap();
+        let original_order = order.unwrap();
 
-        // Reject free orders
-        require(price != 0, PriceError::PriceCannotBeZero);
+        let mut new_order = original_order;
+        let new_order = new_order.set_price(price).set_size(size);
 
         // Based on size determine the required deposit to update the order
-        let (amount, asset) = order.calculate_deposit(
+        let asset = original_order.calculate_deposit(
             storage
                 .markets,
-            size,
-            price,
             PRICE_DECIMALS,
             QUOTE_TOKEN_DECIMALS,
             QUOTE_TOKEN,
         );
 
         // TODO: shouldn't this be the differece between the open price and current update price?
-        require(msg_amount() == amount, AssetError::InvalidAssetAmount);
-        require(msg_asset_id() == asset, AssetError::InvalidAsset);
-
-        // TODO: check and prevent 0 value, then remove
-        assert(order.size.value != 0);
+        require(msg_amount() == asset.amount, AssetError::InvalidAssetAmount);
+        require(msg_asset_id() == asset.id, AssetError::InvalidAsset);
 
         // TODO: clean up
-        let (asset_1, asset_2) = match order.size == size.flip() {
+        let (asset_1, asset_2) = match original_order.size == size.flip() {
             true => {
-                let mut mock_order = order;
+                let mut mock_order = original_order;
                 mock_order.flip();
 
-                let asset_1 = order.calculate_refund(
+                let asset_1 = original_order.calculate_deposit(
                     storage
                         .markets,
                     PRICE_DECIMALS,
                     QUOTE_TOKEN_DECIMALS,
                     QUOTE_TOKEN,
                 );
-                remove_update_order_internal(order, order.size.flip());
+                remove_order(original_order);
 
-                let asset_2 = mock_order.calculate_refund(
+                let asset_2 = mock_order.calculate_deposit(
                     storage
                         .markets,
                     PRICE_DECIMALS,
@@ -179,10 +169,14 @@ impl OrderBook for Contract {
                 let mut asset_1 = Asset::new(0, BASE_ASSET_ID);
                 let mut asset_2 = Asset::new(0, BASE_ASSET_ID);
 
-                if !order.size.is_same_sign(size) {
-                    let mut mock_order = order;
-                    mock_order.size.value = min(order.size.value, size.value);
-                    asset_1 = mock_order.calculate_refund(
+                if !original_order.size.is_same_sign(size) {
+                    let mut mock_order = original_order;
+                    mock_order.set_size(I64 {
+                        value: min(original_order.size.value, size.value),
+                        negative: mock_order.size.negative,
+                    });
+
+                    asset_1 = mock_order.calculate_deposit(
                         storage
                             .markets,
                         PRICE_DECIMALS,
@@ -190,7 +184,7 @@ impl OrderBook for Contract {
                         QUOTE_TOKEN,
                     );
                     mock_order.flip();
-                    asset_2 = mock_order.calculate_refund(
+                    asset_2 = mock_order.calculate_deposit(
                         storage
                             .markets,
                         PRICE_DECIMALS,
@@ -198,7 +192,7 @@ impl OrderBook for Contract {
                         QUOTE_TOKEN,
                     );
                 }
-                remove_update_order_internal(order, size);
+                remove_update_order_internal(original_order, size);
                 (asset_1, asset_2)
             }
         };
@@ -220,25 +214,24 @@ impl OrderBook for Contract {
 
     #[storage(read, write)]
     fn cancel_order(order_id: b256) {
-        // Only existing orders may be cancelled
+        // Order must exist to be cancelled
         let order = storage.orders.get(order_id).try_read();
         require(order.is_some(), OrderError::NoOrdersFound);
         let order = order.unwrap();
-
-        assert(order.size.value != 0); // TODO: check and prevent 0 value, then remove
 
         // Only the owner of the order may cancel their order
         let trader = trader();
         require(trader == order.trader, OrderError::AccessDenied);
 
-        let asset = order.calculate_refund(
+        let asset = order.calculate_deposit(
             storage
                 .markets,
             PRICE_DECIMALS,
             QUOTE_TOKEN_DECIMALS,
             QUOTE_TOKEN,
         );
-        remove_update_order_internal(order, order.size.flip());
+
+        remove_order(order);
 
         transfer_to_address(trader, asset.id, asset.amount);
 
@@ -271,10 +264,14 @@ impl OrderBook for Contract {
         require(
             sell_order
                 .asset == buy_order
-                .asset && sell_order
+                .asset,
+            OrderError::AssetMismatch,
+        );
+        require(
+            sell_order
                 .price <= buy_order
                 .price,
-            OrderError::OrdersCantBeMatched,
+            OrderError::InsufficientBuyPrice,
         );
 
         let mut mock_order = sell_order;
@@ -291,7 +288,7 @@ impl OrderBook for Contract {
         );
         mock_order.size.value = trade_size;
 
-        let asset_1 = mock_order.calculate_refund(
+        let asset_1 = mock_order.calculate_deposit(
             storage
                 .markets,
             PRICE_DECIMALS,
@@ -302,7 +299,7 @@ impl OrderBook for Contract {
 
         mock_order.flip();
 
-        let asset_2 = mock_order.calculate_refund(
+        let asset_2 = mock_order.calculate_deposit(
             storage
                 .markets,
             PRICE_DECIMALS,
@@ -327,7 +324,7 @@ impl OrderBook for Contract {
             order_matcher: trader,
             buyer: buy_order.trader,
             seller: sell_order.trader,
-            trade_size: trade_size,
+            trade_size,
             trade_price: sell_order.price,
         });
     }
@@ -354,6 +351,7 @@ impl Info for Contract {
     }
 
     fn order_id(trader: Address, asset: AssetId, price: u64) -> b256 {
+        // This must match with Order::id()
         sha256((trader, asset, price))
     }
 }
@@ -375,4 +373,20 @@ fn remove_update_order_internal(order: Order, size: I64) {
             storage.orders.insert(order_id, order);
         }
     }
+}
+
+#[storage(read, write)]
+fn remove_order(order: Order) {
+    let order_id = order.id();
+    let pos_id = storage.order_indexes_by_trader.get(order.trader).get(order_id).read() - 1; // pos + 1 indexed
+    assert(storage.order_indexes_by_trader.get(order.trader).remove(order_id));
+    assert(storage.trader_orders.get(order.trader).swap_remove(pos_id) == order_id);
+    assert(storage.orders.remove(order_id));
+}
+
+#[storage(write)]
+fn increase_order_size(order: Order) {
+    let mut order = order;
+    order.size += order.size;
+    storage.orders.insert(order.id(), order);
 }
