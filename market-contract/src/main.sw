@@ -421,8 +421,8 @@ impl Market for Contract {
 
 impl Info for Contract {
     #[storage(read)]
-    fn account(user: Identity) -> Account {
-        storage.account.get(user).try_read().unwrap_or(Account::new())
+    fn account(user: Identity) -> Option<Account> {
+        storage.account.get(user).try_read()
     }
 
     #[storage(read)]

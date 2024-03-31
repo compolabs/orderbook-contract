@@ -3,7 +3,7 @@ name = "core"
 source = "path+from-root-052C5FCD3614F738"
 
 [[package]]
-name = "orderbook"
+name = "market-contract"
 source = "member"
 dependencies = ["std"]
 

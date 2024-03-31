@@ -31,7 +31,7 @@ abi Market {
 
 abi Info {
     #[storage(read)]
-    fn account(user: Identity) -> Account;
+    fn account(user: Identity) -> Option<Account>;
 
     #[storage(read)]
     fn fee(user: Option<Identity>) -> u64;
