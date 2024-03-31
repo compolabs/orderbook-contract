@@ -1,35 +1,51 @@
 library;
 
-use i64::I64;
+use ::data_structures::{asset_type::AssetType, order_type::OrderType};
 
-pub struct CreateMarketEvent {
-    asset: AssetId,
-    decimals: u32,
+pub struct CancelOrderEvent {
+    pub order_id: b256,
+}
+
+pub struct DepositEvent {
+    pub amount: u64,
+    pub asset: AssetId,
+    pub user: Identity,
 }
 
 pub struct OpenOrderEvent {
-    order_id: b256,
-    trader: Address,
-    asset: AssetId,
-    size: I64,
-    price: u64,
+    pub amount: u64,
+    pub asset: AssetId,
+    pub asset_type: AssetType,
+    pub order_type: OrderType,
+    pub order_id: b256,
+    pub price: u64,
+    pub user: Identity,
+}
+
+pub struct SetFeeEvent {
+    pub amount: u64,
+    pub user: Option<Identity>,
+}
+
+// TODO: trading events
+pub struct TradeEvent {
+    pub asset: AssetId,
+    pub order_matcher: Address,
+    pub seller: Address,
+    pub buyer: Address,
+    pub trade_size: u64,
+    pub trade_price: u64,
 }
 
 pub struct UpdateOrderEvent {
-    order_id: b256,
-    size: I64,
-    price: u64,
+    pub amount: Option<u64>,
+    pub new_order_id: b256,
+    pub order_id: b256,
+    pub price: Option<u64>,
 }
 
-pub struct TradeEvent {
-    asset: AssetId,
-    order_matcher: Address,
-    seller: Address,
-    buyer: Address,
-    trade_size: u64,
-    trade_price: u64,
-}
-
-pub struct CancelOrderEvent {
-    order_id: b256,
+pub struct WithdrawEvent {
+    pub amount: u64,
+    pub asset: AssetId,
+    pub user: Identity,
 }

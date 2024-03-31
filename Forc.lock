@@ -1,27 +1,13 @@
 [[package]]
 name = "core"
-source = "path+from-root-566CA1D5F8BEAFBF"
-
-[[package]]
-name = "i64"
-source = "git+https://github.com/compolabs/i64?default-branch#b983e37ec72b60a3544bde52babebec61b15c710"
-dependencies = ["std"]
+source = "path+from-root-052C5FCD3614F738"
 
 [[package]]
 name = "orderbook"
 source = "member"
-dependencies = [
-    "i64",
-    "reentrancy",
-    "std",
-]
-
-[[package]]
-name = "reentrancy"
-source = "git+https://github.com/FuelLabs/sway-libs?default-branch#8bee5502681c959fb57fb8883ca68090080e08be"
 dependencies = ["std"]
 
 [[package]]
 name = "std"
-source = "git+https://github.com/fuellabs/sway?tag=v0.49.3#0dc6570377ee9c4a6359ade597fa27351e02a728"
+source = "git+https://github.com/fuellabs/sway?tag=v0.52.0#98d8f4cadbac34f232926b9a44b1170ec9da425d"
 dependencies = ["core"]

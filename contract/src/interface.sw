@@ -1,38 +1,48 @@
 library;
 
-use ::data_structures::Order;
-use i64::I64;
+use ::data_structures::{account::Account, order::Order, order_type::OrderType};
 
-abi OrderBook {
-    #[storage(read, write)]
-    fn create_market(asset: AssetId, decimal: u32);
-
+abi Market {
     #[payable]
     #[storage(read, write)]
-    fn open_order(asset: AssetId, size: I64, price: u64) -> b256;
+    fn deposit();
 
-    #[payable]
     #[storage(read, write)]
-    fn update_order(order_id: b256, size: I64, price: u64);
+    fn withdraw(amount: u64, asset: AssetId);
+
+    #[storage(read, write)]
+    fn open_order(amount: u64, asset: AssetId, order_type: OrderType, price: u64) -> b256;
+
+    #[storage(read, write)]
+    fn update_order(amount: Option<u64>, order_id: b256, price: Option<u64>) -> b256;
 
     #[storage(read, write)]
     fn cancel_order(order_id: b256);
 
+    // #[storage(read, write)]
+    // fn fulfill(order_id: b256);
+
     #[storage(read, write)]
-    fn match_orders(sell_order: b256, buy_order: b256);
+    fn batch_fulfill(order_id: b256, orders: Vec<b256>);
+
+    #[storage(write)]
+    fn set_fee(amount: u64, user: Option<Identity>);
 }
 
 abi Info {
     #[storage(read)]
-    fn trader_orders(trader: Address) -> Vec<b256>;
+    fn account(user: Identity) -> Account;
+
+    #[storage(read)]
+    fn fee(user: Option<Identity>) -> u64;
 
     #[storage(read)]
     fn order(order: b256) -> Option<Order>;
 
     #[storage(read)]
-    fn market(asset_id: AssetId) -> Option<u32>;
+    fn user_orders(user: Identity) -> Vec<b256>;
 
-    fn configurables() -> (AssetId, u32, u32);
+    fn config() -> (Address, AssetId, u32, AssetId, u32, u32);
 
-    fn order_id(trader: Address, asset: AssetId, price: u64) -> b256;
+    fn order_id(amount: u64, asset: AssetId, order_type: OrderType, owner: Identity, price: u64) -> b256;
 }

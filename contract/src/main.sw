@@ -1,80 +1,146 @@
 contract;
 
-mod data_structures;
+// TODO: compiler regression, order matters or it won't compile
 mod errors;
+mod data_structures;
 mod events;
 mod interface;
 mod math;
-mod utils;
 
-use ::data_structures::{Asset, Order};
-use ::errors::{AssetError, Error, MarketError, OrderError};
-use ::events::{CancelOrderEvent, CreateMarketEvent, OpenOrderEvent, TradeEvent, UpdateOrderEvent};
-use ::interface::{Info, OrderBook};
-use ::math::min;
-use ::utils::trader;
+use ::data_structures::{
+    account::Account,
+    asset_type::AssetType, 
+    balance::Balance, 
+    order_type::OrderType,
+    order::Order
+};
+use ::errors::{AccountError, AssetError, AuthError, OrderError};
+use ::events::{
+    CancelOrderEvent,
+    DepositEvent, 
+    OpenOrderEvent, 
+    SetFeeEvent, 
+    TradeEvent, 
+    UpdateOrderEvent, 
+    WithdrawEvent
+};
+use ::interface::{Info, Market};
+use ::math::attempt_trade;
 
-use i64::I64;
-use reentrancy::reentrancy_guard;
 use std::{
-    asset::transfer_to_address,
+    asset::transfer,
     call_frames::msg_asset_id,
-    constants::BASE_ASSET_ID,
+    constants::{BASE_ASSET_ID, ZERO_B256},
     context::msg_amount,
     hash::{
         Hash,
         sha256,
     },
+    // TODO: glob import because compiler will not import impl block otherwise
     storage::storage_vec::*,
 };
 
 configurable {
-    QUOTE_TOKEN: AssetId = BASE_ASSET_ID,
-    QUOTE_TOKEN_DECIMALS: u32 = 9,
+    BASE_ASSET: AssetId = BASE_ASSET_ID,
+    BASE_ASSET_DECIMALS: u32 = 9,
+    OWNER: Address = Address::from(ZERO_B256),
     PRICE_DECIMALS: u32 = 9,
+    QUOTE_ASSET: AssetId = BASE_ASSET_ID,
+    QUOTE_ASSET_DECIMALS: u32 = 9,
 }
 
 storage {
+    // Balance of each user
+    account: StorageMap<Identity, Account> = StorageMap {},
+
+    // Global fee for regular users
+    fee: u64 = 0,
+
+    // All of the currently open orders
     orders: StorageMap<b256, Order> = StorageMap {},
-    markets: StorageMap<AssetId, u32> = StorageMap {},
-    trader_orders: StorageMap<Address, StorageVec<b256>> = StorageMap {},
-    order_indexes_by_trader: StorageMap<Address, StorageMap<b256, u64>> = StorageMap {},
+
+    // Internal handling of indexes for user_orders
+    user_order_indexes: StorageMap<Identity, StorageMap<b256, u64>> = StorageMap {},
+
+    // Fee for premium users which ought to be smaller than the global fee
+    // Map(user => fee)
+    premium_user: StorageMap<Identity, u64> = StorageMap {},
+
+    // Indexing orders by user
+    user_orders: StorageMap<Identity, StorageVec<b256>> = StorageMap {},
 }
 
-impl OrderBook for Contract {
-    #[storage(read, write)]
-    fn create_market(asset: AssetId, decimals: u32) {
-        require(asset != QUOTE_TOKEN, AssetError::InvalidAsset);
-        require(
-            storage
-                .markets
-                .get(asset)
-                .try_read()
-                .is_none(),
-            MarketError::DuplicateMarket,
-        );
-
-        storage.markets.insert(asset, decimals);
-
-        log(CreateMarketEvent {
-            asset,
-            decimals,
-        });
-    }
-
+impl Market for Contract {
     #[payable]
     #[storage(read, write)]
-    fn open_order(asset_id: AssetId, size: I64, price: u64) -> b256 {
-        let trader = trader();
+    fn deposit() {
+        require(msg_asset_id() == BASE_ASSET || msg_asset_id() == QUOTE_ASSET, AssetError::InvalidAsset);
 
-        // Market must exist to place an order
-        let market = storage.markets.get(asset_id).try_read();
-        require(market.is_some(), MarketError::NoMarketFound);
+        let user = msg_sender().unwrap();
+        let asset_type = if msg_asset_id() == BASE_ASSET {
+            AssetType::Base
+        } else {
+            AssetType::Quote
+        };
 
-        let order = Order::new(trader, asset_id, size, price);
+        let mut account = match storage.account.get(user).try_read() {
+            Some(account) => account,
+            None => Account::new(),
+        };
+
+        account.liquid.credit(msg_amount(), asset_type);
+
+        storage.account.insert(user, account);
+
+        log(DepositEvent { amount: msg_amount(), asset: msg_asset_id(), user });
+    }
+
+    #[storage(read, write)]
+    fn withdraw(amount: u64, asset: AssetId) {
+        require(asset == BASE_ASSET || asset == QUOTE_ASSET, AssetError::InvalidAsset);
+        
+        let user = msg_sender().unwrap();
+        let account = storage.account.get(user).try_read();
+
+        require(account.is_some(), AccountError::InvalidUser);
+        
+        let mut account = account.unwrap();
+        let asset_type = if asset == BASE_ASSET {
+            AssetType::Base
+        } else {
+            AssetType::Quote
+        };
+
+        account.liquid.debit(amount, asset_type);
+
+        storage.account.insert(user, account);
+
+        transfer(user, asset, amount);
+        
+        log(WithdrawEvent { amount, asset, user });
+    }
+
+    #[storage(read, write)]
+    fn open_order(amount: u64, asset: AssetId, order_type: OrderType, price: u64) -> b256 {
+        require(asset == BASE_ASSET || asset == QUOTE_ASSET, AssetError::InvalidAsset);
+
+        let user = msg_sender().unwrap();
+        let account = storage.account.get(user).try_read();
+
+        // An order may be open if an account exists
+        require(account.is_some(), AccountError::InvalidUser);
+
+        let mut account = account.unwrap();
+        let asset_type = if asset == BASE_ASSET { AssetType::Base } else { AssetType::Quote };
+
+        // If the account has enough liquidity then lock it for the new order
+        account.liquid.debit(amount, asset_type);
+        account.locked.credit(amount, asset_type);
+
+        let order = Order::new(amount, asset, asset_type, order_type, user, price);
         let order_id = order.id();
 
-        // Reject duplicate orders
+        // Reject identical orders
         require(
             storage
                 .orders
@@ -83,133 +149,97 @@ impl OrderBook for Contract {
                 .is_none(),
             OrderError::DuplicateOrder,
         );
-
-        // Based on size determine the required deposit to open the order
-        let asset = order.calculate_deposit(
-            storage
-                .markets,
-            PRICE_DECIMALS,
-            QUOTE_TOKEN_DECIMALS,
-            QUOTE_TOKEN,
-        );
-
-        require(msg_amount() == asset.amount, AssetError::InvalidAssetAmount);
-        require(msg_asset_id() == asset.id, AssetError::InvalidAsset);
-
+        
+        // Store the new order and update the state of the user's account
         storage.orders.insert(order_id, order);
-        storage.trader_orders.get(trader).push(order_id);
+        storage.account.insert(user, account);
+
+        // Indexing
+        storage.user_orders.get(user).push(order_id);
         storage
-            .order_indexes_by_trader
-            .get(trader)
-            .insert(order_id, storage.trader_orders.get(trader).len());
+            .user_order_indexes
+            .get(user)
+            .insert(order_id, storage.user_orders.get(user).len() - 1);
 
         log(OpenOrderEvent {
+            amount,
+            asset,
+            asset_type,
+            order_type,
             order_id,
-            trader,
-            asset: asset_id,
-            size,
             price,
+            user,
         });
 
         order_id
     }
 
-    #[payable]
     #[storage(read, write)]
-    fn update_order(order_id: b256, size: I64, price: u64) {
-        // Order should not be able to exist without a market already being created therefore no check here
-        // Prove order exists in order to update
+    fn update_order(amount: Option<u64>, order_id: b256, price: Option<u64>) -> b256 {
+        require(!(amount.is_none() && price.is_none()), OrderError::InvalidUpdate);
+
+        // Order must exist to be updated
         let order = storage.orders.get(order_id).try_read();
         require(order.is_some(), OrderError::NoOrdersFound);
 
-        let trader = trader();
-        let original_order = order.unwrap();
+        let mut order = order.unwrap();
+        let user = msg_sender().unwrap();
 
-        let mut new_order = original_order;
-        let new_order = new_order.set_price(price).set_size(size);
+        // Only the owner of the order may update their order
+        require(user == order.owner, AuthError::Unauthorized);
 
-        // Based on size determine the required deposit to update the order
-        let asset = original_order.calculate_deposit(
-            storage
-                .markets,
-            PRICE_DECIMALS,
-            QUOTE_TOKEN_DECIMALS,
-            QUOTE_TOKEN,
-        );
+        // Safe to read() because user is the owner of the order
+        let mut account = storage.account.get(user).read();
 
-        // TODO: shouldn't this be the differece between the open price and current update price?
-        require(msg_amount() == asset.amount, AssetError::InvalidAssetAmount);
-        require(msg_asset_id() == asset.id, AssetError::InvalidAsset);
+        if amount.is_some() {
+            let amount = amount.unwrap();
+            if amount < order.amount {
+                // Reducing order amount unlocks liquidity
+                let delta = order.amount - amount;
 
-        // TODO: clean up
-        let (asset_1, asset_2) = match original_order.size == size.flip() {
-            true => {
-                let mut mock_order = original_order;
-                mock_order.flip();
+                account.locked.debit(delta, order.asset_type);
+                account.liquid.credit(delta, order.asset_type);
+            } else if order.amount < amount {
+                // Increasing order amount locks liquidity
+                let delta = amount - order.amount;
 
-                let asset_1 = original_order.calculate_deposit(
-                    storage
-                        .markets,
-                    PRICE_DECIMALS,
-                    QUOTE_TOKEN_DECIMALS,
-                    QUOTE_TOKEN,
-                );
-                remove_order(original_order);
-
-                let asset_2 = mock_order.calculate_deposit(
-                    storage
-                        .markets,
-                    PRICE_DECIMALS,
-                    QUOTE_TOKEN_DECIMALS,
-                    QUOTE_TOKEN,
-                );
-                (asset_1, asset_2)
-            },
-            false => {
-                let mut asset_1 = Asset::new(0, BASE_ASSET_ID);
-                let mut asset_2 = Asset::new(0, BASE_ASSET_ID);
-
-                if !original_order.size.is_same_sign(size) {
-                    let mut mock_order = original_order;
-                    mock_order.set_size(I64 {
-                        value: min(original_order.size.value, size.value),
-                        negative: mock_order.size.negative,
-                    });
-
-                    asset_1 = mock_order.calculate_deposit(
-                        storage
-                            .markets,
-                        PRICE_DECIMALS,
-                        QUOTE_TOKEN_DECIMALS,
-                        QUOTE_TOKEN,
-                    );
-                    mock_order.flip();
-                    asset_2 = mock_order.calculate_deposit(
-                        storage
-                            .markets,
-                        PRICE_DECIMALS,
-                        QUOTE_TOKEN_DECIMALS,
-                        QUOTE_TOKEN,
-                    );
-                }
-                remove_update_order_internal(original_order, size);
-                (asset_1, asset_2)
+                account.locked.credit(delta, order.asset_type);
+                account.liquid.debit(delta, order.asset_type);
             }
-        };
 
-        // TODO: some type of refund here
-        if asset_1.amount > 0 {
-            transfer_to_address(trader, asset_1.id, asset_1.amount);
+            order.set_amount(amount);
+            storage.account.insert(user, account);
         }
-        if asset_2.amount > 0 {
-            transfer_to_address(trader, asset_2.id, asset_2.amount);
+
+        if price.is_some() {
+            order.set_price(price.unwrap());
         }
+
+        require(storage.orders.remove(order_id), OrderError::FailedToRemove);
+
+        let new_order_id = order.id();
+        let index = storage.user_order_indexes.get(user).get(order_id).read();
+
+        // Remove the current order index from the map
+        require(storage.user_order_indexes.get(user).remove(order_id), OrderError::FailedToRemove); // TODO: Different error
+
+        // Overwrite the order that is being removed with the new order in the storage vec
+        storage.user_orders.get(user).insert(index, new_order_id);
+
+        // Record the same index for the new order
+        storage.user_order_indexes.get(user).insert(new_order_id, index);
+
+        // Add the order to the global map
+        storage.orders.insert(new_order_id, order);
 
         log(UpdateOrderEvent {
+            amount,
+            new_order_id,
             order_id,
-            size,
             price,
         });
+
+        new_order_id
     }
 
     #[storage(read, write)]
@@ -217,123 +247,190 @@ impl OrderBook for Contract {
         // Order must exist to be cancelled
         let order = storage.orders.get(order_id).try_read();
         require(order.is_some(), OrderError::NoOrdersFound);
+
         let order = order.unwrap();
+        let user = msg_sender().unwrap();
 
         // Only the owner of the order may cancel their order
-        let trader = trader();
-        require(trader == order.trader, OrderError::AccessDenied);
+        require(user == order.owner, AuthError::Unauthorized);
 
-        let asset = order.calculate_deposit(
-            storage
-                .markets,
-            PRICE_DECIMALS,
-            QUOTE_TOKEN_DECIMALS,
-            QUOTE_TOKEN,
-        );
+        // Safe to read() because user is the owner of the order
+        let mut account = storage.account.get(user).read();
 
-        remove_order(order);
+        // Order is about to be cancelled, unlock illiquid funds
+        account.locked.debit(order.amount, order.asset_type);
+        account.liquid.credit(order.amount, order.asset_type);
 
-        transfer_to_address(trader, asset.id, asset.amount);
+        require(storage.orders.remove(order_id), OrderError::FailedToRemove);
+
+        let index = storage.user_order_indexes.get(user).get(order_id).read();
+        let order_count = storage.user_orders.get(user).len();
+
+        require(storage.user_order_indexes.get(user).remove(order_id), OrderError::FailedToRemove); // TODO: Different error
+
+        if order_count == 1 {
+            // There's only 1 element so no swapping. Pop it from the end
+            require(storage.user_orders.get(user).pop().unwrap() == order_id, OrderError::FailedToRemove);
+        } else {
+            // The order ID at the end is about to have its index changed via swap_remove()
+            let last_element = storage.user_orders.get(user).last().unwrap().read();
+
+            // Remove the current order by replacing it with the order at the end of storage vec
+            require(storage.user_orders.get(user).swap_remove(index) == order_id, OrderError::FailedToRemove);
+
+            // Last element has been shifted so update its index
+            storage.user_order_indexes.get(user).insert(last_element, index);
+        }
+
+        storage.account.insert(user, account);
 
         log(CancelOrderEvent { order_id });
     }
 
+    // #[storage(read, write)]
+    // fn fulfill(order_id: b256);
+
     #[storage(read, write)]
-    fn match_orders(sell_order: b256, buy_order: b256) {
-        let trader = trader();
+    fn batch_fulfill(order_id: b256, orders: Vec<b256>) {
+        // TODO: batching is WIP, almost done but needs more work
 
-        let sell_order = storage.orders.get(sell_order).try_read();
-        let buy_order = storage.orders.get(buy_order).try_read();
-        require(
-            sell_order
-                .is_some() && buy_order
-                .is_some(),
-            OrderError::NoOrdersFound,
-        );
+        // Order must exist to be fulfilled
+        let alice = storage.orders.get(order_id).try_read();
+        require(alice.is_some(), OrderError::NoOrdersFound);
 
-        let sell_order = sell_order.unwrap();
-        let buy_order = buy_order.unwrap();
-        require(
-            sell_order
-                .size
-                .negative && !buy_order
-                .size
-                .negative,
-            Error::FirstArgumentShouldBeOrderSellSecondOrderBuy, // TODO: rename
-        );
-        require(
-            sell_order
-                .asset == buy_order
-                .asset,
-            OrderError::AssetMismatch,
-        );
-        require(
-            sell_order
-                .price <= buy_order
-                .price,
-            OrderError::InsufficientBuyPrice,
-        );
+        let mut alice = alice.unwrap();
+        // Cannot open an order without having an account so it's safe to read
+        let mut alice_account = storage.account.get(alice.owner).read();
 
-        let mut mock_order = sell_order;
-        mock_order.flip();
+        for id in orders.iter() {
+            let bob = storage.orders.get(id).try_read();
+            // If bob's order does not exist then proceed to the next order without reverting
+            if bob.is_none() {
+                continue;
+            }
+            let mut bob = bob.unwrap();
 
-        let trade_size = min(
-            sell_order
-                .size
-                .value,
-            buy_order
-                .size
-                .value
-                .mul_div(buy_order.price, sell_order.price),
-        );
-        mock_order.size.value = trade_size;
+            // Order types must be different in order to trade (buy against sell)
+            // Asset types must be the same you trade asset A for asset A instead of B
+            if alice.order_type == bob.order_type || alice.asset != bob.asset {
+                continue;
+            }
 
-        let asset_1 = mock_order.calculate_deposit(
-            storage
-                .markets,
-            PRICE_DECIMALS,
-            QUOTE_TOKEN_DECIMALS,
-            QUOTE_TOKEN,
-        );
-        remove_update_order_internal(sell_order, mock_order.size);
+            // Upon a trade the id will change so track it before any trades
+            let bob_id = bob.id();
 
-        mock_order.flip();
+            // Attempt to trade orders, figure out amounts that can be traded
+            let trade = attempt_trade(alice, bob);
 
-        let asset_2 = mock_order.calculate_deposit(
-            storage
-                .markets,
-            PRICE_DECIMALS,
-            QUOTE_TOKEN_DECIMALS,
-            QUOTE_TOKEN,
-        );
-        mock_order.size.value = mock_order.size.value.mul_div_rounding_up(sell_order.price, buy_order.price);
-        remove_update_order_internal(buy_order, mock_order.size);
+            // Failed to trade ex. insufficient price or remaining amount
+            if trade.is_err() {
+                continue;
+            }
 
-        require(
-            asset_1
-                .amount != 0 && asset_2
-                .amount != 0,
-            AssetError::InvalidAssetAmount,
-        );
+            // Retrieve the amount of each asset that can be traded
+            let (alice_amount, bob_amount) = trade.unwrap();
 
-        transfer_to_address(sell_order.trader, asset_1.id, asset_1.amount);
-        transfer_to_address(buy_order.trader, asset_2.id, asset_2.amount);
+            // Update the order quantities with the amounts that can be traded
+            alice.amount -= alice_amount;
+            bob.amount -= bob_amount;
 
-        log(TradeEvent {
-            asset: sell_order.asset,
-            order_matcher: trader,
-            buyer: buy_order.trader,
-            seller: sell_order.trader,
-            trade_size,
-            trade_price: sell_order.price,
-        });
+            // Update the accounts for bob and alice based on the traded assets
+            let mut bob_account = storage.account.get(bob.owner).read();
+            
+            alice_account.locked.debit(alice_amount, alice.asset_type);
+            alice_account.liquid.credit(bob_amount, bob.asset_type);
+
+            bob_account.locked.debit(bob_amount, bob.asset_type);
+            bob_account.liquid.credit(alice_amount, alice.asset_type);
+
+            // Save bob's account because his order is finished
+            // For optimization save alice at the end of the batch
+            storage.account.insert(bob.owner, bob_account);
+
+            // If bob's order has been fully filled then we remove it from orders
+            if bob.amount == 0 {
+                require(storage.orders.remove(bob_id), OrderError::FailedToRemove);
+
+                // TODO: Emit event
+                // log(TradeEvent {
+                //     order_id: bob_id,
+
+                // })
+            } else {
+                // We were only partially able to fill bob's order so we replace the old order
+                // with the updated order
+                require(storage.orders.remove(bob_id), OrderError::FailedToRemove);
+                let bob_id = bob.id();
+
+                // Reject identical orders to prevent accounting issues
+                require(
+                    storage
+                        .orders
+                        .get(bob_id)
+                        .try_read()
+                        .is_none(),
+                    OrderError::DuplicateOrder,
+                );
+
+                storage.orders.insert(bob_id, bob);
+
+                // TODO: event
+            }
+
+            // If the target order has been fulfilled then finish processing batch
+            if alice.amount == 0 {
+                require(storage.orders.remove(order_id), OrderError::FailedToRemove);
+                break;
+            }
+        }
+
+        if alice.amount != 0 {
+            require(storage.orders.remove(order_id), OrderError::FailedToRemove);
+            let alice_id = alice.id();
+
+            // Reject identical orders to prevent accounting issues
+            require(
+                storage
+                    .orders
+                    .get(alice_id)
+                    .try_read()
+                    .is_none(),
+                OrderError::DuplicateOrder,
+            );
+
+            storage.orders.insert(alice_id, alice);
+        }
+
+        storage.account.insert(alice.owner, alice_account);
+
+        // TODO: event
+    }
+
+    #[storage(write)]
+    fn set_fee(amount: u64, user: Option<Identity>) {
+        require(msg_sender().unwrap().as_address().unwrap() == OWNER, AuthError::Unauthorized);
+
+        match user {
+            Some(identity) => storage.premium_user.insert(identity, amount),
+            None => storage.fee.write(amount),
+        };
+
+        log(SetFeeEvent { amount, user });
     }
 }
 
 impl Info for Contract {
     #[storage(read)]
-    fn trader_orders(trader: Address) -> Vec<b256> {
-        storage.trader_orders.get(trader).load_vec()
+    fn account(user: Identity) -> Account {
+        storage.account.get(user).try_read().unwrap_or(Account::new())
+    }
+
+    #[storage(read)]
+    fn fee(user: Option<Identity>) -> u64 {
+        match user {
+            Some(identity) => storage.premium_user.get(identity).try_read().unwrap_or(storage.fee.read()),
+            None => storage.fee.read(),
+        }
     }
 
     #[storage(read)]
@@ -342,51 +439,21 @@ impl Info for Contract {
     }
 
     #[storage(read)]
-    fn market(asset: AssetId) -> Option<u32> {
-        storage.markets.get(asset).try_read()
+    fn user_orders(user: Identity) -> Vec<b256> {
+        storage.user_orders.get(user).load_vec()
     }
 
-    fn configurables() -> (AssetId, u32, u32) {
-        (QUOTE_TOKEN, QUOTE_TOKEN_DECIMALS, PRICE_DECIMALS)
+    fn config() -> (Address, AssetId, u32, AssetId, u32, u32) {
+        (OWNER, BASE_ASSET, BASE_ASSET_DECIMALS, QUOTE_ASSET, QUOTE_ASSET_DECIMALS, PRICE_DECIMALS)
     }
 
-    fn order_id(trader: Address, asset: AssetId, price: u64) -> b256 {
-        // This must match with Order::id()
-        sha256((trader, asset, price))
+    fn order_id(amount: u64, asset: AssetId, order_type: OrderType, owner: Identity, price: u64) -> b256 {
+        require(asset == BASE_ASSET || asset == QUOTE_ASSET, AssetError::InvalidAsset);
+        let asset_type = if asset == BASE_ASSET {
+            AssetType::Base
+        } else {
+            AssetType::Quote
+        };
+        Order::new(amount, asset, asset_type, order_type, owner, price).id()
     }
-}
-
-#[storage(read, write)]
-fn remove_update_order_internal(order: Order, size: I64) {
-    let order_id = order.id();
-
-    match order.size == size.flip() {
-        true => {
-            let pos_id = storage.order_indexes_by_trader.get(order.trader).get(order_id).read() - 1; // pos + 1 indexed
-            assert(storage.order_indexes_by_trader.get(order.trader).remove(order_id));
-            assert(storage.trader_orders.get(order.trader).swap_remove(pos_id) == order_id);
-            assert(storage.orders.remove(order_id));
-        }
-        false => {
-            let mut order = order;
-            order.size += size;
-            storage.orders.insert(order_id, order);
-        }
-    }
-}
-
-#[storage(read, write)]
-fn remove_order(order: Order) {
-    let order_id = order.id();
-    let pos_id = storage.order_indexes_by_trader.get(order.trader).get(order_id).read() - 1; // pos + 1 indexed
-    assert(storage.order_indexes_by_trader.get(order.trader).remove(order_id));
-    assert(storage.trader_orders.get(order.trader).swap_remove(pos_id) == order_id);
-    assert(storage.orders.remove(order_id));
-}
-
-#[storage(write)]
-fn increase_order_size(order: Order) {
-    let mut order = order;
-    order.size += order.size;
-    storage.orders.insert(order.id(), order);
 }
