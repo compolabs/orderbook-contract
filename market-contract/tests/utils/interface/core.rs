@@ -1,12 +1,28 @@
 use crate::utils::setup::{Market, OrderType};
 use fuels::{
     accounts::wallet::WalletUnlocked,
+    prelude::{CallParameters, TxPolicies},
     programs::{call_response::FuelCallResponse, call_utils::TxDependencyExtension},
     types::{AssetId, Bits256, Identity},
 };
 
-pub(crate) async fn deposit(contract: &Market<WalletUnlocked>) -> FuelCallResponse<()> {
-    contract.methods().deposit().call().await.unwrap()
+pub(crate) async fn deposit(
+    contract: &Market<WalletUnlocked>,
+    amount: u64,
+    asset: AssetId,
+) -> FuelCallResponse<()> {
+    let tx_params = TxPolicies::new(Some(0), Some(2_000_000), None, None, None);
+    let call_params = CallParameters::new(amount, asset, 1_000_000);
+
+    contract
+        .methods()
+        .deposit()
+        .with_tx_policies(tx_params)
+        .call_params(call_params)
+        .unwrap()
+        .call()
+        .await
+        .unwrap()
 }
 
 pub(crate) async fn withdraw(
