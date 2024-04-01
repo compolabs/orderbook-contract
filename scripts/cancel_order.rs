@@ -3,10 +3,13 @@ use fuels::{
     prelude::{Provider, WalletUnlocked},
     types::Bits256,
 };
-use orderbook::{constants::ORDERBOOK_CONTRACT_ID, orderbook_utils::Orderbook, print_title};
-use src20_sdk::constants::RPC;
+use orderbook::{
+    constants::{ORDERBOOK_CONTRACT_ID, RPC},
+    orderbook_utils::Orderbook,
+    print_title,
+};
 
-const ORDER_ID: &str = "0x72a6ade704246cac5699b2016cb8bbcaa91ad254678efb4c4ffc12c3777db2f9";
+const ORDER_ID: &str = "0x2b04ddb4fe13fd38f0edf10c347ba059f8404bc9063e76857df31a414163db38";
 
 #[tokio::main]
 async fn main() {

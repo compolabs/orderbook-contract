@@ -3,11 +3,12 @@ use fuels::{
     prelude::{Provider, WalletUnlocked},
     types::ContractId,
 };
-use orderbook::{constants::ORDERBOOK_CONTRACT_ID, orderbook_utils::Orderbook, print_title};
-use src20_sdk::{
-    constants::{RPC, TOKEN_CONTRACT_ID},
-    token_utils::{Asset, TokenContract},
+use orderbook::{
+    constants::{ORDERBOOK_CONTRACT_ID, RPC, TOKEN_CONTRACT_ID},
+    orderbook_utils::Orderbook,
+    print_title,
 };
+use src20_sdk::token_utils::{Asset, TokenContract};
 use std::str::FromStr;
 
 const MARKET_SYMBOL: &str = "UNI";

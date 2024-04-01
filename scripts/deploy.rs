@@ -5,12 +5,12 @@ use fuels::{
     prelude::{Provider, WalletUnlocked},
     types::ContractId,
 };
-use orderbook::{constants::TOKEN_CONTRACT_ID, orderbook_utils::Orderbook};
-use src20_sdk::{
-    constants::RPC,
+use orderbook::{
+    constants::{RPC, TOKEN_CONTRACT_ID},
+    orderbook_utils::Orderbook,
     print_title,
-    token_utils::{Asset, TokenContract},
 };
+use src20_sdk::token_utils::{Asset, TokenContract};
 
 #[tokio::main]
 async fn main() {
