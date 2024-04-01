@@ -10,7 +10,10 @@ pub enum OrderError {
     PriceCannotBeZero: (),
     AmountCannotBeZero: (),
     FailedToRemove: (),
-    InvalidUpdate: (),
+}
+
+pub enum TradeError {
+    CannotTrade: (),
 }
 
 pub enum AuthError {
@@ -18,6 +21,6 @@ pub enum AuthError {
 }
 
 pub enum AccountError {
-    InsufficientBalance: (),
+    InsufficientBalance: (u64, u64),
     InvalidUser: (),
 }

@@ -14,9 +14,6 @@ abi Market {
     fn open_order(amount: u64, asset: AssetId, order_type: OrderType, price: u64) -> b256;
 
     #[storage(read, write)]
-    fn update_order(amount: Option<u64>, order_id: b256, price: Option<u64>) -> b256;
-
-    #[storage(read, write)]
     fn cancel_order(order_id: b256);
 
     // #[storage(read, write)]

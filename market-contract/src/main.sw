@@ -21,11 +21,10 @@ use ::events::{
     OpenOrderEvent, 
     SetFeeEvent, 
     TradeEvent, 
-    UpdateOrderEvent, 
     WithdrawEvent
 };
 use ::interface::{Info, Market};
-use ::math::attempt_trade;
+use ::math::*;
 
 use std::{
     asset::transfer,
@@ -133,9 +132,36 @@ impl Market for Contract {
         let mut account = account.unwrap();
         let asset_type = if asset == BASE_ASSET { AssetType::Base } else { AssetType::Quote };
 
-        // If the account has enough liquidity then lock it for the new order
-        account.liquid.debit(amount, asset_type);
-        account.locked.credit(amount, asset_type);
+        match order_type {
+            OrderType::Sell => {
+                // If the account has enough liquidity of the asset that you already own then lock 
+                // it for the new sell order
+                account.liquid.debit(amount, asset_type);
+                account.locked.credit(amount, asset_type);
+            }
+            OrderType::Buy => {
+                // Calculate amount to lock of the other asset
+                let (amount, asset_type) = match asset == BASE_ASSET {
+                    true => {
+                        let amount = base_to_quote_amount(amount, BASE_ASSET_DECIMALS, price, PRICE_DECIMALS, QUOTE_ASSET_DECIMALS);
+                        let asset_type = AssetType::Quote;
+
+                        (amount, asset_type)
+                    },
+                    false => {
+                        let amount = quote_to_base_amount(amount, BASE_ASSET_DECIMALS, price, PRICE_DECIMALS, QUOTE_ASSET_DECIMALS);
+                        let asset_type = AssetType::Base;
+
+                        (amount, asset_type)
+                    },
+                };
+
+                // The asset type is the opposite because you're calculating if you have enough of
+                // the opposite asset to use as payment
+                account.liquid.debit(amount, asset_type);
+                account.locked.credit(amount, asset_type);
+            }
+        }
 
         let order = Order::new(amount, asset, asset_type, order_type, user, price);
         let order_id = order.id();
@@ -175,74 +201,6 @@ impl Market for Contract {
     }
 
     #[storage(read, write)]
-    fn update_order(amount: Option<u64>, order_id: b256, price: Option<u64>) -> b256 {
-        require(!(amount.is_none() && price.is_none()), OrderError::InvalidUpdate);
-
-        // Order must exist to be updated
-        let order = storage.orders.get(order_id).try_read();
-        require(order.is_some(), OrderError::NoOrdersFound);
-
-        let mut order = order.unwrap();
-        let user = msg_sender().unwrap();
-
-        // Only the owner of the order may update their order
-        require(user == order.owner, AuthError::Unauthorized);
-
-        // Safe to read() because user is the owner of the order
-        let mut account = storage.account.get(user).read();
-
-        if amount.is_some() {
-            let amount = amount.unwrap();
-            if amount < order.amount {
-                // Reducing order amount unlocks liquidity
-                let delta = order.amount - amount;
-
-                account.locked.debit(delta, order.asset_type);
-                account.liquid.credit(delta, order.asset_type);
-            } else if order.amount < amount {
-                // Increasing order amount locks liquidity
-                let delta = amount - order.amount;
-
-                account.locked.credit(delta, order.asset_type);
-                account.liquid.debit(delta, order.asset_type);
-            }
-
-            order.set_amount(amount);
-            storage.account.insert(user, account);
-        }
-
-        if price.is_some() {
-            order.set_price(price.unwrap());
-        }
-
-        require(storage.orders.remove(order_id), OrderError::FailedToRemove);
-
-        let new_order_id = order.id();
-        let index = storage.user_order_indexes.get(user).get(order_id).read();
-
-        // Remove the current order index from the map
-        require(storage.user_order_indexes.get(user).remove(order_id), OrderError::FailedToRemove); // TODO: Different error
-
-        // Overwrite the order that is being removed with the new order in the storage vec
-        storage.user_orders.get(user).insert(index, new_order_id);
-
-        // Record the same index for the new order
-        storage.user_order_indexes.get(user).insert(new_order_id, index);
-
-        // Add the order to the global map
-        storage.orders.insert(new_order_id, order);
-
-        log(UpdateOrderEvent {
-            amount,
-            new_order_id,
-            order_id,
-            price,
-        });
-
-        new_order_id
-    }
-
-    #[storage(read, write)]
     fn cancel_order(order_id: b256) {
         // Order must exist to be cancelled
         let order = storage.orders.get(order_id).try_read();
@@ -258,8 +216,24 @@ impl Market for Contract {
         let mut account = storage.account.get(user).read();
 
         // Order is about to be cancelled, unlock illiquid funds
-        account.locked.debit(order.amount, order.asset_type);
-        account.liquid.credit(order.amount, order.asset_type);
+        match order.order_type {
+            OrderType::Sell => {
+                account.locked.debit(order.amount, order.asset_type);
+                account.liquid.credit(order.amount, order.asset_type);
+            }
+            OrderType::Buy => {
+                let amount = match order.asset == BASE_ASSET {
+                    true => quote_to_base_amount(order.amount, BASE_ASSET_DECIMALS, order.price, PRICE_DECIMALS, QUOTE_ASSET_DECIMALS),
+                    false => base_to_quote_amount(order.amount, BASE_ASSET_DECIMALS, order.price, PRICE_DECIMALS, QUOTE_ASSET_DECIMALS),
+                };
+                
+                // Swap the asset types because you've payed with what you have when you were buying the other asset
+                let asset_type = if order.asset == BASE_ASSET { AssetType::Quote } else { AssetType::Base };
+
+                account.locked.credit(amount, asset_type);
+                account.liquid.debit(amount, asset_type);
+            }
+        }
 
         require(storage.orders.remove(order_id), OrderError::FailedToRemove);
 

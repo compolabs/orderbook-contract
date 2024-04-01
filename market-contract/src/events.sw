@@ -37,13 +37,6 @@ pub struct TradeEvent {
     pub trade_price: u64,
 }
 
-pub struct UpdateOrderEvent {
-    pub amount: Option<u64>,
-    pub new_order_id: b256,
-    pub order_id: b256,
-    pub price: Option<u64>,
-}
-
 pub struct WithdrawEvent {
     pub amount: u64,
     pub asset: AssetId,

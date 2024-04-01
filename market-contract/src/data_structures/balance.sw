@@ -26,23 +26,13 @@ impl Balance {
     pub fn debit(ref mut self, amount: u64, asset: AssetType) {
         match asset {
             AssetType::Base => {
-                require(amount <= self.base, AccountError::InsufficientBalance);
+                require(amount <= self.base, AccountError::InsufficientBalance((self.base, amount)));
                 self.base -= amount;
             },
             AssetType::Quote => {
-                require(amount <= self.quote, AccountError::InsufficientBalance);
+                require(amount <= self.quote, AccountError::InsufficientBalance((self.quote, amount)));
                 self.quote -= amount;
             }
         };
-    }
-
-    // TODO: unused
-    pub fn available(self, amount: u64, asset: AssetType) -> bool {
-        let balance = match asset {
-            AssetType::Base => self.base,
-            AssetType::Quote => self.quote,
-        };
-
-        amount <= balance
     }
 }
