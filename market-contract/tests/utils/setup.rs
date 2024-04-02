@@ -1,6 +1,6 @@
 use fuels::{
     prelude::{
-        abigen, launch_custom_provider_and_get_wallets, Address, AssetId, Contract,
+        abigen, launch_custom_provider_and_get_wallets, Address, AssetConfig, AssetId, Contract,
         LoadConfiguration, StorageConfiguration, TxPolicies, WalletUnlocked, WalletsConfig,
     },
     types::Identity,
@@ -25,6 +25,36 @@ pub(crate) struct Asset {
     pub(crate) decimals: u32,
 }
 
+pub(crate) struct Defaults {
+    pub(crate) base_decimals: u32,
+    pub(crate) quote_decimals: u32,
+    pub(crate) price_decimals: u32,
+}
+
+impl Defaults {
+    pub(crate) fn default() -> Self {
+        Self {
+            base_decimals: 9,
+            quote_decimals: 9,
+            price_decimals: 9,
+        }
+    }
+}
+
+pub(crate) struct User {
+    pub(crate) wallet: WalletUnlocked,
+}
+
+impl User {
+    pub(crate) fn address(&self) -> Address {
+        Address::from(self.wallet.address())
+    }
+
+    pub(crate) fn identity(&self) -> Identity {
+        Identity::Address(self.address())
+    }
+}
+
 pub(crate) fn create_account(
     liquid_base: u64,
     liquid_quote: u64,
@@ -47,16 +77,33 @@ pub(crate) async fn setup(
     base_decimals: u32,
     quote_decimals: u32,
     price_decimals: u32,
-) -> (Market<WalletUnlocked>, Identity, Identity, Assets) {
+) -> (Market<WalletUnlocked>, User, User, Assets) {
     let number_of_wallets = 2;
     let coins_per_wallet = 1;
     let amount_per_coin = 100_000_000;
 
-    let config = WalletsConfig::new(
-        Some(number_of_wallets),
-        Some(coins_per_wallet),
-        Some(amount_per_coin),
-    );
+    let base_asset_id = AssetId::new([0; 32]);
+    let quote_asset_id = AssetId::new([1; 32]);
+    let random_asset_id = AssetId::new([2; 32]);
+
+    let base_asset = AssetConfig {
+        id: base_asset_id,
+        num_coins: coins_per_wallet,
+        coin_amount: amount_per_coin,
+    };
+    let quote_asset = AssetConfig {
+        id: quote_asset_id,
+        num_coins: coins_per_wallet,
+        coin_amount: amount_per_coin,
+    };
+    let random_asset = AssetConfig {
+        id: random_asset_id,
+        num_coins: coins_per_wallet,
+        coin_amount: amount_per_coin,
+    };
+    let assets = vec![base_asset, quote_asset, random_asset];
+
+    let config = WalletsConfig::new_multiple_assets(number_of_wallets, assets);
 
     let mut wallets = launch_custom_provider_and_get_wallets(config, None, None)
         .await
@@ -66,15 +113,15 @@ pub(crate) async fn setup(
     let user = wallets.pop().unwrap();
     let assets = Assets {
         base: Asset {
-            id: AssetId::new([0; 32]),
+            id: base_asset_id,
             decimals: base_decimals,
         },
         quote: Asset {
-            id: AssetId::new([1; 32]),
+            id: quote_asset_id,
             decimals: quote_decimals,
         },
         random: Asset {
-            id: AssetId::new([2; 32]),
+            id: random_asset_id,
             decimals: 10,
         },
     };
@@ -107,11 +154,8 @@ pub(crate) async fn setup(
         .unwrap();
 
     let market = Market::new(contract_id.clone(), owner.clone());
+    let owner = User { wallet: owner };
+    let non_owner = User { wallet: user };
 
-    (
-        market,
-        Identity::Address(Address::from(owner.address())),
-        Identity::Address(Address::from(user.address())),
-        assets,
-    )
+    (market, owner, non_owner, assets)
 }

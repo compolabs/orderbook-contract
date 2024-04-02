@@ -54,20 +54,6 @@ pub(crate) async fn open_order(
         .unwrap()
 }
 
-pub(crate) async fn update_order(
-    contract: &Market<WalletUnlocked>,
-    amount: Option<u64>,
-    order_id: Bits256,
-    price: Option<u64>,
-) -> FuelCallResponse<Bits256> {
-    contract
-        .methods()
-        .update_order(amount, order_id, price)
-        .call()
-        .await
-        .unwrap()
-}
-
 pub(crate) async fn cancel_order(
     contract: &Market<WalletUnlocked>,
     order_id: Bits256,
