@@ -16,6 +16,7 @@ impl Balance {
         }
     }
 
+//! better name it increase balance
     pub fn credit(ref mut self, amount: u64, asset: AssetType) {
         match asset {
             AssetType::Base => self.base += amount,
@@ -23,6 +24,7 @@ impl Balance {
         };
     }
 
+//! better name it decrease balance
     pub fn debit(ref mut self, amount: u64, asset: AssetType) {
         match asset {
             AssetType::Base => {

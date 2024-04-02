@@ -38,6 +38,8 @@ impl Order {
 
     pub fn id(self) -> b256 {
         // TODO: include asset type in id?
+        //! for what we are counting self.amount in the order id?
+        //! in the perp orderbook we have id creation without amount, it can make our matching stuff incompatible with our perp market
         sha256((self.amount, self.asset, self.order_type, self.owner, self.price))
     }
 

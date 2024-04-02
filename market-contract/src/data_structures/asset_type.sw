@@ -7,6 +7,7 @@ pub enum AssetType {
     Quote: (),
 }
 
+//!for waht we are using hash impl here?
 impl Hash for AssetType {
     fn hash(self, ref mut state: Hasher) {
         match self {

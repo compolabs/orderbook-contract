@@ -52,9 +52,12 @@ storage {
     // Balance of each user
     account: StorageMap<Identity, Account> = StorageMap {},
 
+    //! need to discuss with roman
     // Global fee for regular users
     fee: u64 = 0,
 
+    //! Lets store orders as buy orders list and sell orders list
+    //! it be more helpful for matching
     // All of the currently open orders
     orders: StorageMap<b256, Order> = StorageMap {},
 
@@ -131,18 +134,23 @@ impl Market for Contract {
 
         let mut account = account.unwrap();
         let asset_type = if asset == BASE_ASSET { AssetType::Base } else { AssetType::Quote };
-
+        //!------------------------------------------------------
+        //! something looks wrong here
         match order_type {
             OrderType::Sell => {
                 // If the account has enough liquidity of the asset that you already own then lock 
                 // it for the new sell order
+                //! why we dont need block with  asset == BASE_ASSET here?
+                //! you can also lock btc if you sell
                 account.liquid.debit(amount, asset_type);
                 account.locked.credit(amount, asset_type);
             }
             OrderType::Buy => {
                 // Calculate amount to lock of the other asset
+                //! dont
                 let (amount, asset_type) = match asset == BASE_ASSET {
                     true => {
+                        //! we can add .to_quote into order impl to make code more clean, but it's ok as well
                         let amount = base_to_quote_amount(amount, BASE_ASSET_DECIMALS, price, PRICE_DECIMALS, QUOTE_ASSET_DECIMALS);
                         let asset_type = AssetType::Quote;
 
@@ -158,10 +166,12 @@ impl Market for Contract {
 
                 // The asset type is the opposite because you're calculating if you have enough of
                 // the opposite asset to use as payment
+                //! you can also lock usdc if you buy
                 account.liquid.debit(amount, asset_type);
                 account.locked.credit(amount, asset_type);
             }
         }
+        //!------------------------------------------------------
 
         let order = Order::new(amount, asset, asset_type, order_type, user, price);
         let order_id = order.id();
@@ -215,6 +225,8 @@ impl Market for Contract {
         // Safe to read() because user is the owner of the order
         let mut account = storage.account.get(user).read();
 
+    //! what if order was partialy matched?
+    //! I finished here, lets continue together
         // Order is about to be cancelled, unlock illiquid funds
         match order.order_type {
             OrderType::Sell => {
