@@ -76,10 +76,11 @@ impl Market for Contract {
         require(msg_asset_id() == BASE_ASSET || msg_asset_id() == QUOTE_ASSET, AssetError::InvalidAsset);
 
         let user = msg_sender().unwrap();
-        let asset_type = if msg_asset_id() == BASE_ASSET {
-            AssetType::Base
+        // TODO: use amount to credit liquid balance
+        let (amount, asset_type) = if msg_asset_id() == BASE_ASSET {
+            (msg_amount() * BASE_ASSET_DECIMALS.as_u64(), AssetType::Base)
         } else {
-            AssetType::Quote
+            (msg_amount() * QUOTE_ASSET_DECIMALS.as_u64(), AssetType::Quote)
         };
 
         let mut account = match storage.account.get(user).try_read() {
@@ -104,10 +105,12 @@ impl Market for Contract {
         require(account.is_some(), AccountError::InvalidUser);
         
         let mut account = account.unwrap();
-        let asset_type = if asset == BASE_ASSET {
-            AssetType::Base
+
+        // TODO: use amount to debit liquid balance
+        let (_internal_amount, asset_type) = if asset == BASE_ASSET {
+            (amount * BASE_ASSET_DECIMALS.as_u64(), AssetType::Base)
         } else {
-            AssetType::Quote
+            (amount * QUOTE_ASSET_DECIMALS.as_u64(), AssetType::Quote)
         };
 
         account.liquid.debit(amount, asset_type);
@@ -120,6 +123,7 @@ impl Market for Contract {
     }
 
     #[storage(read, write)]
+    // TODO: what types should amount, price be?
     fn open_order(amount: u64, asset: AssetId, order_type: OrderType, price: u64) -> b256 {
         require(asset == BASE_ASSET || asset == QUOTE_ASSET, AssetError::InvalidAsset);
 
@@ -136,11 +140,20 @@ impl Market for Contract {
             OrderType::Sell => {
                 // If the account has enough liquidity of the asset that you already own then lock 
                 // it for the new sell order
+
+                // TODO: use amount to lock funds
+                let _internal_amount = if asset == BASE_ASSET {
+                    amount * BASE_ASSET_DECIMALS.as_u64()
+                } else {
+                    amount * QUOTE_ASSET_DECIMALS.as_u64()
+                };
+
                 account.liquid.debit(amount, asset_type);
                 account.locked.credit(amount, asset_type);
             }
             OrderType::Buy => {
                 // Calculate amount to lock of the other asset
+                // TODO: these "amounts" do not return expected values
                 let (amount, asset_type) = match asset == BASE_ASSET {
                     true => {
                         let amount = base_to_quote_amount(amount, BASE_ASSET_DECIMALS, price, PRICE_DECIMALS, QUOTE_ASSET_DECIMALS);
@@ -218,10 +231,17 @@ impl Market for Contract {
         // Order is about to be cancelled, unlock illiquid funds
         match order.order_type {
             OrderType::Sell => {
+                // TODO: use amount to credit liquid balance
+                let (_amount, asset_type) = if order.asset == BASE_ASSET {
+                    (order.amount * BASE_ASSET_DECIMALS.as_u64(), AssetType::Base)
+                } else {
+                    (order.amount * QUOTE_ASSET_DECIMALS.as_u64(), AssetType::Quote)
+                };
                 account.locked.debit(order.amount, order.asset_type);
                 account.liquid.credit(order.amount, order.asset_type);
             }
             OrderType::Buy => {
+                // TODO: these "amounts" do not return expected values
                 let amount = match order.asset == BASE_ASSET {
                     true => quote_to_base_amount(order.amount, BASE_ASSET_DECIMALS, order.price, PRICE_DECIMALS, QUOTE_ASSET_DECIMALS),
                     false => base_to_quote_amount(order.amount, BASE_ASSET_DECIMALS, order.price, PRICE_DECIMALS, QUOTE_ASSET_DECIMALS),
