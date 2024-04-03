@@ -85,6 +85,7 @@ mod revert {
 
     use super::*;
 
+    #[tokio::test]
     #[should_panic(expected = "Unauthorized")]
     async fn reverts_when_non_owner() {
         let defaults = Defaults::default();

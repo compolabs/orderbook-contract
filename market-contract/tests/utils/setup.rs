@@ -1,4 +1,5 @@
 use fuels::{
+    accounts::ViewOnlyAccount,
     prelude::{
         abigen, launch_custom_provider_and_get_wallets, Address, AssetConfig, AssetId, Contract,
         LoadConfiguration, StorageConfiguration, TxPolicies, WalletUnlocked, WalletsConfig,
@@ -52,6 +53,10 @@ impl User {
 
     pub(crate) fn identity(&self) -> Identity {
         Identity::Address(self.address())
+    }
+
+    pub(crate) async fn balance(&self, asset: &AssetId) -> u64 {
+        self.wallet.get_asset_balance(asset).await.unwrap()
     }
 }
 
