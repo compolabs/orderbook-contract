@@ -12,7 +12,7 @@ mod success {
     };
 
     #[tokio::test]
-    async fn cancel_base_sell_order() {
+    async fn sell_base() {
         let defaults = Defaults::default();
         let (contract, owner, _user, assets) = setup(
             defaults.base_decimals,
@@ -56,7 +56,7 @@ mod success {
     }
 
     #[tokio::test]
-    async fn cancel_quote_sell_order() {
+    async fn sell_quote() {
         let defaults = Defaults::default();
         let (contract, owner, _user, assets) = setup(
             defaults.base_decimals,
@@ -101,7 +101,7 @@ mod success {
 
     #[ignore]
     #[tokio::test]
-    async fn cancel_base_buy_order() {
+    async fn buy_base() {
         let defaults = Defaults::default();
         let (contract, owner, _user, assets) = setup(
             defaults.base_decimals,
@@ -156,7 +156,7 @@ mod success {
 
     #[ignore]
     #[tokio::test]
-    async fn cancel_quote_buy_order() {
+    async fn buy_quote() {
         let defaults = Defaults::default();
         let (contract, owner, _user, assets) = setup(
             defaults.base_decimals,

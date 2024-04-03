@@ -12,7 +12,7 @@ mod success {
     };
 
     #[tokio::test]
-    async fn deposit_base_asset() {
+    async fn base_asset() {
         let defaults = Defaults::default();
         let (contract, owner, _user, assets) = setup(
             defaults.base_decimals,
@@ -45,7 +45,7 @@ mod success {
     }
 
     #[tokio::test]
-    async fn deposit_quote_asset() {
+    async fn quote_asset() {
         let defaults = Defaults::default();
         let (contract, owner, _user, assets) = setup(
             defaults.base_decimals,
@@ -84,7 +84,7 @@ mod revert {
 
     #[tokio::test]
     #[should_panic(expected = "InvalidAsset")]
-    async fn when_deposit_random_asset() {
+    async fn when_invalid_asset() {
         let defaults = Defaults::default();
         let (contract, _owner, _user, assets) = setup(
             defaults.base_decimals,

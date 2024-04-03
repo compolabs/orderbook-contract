@@ -12,7 +12,7 @@ mod success {
     };
 
     #[tokio::test]
-    async fn open_base_sell_order() {
+    async fn sell_base() {
         let defaults = Defaults::default();
         let (contract, owner, _user, assets) = setup(
             defaults.base_decimals,
@@ -21,10 +21,10 @@ mod success {
         )
         .await;
 
-        let deposit_amount = 100;
+        let deposit_amount = 5;
         let expected_account = create_account(deposit_amount, 0, 0, 0);
 
-        let order_amount = 10;
+        let order_amount = 2;
         let asset = assets.base.id;
         let order_type = OrderType::Sell;
         let price = 70000;
@@ -88,7 +88,7 @@ mod success {
     }
 
     #[tokio::test]
-    async fn open_quote_sell_order() {
+    async fn sell_quote() {
         let defaults = Defaults::default();
         let (contract, owner, _user, assets) = setup(
             defaults.base_decimals,
@@ -97,13 +97,13 @@ mod success {
         )
         .await;
 
-        let deposit_amount = 100;
+        let deposit_amount = 1000;
         let expected_account = create_account(0, deposit_amount, 0, 0);
 
-        let order_amount = 10;
+        let order_amount = 500;
         let asset = assets.quote.id;
         let order_type = OrderType::Sell;
-        let price = 70000;
+        let price = 1;
         let expected_id = order_id(
             &contract,
             order_amount,
@@ -165,7 +165,7 @@ mod success {
 
     #[ignore]
     #[tokio::test]
-    async fn open_base_buy_order() {
+    async fn buy_base() {
         let defaults = Defaults::default();
         let (contract, owner, _user, assets) = setup(
             defaults.base_decimals,
@@ -253,7 +253,7 @@ mod success {
 
     #[ignore]
     #[tokio::test]
-    async fn open_quote_buy_order() {
+    async fn buy_quote() {
         let defaults = Defaults::default();
         let (contract, owner, _user, assets) = setup(
             defaults.base_decimals,
@@ -346,7 +346,7 @@ mod revert {
 
     #[tokio::test]
     #[should_panic(expected = "InvalidAsset")]
-    async fn when_opening_random_asset() {
+    async fn when_invalid_asset() {
         let defaults = Defaults::default();
         let (contract, _owner, _user, assets) = setup(
             defaults.base_decimals,
