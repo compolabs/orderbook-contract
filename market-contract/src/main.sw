@@ -314,7 +314,7 @@ impl Market for Contract {
             let bob_id = bob.id();
 
             // Attempt to trade orders, figure out amounts that can be traded
-            let trade = attempt_trade(alice, bob);
+            let trade = attempt_trade(alice, bob, BASE_ASSET_DECIMALS, QUOTE_ASSET_DECIMALS, PRICE_DECIMALS);
 
             // Failed to trade ex. insufficient price or remaining amount
             if trade.is_err() {
@@ -322,20 +322,20 @@ impl Market for Contract {
             }
 
             // Retrieve the amount of each asset that can be traded
-            let (alice_amount, bob_amount) = trade.unwrap();
+            let (alice_order_amount_decrease, alice_account_detla, bob_order_amount_decrease, bob_account_detla) = trade.unwrap();
 
             // Update the order quantities with the amounts that can be traded
-            alice.amount -= alice_amount;
-            bob.amount -= bob_amount;
+            alice.amount -= alice_order_amount_decrease;
+            bob.amount -= bob_order_amount_decrease;
 
             // Update the accounts for bob and alice based on the traded assets
             let mut bob_account = storage.account.get(bob.owner).read();
             
-            alice_account.locked.debit(alice_amount, alice.asset_type);
-            alice_account.liquid.credit(bob_amount, bob.asset_type);
+            alice_account.locked.debit(alice_account_detla, alice.asset_type);
+            alice_account.liquid.credit(bob_account_detla, bob.asset_type);
 
-            bob_account.locked.debit(bob_amount, bob.asset_type);
-            bob_account.liquid.credit(alice_amount, alice.asset_type);
+            bob_account.locked.debit(bob_account_detla, bob.asset_type);
+            bob_account.liquid.credit(alice_account_detla, alice.asset_type);
 
             // Save bob's account because his order is finished
             // For optimization save alice at the end of the batch
