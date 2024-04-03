@@ -322,7 +322,7 @@ impl Market for Contract {
             }
 
             // Retrieve the amount of each asset that can be traded
-            let (alice_order_amount_decrease, alice_account_detla, bob_order_amount_decrease, bob_account_detla) = trade.unwrap();
+            let (alice_order_amount_decrease, alice_account_delta, bob_order_amount_decrease, bob_account_delta) = trade.unwrap();
 
             // Update the order quantities with the amounts that can be traded
             alice.amount -= alice_order_amount_decrease;
@@ -331,11 +331,11 @@ impl Market for Contract {
             // Update the accounts for bob and alice based on the traded assets
             let mut bob_account = storage.account.get(bob.owner).read();
             
-            alice_account.locked.debit(alice_account_detla, alice.asset_type);
-            alice_account.liquid.credit(bob_account_detla, bob.asset_type);
+            alice_account.locked.debit(alice_account_delta, alice.asset_type);
+            alice_account.liquid.credit(bob_account_delta, bob.asset_type);
 
-            bob_account.locked.debit(bob_account_detla, bob.asset_type);
-            bob_account.liquid.credit(alice_account_detla, alice.asset_type);
+            bob_account.locked.debit(bob_account_delta, bob.asset_type);
+            bob_account.liquid.credit(alice_account_delta, alice.asset_type);
 
             // Save bob's account because his order is finished
             // For optimization save alice at the end of the batch
