@@ -29,7 +29,7 @@ impl MarketContract {
         quote_decimals: u32,
         price_decimals: u32,
         owner: WalletUnlocked,
-    ) -> Self {
+    ) -> anyhow::Result<Self> {
         let mut rng = rand::thread_rng();
         let salt = rng.gen::<[u8; 32]>();
 
@@ -45,45 +45,51 @@ impl MarketContract {
             .with_OWNER(owner.address().into());
 
         let contract_configuration = LoadConfiguration::default()
-            .with_storage_configuration(storage_configuration.unwrap())
+            .with_storage_configuration(storage_configuration?)
             .with_configurables(configurables);
 
         let contract_id = Contract::load_from(MARKET_CONTRACT_BINARY_PATH, contract_configuration)
             .unwrap()
             .with_salt(salt)
             .deploy(&owner, TxPolicies::default())
-            .await
-            .unwrap();
+            .await?;
 
         let market = Market::new(contract_id.clone(), owner.clone());
 
-        Self { instance: market }
+        Ok(Self { instance: market })
     }
 
-    pub async fn deposit(&self, amount: u64, asset: AssetId) -> FuelCallResponse<()> {
+    pub async fn deposit(
+        &self,
+        amount: u64,
+        asset: AssetId,
+    ) -> anyhow::Result<FuelCallResponse<()>> {
         // TODO: custom?
         let tx_params = TxPolicies::new(Some(0), Some(2_000_000), None, None, None);
         let call_params = CallParameters::new(amount, asset, 1_000_000);
 
-        self.instance
+        Ok(self
+            .instance
             .methods()
             .deposit()
             .with_tx_policies(tx_params)
-            .call_params(call_params)
-            .unwrap()
+            .call_params(call_params)?
             .call()
-            .await
-            .unwrap()
+            .await?)
     }
 
-    pub async fn withdraw(&self, amount: u64, asset: AssetId) -> FuelCallResponse<()> {
-        self.instance
+    pub async fn withdraw(
+        &self,
+        amount: u64,
+        asset: AssetId,
+    ) -> anyhow::Result<FuelCallResponse<()>> {
+        Ok(self
+            .instance
             .methods()
             .withdraw(amount, asset)
             .append_variable_outputs(1)
             .call()
-            .await
-            .unwrap()
+            .await?)
     }
 
     pub async fn open_order(
@@ -92,69 +98,71 @@ impl MarketContract {
         asset: AssetId,
         order_type: OrderType,
         price: u64,
-    ) -> FuelCallResponse<Bits256> {
-        self.instance
+    ) -> anyhow::Result<FuelCallResponse<Bits256>> {
+        Ok(self
+            .instance
             .methods()
             .open_order(amount, asset, order_type, price)
             .call()
-            .await
-            .unwrap()
+            .await?)
     }
 
-    pub async fn cancel_order(&self, order_id: Bits256) -> FuelCallResponse<()> {
-        self.instance
+    pub async fn cancel_order(&self, order_id: Bits256) -> anyhow::Result<FuelCallResponse<()>> {
+        Ok(self
+            .instance
             .methods()
             .cancel_order(order_id)
             .call()
-            .await
-            .unwrap()
+            .await?)
     }
 
     pub async fn batch_fulfill(
         &self,
         order_id: Bits256,
         orders: Vec<Bits256>,
-    ) -> FuelCallResponse<()> {
-        self.instance
+    ) -> anyhow::Result<FuelCallResponse<()>> {
+        Ok(self
+            .instance
             .methods()
             .batch_fulfill(order_id, orders)
             .call()
-            .await
-            .unwrap()
+            .await?)
     }
 
-    pub async fn set_fee(&self, amount: u64, user: Option<Identity>) -> FuelCallResponse<()> {
-        self.instance
-            .methods()
-            .set_fee(amount, user)
-            .call()
-            .await
-            .unwrap()
+    pub async fn set_fee(
+        &self,
+        amount: u64,
+        user: Option<Identity>,
+    ) -> anyhow::Result<FuelCallResponse<()>> {
+        Ok(self.instance.methods().set_fee(amount, user).call().await?)
     }
 
-    pub async fn account(&self, user: Identity) -> FuelCallResponse<Option<Account>> {
-        self.instance.methods().account(user).call().await.unwrap()
+    pub async fn account(
+        &self,
+        user: Identity,
+    ) -> anyhow::Result<FuelCallResponse<Option<Account>>> {
+        Ok(self.instance.methods().account(user).call().await?)
     }
 
-    pub async fn fee(&self, user: Option<Identity>) -> FuelCallResponse<u64> {
-        self.instance.methods().fee(user).call().await.unwrap()
+    pub async fn fee(&self, user: Option<Identity>) -> anyhow::Result<FuelCallResponse<u64>> {
+        Ok(self.instance.methods().fee(user).call().await?)
     }
 
-    pub async fn order(&self, order: Bits256) -> FuelCallResponse<Option<Order>> {
-        self.instance.methods().order(order).call().await.unwrap()
+    pub async fn order(&self, order: Bits256) -> anyhow::Result<FuelCallResponse<Option<Order>>> {
+        Ok(self.instance.methods().order(order).call().await?)
     }
 
-    pub async fn user_orders(&self, user: Identity) -> FuelCallResponse<Vec<Bits256>> {
-        self.instance
-            .methods()
-            .user_orders(user)
-            .call()
-            .await
-            .unwrap()
+    pub async fn user_orders(
+        &self,
+        user: Identity,
+    ) -> anyhow::Result<FuelCallResponse<Vec<Bits256>>> {
+        Ok(self.instance.methods().user_orders(user).call().await?)
     }
 
-    pub async fn config(&self) -> FuelCallResponse<(Address, AssetId, u32, AssetId, u32, u32)> {
-        self.instance.methods().config().call().await.unwrap()
+    pub async fn config(
+        &self,
+    ) -> anyhow::Result<FuelCallResponse<(Address, AssetId, u32, AssetId, u32, u32)>> {
+        Ok(self.instance.methods().config().call().await?)
     }
 
     pub async fn order_id(
@@ -164,18 +172,18 @@ impl MarketContract {
         order_type: OrderType,
         owner: Identity,
         price: u64,
-    ) -> FuelCallResponse<Bits256> {
-        self.instance
+    ) -> anyhow::Result<FuelCallResponse<Bits256>> {
+        Ok(self
+            .instance
             .methods()
             .order_id(amount, asset, order_type, owner, price)
             .call()
-            .await
-            .unwrap()
+            .await?)
     }
 
-    pub async fn with_account(&self, account: &WalletUnlocked) -> Self {
-        Self {
+    pub async fn with_account(&self, account: &WalletUnlocked) -> anyhow::Result<Self> {
+        Ok(Self {
             instance: self.instance.with_account(account.clone()).unwrap(),
-        }
+        })
     }
 }

@@ -9,3 +9,4 @@ edition = "2021"
 fuels = { version = "0.55.0", features = ["fuel-core-lib"] }
 tokio = { version = "1.12", features = ["rt", "macros"] }
 rand = "0.8.5"
+anyhow = "1.0.81"
