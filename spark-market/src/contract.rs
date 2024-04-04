@@ -141,28 +141,28 @@ impl MarketContract {
         &self,
         user: Identity,
     ) -> anyhow::Result<FuelCallResponse<Option<Account>>> {
-        Ok(self.instance.methods().account(user).call().await?)
+        Ok(self.instance.methods().account(user).simulate().await?)
     }
 
     pub async fn fee(&self, user: Option<Identity>) -> anyhow::Result<FuelCallResponse<u64>> {
-        Ok(self.instance.methods().fee(user).call().await?)
+        Ok(self.instance.methods().fee(user).simulate().await?)
     }
 
     pub async fn order(&self, order: Bits256) -> anyhow::Result<FuelCallResponse<Option<Order>>> {
-        Ok(self.instance.methods().order(order).call().await?)
+        Ok(self.instance.methods().order(order).simulate().await?)
     }
 
     pub async fn user_orders(
         &self,
         user: Identity,
     ) -> anyhow::Result<FuelCallResponse<Vec<Bits256>>> {
-        Ok(self.instance.methods().user_orders(user).call().await?)
+        Ok(self.instance.methods().user_orders(user).simulate().await?)
     }
 
     pub async fn config(
         &self,
     ) -> anyhow::Result<FuelCallResponse<(Address, AssetId, u32, AssetId, u32, u32)>> {
-        Ok(self.instance.methods().config().call().await?)
+        Ok(self.instance.methods().config().simulate().await?)
     }
 
     pub async fn order_id(
@@ -177,13 +177,13 @@ impl MarketContract {
             .instance
             .methods()
             .order_id(amount, asset, order_type, owner, price)
-            .call()
+            .simulate()
             .await?)
     }
 
     pub async fn with_account(&self, account: &WalletUnlocked) -> anyhow::Result<Self> {
         Ok(Self {
-            instance: self.instance.with_account(account.clone()).unwrap(),
+            instance: self.instance.with_account(account.clone())?,
         })
     }
 }
