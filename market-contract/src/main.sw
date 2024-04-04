@@ -291,7 +291,9 @@ impl Market for Contract {
         // Cannot open an order without having an account so it's safe to read
         let mut alice_account = storage.account.get(alice.owner).read();
 
-        for id in orders.iter() {
+        let mut order_index = 0;
+        while order_index < orders.len() {
+            let id = orders.get(order_index).unwrap();
             let bob = storage.orders.get(id).try_read();
             // If bob's order does not exist then proceed to the next order without reverting
             if bob.is_none() {
@@ -371,6 +373,8 @@ impl Market for Contract {
                 require(storage.orders.remove(order_id), OrderError::FailedToRemove);
                 break;
             }
+
+            order_index += 1;
         }
 
         if alice.amount != 0 {

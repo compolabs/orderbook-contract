@@ -4,9 +4,9 @@ use ::data_structures::balance::Balance;
 
 pub struct Account {
     // Available funds
-    pub liquid: Balance,
+    liquid: Balance,
     // Open orders
-    pub locked: Balance,
+    locked: Balance,
 }
 
 impl Account {

@@ -6,12 +6,12 @@ use ::errors::OrderError;
 use std::hash::{sha256, Hash};
 
 pub struct Order {
-    pub amount: u64,
-    pub asset: AssetId,
-    pub asset_type: AssetType,
-    pub order_type: OrderType,
-    pub owner: Identity,
-    pub price: u64,
+    amount: u64,
+    asset: AssetId,
+    asset_type: AssetType,
+    order_type: OrderType,
+    owner: Identity,
+    price: u64,
 }
 
 impl Order {
