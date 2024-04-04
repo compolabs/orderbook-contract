@@ -76,11 +76,9 @@ impl Market for Contract {
         require(msg_asset_id() == BASE_ASSET || msg_asset_id() == QUOTE_ASSET, AssetError::InvalidAsset);
 
         let user = msg_sender().unwrap();
-        // TODO: use amount to credit liquid balance
-        let (amount, asset_type) = if msg_asset_id() == BASE_ASSET {
-            (msg_amount() * BASE_ASSET_DECIMALS.as_u64(), AssetType::Base)
-        } else {
-            (msg_amount() * QUOTE_ASSET_DECIMALS.as_u64(), AssetType::Quote)
+        let (amount, asset_type) = match msg_asset_id() == BASE_ASSET {
+            true => (msg_amount() * 10.pow(BASE_ASSET_DECIMALS), AssetType::Base),
+            false => (msg_amount() * 10.pow(QUOTE_ASSET_DECIMALS), AssetType::Base),
         };
 
         let mut account = match storage.account.get(user).try_read() {
@@ -89,7 +87,6 @@ impl Market for Contract {
         };
 
         account.liquid.credit(msg_amount(), asset_type);
-
         storage.account.insert(user, account);
 
         log(DepositEvent { amount: msg_amount(), asset: msg_asset_id(), user });
@@ -106,20 +103,18 @@ impl Market for Contract {
         
         let mut account = account.unwrap();
 
-        // TODO: use amount to debit liquid balance
-        let (_internal_amount, asset_type) = if asset == BASE_ASSET {
-            (amount * BASE_ASSET_DECIMALS.as_u64(), AssetType::Base)
-        } else {
-            (amount * QUOTE_ASSET_DECIMALS.as_u64(), AssetType::Quote)
+        // TODO: Is this division correct?
+        let (internal_amount, asset_type) = match msg_asset_id() == BASE_ASSET {
+            true => (amount / 10.pow(BASE_ASSET_DECIMALS), AssetType::Base),
+            false => (amount / 10.pow(QUOTE_ASSET_DECIMALS), AssetType::Base),
         };
 
         account.liquid.debit(amount, asset_type);
-
         storage.account.insert(user, account);
 
-        transfer(user, asset, amount);
+        transfer(user, asset, internal_amount);
         
-        log(WithdrawEvent { amount, asset, user });
+        log(WithdrawEvent { amount: internal_amount, asset, user });
     }
 
     #[storage(read, write)]
