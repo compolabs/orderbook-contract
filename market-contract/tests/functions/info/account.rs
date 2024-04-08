@@ -29,7 +29,7 @@ mod success {
         let deposit_amount = 100;
         let expected_account = create_account(deposit_amount, 0, 0, 0);
 
-        deposit(&contract, deposit_amount, assets.base.id).await;
+        deposit(&contract, deposit_amount, assets.base.asset_id).await;
 
         let user_account = account(&contract, owner.identity()).await.value.unwrap();
 

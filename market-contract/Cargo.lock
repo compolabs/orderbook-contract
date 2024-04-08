@@ -585,6 +585,7 @@ name = "contract"
 version = "0.0.0"
 dependencies = [
  "fuels",
+ "src20_sdk",
  "tokio",
 ]
 
@@ -924,6 +925,12 @@ dependencies = [
  "crypto-common",
  "subtle",
 ]
+
+[[package]]
+name = "dotenv"
+version = "0.15.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "77c90badedccf4105eca100756a0b1289e191f6fcbdadd3cee1d2f614f97da8f"
 
 [[package]]
 name = "dtoa"
@@ -3241,6 +3248,21 @@ checksum = "d91ed6c858b01f942cd56b37a94b3e0a1798290327d1236e4d9cf4eaca44d29d"
 dependencies = [
  "base64ct",
  "der",
+]
+
+[[package]]
+name = "src20_sdk"
+version = "0.0.3"
+source = "git+https://github.com/compolabs/src-20.git?branch=fuels-rs-v0.56.0#3daf627c3cc24fd225bef140a068bc4595939526"
+dependencies = [
+ "dotenv",
+ "fuels",
+ "rand",
+ "serde",
+ "serde_json",
+ "sha2",
+ "tai64",
+ "tokio",
 ]
 
 [[package]]

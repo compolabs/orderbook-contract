@@ -25,7 +25,7 @@ mod success {
         let expected_account = create_account(deposit_amount, 0, 0, 0);
 
         let order_amount = 2;
-        let asset = assets.base.id;
+        let asset = assets.base.asset_id;
         let order_type = OrderType::Sell;
         let price = 70000;
         let expected_id = order_id(
@@ -101,7 +101,7 @@ mod success {
         let expected_account = create_account(0, deposit_amount, 0, 0);
 
         let order_amount = 500;
-        let asset = assets.quote.id;
+        let asset = assets.quote.asset_id;
         let order_type = OrderType::Sell;
         let price = 1;
         let expected_id = order_id(
@@ -178,8 +178,8 @@ mod success {
         let expected_account = create_account(0, deposit_amount, 0, 0);
 
         let order_amount = 1;
-        let asset_to_buy = assets.base.id;
-        let asset_to_pay_wth = assets.quote.id;
+        let asset_to_buy = assets.base.asset_id;
+        let asset_to_pay_wth = assets.quote.asset_id;
         let order_type = OrderType::Buy;
         let price = 70000;
         let expected_id = order_id(
@@ -266,8 +266,8 @@ mod success {
         let expected_account = create_account(deposit_amount, 0, 0, 0);
 
         let order_amount = 70000;
-        let asset_to_buy = assets.quote.id;
-        let asset_to_pay_wth = assets.base.id;
+        let asset_to_buy = assets.quote.asset_id;
+        let asset_to_pay_wth = assets.base.asset_id;
         let order_type = OrderType::Buy;
         let price = 70000;
         let expected_id = order_id(
@@ -356,7 +356,7 @@ mod revert {
         .await;
 
         let order_amount = 10;
-        let asset = assets.random.id;
+        let asset = assets.random.asset_id;
         let order_type = OrderType::Sell;
         let price = 70000;
 
@@ -376,7 +376,7 @@ mod revert {
         .await;
 
         let order_amount = 10;
-        let asset = assets.base.id;
+        let asset = assets.base.asset_id;
         let order_type = OrderType::Sell;
         let price = 70000;
 
@@ -404,7 +404,7 @@ mod revert {
 
         let deposit_amount = 10;
         let order_amount = 100;
-        let asset = assets.base.id;
+        let asset = assets.base.asset_id;
         let order_type = OrderType::Sell;
         let price = 70000;
 
@@ -427,7 +427,7 @@ mod revert {
 
         let deposit_amount = 10;
         let order_amount = 100;
-        let asset = assets.quote.id;
+        let asset = assets.quote.asset_id;
         let order_type = OrderType::Sell;
         let price = 70000;
 
@@ -451,7 +451,7 @@ mod revert {
 
         let deposit_amount = 10;
         let order_amount = 100;
-        let asset = assets.base.id;
+        let asset = assets.base.asset_id;
         let order_type = OrderType::Sell;
         let price = 70000;
 
@@ -475,7 +475,7 @@ mod revert {
 
         let deposit_amount = 10;
         let order_amount = 100;
-        let asset = assets.base.id;
+        let asset = assets.base.asset_id;
         let order_type = OrderType::Sell;
         let price = 70000;
 
@@ -498,7 +498,7 @@ mod revert {
 
         let deposit_amount = 100;
         let order_amount = 10;
-        let asset = assets.base.id;
+        let asset = assets.base.asset_id;
         let order_type = OrderType::Sell;
         let price = 70000;
 

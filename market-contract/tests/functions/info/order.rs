@@ -33,8 +33,8 @@ mod success {
         )
         .await;
 
-        deposit(&contract, 100, assets.base.id).await;
-        let id = open_order(&contract, 1, assets.base.id, OrderType::Buy, 70000).await;
+        deposit(&contract, 100, assets.base.asset_id).await;
+        let id = open_order(&contract, 1, assets.base.asset_id, OrderType::Buy, 70000).await;
 
         let order = order(&contract, id.value).await.value.unwrap();
         let expected_id = order_id(

@@ -6,6 +6,7 @@ use fuels::{
     },
     types::Identity,
 };
+use src20_sdk::token_utils::{deploy_token_contract, get_symbol_hash, Asset};
 
 abigen!(Contract(
     name = "Market",
@@ -21,10 +22,10 @@ pub(crate) struct Assets {
     pub(crate) random: Asset,
 }
 
-pub(crate) struct Asset {
-    pub(crate) id: AssetId,
-    pub(crate) decimals: u32,
-}
+// pub(crate) struct Asset {
+//     pub(crate) id: AssetId,
+//     pub(crate) decimals: u32,
+// }
 
 pub(crate) struct Defaults {
     pub(crate) base_decimals: u32,
@@ -85,30 +86,31 @@ pub(crate) async fn setup(
 ) -> (Market<WalletUnlocked>, User, User, Assets) {
     let number_of_wallets = 2;
     let coins_per_wallet = 1;
-    let amount_per_coin = 100_000_000;
+    let amount_per_coin = 1000_000_000;
 
-    let base_asset_id = AssetId::new([0; 32]);
-    let quote_asset_id = AssetId::new([1; 32]);
-    let random_asset_id = AssetId::new([2; 32]);
+    // let base_asset_id = AssetId::new([0; 32]);
+    // let quote_asset_id = AssetId::new([1; 32]);
+    // let random_asset_id = AssetId::new([2; 32]);
 
-    let base_asset = AssetConfig {
-        id: base_asset_id,
-        num_coins: coins_per_wallet,
-        coin_amount: amount_per_coin,
-    };
-    let quote_asset = AssetConfig {
-        id: quote_asset_id,
-        num_coins: coins_per_wallet,
-        coin_amount: amount_per_coin,
-    };
-    let random_asset = AssetConfig {
-        id: random_asset_id,
-        num_coins: coins_per_wallet,
-        coin_amount: amount_per_coin,
-    };
-    let assets = vec![base_asset, quote_asset, random_asset];
+    // let base_asset = AssetConfig {
+    //     id: base_asset_id,
+    //     num_coins: coins_per_wallet,
+    //     coin_amount: amount_per_coin,
+    // };
+    // let quote_asset = AssetConfig {
+    //     id: quote_asset_id,
+    //     num_coins: coins_per_wallet,
+    //     coin_amount: amount_per_coin,
+    // };
+    // let random_asset = AssetConfig {
+    //     id: random_asset_id,
+    //     num_coins: coins_per_wallet,
+    //     coin_amount: amount_per_coin,
+    // };
+    // let assets = vec![base_asset, quote_asset, random_asset];
 
-    let config = WalletsConfig::new_multiple_assets(number_of_wallets, assets);
+    // let config = WalletsConfig::new_multiple_assets(number_of_wallets, assets);
+    let config = WalletsConfig::new(Some(number_of_wallets), Some(coins_per_wallet), Some(amount_per_coin));
 
     let mut wallets = launch_custom_provider_and_get_wallets(config, None, None)
         .await
@@ -116,18 +118,36 @@ pub(crate) async fn setup(
 
     let owner = wallets.pop().unwrap();
     let user = wallets.pop().unwrap();
+
+    let token_contract = deploy_token_contract(&owner).await;
+
     let assets = Assets {
         base: Asset {
-            id: base_asset_id,
-            decimals: base_decimals,
+            asset_id: token_contract
+                .clone()
+                .contract_id()
+                .asset_id(&get_symbol_hash("BASE")),
+            decimals: base_decimals.into(),
+            symbol: "BASE".to_string(),
+            token_contract_instance: Option::Some(token_contract.clone()),
         },
         quote: Asset {
-            id: quote_asset_id,
-            decimals: quote_decimals,
+            asset_id: token_contract
+                .clone()
+                .contract_id()
+                .asset_id(&get_symbol_hash("QUOTE")),
+            decimals: quote_decimals.into(),
+            symbol: "QUOTE".to_string(),
+            token_contract_instance: Option::Some(token_contract.clone()),
         },
         random: Asset {
-            id: random_asset_id,
+            asset_id: token_contract
+                .clone()
+                .contract_id()
+                .asset_id(&get_symbol_hash("RANDOM")),
             decimals: 10,
+            symbol: "RANDOM".to_string(),
+            token_contract_instance: Option::Some(token_contract.clone()),
         },
     };
 
@@ -135,13 +155,13 @@ pub(crate) async fn setup(
         StorageConfiguration::default().add_slot_overrides_from_file(MARKET_CONTRACT_STORAGE_PATH);
 
     let configurables = MarketConfigurables::default()
-        .with_BASE_ASSET(assets.base.id.clone())
+        .with_BASE_ASSET(assets.base.asset_id.clone())
         .unwrap()
-        .with_BASE_ASSET_DECIMALS(assets.base.decimals)
+        .with_BASE_ASSET_DECIMALS(assets.base.decimals.try_into().unwrap())
         .unwrap()
-        .with_QUOTE_ASSET(assets.quote.id.clone())
+        .with_QUOTE_ASSET(assets.quote.asset_id.clone())
         .unwrap()
-        .with_QUOTE_ASSET_DECIMALS(assets.quote.decimals)
+        .with_QUOTE_ASSET_DECIMALS(assets.quote.decimals.try_into().unwrap())
         .unwrap()
         .with_PRICE_DECIMALS(price_decimals)
         .unwrap()

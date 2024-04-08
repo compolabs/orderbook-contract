@@ -23,16 +23,16 @@ mod success {
 
         let deposit_amount = 100;
 
-        deposit(&contract, deposit_amount, assets.base.id).await;
+        deposit(&contract, deposit_amount, assets.base.asset_id).await;
 
-        let user_balance = owner.balance(&assets.base.id).await;
+        let user_balance = owner.balance(&assets.base.asset_id).await;
         let user_account = account(&contract, owner.identity()).await.value.unwrap();
         let expected_account = create_account(deposit_amount, 0, 0, 0);
 
         // Precondition enforces deposited account
         assert_eq!(user_account, expected_account);
 
-        let response = withdraw(&contract, deposit_amount, assets.base.id).await;
+        let response = withdraw(&contract, deposit_amount, assets.base.asset_id).await;
 
         let log = response.decode_logs_with_type::<WithdrawEvent>().unwrap();
         let event = log.get(0).unwrap();
@@ -40,12 +40,12 @@ mod success {
             *event,
             WithdrawEvent {
                 amount: deposit_amount,
-                asset: assets.base.id,
+                asset: assets.base.asset_id,
                 user: owner.identity(),
             }
         );
 
-        let new_balance = owner.balance(&assets.base.id).await;
+        let new_balance = owner.balance(&assets.base.asset_id).await;
         let user_account = account(&contract, owner.identity()).await.value.unwrap();
         let expected_account = create_account(0, 0, 0, 0);
 
@@ -65,16 +65,16 @@ mod success {
 
         let deposit_amount = 100;
 
-        deposit(&contract, deposit_amount, assets.quote.id).await;
+        deposit(&contract, deposit_amount, assets.quote.asset_id).await;
 
-        let user_balance = owner.balance(&assets.quote.id).await;
+        let user_balance = owner.balance(&assets.quote.asset_id).await;
         let user_account = account(&contract, owner.identity()).await.value.unwrap();
         let expected_account = create_account(0, deposit_amount, 0, 0);
 
         // Precondition enforces deposited account
         assert_eq!(user_account, expected_account);
 
-        let response = withdraw(&contract, deposit_amount, assets.quote.id).await;
+        let response = withdraw(&contract, deposit_amount, assets.quote.asset_id).await;
 
         let log = response.decode_logs_with_type::<WithdrawEvent>().unwrap();
         let event = log.get(0).unwrap();
@@ -82,12 +82,12 @@ mod success {
             *event,
             WithdrawEvent {
                 amount: deposit_amount,
-                asset: assets.quote.id,
+                asset: assets.quote.asset_id,
                 user: owner.identity(),
             }
         );
 
-        let new_balance = owner.balance(&assets.quote.id).await;
+        let new_balance = owner.balance(&assets.quote.asset_id).await;
         let user_account = account(&contract, owner.identity()).await.value.unwrap();
         let expected_account = create_account(0, 0, 0, 0);
 
@@ -113,10 +113,10 @@ mod revert {
 
         let deposit_amount = 100;
 
-        deposit(&contract, deposit_amount, assets.base.id).await;
+        deposit(&contract, deposit_amount, assets.base.asset_id).await;
 
         // Revert
-        withdraw(&contract, deposit_amount, assets.random.id).await;
+        withdraw(&contract, deposit_amount, assets.random.asset_id).await;
     }
 
     #[tokio::test]
@@ -133,7 +133,7 @@ mod revert {
         let deposit_amount = 100;
 
         // Revert
-        withdraw(&contract, deposit_amount, assets.base.id).await;
+        withdraw(&contract, deposit_amount, assets.base.asset_id).await;
     }
 
     #[tokio::test]
@@ -149,10 +149,10 @@ mod revert {
 
         let deposit_amount = 100;
 
-        deposit(&contract, deposit_amount, assets.base.id).await;
+        deposit(&contract, deposit_amount, assets.base.asset_id).await;
 
         // Revert
-        withdraw(&contract, deposit_amount + 1, assets.base.id).await;
+        withdraw(&contract, deposit_amount + 1, assets.base.asset_id).await;
     }
 
     #[tokio::test]
@@ -168,9 +168,9 @@ mod revert {
 
         let deposit_amount = 100;
 
-        deposit(&contract, deposit_amount, assets.quote.id).await;
+        deposit(&contract, deposit_amount, assets.quote.asset_id).await;
 
         // Revert
-        withdraw(&contract, deposit_amount + 1, assets.quote.id).await;
+        withdraw(&contract, deposit_amount + 1, assets.quote.asset_id).await;
     }
 }

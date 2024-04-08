@@ -27,14 +27,14 @@ mod success {
         // Precondition enforces empty account
         assert!(account(&contract, owner.identity()).await.value.is_none());
 
-        let response = deposit(&contract, deposit_amount, assets.base.id).await;
+        let response = deposit(&contract, deposit_amount, assets.base.asset_id).await;
         let log = response.decode_logs_with_type::<DepositEvent>().unwrap();
         let event = log.get(0).unwrap();
         assert_eq!(
             *event,
             DepositEvent {
                 amount: deposit_amount,
-                asset: assets.base.id,
+                asset: assets.base.asset_id,
                 user: owner.identity(),
             }
         );
@@ -60,14 +60,14 @@ mod success {
         // Precondition enforces empty account
         assert!(account(&contract, owner.identity()).await.value.is_none());
 
-        let response = deposit(&contract, deposit_amount, assets.quote.id).await;
+        let response = deposit(&contract, deposit_amount, assets.quote.asset_id).await;
         let log = response.decode_logs_with_type::<DepositEvent>().unwrap();
         let event = log.get(0).unwrap();
         assert_eq!(
             *event,
             DepositEvent {
                 amount: deposit_amount,
-                asset: assets.quote.id,
+                asset: assets.quote.asset_id,
                 user: owner.identity(),
             }
         );
@@ -96,6 +96,6 @@ mod revert {
         let deposit_amount = 100;
 
         // Revert
-        deposit(&contract, deposit_amount, assets.random.id).await;
+        deposit(&contract, deposit_amount, assets.random.asset_id).await;
     }
 }

@@ -21,7 +21,7 @@ mod success {
         let id = order_id(
             &contract,
             10,
-            assets.base.id,
+            assets.base.asset_id,
             OrderType::Buy,
             owner.identity(),
             70000,
@@ -47,7 +47,7 @@ mod success {
         let id1 = order_id(
             &contract,
             10,
-            assets.base.id,
+            assets.base.asset_id,
             OrderType::Buy,
             owner.identity(),
             70000,
@@ -56,7 +56,7 @@ mod success {
         let id2 = order_id(
             &contract,
             15,
-            assets.base.id,
+            assets.base.asset_id,
             OrderType::Buy,
             owner.identity(),
             70000,
@@ -91,7 +91,7 @@ mod success {
         let _ = order_id(
             &contract,
             10,
-            assets.base.id,
+            assets.base.asset_id,
             OrderType::Buy,
             owner.identity(),
             70000,
@@ -113,7 +113,7 @@ mod success {
         let _ = order_id(
             &contract,
             10,
-            assets.quote.id,
+            assets.quote.asset_id,
             OrderType::Buy,
             owner.identity(),
             70000,
@@ -140,7 +140,7 @@ mod revert {
         order_id(
             &contract,
             10,
-            assets.random.id,
+            assets.random.asset_id,
             OrderType::Buy,
             owner.identity(),
             70000,

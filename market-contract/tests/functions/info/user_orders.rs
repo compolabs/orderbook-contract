@@ -32,9 +32,9 @@ mod success {
         )
         .await;
 
-        deposit(&contract, 100, assets.base.id).await;
-        let id1 = open_order(&contract, 1, assets.base.id, OrderType::Buy, 75000).await;
-        let id2 = open_order(&contract, 2, assets.base.id, OrderType::Buy, 70000).await;
+        deposit(&contract, 100, assets.base.asset_id).await;
+        let id1 = open_order(&contract, 1, assets.base.asset_id, OrderType::Buy, 75000).await;
+        let id2 = open_order(&contract, 2, assets.base.asset_id, OrderType::Buy, 70000).await;
 
         let mut orders = user_orders(&contract, owner.identity()).await.value;
 
