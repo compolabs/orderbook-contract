@@ -3206,16 +3206,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "spark-market"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "fuels",
- "rand",
- "tokio",
-]
-
-[[package]]
 name = "spin"
 version = "0.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"

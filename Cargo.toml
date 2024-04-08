@@ -1,4 +1,4 @@
-workspace = { members = ["spark-market"] }
+# workspace = { members = ["spark-market"] }
 [package]
 name = "orderbook"
 description = "A cargo-generate template for Rust + Sway integration testing."
