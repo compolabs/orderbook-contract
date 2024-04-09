@@ -1,4 +1,5 @@
-workspace = { members = ["spark-market"] }
+# TODO: this has to be changed into a workspace
+workspace = { members = [ "spark","spark-market"] }
 [package]
 name = "orderbook"
 description = "A cargo-generate template for Rust + Sway integration testing."
