@@ -1,7 +1,7 @@
 use crate::utils::setup;
 use clap::Args;
 use fuels::{accounts::ViewOnlyAccount, types::AssetId};
-use spark_market::MarketContract;
+use spark_market_sdk::MarketContract;
 use std::str::FromStr;
 
 #[derive(Args, Clone)]

@@ -7,7 +7,7 @@ mod success {
 
     // ✅ buyOrder.orderPrice > sellOrder.orderPrice & buyOrder.baseSize > sellOrder.baseSize
     #[tokio::test]
-    async fn match1() {
+    async fn greater_buy_price_and_greater_buy_amount() {
         let buy_price = 46_000_f64;
         let sell_price = 45_000_f64;
         let buy_size = 2_f64;

@@ -1,5 +1,5 @@
 [package]
-name = "spark-market"
+name = "spark-market-sdk"
 version = "0.1.0"
 edition = "2021"
 

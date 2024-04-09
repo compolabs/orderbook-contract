@@ -1,13 +1,13 @@
 use crate::utils::{setup, validate_contract_id};
 use clap::Args;
 use fuels::{accounts::ViewOnlyAccount, types::AssetId};
-use spark_market::MarketContract;
+use spark_market_sdk::MarketContract;
 use std::str::FromStr;
 
 #[derive(Args, Clone)]
 #[command(about = "Deposits an asset from the wallet to the market")]
-pub(crate) struct DepositCommand {
-    /// The amount to deposit
+pub(crate) struct WithdrawCommand {
+    /// The amount to withdraw
     #[clap(long)]
     pub(crate) amount: u64,
 
@@ -25,7 +25,7 @@ pub(crate) struct DepositCommand {
     pub(crate) rpc: String,
 }
 
-impl DepositCommand {
+impl WithdrawCommand {
     pub(crate) async fn run(&self) -> anyhow::Result<()> {
         let wallet = setup(&self.rpc).await?;
         let contract_id = validate_contract_id(&self.contract_id)?;
@@ -42,14 +42,15 @@ impl DepositCommand {
         // Connect to the deployed contract via the rpc
         let contract = MarketContract::new(contract_id, wallet.clone()).await;
 
-        let _ = contract.deposit(self.amount, asset).await?;
+        let r = contract.withdraw(self.amount, asset).await?;
+        dbg!(r);
 
         // Balance post-call
         let new_balance = wallet.get_asset_balance(&AssetId::BASE).await?;
 
         // TODO: replace println with tracing
-        println!("\nContract call cost: {}", balance - new_balance);
-        println!("Deposited {} amount of asset {}", self.amount, self.asset);
+        println!("Contract call cost: {}", balance - new_balance);
+        println!("Withdrawn {} amount of {} asset", self.amount, self.asset);
 
         Ok(())
     }

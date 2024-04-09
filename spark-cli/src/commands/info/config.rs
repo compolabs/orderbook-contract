@@ -1,6 +1,6 @@
 use crate::utils::{setup, validate_contract_id};
 use clap::Args;
-use spark_market::MarketContract;
+use spark_market_sdk::MarketContract;
 
 #[derive(Args, Clone)]
 #[command(about = "Query the market for its configurable variables")]

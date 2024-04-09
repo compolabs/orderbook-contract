@@ -7,13 +7,14 @@ use fuels::{
     types::Identity,
 };
 
+// PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("market-contract/out/debug/market-contract.bin");
+const MARKET_CONTRACT_BINARY_PATH: &str = "../market-contract/out/debug/market-contract.bin";
+const MARKET_CONTRACT_STORAGE_PATH: &str =
+    "../market-contract/out/debug/market-contract-storage_slots.json";
 abigen!(Contract(
     name = "Market",
-    abi = "./out/debug/market-contract-abi.json"
+    abi = "./market-contract/out/debug/market-contract-abi.json"
 ));
-
-const MARKET_CONTRACT_BINARY_PATH: &str = "./out/debug/market-contract.bin";
-const MARKET_CONTRACT_STORAGE_PATH: &str = "./out/debug/market-contract-storage_slots.json";
 
 pub(crate) struct Assets {
     pub(crate) base: Asset,
