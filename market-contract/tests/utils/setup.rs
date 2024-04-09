@@ -8,9 +8,9 @@ use fuels::{
 };
 
 // PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("market-contract/out/debug/market-contract.bin");
-const MARKET_CONTRACT_BINARY_PATH: &str = "./market-contract/out/debug/market-contract.bin";
+const MARKET_CONTRACT_BINARY_PATH: &str = "../market-contract/out/debug/market-contract.bin";
 const MARKET_CONTRACT_STORAGE_PATH: &str =
-    "./market-contract/out/debug/market-contract-storage_slots.json";
+    "../market-contract/out/debug/market-contract-storage_slots.json";
 abigen!(Contract(
     name = "Market",
     abi = "./market-contract/out/debug/market-contract-abi.json"
