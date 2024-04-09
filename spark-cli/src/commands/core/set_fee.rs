@@ -4,7 +4,7 @@ use fuels::{
     accounts::ViewOnlyAccount,
     types::{Address, AssetId, ContractId, Identity},
 };
-use spark_market::MarketContract;
+use spark_market_sdk::MarketContract;
 use std::str::FromStr;
 
 #[derive(Args, Clone)]

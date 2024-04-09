@@ -1,7 +1,7 @@
 use crate::utils::{setup, validate_contract_id, AccountType, OrderType};
 use clap::Args;
 use fuels::types::{Address, AssetId, ContractId, Identity};
-use spark_market::{MarketContract, OrderType as ContractOrderType};
+use spark_market_sdk::{MarketContract, OrderType as ContractOrderType};
 use std::str::FromStr;
 
 #[derive(Args, Clone)]

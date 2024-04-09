@@ -1,7 +1,7 @@
 # TODO: this has to be changed into a workspace
 workspace = { members = ["spark-cli", "spark-market-sdk", "market-contract"] }
 [package]
-name = "spark-market-sdk"
+name = "spark-clob"
 description = "A cargo-generate template for Rust + Sway integration testing."
 version = "0.1.0"
 edition = "2021"

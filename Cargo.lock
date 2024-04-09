@@ -2927,19 +2927,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ff011a302c396a5197692431fc1948019154afc178baf7d8e37367442a4601cf"
 
 [[package]]
-name = "orderbook"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "dotenv",
- "fuels 0.55.0",
- "pretty_assertions",
- "rand",
- "src20_sdk",
- "tokio",
-]
-
-[[package]]
 name = "p256"
 version = "0.13.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3847,6 +3834,19 @@ dependencies = [
  "dotenv",
  "fuels 0.55.0",
  "spark-market-sdk",
+ "tokio",
+]
+
+[[package]]
+name = "spark-clob"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "dotenv",
+ "fuels 0.55.0",
+ "pretty_assertions",
+ "rand",
+ "src20_sdk",
  "tokio",
 ]
 
