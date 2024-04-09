@@ -1,7 +1,7 @@
 # TODO: this has to be changed into a workspace
-workspace = { members = [ "spark","spark-market"] }
+workspace = { members = ["spark-cli", "spark-market-sdk", "market-contract"] }
 [package]
-name = "orderbook"
+name = "spark-market-sdk"
 description = "A cargo-generate template for Rust + Sway integration testing."
 version = "0.1.0"
 edition = "2021"
@@ -14,32 +14,7 @@ rand = "0.8.5"
 tokio = { version = "1.12", features = ["rt", "macros"] }
 src20_sdk = { git = "https://github.com/compolabs/src-20.git", branch = "master" }
 dotenv = "0.15.0"
+anyhow = "1.0.81"
 
 [dev-dependencies]
 pretty_assertions = "1"
-
-[[test]]
-harness = true
-name = "integration_tests"
-path = "tests/harness.rs"
-
-
-[[bin]]
-name = "create_market"
-path = "scripts/create_market.rs"
-
-[[bin]]
-name = "create_order"
-path = "scripts/create_order.rs"
-
-[[bin]]
-name = "cancel_order"
-path = "scripts/cancel_order.rs"
-
-[[bin]]
-name = "deploy"
-path = "scripts/deploy.rs"
-
-[[bin]]
-name = "match_orders"
-path = "scripts/match_orders.rs"
