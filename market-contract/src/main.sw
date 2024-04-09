@@ -78,7 +78,7 @@ impl Market for Contract {
         let user = msg_sender().unwrap();
         let (amount, asset_type) = match msg_asset_id() == BASE_ASSET {
             true => (msg_amount() * 10.pow(BASE_ASSET_DECIMALS), AssetType::Base),
-            false => (msg_amount() * 10.pow(QUOTE_ASSET_DECIMALS), AssetType::Base),
+            false => (msg_amount() * 10.pow(QUOTE_ASSET_DECIMALS), AssetType::Quote),
         };
 
         let mut account = match storage.account.get(user).try_read() {
@@ -106,7 +106,7 @@ impl Market for Contract {
         // TODO: Is this division correct?
         let (internal_amount, asset_type) = match msg_asset_id() == BASE_ASSET {
             true => (amount / 10.pow(BASE_ASSET_DECIMALS), AssetType::Base),
-            false => (amount / 10.pow(QUOTE_ASSET_DECIMALS), AssetType::Base),
+            false => (amount / 10.pow(QUOTE_ASSET_DECIMALS), AssetType::Quote),
         };
 
         account.liquid.debit(amount, asset_type);
