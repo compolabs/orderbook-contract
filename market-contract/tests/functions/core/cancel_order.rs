@@ -2,7 +2,7 @@ use crate::utils::{
     interface::core::{cancel_order, deposit, open_order},
     setup::{setup, Defaults, OrderType},
 };
-
+ 
 mod success {
 
     use super::*;

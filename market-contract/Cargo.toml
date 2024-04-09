@@ -1,5 +1,5 @@
 [project]
-name = "contract"
+name = "market-contract"
 version = "0.0.0"
 authors = ["Compo Labs"]
 edition = "2021"
