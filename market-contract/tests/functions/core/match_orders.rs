@@ -1,5 +1,8 @@
 use crate::utils::{
-    interface::core::{deposit, open_order},
+    interface::{
+        core::{batch_fulfill, deposit, open_order},
+        info::account,
+    },
     setup::{setup, Defaults, OrderType},
 };
 // constants
@@ -15,8 +18,6 @@ use crate::utils::{
 
 mod success {
 
-    use crate::utils::interface::info::account;
-
     use super::*;
 
     // ✅ buyOrder.orderPrice > sellOrder.orderPrice & buyOrder.baseSize > sellOrder.baseSize
@@ -27,10 +28,9 @@ mod success {
         let buy_size = 2_f64;
         let sell_size = 1_f64;
 
-        let alice_token_expected_balance = (1_f64 * 1e8) as u64;
-        let alice_usdc_expected_balance = (47_000_f64 * 1e6) as u64;
-        let bob_token_expected_balance = 0;
-        let bob_usdc_expected_balance = (45_000_f64 * 1e6) as u64;
+        let alice_liquid_base_expected_balance = 1_f64;
+        let alice_locked_quote_expected_balance = 47_000_f64; //locked because order will be opened
+        let bob_liquid_quote_expected_balance = 45_000_f64;
 
         let defaults = Defaults::default();
         let (contract, alice, bob, assets) = setup(
@@ -60,14 +60,17 @@ mod success {
         .await
         .value;
 
+        let bob_account = account(&contract, bob.identity()).await.value.unwrap();
+        assert_eq!(bob_account.locked.base, bob_deposit_base_amount);
+        assert_eq!(bob_account.liquid.base, 0);
+
         //deposit
         let alice_deposit_quote_amount = assets.quote.parse_units(buy_price * buy_size) as u64;
         let _ = deposit(&alice_instance, alice_deposit_quote_amount, assets.quote.id).await;
         let alice_account = account(&contract, alice.identity()).await.value.unwrap();
         assert_eq!(alice_account.liquid.quote, alice_deposit_quote_amount);
 
-        // //create order alice
-        // //fixme InsufficientBalance((0, 92000000000000))
+        //create order alice
         let alice_order_id = open_order(
             &alice_instance,
             assets.base.parse_units(buy_size) as u64,
@@ -77,6 +80,24 @@ mod success {
         )
         .await
         .value;
+
+        let alice_account = account(&contract, alice.identity()).await.value.unwrap();
+        assert_eq!(alice_account.locked.quote, alice_deposit_quote_amount);
+        assert_eq!(alice_account.liquid.quote, 0);
+
+        batch_fulfill(&contract, bob_order_id, vec![alice_order_id]).await;
+    
+        let bob_account = account(&contract, bob.identity()).await.value.unwrap();
+        assert_eq!(bob_account.locked.base, 0);
+        assert_eq!(bob_account.liquid.base, 0);
+        assert_eq!(bob_account.locked.quote, 0);
+        assert_eq!(bob_account.liquid.quote, assets.quote.format_units(bob_liquid_quote_expected_balance) as u64); // 45k usdc
+
+        let alice_account = account(&contract, alice.identity()).await.value.unwrap();
+        assert_eq!(alice_account.locked.quote, assets.quote.format_units(alice_locked_quote_expected_balance) as u64); // 47k usdc
+        assert_eq!(alice_account.liquid.quote, 0);
+        assert_eq!(alice_account.locked.base, 0);
+        assert_eq!(alice_account.liquid.base, assets.base.parse_units(alice_liquid_base_expected_balance) as u64); // 1 btc
     }
 
     // // ✅ buyOrder.orderPrice > sellOrder.orderPrice & buyOrder.baseSize < sellOrder.baseSize
