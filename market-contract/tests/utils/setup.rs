@@ -8,9 +8,9 @@ use fuels::{
 };
 
 // PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("market-contract/out/debug/market-contract.bin");
-const MARKET_CONTRACT_BINARY_PATH: &str = "./market-contract/out/debug/market-contract.bin";
+const MARKET_CONTRACT_BINARY_PATH: &str = "./out/debug/market-contract.bin";
 const MARKET_CONTRACT_STORAGE_PATH: &str =
-    "./market-contract/out/debug/market-contract-storage_slots.json";
+    "./out/debug/market-contract-storage_slots.json";
 abigen!(Contract(
     name = "Market",
     abi = "./market-contract/out/debug/market-contract-abi.json"
@@ -20,6 +20,15 @@ pub(crate) struct Assets {
     pub(crate) base: Asset,
     pub(crate) quote: Asset,
     pub(crate) random: Asset,
+}
+
+impl Asset  {
+    pub fn parse_units(&self, value: f64) -> f64 {
+        value * 10_f64.powf(self.decimals as f64)
+    }
+    pub fn format_units(&self, value: f64) -> f64 {
+        value / 10_f64.powf(self.decimals as f64)
+    }
 }
 
 pub(crate) struct Asset {
@@ -86,7 +95,7 @@ pub(crate) async fn setup(
 ) -> (Market<WalletUnlocked>, User, User, Assets) {
     let number_of_wallets = 2;
     let coins_per_wallet = 1;
-    let amount_per_coin = 100_000_000;
+    let amount_per_coin = 100_000_000_000_000;
 
     let base_asset_id = AssetId::new([0; 32]);
     let quote_asset_id = AssetId::new([1; 32]);

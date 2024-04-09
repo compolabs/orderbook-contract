@@ -6,6 +6,16 @@ mod success {
     use super::*;
 
     // ✅ buyOrder.orderPrice > sellOrder.orderPrice & buyOrder.baseSize > sellOrder.baseSize
+    // constants
+    // balances check
+    // alice deposit
+    // deposit check
+    // create a buy order
+    // deposited balance check and order check
+    // same stuff for a sell order
+    // match orders
+    // close order in nessesary
+    // deposited balances check
     #[tokio::test]
     async fn greater_buy_price_and_greater_buy_amount() {
         let buy_price = 46_000_f64;
