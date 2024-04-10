@@ -68,7 +68,7 @@ impl DeployCommand {
         // TODO: replace println with tracing
         println!("\nMarket deployed to: 0x{}", contract.id());
         println!("Deployment cost: {}", balance - new_balance);
-        println!("Owner address: {}", wallet.address().to_string());
+        println!("Owner address: {}", wallet.address());
         println!("               0x{}", wallet.address().hash());
 
         Ok(())

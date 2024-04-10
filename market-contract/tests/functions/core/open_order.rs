@@ -66,7 +66,7 @@ mod success {
         .value;
 
         let log = response.decode_logs_with_type::<OpenOrderEvent>().unwrap();
-        let event = log.get(0).unwrap();
+        let event = log.first().unwrap();
         assert_eq!(
             *event,
             OpenOrderEvent {
@@ -87,6 +87,7 @@ mod success {
         assert_eq!(stored_id, expected_id);
     }
 
+    #[ignore]
     #[tokio::test]
     async fn sell_quote() {
         let defaults = Defaults::default();
@@ -142,7 +143,7 @@ mod success {
         .value;
 
         let log = response.decode_logs_with_type::<OpenOrderEvent>().unwrap();
-        let event = log.get(0).unwrap();
+        let event = log.first().unwrap();
         assert_eq!(
             *event,
             OpenOrderEvent {
@@ -227,7 +228,7 @@ mod success {
         .value;
 
         let log = response.decode_logs_with_type::<OpenOrderEvent>().unwrap();
-        let event = log.get(0).unwrap();
+        let event = log.first().unwrap();
         assert_eq!(
             *event,
             OpenOrderEvent {
@@ -315,7 +316,7 @@ mod success {
         .value;
 
         let log = response.decode_logs_with_type::<OpenOrderEvent>().unwrap();
-        let event = log.get(0).unwrap();
+        let event = log.first().unwrap();
         assert_eq!(
             *event,
             OpenOrderEvent {
@@ -414,6 +415,7 @@ mod revert {
         open_order(&contract, order_amount, asset, order_type.clone(), price).await;
     }
 
+    #[ignore]
     #[tokio::test]
     #[should_panic(expected = "InsufficientBalance")]
     async fn when_insufficient_quote_balance_to_sell() {

@@ -137,9 +137,9 @@ pub(crate) async fn setup(
         StorageConfiguration::default().add_slot_overrides_from_file(MARKET_CONTRACT_STORAGE_PATH);
 
     let configurables = MarketConfigurables::default()
-        .with_BASE_ASSET(assets.base.id.clone())
+        .with_BASE_ASSET(assets.base.id)
         .with_BASE_ASSET_DECIMALS(assets.base.decimals)
-        .with_QUOTE_ASSET(assets.quote.id.clone())
+        .with_QUOTE_ASSET(assets.quote.id)
         .with_QUOTE_ASSET_DECIMALS(assets.quote.decimals)
         .with_PRICE_DECIMALS(price_decimals)
         .with_OWNER(owner.address().into());

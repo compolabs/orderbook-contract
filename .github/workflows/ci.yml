@@ -52,7 +52,8 @@ jobs:
       - name: Install Fuel toolchain
         uses: FuelLabs/action-fuel-toolchain@v0.6.0
         with:
-          toolchain: beta-5
+          toolchain: nightly
+          date: 2024-02-07
 
       - name: Check Sway formatting
         run: forc fmt --check --path market-contract
@@ -95,6 +96,17 @@ jobs:
       - name: Init cache
         uses: Swatinem/rust-cache@v2
 
+      - name: Install Fuel toolchain
+        uses: FuelLabs/action-fuel-toolchain@v0.6.0
+        with:
+          toolchain: nightly
+          date: 2024-02-07
+
+      - name: Build Sway
+        run: |
+          cd "market-contract"
+          forc build --locked
+
       - name: Build Rust files
         run: cargo build --locked --manifest-path spark-cli/Cargo.toml
 
@@ -116,6 +128,17 @@ jobs:
 
       - name: Init cache
         uses: Swatinem/rust-cache@v2
+
+      - name: Install Fuel toolchain
+        uses: FuelLabs/action-fuel-toolchain@v0.6.0
+        with:
+          toolchain: nightly
+          date: 2024-02-07
+
+      - name: Build Sway
+        run: |
+          cd "market-contract"
+          forc build --locked
 
       - name: Build Rust files
         run: cargo build --locked --manifest-path spark-market-sdk/Cargo.toml

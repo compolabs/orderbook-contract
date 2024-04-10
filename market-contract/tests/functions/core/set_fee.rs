@@ -30,7 +30,7 @@ mod success {
 
         // Log should be emitted when fee is changed
         let log = response.decode_logs_with_type::<SetFeeEvent>().unwrap();
-        let event = log.get(0).unwrap();
+        let event = log.first().unwrap();
         assert_eq!(
             *event,
             SetFeeEvent {
@@ -66,7 +66,7 @@ mod success {
 
         // Log should be emitted when fee is changed
         let log = response.decode_logs_with_type::<SetFeeEvent>().unwrap();
-        let event = log.get(0).unwrap();
+        let event = log.first().unwrap();
         assert_eq!(
             *event,
             SetFeeEvent {
