@@ -13,6 +13,9 @@ use dotenv::dotenv;
 async fn main() -> anyhow::Result<()> {
     dotenv().ok(); // TODO: check this works against std::env
 
+    // TODO: document local provider rpc in each command
+    // Provider::connect(format!("127.0.0.1:{port}")).await?;
+
     let cli = Cli::parse();
 
     match cli.command {

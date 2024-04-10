@@ -382,7 +382,7 @@ mod revert {
 
         // Revert
         open_order(
-            &contract.with_account(user.wallet),
+            &contract.with_account(user.wallet).unwrap(),
             order_amount,
             asset,
             order_type,

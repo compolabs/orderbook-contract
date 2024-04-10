@@ -9,19 +9,19 @@ mod math;
 
 use ::data_structures::{
     account::Account,
-    asset_type::AssetType, 
-    balance::Balance, 
+    asset_type::AssetType,
+    balance::Balance,
+    order::Order,
     order_type::OrderType,
-    order::Order
 };
 use ::errors::{AccountError, AssetError, AuthError, OrderError};
 use ::events::{
     CancelOrderEvent,
-    DepositEvent, 
-    OpenOrderEvent, 
-    SetFeeEvent, 
-    TradeEvent, 
-    WithdrawEvent
+    DepositEvent,
+    OpenOrderEvent,
+    SetFeeEvent,
+    TradeEvent,
+    WithdrawEvent,
 };
 use ::interface::{Info, Market};
 use ::math::*;
@@ -29,13 +29,15 @@ use ::math::*;
 use std::{
     asset::transfer,
     call_frames::msg_asset_id,
-    constants::{BASE_ASSET_ID, ZERO_B256},
+    constants::{
+        BASE_ASSET_ID,
+        ZERO_B256,
+    },
     context::msg_amount,
     hash::{
         Hash,
         sha256,
     },
-    // TODO: glob import because compiler will not import impl block otherwise
     storage::storage_vec::*,
 };
 
@@ -51,20 +53,15 @@ configurable {
 storage {
     // Balance of each user
     account: StorageMap<Identity, Account> = StorageMap {},
-
     // Global fee for regular users
     fee: u64 = 0,
-
     // All of the currently open orders
     orders: StorageMap<b256, Order> = StorageMap {},
-
     // Internal handling of indexes for user_orders
     user_order_indexes: StorageMap<Identity, StorageMap<b256, u64>> = StorageMap {},
-
     // Fee for premium users which ought to be smaller than the global fee
     // Map(user => fee)
     premium_user: StorageMap<Identity, u64> = StorageMap {},
-
     // Indexing orders by user
     user_orders: StorageMap<Identity, StorageVec<b256>> = StorageMap {},
 }
@@ -73,7 +70,10 @@ impl Market for Contract {
     #[payable]
     #[storage(read, write)]
     fn deposit() {
-        require(msg_asset_id() == BASE_ASSET || msg_asset_id() == QUOTE_ASSET, AssetError::InvalidAsset);
+        require(
+            msg_asset_id() == BASE_ASSET || msg_asset_id() == QUOTE_ASSET,
+            AssetError::InvalidAsset,
+        );
 
         let user = msg_sender().unwrap();
         let (amount, asset_type) = match msg_asset_id() == BASE_ASSET {
@@ -89,18 +89,25 @@ impl Market for Contract {
         account.liquid.credit(msg_amount(), asset_type);
         storage.account.insert(user, account);
 
-        log(DepositEvent { amount: msg_amount(), asset: msg_asset_id(), user });
+        log(DepositEvent {
+            amount: msg_amount(),
+            asset: msg_asset_id(),
+            user,
+        });
     }
 
     #[storage(read, write)]
     fn withdraw(amount: u64, asset: AssetId) {
-        require(asset == BASE_ASSET || asset == QUOTE_ASSET, AssetError::InvalidAsset);
-        
+        require(
+            asset == BASE_ASSET || asset == QUOTE_ASSET,
+            AssetError::InvalidAsset,
+        );
+
         let user = msg_sender().unwrap();
         let account = storage.account.get(user).try_read();
 
         require(account.is_some(), AccountError::InvalidUser);
-        
+
         let mut account = account.unwrap();
 
         // TODO: Is this division correct?
@@ -113,14 +120,26 @@ impl Market for Contract {
         storage.account.insert(user, account);
 
         transfer(user, asset, internal_amount);
-        
-        log(WithdrawEvent { amount: internal_amount, asset, user });
+
+        log(WithdrawEvent {
+            amount: internal_amount,
+            asset,
+            user,
+        });
     }
 
     #[storage(read, write)]
     // TODO: what types should amount, price be?
-    fn open_order(amount: u64, asset: AssetId, order_type: OrderType, price: u64) -> b256 {
-        require(asset == BASE_ASSET || asset == QUOTE_ASSET, AssetError::InvalidAsset);
+    fn open_order(
+        amount: u64,
+        asset: AssetId,
+        order_type: OrderType,
+        price: u64,
+    ) -> b256 {
+        require(
+            asset == BASE_ASSET || asset == QUOTE_ASSET,
+            AssetError::InvalidAsset,
+        );
 
         let user = msg_sender().unwrap();
         let account = storage.account.get(user).try_read();
@@ -129,7 +148,11 @@ impl Market for Contract {
         require(account.is_some(), AccountError::InvalidUser);
 
         let mut account = account.unwrap();
-        let asset_type = if asset == BASE_ASSET { AssetType::Base } else { AssetType::Quote };
+        let asset_type = if asset == BASE_ASSET {
+            AssetType::Base
+        } else {
+            AssetType::Quote
+        };
 
         match order_type {
             OrderType::Sell => {
@@ -151,15 +174,25 @@ impl Market for Contract {
                 // TODO: these "amounts" do not return expected values
                 let (amount, asset_type) = match asset == BASE_ASSET {
                     true => {
-                        let amount = base_to_quote_amount(amount, BASE_ASSET_DECIMALS, price, PRICE_DECIMALS, QUOTE_ASSET_DECIMALS);
+                        let amount = base_to_quote_amount(
+                            amount,
+                            BASE_ASSET_DECIMALS,
+                            price,
+                            PRICE_DECIMALS,
+                            QUOTE_ASSET_DECIMALS,
+                        );
                         let asset_type = AssetType::Quote;
-
                         (amount, asset_type)
                     },
                     false => {
-                        let amount = quote_to_base_amount(amount, BASE_ASSET_DECIMALS, price, PRICE_DECIMALS, QUOTE_ASSET_DECIMALS);
+                        let amount = quote_to_base_amount(
+                            amount,
+                            BASE_ASSET_DECIMALS,
+                            price,
+                            PRICE_DECIMALS,
+                            QUOTE_ASSET_DECIMALS,
+                        );
                         let asset_type = AssetType::Base;
-
                         (amount, asset_type)
                     },
                 };
@@ -183,7 +216,7 @@ impl Market for Contract {
                 .is_none(),
             OrderError::DuplicateOrder,
         );
-        
+
         // Store the new order and update the state of the user's account
         storage.orders.insert(order_id, order);
         storage.account.insert(user, account);
@@ -238,12 +271,28 @@ impl Market for Contract {
             OrderType::Buy => {
                 // TODO: these "amounts" do not return expected values
                 let amount = match order.asset == BASE_ASSET {
-                    true => quote_to_base_amount(order.amount, BASE_ASSET_DECIMALS, order.price, PRICE_DECIMALS, QUOTE_ASSET_DECIMALS),
-                    false => base_to_quote_amount(order.amount, BASE_ASSET_DECIMALS, order.price, PRICE_DECIMALS, QUOTE_ASSET_DECIMALS),
+                    true => quote_to_base_amount(
+                        order.amount,
+                        BASE_ASSET_DECIMALS,
+                        order.price,
+                        PRICE_DECIMALS,
+                        QUOTE_ASSET_DECIMALS,
+                    ),
+                    false => base_to_quote_amount(
+                        order.amount,
+                        BASE_ASSET_DECIMALS,
+                        order.price,
+                        PRICE_DECIMALS,
+                        QUOTE_ASSET_DECIMALS,
+                    ),
                 };
-                
+
                 // Swap the asset types because you've payed with what you have when you were buying the other asset
-                let asset_type = if order.asset == BASE_ASSET { AssetType::Quote } else { AssetType::Base };
+                let asset_type = if order.asset == BASE_ASSET {
+                    AssetType::Quote
+                } else {
+                    AssetType::Base
+                };
 
                 account.locked.credit(amount, asset_type);
                 account.liquid.debit(amount, asset_type);
@@ -255,20 +304,41 @@ impl Market for Contract {
         let index = storage.user_order_indexes.get(user).get(order_id).read();
         let order_count = storage.user_orders.get(user).len();
 
-        require(storage.user_order_indexes.get(user).remove(order_id), OrderError::FailedToRemove); // TODO: Different error
-
+        require(
+            storage
+                .user_order_indexes
+                .get(user)
+                .remove(order_id),
+            OrderError::FailedToRemove,
+        ); // TODO: Different error
         if order_count == 1 {
             // There's only 1 element so no swapping. Pop it from the end
-            require(storage.user_orders.get(user).pop().unwrap() == order_id, OrderError::FailedToRemove);
+            require(
+                storage
+                    .user_orders
+                    .get(user)
+                    .pop()
+                    .unwrap() == order_id,
+                OrderError::FailedToRemove,
+            );
         } else {
             // The order ID at the end is about to have its index changed via swap_remove()
             let last_element = storage.user_orders.get(user).last().unwrap().read();
 
             // Remove the current order by replacing it with the order at the end of storage vec
-            require(storage.user_orders.get(user).swap_remove(index) == order_id, OrderError::FailedToRemove);
+            require(
+                storage
+                    .user_orders
+                    .get(user)
+                    .swap_remove(index) == order_id,
+                OrderError::FailedToRemove,
+            );
 
             // Last element has been shifted so update its index
-            storage.user_order_indexes.get(user).insert(last_element, index);
+            storage
+                .user_order_indexes
+                .get(user)
+                .insert(last_element, index);
         }
 
         storage.account.insert(user, account);
@@ -303,7 +373,9 @@ impl Market for Contract {
 
             // Order types must be different in order to trade (buy against sell)
             // Asset types must be the same you trade asset A for asset A instead of B
-            if alice.order_type == bob.order_type || alice.asset != bob.asset {
+            if alice.order_type == bob.order_type
+                || alice.asset != bob.asset
+            {
                 continue;
             }
 
@@ -311,7 +383,13 @@ impl Market for Contract {
             let bob_id = bob.id();
 
             // Attempt to trade orders, figure out amounts that can be traded
-            let trade = attempt_trade(alice, bob, BASE_ASSET_DECIMALS, QUOTE_ASSET_DECIMALS, PRICE_DECIMALS);
+            let trade = attempt_trade(
+                alice,
+                bob,
+                BASE_ASSET_DECIMALS,
+                QUOTE_ASSET_DECIMALS,
+                PRICE_DECIMALS,
+            );
 
             // Failed to trade ex. insufficient price or remaining amount
             if trade.is_err() {
@@ -319,7 +397,12 @@ impl Market for Contract {
             }
 
             // Retrieve the amount of each asset that can be traded
-            let (alice_order_amount_decrease, alice_account_delta, bob_order_amount_decrease, bob_account_delta) = trade.unwrap();
+            let (
+                alice_order_amount_decrease,
+                alice_account_delta,
+                bob_order_amount_decrease,
+                bob_account_delta,
+            ) = trade.unwrap();
 
             // Update the order quantities with the amounts that can be traded
             alice.amount -= alice_order_amount_decrease;
@@ -327,12 +410,18 @@ impl Market for Contract {
 
             // Update the accounts for bob and alice based on the traded assets
             let mut bob_account = storage.account.get(bob.owner).read();
-            
-            alice_account.locked.debit(alice_account_delta, alice.asset_type);
-            alice_account.liquid.credit(bob_account_delta, bob.asset_type);
+
+            alice_account
+                .locked
+                .debit(alice_account_delta, alice.asset_type);
+            alice_account
+                .liquid
+                .credit(bob_account_delta, bob.asset_type);
 
             bob_account.locked.debit(bob_account_delta, bob.asset_type);
-            bob_account.liquid.credit(alice_account_delta, alice.asset_type);
+            bob_account
+                .liquid
+                .credit(alice_account_delta, alice.asset_type);
 
             // Save bob's account because his order is finished
             // For optimization save alice at the end of the batch
@@ -401,7 +490,13 @@ impl Market for Contract {
 
     #[storage(write)]
     fn set_fee(amount: u64, user: Option<Identity>) {
-        require(msg_sender().unwrap().as_address().unwrap() == OWNER, AuthError::Unauthorized);
+        require(
+            msg_sender()
+                .unwrap()
+                .as_address()
+                .unwrap() == OWNER,
+            AuthError::Unauthorized,
+        );
 
         match user {
             Some(identity) => storage.premium_user.insert(identity, amount),
@@ -437,11 +532,27 @@ impl Info for Contract {
     }
 
     fn config() -> (Address, AssetId, u32, AssetId, u32, u32) {
-        (OWNER, BASE_ASSET, BASE_ASSET_DECIMALS, QUOTE_ASSET, QUOTE_ASSET_DECIMALS, PRICE_DECIMALS)
+        (
+            OWNER,
+            BASE_ASSET,
+            BASE_ASSET_DECIMALS,
+            QUOTE_ASSET,
+            QUOTE_ASSET_DECIMALS,
+            PRICE_DECIMALS,
+        )
     }
 
-    fn order_id(amount: u64, asset: AssetId, order_type: OrderType, owner: Identity, price: u64) -> b256 {
-        require(asset == BASE_ASSET || asset == QUOTE_ASSET, AssetError::InvalidAsset);
+    fn order_id(
+        amount: u64,
+        asset: AssetId,
+        order_type: OrderType,
+        owner: Identity,
+        price: u64,
+    ) -> b256 {
+        require(
+            asset == BASE_ASSET || asset == QUOTE_ASSET,
+            AssetError::InvalidAsset,
+        );
         let asset_type = if asset == BASE_ASSET {
             AssetType::Base
         } else {

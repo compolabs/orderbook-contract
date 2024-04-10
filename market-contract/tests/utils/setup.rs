@@ -7,14 +7,15 @@ use fuels::{
     types::Identity,
 };
 
-// PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("market-contract/out/debug/market-contract.bin");
-const MARKET_CONTRACT_BINARY_PATH: &str = "../market-contract/out/debug/market-contract.bin";
-const MARKET_CONTRACT_STORAGE_PATH: &str =
-    "../market-contract/out/debug/market-contract-storage_slots.json";
 abigen!(Contract(
     name = "Market",
     abi = "./market-contract/out/debug/market-contract-abi.json"
 ));
+
+// PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("market-contract/out/debug/market-contract.bin");
+const MARKET_CONTRACT_BINARY_PATH: &str = "../market-contract/out/debug/market-contract.bin";
+const MARKET_CONTRACT_STORAGE_PATH: &str =
+    "../market-contract/out/debug/market-contract-storage_slots.json";
 
 pub(crate) struct Assets {
     pub(crate) base: Asset,
@@ -137,17 +138,11 @@ pub(crate) async fn setup(
 
     let configurables = MarketConfigurables::default()
         .with_BASE_ASSET(assets.base.id.clone())
-        .unwrap()
         .with_BASE_ASSET_DECIMALS(assets.base.decimals)
-        .unwrap()
         .with_QUOTE_ASSET(assets.quote.id.clone())
-        .unwrap()
         .with_QUOTE_ASSET_DECIMALS(assets.quote.decimals)
-        .unwrap()
         .with_PRICE_DECIMALS(price_decimals)
-        .unwrap()
-        .with_OWNER(owner.address().into())
-        .unwrap();
+        .with_OWNER(owner.address().into());
 
     let contract_configuration = LoadConfiguration::default()
         .with_storage_configuration(storage_configuration.unwrap())

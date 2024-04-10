@@ -100,7 +100,7 @@ mod revert {
 
         // Reverts
         set_fee(
-            &contract.with_account(user.wallet.clone()),
+            &contract.with_account(user.wallet.clone()).unwrap(),
             new_fee,
             Some(user.identity()),
         )

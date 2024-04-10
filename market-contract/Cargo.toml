@@ -1,13 +1,14 @@
 [package]
 name = "market-contract"
-version = "0.0.0"
-authors = ["Compo Labs"]
-edition = "2021"
-license = "Apache-2.0"
+version = "0.1.0"
+authors = { workspace = true }
+edition = { workspace = true }
+license = { workspace = true }
+rust-version = { workspace = true }
 
 [dependencies]
-fuels = { version = "0.56.0", features = ["fuel-core-lib"] }
-tokio = { version = "1.12", features = ["rt", "macros"] }
+fuels = { workspace = true }
+tokio = { workspace = true }
 
 [[test]]
 harness = true

@@ -2,7 +2,7 @@ use crate::utils::{
     interface::core::{cancel_order, deposit, open_order},
     setup::{setup, Defaults, OrderType},
 };
- 
+
 mod success {
 
     use super::*;
@@ -253,6 +253,6 @@ mod revert {
             .value;
 
         // Revert
-        cancel_order(&contract.with_account(user.wallet), id).await;
+        cancel_order(&contract.with_account(user.wallet).unwrap(), id).await;
     }
 }
