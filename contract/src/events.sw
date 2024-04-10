@@ -24,5 +24,7 @@ pub struct TradeEvent {
     buyer: Address,
     trade_size: u64,
     trade_price: u64,
+    sell_order_id: b256,
+    buy_order_id: b256,
     timestamp: u64,
 }
