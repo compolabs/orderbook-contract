@@ -73,55 +73,46 @@ impl Market for Contract {
     #[payable]
     #[storage(read, write)]
     fn deposit() {
-        require(msg_asset_id() == BASE_ASSET || msg_asset_id() == QUOTE_ASSET, AssetError::InvalidAsset);
+        let asset = msg_asset_id();
+        let amount = msg_amount();
 
+        require(asset == BASE_ASSET || asset == QUOTE_ASSET, AssetError::InvalidAsset);
+        let asset_type = if asset == BASE_ASSET { AssetType::Base } else { AssetType::Quote };
+        
         let user = msg_sender().unwrap();
-        let (amount, asset_type) = match msg_asset_id() == BASE_ASSET {
-            true => (msg_amount() * 10.pow(BASE_ASSET_DECIMALS), AssetType::Base),
-            false => (msg_amount() * 10.pow(QUOTE_ASSET_DECIMALS), AssetType::Quote),
-        };
 
-        let mut account = match storage.account.get(user).try_read() {
-            Some(account) => account,
-            None => Account::new(),
-        };
+        let mut account = storage.account.get(user).try_read().unwrap_or(Account::new());
 
-        account.liquid.credit(msg_amount(), asset_type);
+        account.liquid.credit(amount, asset_type);
         storage.account.insert(user, account);
 
-        log(DepositEvent { amount: msg_amount(), asset: msg_asset_id(), user });
+        log(DepositEvent { amount, asset, user });
+
     }
 
     #[storage(read, write)]
     fn withdraw(amount: u64, asset: AssetId) {
         require(asset == BASE_ASSET || asset == QUOTE_ASSET, AssetError::InvalidAsset);
-        
+        let asset_type = if asset == BASE_ASSET { AssetType::Base } else { AssetType::Quote };
+
         let user = msg_sender().unwrap();
         let account = storage.account.get(user).try_read();
-
         require(account.is_some(), AccountError::InvalidUser);
-        
         let mut account = account.unwrap();
-
-        // TODO: Is this division correct?
-        let (internal_amount, asset_type) = match msg_asset_id() == BASE_ASSET {
-            true => (amount / 10.pow(BASE_ASSET_DECIMALS), AssetType::Base),
-            false => (amount / 10.pow(QUOTE_ASSET_DECIMALS), AssetType::Quote),
-        };
 
         account.liquid.debit(amount, asset_type);
         storage.account.insert(user, account);
 
-        transfer(user, asset, internal_amount);
+        transfer(user, asset, amount);
         
-        log(WithdrawEvent { amount: internal_amount, asset, user });
+        log(WithdrawEvent { amount, asset, user });
     }
 
     #[storage(read, write)]
-    // TODO: what types should amount, price be?
     fn open_order(amount: u64, asset: AssetId, order_type: OrderType, price: u64) -> b256 {
         require(asset == BASE_ASSET || asset == QUOTE_ASSET, AssetError::InvalidAsset);
 
+        let asset_type = if asset == BASE_ASSET { AssetType::Base } else { AssetType::Quote };
         let user = msg_sender().unwrap();
         let account = storage.account.get(user).try_read();
 
@@ -129,45 +120,36 @@ impl Market for Contract {
         require(account.is_some(), AccountError::InvalidUser);
 
         let mut account = account.unwrap();
-        let asset_type = if asset == BASE_ASSET { AssetType::Base } else { AssetType::Quote };
 
         match order_type {
             OrderType::Sell => {
                 // If the account has enough liquidity of the asset that you already own then lock 
                 // it for the new sell order
 
-                // TODO: use amount to lock funds
-                let _internal_amount = if asset == BASE_ASSET {
-                    amount * BASE_ASSET_DECIMALS.as_u64()
+                let base_amount = if asset == BASE_ASSET {
+                    // example open_order(0.5, btc, SELL, 70k)
+                    amount
                 } else {
-                    amount * QUOTE_ASSET_DECIMALS.as_u64()
+                    // example open_order(35k, usdc, SELL, 70k)
+                    quote_to_base_amount(amount, BASE_ASSET_DECIMALS, price, PRICE_DECIMALS, QUOTE_ASSET_DECIMALS)
                 };
 
-                account.liquid.debit(amount, asset_type);
-                account.locked.credit(amount, asset_type);
+                account.liquid.debit(base_amount, AssetType::Base);
+                account.locked.credit(base_amount, AssetType::Base);
             }
             OrderType::Buy => {
                 // Calculate amount to lock of the other asset
-                // TODO: these "amounts" do not return expected values
-                let (amount, asset_type) = match asset == BASE_ASSET {
-                    true => {
-                        let amount = base_to_quote_amount(amount, BASE_ASSET_DECIMALS, price, PRICE_DECIMALS, QUOTE_ASSET_DECIMALS);
-                        let asset_type = AssetType::Quote;
 
-                        (amount, asset_type)
-                    },
-                    false => {
-                        let amount = quote_to_base_amount(amount, BASE_ASSET_DECIMALS, price, PRICE_DECIMALS, QUOTE_ASSET_DECIMALS);
-                        let asset_type = AssetType::Base;
-
-                        (amount, asset_type)
-                    },
+                let quote_amount = if asset == BASE_ASSET {
+                    // example open_order(0.5, btc, BUY, 70k)
+                    base_to_quote_amount(amount, BASE_ASSET_DECIMALS, price, PRICE_DECIMALS, QUOTE_ASSET_DECIMALS)
+                } else {
+                    // example open_order(35k, usdc, BUY, 70k)
+                    amount
                 };
 
-                // The asset type is the opposite because you're calculating if you have enough of
-                // the opposite asset to use as payment
-                account.liquid.debit(amount, asset_type);
-                account.locked.credit(amount, asset_type);
+                account.liquid.debit(quote_amount, AssetType::Quote);
+                account.locked.credit(quote_amount, AssetType::Quote);
             }
         }
 
