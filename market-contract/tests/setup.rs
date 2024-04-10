@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use fuels::{
     accounts::ViewOnlyAccount,
     prelude::{
