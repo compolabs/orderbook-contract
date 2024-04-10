@@ -20,11 +20,11 @@ async fn main() -> anyhow::Result<()> {
 
     match cli.command {
         Command::Core(args) => match args.commands {
-            CoreCommands::Batch(args) => args.run(),
-            CoreCommands::Close(args) => args.run(),
+            CoreCommands::Batch(args) => args.run().await,
+            CoreCommands::Close(args) => args.run().await,
             CoreCommands::Deploy(args) => args.run().await,
             CoreCommands::Deposit(args) => args.run().await,
-            CoreCommands::Open(args) => args.run(),
+            CoreCommands::Open(args) => args.run().await,
             CoreCommands::SetFee(args) => args.run().await,
             CoreCommands::Withdraw(args) => args.run().await,
         },
