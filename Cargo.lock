@@ -3891,7 +3891,7 @@ version = "0.0.3"
 source = "git+https://github.com/compolabs/src-20.git?branch=master#d05776384daab572e16f54038db1d266ba908883"
 dependencies = [
  "dotenv",
- "fuels 0.55.0",
+ "fuels 0.56.0",
  "rand",
  "serde",
  "serde_json",
