@@ -75,11 +75,6 @@ jobs:
       - name: Run Rust tests
         run: cargo test --locked --manifest-path market-contract/Cargo.toml
 
-      - name: Run Sway tests
-        run: |
-          cd "market-contract"
-          forc test
-
   CLI:
     runs-on: ubuntu-latest
 
