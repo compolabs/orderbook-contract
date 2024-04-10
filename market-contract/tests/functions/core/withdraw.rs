@@ -1,39 +1,34 @@
-use crate::utils::{
-    interface::core::{deposit, withdraw},
-    setup::{setup, Defaults},
-};
+use crate::setup::{setup, Defaults};
 
 mod success {
 
     use super::*;
-    use crate::utils::{
-        interface::info::account,
-        setup::{create_account, WithdrawEvent},
-    };
+    use crate::setup::create_account;
+    use spark_market_sdk::WithdrawEvent;
 
     #[ignore]
     #[tokio::test]
-    async fn base_asset() {
+    async fn base_asset() -> anyhow::Result<()> {
         let defaults = Defaults::default();
         let (contract, owner, _user, assets) = setup(
             defaults.base_decimals,
             defaults.quote_decimals,
             defaults.price_decimals,
         )
-        .await;
+        .await?;
 
         let deposit_amount = 100;
 
-        deposit(&contract, deposit_amount, assets.base.id).await;
+        contract.deposit(deposit_amount, assets.base.id).await?;
 
         let user_balance = owner.balance(&assets.base.id).await;
-        let user_account = account(&contract, owner.identity()).await.value.unwrap();
+        let user_account = contract.account(owner.identity()).await?.value.unwrap();
         let expected_account = create_account(deposit_amount, 0, 0, 0);
 
         // Precondition enforces deposited account
         assert_eq!(user_account, expected_account);
 
-        let response = withdraw(&contract, deposit_amount, assets.base.id).await;
+        let response = contract.withdraw(deposit_amount, assets.base.id).await?;
 
         let log = response.decode_logs_with_type::<WithdrawEvent>().unwrap();
         let event = log.first().unwrap();
@@ -47,36 +42,38 @@ mod success {
         );
 
         let new_balance = owner.balance(&assets.base.id).await;
-        let user_account = account(&contract, owner.identity()).await.value.unwrap();
+        let user_account = contract.account(owner.identity()).await?.value.unwrap();
         let expected_account = create_account(0, 0, 0, 0);
 
         assert_eq!(new_balance, user_balance + deposit_amount);
         assert_eq!(user_account, expected_account);
+
+        Ok(())
     }
 
     #[ignore]
     #[tokio::test]
-    async fn quote_asset() {
+    async fn quote_asset() -> anyhow::Result<()> {
         let defaults = Defaults::default();
         let (contract, owner, _user, assets) = setup(
             defaults.base_decimals,
             defaults.quote_decimals,
             defaults.price_decimals,
         )
-        .await;
+        .await?;
 
         let deposit_amount = 100;
 
-        deposit(&contract, deposit_amount, assets.quote.id).await;
+        let _ = contract.deposit(deposit_amount, assets.quote.id).await?;
 
         let user_balance = owner.balance(&assets.quote.id).await;
-        let user_account = account(&contract, owner.identity()).await.value.unwrap();
+        let user_account = contract.account(owner.identity()).await?.value.unwrap();
         let expected_account = create_account(0, deposit_amount, 0, 0);
 
         // Precondition enforces deposited account
         assert_eq!(user_account, expected_account);
 
-        let response = withdraw(&contract, deposit_amount, assets.quote.id).await;
+        let response = contract.withdraw(deposit_amount, assets.quote.id).await?;
 
         let log = response.decode_logs_with_type::<WithdrawEvent>().unwrap();
         let event = log.first().unwrap();
@@ -90,11 +87,13 @@ mod success {
         );
 
         let new_balance = owner.balance(&assets.quote.id).await;
-        let user_account = account(&contract, owner.identity()).await.value.unwrap();
+        let user_account = contract.account(owner.identity()).await?.value.unwrap();
         let expected_account = create_account(0, 0, 0, 0);
 
         assert_eq!(new_balance, user_balance + deposit_amount);
         assert_eq!(user_account, expected_account);
+
+        Ok(())
     }
 }
 
@@ -111,14 +110,21 @@ mod revert {
             defaults.quote_decimals,
             defaults.price_decimals,
         )
-        .await;
+        .await
+        .unwrap();
 
         let deposit_amount = 100;
 
-        deposit(&contract, deposit_amount, assets.base.id).await;
+        let _ = contract
+            .deposit(deposit_amount, assets.base.id)
+            .await
+            .unwrap();
 
         // Revert
-        withdraw(&contract, deposit_amount, assets.random.id).await;
+        contract
+            .withdraw(deposit_amount, assets.random.id)
+            .await
+            .unwrap();
     }
 
     #[tokio::test]
@@ -130,12 +136,16 @@ mod revert {
             defaults.quote_decimals,
             defaults.price_decimals,
         )
-        .await;
+        .await
+        .unwrap();
 
         let deposit_amount = 100;
 
         // Revert
-        withdraw(&contract, deposit_amount, assets.base.id).await;
+        contract
+            .withdraw(deposit_amount, assets.base.id)
+            .await
+            .unwrap();
     }
 
     #[tokio::test]
@@ -147,14 +157,21 @@ mod revert {
             defaults.quote_decimals,
             defaults.price_decimals,
         )
-        .await;
+        .await
+        .unwrap();
 
         let deposit_amount = 100;
 
-        deposit(&contract, deposit_amount, assets.base.id).await;
+        let _ = contract
+            .deposit(deposit_amount, assets.base.id)
+            .await
+            .unwrap();
 
         // Revert
-        withdraw(&contract, deposit_amount + 1, assets.base.id).await;
+        contract
+            .withdraw(deposit_amount + 1, assets.base.id)
+            .await
+            .unwrap();
     }
 
     #[ignore]
@@ -167,13 +184,20 @@ mod revert {
             defaults.quote_decimals,
             defaults.price_decimals,
         )
-        .await;
+        .await
+        .unwrap();
 
         let deposit_amount = 100;
 
-        deposit(&contract, deposit_amount, assets.quote.id).await;
+        let _ = contract
+            .deposit(deposit_amount, assets.quote.id)
+            .await
+            .unwrap();
 
         // Revert
-        withdraw(&contract, deposit_amount + 1, assets.quote.id).await;
+        contract
+            .withdraw(deposit_amount + 1, assets.quote.id)
+            .await
+            .unwrap();
     }
 }

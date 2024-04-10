@@ -7,7 +7,9 @@ license = { workspace = true }
 rust-version = { workspace = true }
 
 [dependencies]
+anyhow = { workspace = true }
 fuels = { workspace = true }
+spark-market-sdk = { path = "../spark-market-sdk" }
 tokio = { workspace = true }
 
 [[test]]
