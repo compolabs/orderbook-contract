@@ -14,7 +14,6 @@ abigen!(Contract(
     abi = "./market-contract/out/debug/market-contract-abi.json"
 ));
 
-// TODO: check if paths work in testing (works in spark CLI)
 const MARKET_CONTRACT_BINARY_PATH: &str = "../market-contract/out/debug/market-contract.bin";
 const MARKET_CONTRACT_STORAGE_PATH: &str =
     "../market-contract/out/debug/market-contract-storage_slots.json";
@@ -81,7 +80,6 @@ impl MarketContract {
         amount: u64,
         asset: AssetId,
     ) -> anyhow::Result<FuelCallResponse<()>> {
-        // TODO: custom?
         let call_params = CallParameters::new(amount, asset, 1_000_000);
 
         Ok(self
@@ -98,7 +96,7 @@ impl MarketContract {
         amount: u64,
         asset: AssetId,
     ) -> anyhow::Result<FuelCallResponse<()>> {
-        // TODO: CLI seems broken here for some reason
+        // TODO: Spark CLI seems broken here for some reason
         Ok(self
             .instance
             .methods()

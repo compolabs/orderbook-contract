@@ -1,20 +1,23 @@
-# TODO: this has to be changed into a workspace
-workspace = { members = ["spark-cli", "spark-market-sdk", "market-contract"] }
-[package]
-name = "spark-clob"
-description = "A cargo-generate template for Rust + Sway integration testing."
+[workspace]
+resolver = "1"
+members = [
+    "spark-cli", 
+    "spark-market-sdk", 
+    "market-contract"
+]
+
+[workspace.package]
+authors = ["alexey <alexnagornnyy.an@gmail.com>"]
 version = "0.1.0"
 edition = "2021"
-authors = ["alexey <alexnagornnyy.an@gmail.com>"]
 license = "Apache-2.0"
+rust-version = "1.75.0"
 
-[dependencies]
-fuels = { version = "0.55.0", features = ["fuel-core-lib"] }
-rand = "0.8.5"
-tokio = { version = "1.12", features = ["rt", "macros"] }
-src20_sdk = { git = "https://github.com/compolabs/src-20.git", branch = "master" }
-dotenv = "0.15.0"
+[workspace.dependencies]
 anyhow = "1.0.81"
+# TODO: version 0.56.0 seems to not support beta-5 testnet deployments while 0.55.0 does
+fuels = { version = "0.55.0", features = ["fuel-core-lib"] }
+tokio = { version = "1.12", features = ["rt", "macros"] }
+# TODO: remove src20_sdk from repo entirely
+src20_sdk = { git = "https://github.com/compolabs/src-20.git", branch = "master" }
 
-[dev-dependencies]
-pretty_assertions = "1"

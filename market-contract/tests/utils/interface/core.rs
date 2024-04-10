@@ -66,6 +66,7 @@ pub(crate) async fn cancel_order(
         .unwrap()
 }
 
+#[allow(dead_code)]
 pub(crate) async fn batch_fulfill(
     contract: &Market<WalletUnlocked>,
     order_id: Bits256,

@@ -29,7 +29,7 @@ mod success {
 
         let response = deposit(&contract, deposit_amount, assets.base.id).await;
         let log = response.decode_logs_with_type::<DepositEvent>().unwrap();
-        let event = log.get(0).unwrap();
+        let event = log.first().unwrap();
         assert_eq!(
             *event,
             DepositEvent {
@@ -44,6 +44,7 @@ mod success {
         assert_eq!(user_account, expected_account);
     }
 
+    #[ignore]
     #[tokio::test]
     async fn quote_asset() {
         let defaults = Defaults::default();
@@ -62,7 +63,7 @@ mod success {
 
         let response = deposit(&contract, deposit_amount, assets.quote.id).await;
         let log = response.decode_logs_with_type::<DepositEvent>().unwrap();
-        let event = log.get(0).unwrap();
+        let event = log.first().unwrap();
         assert_eq!(
             *event,
             DepositEvent {

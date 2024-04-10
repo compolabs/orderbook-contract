@@ -3,7 +3,7 @@ library;
 use ::data_structures::asset_type::AssetType;
 use ::data_structures::order_type::OrderType;
 use ::errors::OrderError;
-use std::hash::{sha256, Hash};
+use std::hash::{Hash, sha256};
 
 pub struct Order {
     amount: u64,

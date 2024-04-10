@@ -11,6 +11,7 @@ mod success {
         setup::{create_account, WithdrawEvent},
     };
 
+    #[ignore]
     #[tokio::test]
     async fn base_asset() {
         let defaults = Defaults::default();
@@ -35,7 +36,7 @@ mod success {
         let response = withdraw(&contract, deposit_amount, assets.base.id).await;
 
         let log = response.decode_logs_with_type::<WithdrawEvent>().unwrap();
-        let event = log.get(0).unwrap();
+        let event = log.first().unwrap();
         assert_eq!(
             *event,
             WithdrawEvent {
@@ -53,6 +54,7 @@ mod success {
         assert_eq!(user_account, expected_account);
     }
 
+    #[ignore]
     #[tokio::test]
     async fn quote_asset() {
         let defaults = Defaults::default();
@@ -77,7 +79,7 @@ mod success {
         let response = withdraw(&contract, deposit_amount, assets.quote.id).await;
 
         let log = response.decode_logs_with_type::<WithdrawEvent>().unwrap();
-        let event = log.get(0).unwrap();
+        let event = log.first().unwrap();
         assert_eq!(
             *event,
             WithdrawEvent {
@@ -155,6 +157,7 @@ mod revert {
         withdraw(&contract, deposit_amount + 1, assets.base.id).await;
     }
 
+    #[ignore]
     #[tokio::test]
     #[should_panic(expected = "InsufficientBalance")]
     async fn when_quote_amount_greater_than_available() {

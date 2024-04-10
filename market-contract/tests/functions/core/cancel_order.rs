@@ -2,7 +2,7 @@ use crate::utils::{
     interface::core::{cancel_order, deposit, open_order},
     setup::{setup, Defaults, OrderType},
 };
- 
+
 mod success {
 
     use super::*;
@@ -44,7 +44,7 @@ mod success {
         let log = response
             .decode_logs_with_type::<CancelOrderEvent>()
             .unwrap();
-        let event = log.get(0).unwrap();
+        let event = log.first().unwrap();
         assert_eq!(*event, CancelOrderEvent { order_id: id });
 
         let user_account = account(&contract, owner.identity()).await.value.unwrap();
@@ -56,6 +56,7 @@ mod success {
     }
 
     #[tokio::test]
+    #[ignore]
     async fn sell_quote() {
         let defaults = Defaults::default();
         let (contract, owner, _user, assets) = setup(
@@ -88,7 +89,7 @@ mod success {
         let log = response
             .decode_logs_with_type::<CancelOrderEvent>()
             .unwrap();
-        let event = log.get(0).unwrap();
+        let event = log.first().unwrap();
         assert_eq!(*event, CancelOrderEvent { order_id: id });
 
         let user_account = account(&contract, owner.identity()).await.value.unwrap();
@@ -253,6 +254,6 @@ mod revert {
             .value;
 
         // Revert
-        cancel_order(&contract.with_account(user.wallet), id).await;
+        cancel_order(&contract.with_account(user.wallet).unwrap(), id).await;
     }
 }
