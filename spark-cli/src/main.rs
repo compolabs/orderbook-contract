@@ -13,15 +13,18 @@ use dotenv::dotenv;
 async fn main() -> anyhow::Result<()> {
     dotenv().ok(); // TODO: check this works against std::env
 
+    // TODO: document local provider rpc in each command
+    // Provider::connect(format!("127.0.0.1:{port}")).await?;
+
     let cli = Cli::parse();
 
     match cli.command {
         Command::Core(args) => match args.commands {
-            CoreCommands::Batch(args) => args.run(),
-            CoreCommands::Close(args) => args.run(),
+            CoreCommands::Batch(args) => args.run().await,
+            CoreCommands::Close(args) => args.run().await,
             CoreCommands::Deploy(args) => args.run().await,
             CoreCommands::Deposit(args) => args.run().await,
-            CoreCommands::Open(args) => args.run(),
+            CoreCommands::Open(args) => args.run().await,
             CoreCommands::SetFee(args) => args.run().await,
             CoreCommands::Withdraw(args) => args.run().await,
         },
