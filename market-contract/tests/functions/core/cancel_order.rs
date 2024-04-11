@@ -54,7 +54,6 @@ mod success {
         Ok(())
     }
 
-    #[ignore]
     #[tokio::test]
     async fn sell_quote() -> anyhow::Result<()> {
         let defaults = Defaults::default();

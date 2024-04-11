@@ -6,7 +6,6 @@ mod success {
     use crate::setup::create_account;
     use spark_market_sdk::WithdrawEvent;
 
-    #[ignore]
     #[tokio::test]
     async fn base_asset() -> anyhow::Result<()> {
         let defaults = Defaults::default();
@@ -19,7 +18,7 @@ mod success {
 
         let deposit_amount = 100;
 
-        contract.deposit(deposit_amount, assets.base.id).await?;
+        let _ = contract.deposit(deposit_amount, assets.base.id).await?;
 
         let user_balance = owner.balance(&assets.base.id).await;
         let user_account = contract.account(owner.identity()).await?.value.unwrap();
@@ -51,7 +50,6 @@ mod success {
         Ok(())
     }
 
-    #[ignore]
     #[tokio::test]
     async fn quote_asset() -> anyhow::Result<()> {
         let defaults = Defaults::default();
@@ -174,7 +172,6 @@ mod revert {
             .unwrap();
     }
 
-    #[ignore]
     #[tokio::test]
     #[should_panic(expected = "InsufficientBalance")]
     async fn when_quote_amount_greater_than_available() {

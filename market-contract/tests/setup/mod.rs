@@ -1,5 +1,3 @@
-#![allow(dead_code)]
-
 use fuels::{
     accounts::ViewOnlyAccount,
     prelude::{
@@ -86,28 +84,22 @@ pub(crate) async fn setup(
     let quote_asset_id = AssetId::new([1; 32]);
     let random_asset_id = AssetId::new([2; 32]);
 
-    let base_asset = AssetConfig {
-        id: base_asset_id,
-        num_coins: coins_per_wallet,
-        coin_amount: amount_per_coin,
-    };
-    let quote_asset = AssetConfig {
-        id: quote_asset_id,
-        num_coins: coins_per_wallet,
-        coin_amount: amount_per_coin,
-    };
-    let random_asset = AssetConfig {
-        id: random_asset_id,
-        num_coins: coins_per_wallet,
-        coin_amount: amount_per_coin,
-    };
-    let assets = vec![base_asset, quote_asset, random_asset];
+    let ids = vec![base_asset_id, quote_asset_id, random_asset_id];
+    let mut assets: Vec<AssetConfig> = Vec::with_capacity(3);
+
+    for id in ids {
+        assets.push(AssetConfig {
+            id,
+            num_coins: coins_per_wallet,
+            coin_amount: amount_per_coin,
+        });
+    }
     let config = WalletsConfig::new_multiple_assets(number_of_wallets, assets);
 
     let mut wallets = launch_custom_provider_and_get_wallets(config, None, None).await?;
-
     let owner = wallets.pop().unwrap();
     let user = wallets.pop().unwrap();
+
     let assets = Assets {
         base: Asset {
             id: base_asset_id,

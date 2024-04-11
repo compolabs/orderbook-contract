@@ -41,7 +41,6 @@ mod success {
         Ok(())
     }
 
-    #[ignore]
     #[tokio::test]
     async fn quote_asset() -> anyhow::Result<()> {
         let defaults = Defaults::default();

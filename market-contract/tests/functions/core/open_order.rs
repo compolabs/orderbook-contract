@@ -87,7 +87,6 @@ mod success {
         Ok(())
     }
 
-    #[ignore]
     #[tokio::test]
     async fn sell_quote() -> anyhow::Result<()> {
         let defaults = Defaults::default();
@@ -415,7 +414,6 @@ mod revert {
             .unwrap();
     }
 
-    #[ignore]
     #[tokio::test]
     #[should_panic(expected = "InsufficientBalance")]
     async fn when_insufficient_quote_balance_to_sell() {
@@ -443,7 +441,6 @@ mod revert {
             .unwrap();
     }
 
-    #[ignore] // TODO: incomplete
     #[tokio::test]
     #[should_panic(expected = "InsufficientBalance")]
     async fn when_insufficient_base_balance_to_buy() {
@@ -458,20 +455,23 @@ mod revert {
 
         let deposit_amount = 10;
         let order_amount = 100;
-        let asset = assets.base.id;
-        let order_type = OrderType::Sell;
+        let deposit_asset = assets.base.id;
+        let buy_asset = assets.quote.id;
+        let order_type = OrderType::Buy;
         let price = 70000;
 
-        let _ = contract.deposit(deposit_amount, asset).await.unwrap();
+        let _ = contract
+            .deposit(deposit_amount, deposit_asset)
+            .await
+            .unwrap();
 
         // Revert
         contract
-            .open_order(order_amount, asset, order_type, price)
+            .open_order(order_amount, buy_asset, order_type, price)
             .await
             .unwrap();
     }
 
-    #[ignore] // TODO: incomplete
     #[tokio::test]
     #[should_panic(expected = "InsufficientBalance")]
     async fn when_insufficient_quote_balance_to_buy() {
@@ -486,15 +486,19 @@ mod revert {
 
         let deposit_amount = 10;
         let order_amount = 100;
-        let asset = assets.base.id;
+        let deposit_asset = assets.quote.id;
+        let buy_asset = assets.base.id;
         let order_type = OrderType::Sell;
         let price = 70000;
 
-        let _ = contract.deposit(deposit_amount, asset).await.unwrap();
+        let _ = contract
+            .deposit(deposit_amount, deposit_asset)
+            .await
+            .unwrap();
 
         // Revert
         contract
-            .open_order(order_amount, asset, order_type, price)
+            .open_order(order_amount, buy_asset, order_type, price)
             .await
             .unwrap();
     }

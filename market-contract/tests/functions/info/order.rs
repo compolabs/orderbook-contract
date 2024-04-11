@@ -14,8 +14,7 @@ mod success {
         )
         .await?;
 
-        let order = contract.order(Bits256([0u8; 32])).await?.value;
-        assert!(order.is_none());
+        assert!(contract.order(Bits256([0u8; 32])).await?.value.is_none());
 
         Ok(())
     }

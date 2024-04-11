@@ -102,9 +102,10 @@ mod revert {
 
     use super::*;
 
-    #[ignore]
     #[tokio::test]
-    #[should_panic(expected = "InvalidAsset")]
+    #[should_panic]
+    // TODO: Fuels SDK .simulate() does not propagate the error correctly
+    // #[should_panic(expected = "InvalidAsset")]
     async fn reverts_upon_invalid_asset() {
         let defaults = Defaults::default();
         let (contract, owner, _user, assets) = setup(

@@ -111,7 +111,7 @@ impl Market for Contract {
         let mut account = account.unwrap();
 
         // TODO: Is this division correct?
-        let (internal_amount, asset_type) = match msg_asset_id() == BASE_ASSET {
+        let (internal_amount, asset_type) = match asset == BASE_ASSET {
             true => (amount / 10.pow(BASE_ASSET_DECIMALS), AssetType::Base),
             false => (amount / 10.pow(QUOTE_ASSET_DECIMALS), AssetType::Quote),
         };
@@ -119,10 +119,10 @@ impl Market for Contract {
         account.liquid.debit(amount, asset_type);
         storage.account.insert(user, account);
 
-        transfer(user, asset, internal_amount);
+        transfer(user, asset, amount);
 
         log(WithdrawEvent {
-            amount: internal_amount,
+            amount,
             asset,
             user,
         });
