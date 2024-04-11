@@ -1,21 +1,14 @@
+#![allow(dead_code)]
+
 use fuels::{
     accounts::ViewOnlyAccount,
     prelude::{
-        abigen, launch_custom_provider_and_get_wallets, Address, AssetConfig, AssetId, Contract,
-        LoadConfiguration, StorageConfiguration, TxPolicies, WalletUnlocked, WalletsConfig,
+        launch_custom_provider_and_get_wallets, Address, AssetConfig, AssetId, WalletUnlocked,
+        WalletsConfig,
     },
     types::Identity,
 };
-
-abigen!(Contract(
-    name = "Market",
-    abi = "./market-contract/out/debug/market-contract-abi.json"
-));
-
-// PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("market-contract/out/debug/market-contract.bin");
-const MARKET_CONTRACT_BINARY_PATH: &str = "../market-contract/out/debug/market-contract.bin";
-const MARKET_CONTRACT_STORAGE_PATH: &str =
-    "../market-contract/out/debug/market-contract-storage_slots.json";
+use spark_market_sdk::{Account, Balance, MarketContract};
 
 pub(crate) struct Assets {
     pub(crate) base: Asset,
@@ -84,7 +77,7 @@ pub(crate) async fn setup(
     base_decimals: u32,
     quote_decimals: u32,
     price_decimals: u32,
-) -> (Market<WalletUnlocked>, User, User, Assets) {
+) -> anyhow::Result<(MarketContract, User, User, Assets)> {
     let number_of_wallets = 2;
     let coins_per_wallet = 1;
     let amount_per_coin = 100_000_000;
@@ -109,12 +102,9 @@ pub(crate) async fn setup(
         coin_amount: amount_per_coin,
     };
     let assets = vec![base_asset, quote_asset, random_asset];
-
     let config = WalletsConfig::new_multiple_assets(number_of_wallets, assets);
 
-    let mut wallets = launch_custom_provider_and_get_wallets(config, None, None)
-        .await
-        .unwrap();
+    let mut wallets = launch_custom_provider_and_get_wallets(config, None, None).await?;
 
     let owner = wallets.pop().unwrap();
     let user = wallets.pop().unwrap();
@@ -133,30 +123,18 @@ pub(crate) async fn setup(
         },
     };
 
-    let storage_configuration =
-        StorageConfiguration::default().add_slot_overrides_from_file(MARKET_CONTRACT_STORAGE_PATH);
+    let contract = MarketContract::deploy(
+        assets.base.id,
+        assets.base.decimals,
+        assets.quote.id,
+        assets.quote.decimals,
+        price_decimals,
+        owner.clone(),
+    )
+    .await?;
 
-    let configurables = MarketConfigurables::default()
-        .with_BASE_ASSET(assets.base.id)
-        .with_BASE_ASSET_DECIMALS(assets.base.decimals)
-        .with_QUOTE_ASSET(assets.quote.id)
-        .with_QUOTE_ASSET_DECIMALS(assets.quote.decimals)
-        .with_PRICE_DECIMALS(price_decimals)
-        .with_OWNER(owner.address().into());
-
-    let contract_configuration = LoadConfiguration::default()
-        .with_storage_configuration(storage_configuration.unwrap())
-        .with_configurables(configurables);
-
-    let contract_id = Contract::load_from(MARKET_CONTRACT_BINARY_PATH, contract_configuration)
-        .unwrap()
-        .deploy(&owner, TxPolicies::default())
-        .await
-        .unwrap();
-
-    let market = Market::new(contract_id.clone(), owner.clone());
     let owner = User { wallet: owner };
     let non_owner = User { wallet: user };
 
-    (market, owner, non_owner, assets)
+    Ok((contract, owner, non_owner, assets))
 }

@@ -1,22 +1,19 @@
 mod success {
 
-    use crate::utils::{
-        interface::info::config,
-        setup::{setup, Defaults},
-    };
+    use crate::setup::{setup, Defaults};
 
     #[tokio::test]
-    async fn returns_config() {
+    async fn returns_config() -> anyhow::Result<()> {
         let defaults = Defaults::default();
         let (contract, owner, _user, assets) = setup(
             defaults.base_decimals,
             defaults.quote_decimals,
             defaults.price_decimals,
         )
-        .await;
+        .await?;
 
         assert_eq!(
-            config(&contract).await.value,
+            contract.config().await?.value,
             (
                 owner.address(),
                 assets.base.id,
@@ -26,5 +23,7 @@ mod success {
                 defaults.price_decimals
             )
         );
+
+        Ok(())
     }
 }
