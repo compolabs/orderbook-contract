@@ -15,7 +15,7 @@ pub(crate) fn validate_contract_id(contract_id: &str) -> anyhow::Result<Contract
         anyhow::bail!("Invalid contract id length");
     }
 
-    Ok(ContractId::from_str(&contract_id).expect("Invalid contract id"))
+    Ok(ContractId::from_str(contract_id).expect("Invalid contract id"))
 }
 
 #[derive(Clone, ValueEnum)]
