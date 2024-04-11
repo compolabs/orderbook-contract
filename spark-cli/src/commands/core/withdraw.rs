@@ -43,6 +43,7 @@ impl WithdrawCommand {
         let contract = MarketContract::new(contract_id, wallet.clone()).await;
 
         let r = contract.withdraw(self.amount, asset).await?;
+        // TODO: sdk debugging
         dbg!(r);
 
         // Balance post-call

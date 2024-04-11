@@ -46,7 +46,7 @@ impl UserOrdersCommand {
 
         let orders = contract.user_orders(account).await?.value;
 
-        if orders.len() == 0 {
+        if orders.is_empty() {
             anyhow::bail!("User has no open orders");
         }
 

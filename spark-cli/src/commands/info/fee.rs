@@ -37,12 +37,12 @@ impl FeeCommand {
         let account = match &self.account_type {
             Some(account) => match account {
                 AccountType::Address => {
-                    let address = Address::from_str(&self.account_id.as_ref().unwrap())
+                    let address = Address::from_str(self.account_id.as_ref().unwrap())
                         .expect("Invalid address");
                     Some(Identity::Address(address))
                 }
                 AccountType::Contract => {
-                    let address = ContractId::from_str(&self.account_id.as_ref().unwrap())
+                    let address = ContractId::from_str(self.account_id.as_ref().unwrap())
                         .expect("Invalid contract id");
                     Some(Identity::ContractId(address))
                 }
