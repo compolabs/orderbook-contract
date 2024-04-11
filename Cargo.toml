@@ -38,3 +38,7 @@ path = "scripts/deploy.rs"
 [[bin]]
 name = "match_orders"
 path = "scripts/match_orders.rs"
+
+[[bin]]
+name = "create_accounts_with_tokens"
+path = "scripts/create_accounts_with_tokens.rs"
