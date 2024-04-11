@@ -40,8 +40,8 @@ mod success {
         )
         .await;
 
-        let bob_instance = contract.clone().with_account(bob.wallet.clone());
-        let alice_instance = contract.clone().with_account(alice.wallet.clone());
+        let bob_instance = contract.with_account(bob.wallet.clone()).unwrap();
+        let alice_instance = contract.with_account(alice.wallet.clone()).unwrap();
 
         //deposit
         let bob_deposit_base_amount = assets.base.parse_units(sell_size) as u64;
@@ -132,8 +132,8 @@ mod success {
         )
         .await;
 
-        let bob_instance = contract.clone().with_account(bob.wallet.clone());
-        let alice_instance = contract.clone().with_account(alice.wallet.clone());
+        let bob_instance = contract.with_account(bob.wallet.clone()).unwrap();
+        let alice_instance = contract.with_account(alice.wallet.clone()).unwrap();
 
         let bob_deposit_base_amount = assets.base.parse_units(sell_size) as u64;
         let _ = deposit(&bob_instance, bob_deposit_base_amount, assets.base.id).await;
@@ -222,8 +222,8 @@ mod success {
         )
         .await;
 
-        let bob_instance = contract.clone().with_account(bob.wallet.clone());
-        let alice_instance = contract.clone().with_account(alice.wallet.clone());
+        let bob_instance = contract.with_account(bob.wallet.clone()).unwrap();
+        let alice_instance = contract.with_account(alice.wallet.clone()).unwrap();
 
         let bob_deposit_base_amount = assets.base.parse_units(sell_size) as u64;
         let _ = deposit(&bob_instance, bob_deposit_base_amount, assets.base.id).await;
@@ -309,8 +309,8 @@ mod success {
         )
         .await;
 
-        let bob_instance = contract.clone().with_account(bob.wallet.clone());
-        let alice_instance = contract.clone().with_account(alice.wallet.clone());
+        let bob_instance = contract.with_account(bob.wallet.clone()).unwrap();
+        let alice_instance = contract.with_account(alice.wallet.clone()).unwrap();
 
         let bob_deposit_base_amount = assets.base.parse_units(sell_size) as u64;
         let _ = deposit(&bob_instance, bob_deposit_base_amount, assets.base.id).await;
@@ -397,8 +397,8 @@ mod success {
         )
         .await;
 
-        let bob_instance = contract.clone().with_account(bob.wallet.clone());
-        let alice_instance = contract.clone().with_account(alice.wallet.clone());
+        let bob_instance = contract.with_account(bob.wallet.clone()).unwrap();
+        let alice_instance = contract.with_account(alice.wallet.clone()).unwrap();
 
         let bob_deposit_base_amount = assets.base.parse_units(sell_size) as u64;
         let _ = deposit(&bob_instance, bob_deposit_base_amount, assets.base.id).await;
@@ -481,8 +481,8 @@ mod success {
         )
         .await;
 
-        let bob_instance = contract.clone().with_account(bob.wallet.clone());
-        let alice_instance = contract.clone().with_account(alice.wallet.clone());
+        let bob_instance = contract.with_account(bob.wallet.clone()).unwrap();
+        let alice_instance = contract.with_account(alice.wallet.clone()).unwrap();
 
         let bob_deposit_base_amount = assets.base.parse_units(sell_size) as u64;
         let _ = deposit(&bob_instance, bob_deposit_base_amount, assets.base.id).await;

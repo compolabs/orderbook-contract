@@ -11,7 +11,7 @@ pub(crate) async fn deposit(
     amount: u64,
     asset: AssetId,
 ) -> FuelCallResponse<()> {
-    let tx_params = TxPolicies::new(Some(0), Some(2_000_000), None, None, None);
+    let tx_params = TxPolicies::new(Some(1), Some(2_000_000), None, None, None);
     let call_params = CallParameters::new(amount, asset, 1_000_000);
 
     contract
