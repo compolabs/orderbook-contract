@@ -19,7 +19,6 @@ mod success {
         Ok(())
     }
 
-    #[ignore]
     #[tokio::test]
     async fn returns_orders() -> anyhow::Result<()> {
         let defaults = Defaults::default();
@@ -31,10 +30,10 @@ mod success {
         .await?;
 
         let _ = contract.deposit(100, assets.base.id).await?;
-        let id2 = contract
+        let id1 = contract
             .open_order(2, assets.base.id, OrderType::Buy, 70000)
             .await?;
-        let id1 = contract
+        let id2 = contract
             .open_order(1, assets.base.id, OrderType::Buy, 75000)
             .await?;
 

@@ -80,12 +80,15 @@ impl MarketContract {
         amount: u64,
         asset: AssetId,
     ) -> anyhow::Result<FuelCallResponse<()>> {
+        // TODO: configurable?
         let call_params = CallParameters::new(amount, asset, 1_000_000);
+        let tx_policies = TxPolicies::default().with_gas_price(1);
 
         Ok(self
             .instance
             .methods()
             .deposit()
+            .with_tx_policies(tx_policies)
             .call_params(call_params)?
             .call()
             .await?)

@@ -58,7 +58,7 @@ mod success {
         // Change fee to be non-zero for testing purposes
         let global_fee = 5;
 
-        let _ = contract.set_fee(global_fee, Some(user.identity())).await?;
+        let _ = contract.set_fee(global_fee, None).await?;
 
         assert_eq!(contract.fee(Some(user.identity())).await?.value, global_fee);
 
