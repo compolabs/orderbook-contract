@@ -6,9 +6,7 @@ use ::errors::OrderError;
 use std::hash::{Hash, sha256};
 
 pub struct Order {
-    amount: u64,
-    asset: AssetId,
-    asset_type: AssetType,
+    base_amount: u64,
     order_type: OrderType,
     owner: Identity,
     price: u64,
@@ -16,20 +14,16 @@ pub struct Order {
 
 impl Order {
     pub fn new(
-        amount: u64,
-        asset: AssetId,
-        asset_type: AssetType,
+        base_amount: u64,
         order_type: OrderType,
         owner: Identity,
         price: u64,
     ) -> Self {
-        require(amount != 0, OrderError::AmountCannotBeZero);
+        require(base_amount != 0, OrderError::AmountCannotBeZero);
         require(price != 0, OrderError::PriceCannotBeZero);
 
         Self {
-            amount,
-            asset,
-            asset_type,
+            base_amount,
             order_type,
             owner,
             price,

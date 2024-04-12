@@ -109,7 +109,6 @@ impl Market for Contract {
     fn open_order(amount: u64, asset: AssetId, order_type: OrderType, price: u64) -> b256 {
         require(asset == BASE_ASSET || asset == QUOTE_ASSET, AssetError::InvalidAsset);
 
-        let asset_type = if asset == BASE_ASSET { AssetType::Base } else { AssetType::Quote };
         let user = msg_sender().unwrap();
         let account = storage.account.get(user).try_read();
 
@@ -118,7 +117,7 @@ impl Market for Contract {
 
         let mut account = account.unwrap();
 
-        match order_type {
+        let base_amount = match order_type {
             OrderType::Sell => {
                 // If the account has enough liquidity of the asset that you already own then lock 
                 // it for the new sell order
@@ -133,6 +132,7 @@ impl Market for Contract {
 
                 account.liquid.debit(base_amount, AssetType::Base);
                 account.locked.credit(base_amount, AssetType::Base);
+                base_amount
             }
             OrderType::Buy => {
                 // Calculate amount to lock of the other asset
@@ -147,10 +147,16 @@ impl Market for Contract {
 
                 account.liquid.debit(quote_amount, AssetType::Quote);
                 account.locked.credit(quote_amount, AssetType::Quote);
+
+                if asset == BASE_ASSET {
+                    amount
+                } else {
+                    quote_to_base_amount(amount, BASE_ASSET_DECIMALS, price, PRICE_DECIMALS, QUOTE_ASSET_DECIMALS)
+                }
             }
         }
 
-        let order = Order::new(amount, asset, asset_type, order_type, user, price);
+        let order = Order::new(base_amount, order_type, user, price);
         let order_id = order.id();
 
         // Reject identical orders
@@ -175,9 +181,7 @@ impl Market for Contract {
             .insert(order_id, storage.user_orders.get(user).len() - 1);
 
         log(OpenOrderEvent {
-            amount,
-            asset,
-            asset_type,
+            base_amount,
             order_type,
             order_id,
             price,
