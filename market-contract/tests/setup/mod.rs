@@ -19,6 +19,17 @@ pub(crate) struct Asset {
     pub(crate) decimals: u32,
 }
 
+impl Asset {
+    pub(crate) fn to_contract_units(&self, value: f64) -> u64 {
+        (value * 10_f64.powf(self.decimals as f64)) as u64
+    }
+
+    #[allow(dead_code)]
+    pub(crate) fn to_human_units(&self, value: f64) -> f64 {
+        value / 10_f64.powf(self.decimals as f64)
+    }
+}
+
 pub(crate) struct Defaults {
     pub(crate) base_decimals: u32,
     pub(crate) quote_decimals: u32,
@@ -78,7 +89,7 @@ pub(crate) async fn setup(
 ) -> anyhow::Result<(MarketContract, User, User, Assets)> {
     let number_of_wallets = 2;
     let coins_per_wallet = 1;
-    let amount_per_coin = 100_000_000;
+    let amount_per_coin = 100_000_000_000_000;
 
     let base_asset_id = AssetId::new([0; 32]);
     let quote_asset_id = AssetId::new([1; 32]);

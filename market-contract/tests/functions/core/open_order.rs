@@ -167,7 +167,6 @@ mod success {
         Ok(())
     }
 
-    #[ignore]
     #[tokio::test]
     async fn buy_base() -> anyhow::Result<()> {
         let defaults = Defaults::default();
@@ -178,14 +177,14 @@ mod success {
         )
         .await?;
 
-        let deposit_amount = 70000;
+        let deposit_amount = assets.quote.to_contract_units(71000.0);
         let expected_account = create_account(0, deposit_amount, 0, 0);
 
-        let order_amount = 1;
+        let order_amount = assets.base.to_contract_units(1.0);
         let asset_to_buy = assets.base.id;
         let asset_to_pay_wth = assets.quote.id;
         let order_type = OrderType::Buy;
-        let price = 70000;
+        let price = assets.base.to_contract_units(70000.0); // TODO: this should use price formula / type instead of base
         let expected_id = contract
             .order_id(
                 order_amount,
@@ -211,7 +210,12 @@ mod success {
         let id = response.value;
 
         let user_account = contract.account(owner.identity()).await?.value.unwrap();
-        let expected_account = create_account(0, 0, 0, deposit_amount);
+        let expected_account = create_account(
+            0,
+            assets.quote.to_contract_units(1000.0),
+            0,
+            deposit_amount - assets.quote.to_contract_units(1000.0),
+        );
         let mut orders = contract.user_orders(owner.identity()).await?.value;
         let order = contract.order(expected_id).await?.value.unwrap();
         let stored_id = contract
@@ -249,7 +253,6 @@ mod success {
         Ok(())
     }
 
-    #[ignore]
     #[tokio::test]
     async fn buy_quote() -> anyhow::Result<()> {
         let defaults = Defaults::default();
@@ -260,14 +263,14 @@ mod success {
         )
         .await?;
 
-        let deposit_amount = 1;
+        let deposit_amount = assets.base.to_contract_units(1.1);
         let expected_account = create_account(deposit_amount, 0, 0, 0);
 
-        let order_amount = 70000;
+        let order_amount = assets.quote.to_contract_units(70000.0);
         let asset_to_buy = assets.quote.id;
         let asset_to_pay_wth = assets.base.id;
         let order_type = OrderType::Buy;
-        let price = 70000;
+        let price = assets.base.to_contract_units(70000.0); // TODO: this should use price formula / type instead of base
         let expected_id = contract
             .order_id(
                 order_amount,
@@ -293,7 +296,12 @@ mod success {
         let id = response.value;
 
         let user_account = contract.account(owner.identity()).await?.value.unwrap();
-        let expected_account = create_account(0, 0, deposit_amount, 0);
+        let expected_account = create_account(
+            assets.base.to_contract_units(0.1),
+            0,
+            deposit_amount - assets.base.to_contract_units(0.1),
+            0,
+        );
         let mut orders = contract.user_orders(owner.identity()).await?.value;
         let order = contract.order(expected_id).await?.value.unwrap();
         let stored_id = contract
