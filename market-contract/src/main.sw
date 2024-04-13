@@ -6,7 +6,6 @@ mod data_structures;
 mod events;
 mod interface;
 mod math;
-
 use ::data_structures::{
     account::Account,
     asset_type::AssetType,
@@ -14,7 +13,7 @@ use ::data_structures::{
     order::Order,
     order_type::OrderType,
 };
-use ::errors::{AccountError, AssetError, AuthError, OrderError};
+use ::errors::{AccountError, AssetError, AuthError, OrderError, TradeError};
 use ::events::{
     CancelOrderEvent,
     DepositEvent,
@@ -27,7 +26,7 @@ use ::interface::{Info, Market};
 use ::math::*;
 
 use std::{
-    asset::transfer,
+    asset::*,
     call_frames::msg_asset_id,
     constants::{
         BASE_ASSET_ID,
@@ -106,7 +105,7 @@ impl Market for Contract {
     }
 
     #[storage(read, write)]
-    fn open_order(amount: u64, asset: AssetId, order_type: OrderType, price: u64) -> b256 {
+    fn open_order(id: b256, amount: u64, asset: AssetId, order_type: OrderType, price: u64) -> b256 {
         require(asset == BASE_ASSET || asset == QUOTE_ASSET, AssetError::InvalidAsset);
 
         let asset_type = if asset == BASE_ASSET { AssetType::Base } else { AssetType::Quote };
@@ -150,7 +149,7 @@ impl Market for Contract {
             }
         }
 
-        let order = Order::new(amount, asset, asset_type, order_type, user, price);
+        let order = Order::new(id, amount, asset, asset_type, order_type, user, price);
         let order_id = order.id();
 
         // Reject identical orders
@@ -296,142 +295,48 @@ impl Market for Contract {
     // fn fulfill(order_id: b256);
 
     #[storage(read, write)]
-    fn batch_fulfill(order_id: b256, orders: Vec<b256>) {
-        // TODO: batching is WIP, almost done but needs more work
+    fn batch_fulfill(order_sell_id: b256, order_buy_id: b256) {
 
-        // Order must exist to be fulfilled
-        let alice = storage.orders.get(order_id).try_read();
-        require(alice.is_some(), OrderError::NoOrdersFound);
+        let order_buy = storage.orders.get(order_buy_id).try_read();
+        let order_sell = storage.orders.get(order_sell_id).try_read();
+        require(order_buy.is_some() && order_sell.is_some(), OrderError::NoOrdersFound);
 
-        let mut alice = alice.unwrap();
-        // Cannot open an order without having an account so it's safe to read
-        let mut alice_account = storage.account.get(alice.owner).read();
+        let order_buy = order_buy.unwrap();
+        let order_sell = order_sell.unwrap();
 
-        let mut order_index = 0;
-        while order_index < orders.len() {
-            let id = orders.get(order_index).unwrap();
-            let bob = storage.orders.get(id).try_read();
-            // If bob's order does not exist then proceed to the next order without reverting
-            if bob.is_none() {
-                continue;
-            }
-            let mut bob = bob.unwrap();
+        let mut buyer_account = storage.account.get(order_buy.owner).read();
+        let mut seller_account = storage.account.get(order_sell.owner).read();
 
-            // Order types must be different in order to trade (buy against sell)
-            // Asset types must be the same you trade asset A for asset A instead of B
-            if alice.order_type == bob.order_type
-                || alice.asset != bob.asset
-            {
-                continue;
-            }
+        require(order_buy.order_type == OrderType::Buy, TradeError::CannotTrade);
+        require(order_sell.order_type == OrderType::Sell, TradeError::CannotTrade);
+        
+        require(order_buy.asset_type == AssetType::Base, TradeError::CannotTrade);
+        require(order_sell.asset_type == AssetType::Base, TradeError::CannotTrade);
+    
 
-            // Upon a trade the id will change so track it before any trades
-            let bob_id = bob.id();
+        let mut tmp = order_sell;
+        // tmp.amount = tmp.amount.flip();
+        let trade_size = min(order_sell.amount, order_buy.amount.mul_div(order_buy.price, order_sell.price));
+        tmp.amount = trade_size;
+        
+        let seller: Identity = order_sell.owner;
+        let (sellerDealAssetId, sellerDealRefund) = order_return_asset_amount(tmp);
+        remove_update_order_internal(order_sell, tmp.amount);
 
-            // Attempt to trade orders, figure out amounts that can be traded
-            let trade = attempt_trade(
-                alice,
-                bob,
-                BASE_ASSET_DECIMALS,
-                QUOTE_ASSET_DECIMALS,
-                PRICE_DECIMALS,
-            );
+        // tmp.amount = tmp.amount.flip();
 
-            // Failed to trade ex. insufficient price or remaining amount
-            if trade.is_err() {
-                continue;
-            }
+        let buyer: Identity = order_buy.owner;
+        let (buyerDealAssetId, buyerDealRefund) = order_return_asset_amount(tmp);
+        tmp.amount = tmp.amount.mul_div_rounding_up(order_sell.price, order_buy.price);
+        remove_update_order_internal(order_buy, tmp.amount);
 
-            // Retrieve the amount of each asset that can be traded
-            let (
-                alice_order_amount_decrease,
-                alice_account_delta,
-                bob_order_amount_decrease,
-                bob_account_delta,
-            ) = trade.unwrap();
+        require(
+            sellerDealRefund != 0 && buyerDealRefund != 0,
+            TradeError::CannotTrade,
+        );
 
-            // Update the order quantities with the amounts that can be traded
-            alice.amount -= alice_order_amount_decrease;
-            bob.amount -= bob_order_amount_decrease;
-
-            // Update the accounts for bob and alice based on the traded assets
-            let mut bob_account = storage.account.get(bob.owner).read();
-
-            alice_account
-                .locked
-                .debit(alice_account_delta, alice.asset_type);
-            alice_account
-                .liquid
-                .credit(bob_account_delta, bob.asset_type);
-
-            bob_account.locked.debit(bob_account_delta, bob.asset_type);
-            bob_account
-                .liquid
-                .credit(alice_account_delta, alice.asset_type);
-
-            // Save bob's account because his order is finished
-            // For optimization save alice at the end of the batch
-            storage.account.insert(bob.owner, bob_account);
-
-            // If bob's order has been fully filled then we remove it from orders
-            if bob.amount == 0 {
-                require(storage.orders.remove(bob_id), OrderError::FailedToRemove);
-
-                // TODO: Emit event
-                // log(TradeEvent {
-                //     order_id: bob_id,
-
-                // })
-            } else {
-                // We were only partially able to fill bob's order so we replace the old order
-                // with the updated order
-                require(storage.orders.remove(bob_id), OrderError::FailedToRemove);
-                let bob_id = bob.id();
-
-                // Reject identical orders to prevent accounting issues
-                require(
-                    storage
-                        .orders
-                        .get(bob_id)
-                        .try_read()
-                        .is_none(),
-                    OrderError::DuplicateOrder,
-                );
-
-                storage.orders.insert(bob_id, bob);
-
-                // TODO: event
-            }
-
-            // If the target order has been fulfilled then finish processing batch
-            if alice.amount == 0 {
-                require(storage.orders.remove(order_id), OrderError::FailedToRemove);
-                break;
-            }
-
-            order_index += 1;
-        }
-
-        if alice.amount != 0 {
-            require(storage.orders.remove(order_id), OrderError::FailedToRemove);
-            let alice_id = alice.id();
-
-            // Reject identical orders to prevent accounting issues
-            require(
-                storage
-                    .orders
-                    .get(alice_id)
-                    .try_read()
-                    .is_none(),
-                OrderError::DuplicateOrder,
-            );
-
-            storage.orders.insert(alice_id, alice);
-        }
-
-        storage.account.insert(alice.owner, alice_account);
-
-        // TODO: event
+        // transfer_to_address(seller, sellerDealAssetId, sellerDealRefund);
+        // transfer_to_address(buyer, buyerDealAssetId, buyerDealRefund);
     }
 
     #[storage(write)]
@@ -488,22 +393,69 @@ impl Info for Contract {
         )
     }
 
-    fn order_id(
-        amount: u64,
-        asset: AssetId,
-        order_type: OrderType,
-        owner: Identity,
-        price: u64,
-    ) -> b256 {
-        require(
-            asset == BASE_ASSET || asset == QUOTE_ASSET,
-            AssetError::InvalidAsset,
-        );
-        let asset_type = if asset == BASE_ASSET {
-            AssetType::Base
-        } else {
-            AssetType::Quote
-        };
-        Order::new(amount, asset, asset_type, order_type, owner, price).id()
+    // fn order_id(
+    //     amount: u64,
+    //     asset: AssetId,
+    //     order_type: OrderType,
+    //     owner: Identity,
+    //     price: u64,
+    // ) -> b256 {
+    //     require(
+    //         asset == BASE_ASSET || asset == QUOTE_ASSET,
+    //         AssetError::InvalidAsset,
+    //     );
+    //     let asset_type = if asset == BASE_ASSET {
+    //         AssetType::Base
+    //     } else {
+    //         AssetType::Quote
+    //     };
+    //     Order::new(amount, asset, asset_type, order_type, owner, price).id()
+    // }
+}
+
+
+#[storage(read)]
+fn order_return_asset_amount(order: Order) -> (AssetId, u64) {
+    match order.order_type {
+        OrderType::Sell => {
+            (order.asset, order.amount)
+        },
+        OrderType::Buy => {
+            (
+                QUOTE_ASSET,
+                base_size_to_quote_amount(
+                    order.amount,
+                    QUOTE_ASSET_DECIMALS,
+                    order.price,
+                ),
+            )
+        }
     }
+}
+
+fn base_size_to_quote_amount(base_size: u64, base_decimals: u32, base_price: u64) -> u64 {
+    base_size.mul_div(
+        base_price,
+        10_u64
+            .pow(base_decimals + PRICE_DECIMALS - QUOTE_ASSET_DECIMALS),
+    )
+}
+
+#[storage(read, write)]
+fn remove_update_order_internal(order: Order, base_size: u64) {
+    if (order.amount == base_size && order.order_type == OrderType::Sell) {
+        let pos_id = storage.user_order_indexes.get(order.owner).get(order.id).read() - 1; // pos + 1 indexed
+        assert(storage.user_order_indexes.get(order.owner).remove(order.id));
+        assert(storage.user_orders.get(order.owner).swap_remove(pos_id) == order.id);
+        assert(storage.orders.remove(order.id));
+    } else {
+        let mut order = order;
+        order.amount += base_size;
+        storage.orders.insert(order.id, order);
+    }
+}
+
+
+pub fn min(a: u64, b: u64) -> u64 {
+    if a < b { a } else { b }
 }

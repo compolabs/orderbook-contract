@@ -12,6 +12,7 @@ abi Market {
 
     #[storage(read, write)]
     fn open_order(
+        id: b256,
         amount: u64,
         asset: AssetId,
         order_type: OrderType,
@@ -25,7 +26,7 @@ abi Market {
     // fn fulfill(order_id: b256);
 
     #[storage(read, write)]
-    fn batch_fulfill(order_id: b256, orders: Vec<b256>);
+    fn batch_fulfill(order_sell_id: b256, order_buy_id: b256);
 
     #[storage(write)]
     fn set_fee(amount: u64, user: Option<Identity>);
@@ -46,11 +47,11 @@ abi Info {
 
     fn config() -> (Address, AssetId, u32, AssetId, u32, u32);
 
-    fn order_id(
-        amount: u64,
-        asset: AssetId,
-        order_type: OrderType,
-        owner: Identity,
-        price: u64,
-    ) -> b256;
+    // fn order_id(
+    //     amount: u64,
+    //     asset: AssetId,
+    //     order_type: OrderType,
+    //     owner: Identity,
+    //     price: u64,
+    // ) -> b256;
 }
