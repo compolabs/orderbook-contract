@@ -351,8 +351,14 @@ impl Market for Contract {
 
             // Determine which asset should be credited and debited
             let (asset_1, asset_2) = match alice.asset_type == AssetType::Base {
-                true => (AssetType::Base, AssetType::Quote),
-                false => (AssetType::Quote, AssetType::Base),
+                true => match alice.order_type {
+                    OrderType::Buy => (AssetType::Quote, AssetType::Base),
+                    OrderType::Sell => (AssetType::Base, AssetType::Quote),
+                },
+                false => match alice.order_type {
+                    OrderType::Buy => (AssetType::Base, AssetType::Quote),
+                    OrderType::Sell => (AssetType::Quote, AssetType::Base),
+                },
             };
 
             alice_account.locked.debit(alice_account_delta, asset_1);
@@ -401,7 +407,7 @@ impl Market for Contract {
                     .get(bob.owner)
                     .insert(bob_id, storage.user_orders.get(bob.owner).len() - 1);
 
-                // TODO: event
+                    // TODO: event
             }
 
             // If the target order has been fulfilled then finish processing batch
@@ -433,10 +439,10 @@ impl Market for Contract {
 
             storage.orders.insert(alice_id, alice);
             storage.user_orders.get(alice.owner).push(alice_id);
-                storage
-                    .user_order_indexes
-                    .get(alice.owner)
-                    .insert(alice_id, storage.user_orders.get(alice.owner).len() - 1);
+            storage
+                .user_order_indexes
+                .get(alice.owner)
+                .insert(alice_id, storage.user_orders.get(alice.owner).len() - 1);
         }
 
         storage.account.insert(alice.owner, alice_account);
