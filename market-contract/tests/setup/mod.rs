@@ -89,7 +89,10 @@ pub(crate) fn base_to_quote_amount(
     price_decimals: u32,
     quote_asset_decimals: u32,
 ) -> u64 {
-    (amount * base_price) / 10_u64.pow(base_asset_decimals + price_decimals - quote_asset_decimals)
+    ((amount as u128 * base_price as u128)
+        / 10_u128.pow(base_asset_decimals + price_decimals - quote_asset_decimals))
+    .try_into()
+    .expect("base_to_quote_amount overflow")
 }
 
 pub(crate) fn quote_to_base_amount(
@@ -100,6 +103,11 @@ pub(crate) fn quote_to_base_amount(
     quote_asset_decimals: u32,
 ) -> u64 {
     (amount * 10_u64.pow(base_asset_decimals + price_decimals - quote_asset_decimals)) / base_price
+}
+
+pub(crate) fn calc_amount(buy_amount: f64, buyer_price: f64, seller_price: f64) -> f64 {
+    let price_ratio = buyer_price / seller_price;
+    price_ratio * buy_amount
 }
 
 pub(crate) async fn setup(

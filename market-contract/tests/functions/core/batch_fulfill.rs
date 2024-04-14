@@ -6,7 +6,9 @@ mod success {
 
     // TODO: open_order does not handle math correctly so changing values will break tests. Need math help
     use super::*;
-    use crate::setup::{base_to_quote_amount, create_account, quote_to_base_amount, Asset, User};
+    use crate::setup::{
+        base_to_quote_amount, calc_amount, create_account, quote_to_base_amount, Asset, User,
+    };
     use spark_market_sdk::MarketContract;
 
     // Utility fn to reduce setup in each test when opening orders
@@ -38,7 +40,17 @@ mod success {
         let account = contract.account(user.identity()).await?.value.unwrap();
         let expected_account = match deposited_base {
             true => create_account(0, 0, order_amount, 0),
-            false => create_account(0, 0, 0, deposit),
+            false => {
+                let order_amount_in_quote = base_to_quote_amount(
+                    order_amount,
+                    defaults.base_decimals,
+                    price,
+                    defaults.price_decimals,
+                    defaults.quote_decimals,
+                );
+                let remaining_amount = deposit - order_amount_in_quote;
+                create_account(0, remaining_amount, 0, order_amount_in_quote)
+            }
         };
         assert_eq!(account, expected_account);
         assert_eq!(order_count, expected_order_count);
@@ -54,10 +66,9 @@ mod success {
         mod alice_sell_base {
             use super::*;
 
-            // TODO: greater buy price, greater amount
-            // currently uses greater amount but same price
             #[tokio::test]
-            async fn full_amount() -> anyhow::Result<()> {
+            async fn bob_buy_greater_price_greater_amount() -> anyhow::Result<()> {
+                // Bob should only get the exact amount that alice is selling
                 let defaults = Defaults::default();
                 let (alice_contract, owner, user, assets) = setup(
                     defaults.base_decimals,
@@ -87,9 +98,9 @@ mod success {
                     &assets.quote,
                     70000.0 * 1.5,
                     OrderType::Buy,
-                    1.5,
+                    1.25,
                     &assets.base,
-                    70000.0,
+                    71000.0,
                     &user,
                     false,
                     1,
@@ -98,7 +109,7 @@ mod success {
                 .await?;
 
                 // TODO: assert log events
-                let response = alice_contract
+                let _response = alice_contract
                     .batch_fulfill(alice_order_id, vec![bob_order_id])
                     .await?;
 
@@ -123,22 +134,164 @@ mod success {
                     .value
                     .len() as u64;
 
+                let deposit = assets.quote.to_contract_units(70000.0 * 1.5);
+                let order_amount_in_quote = base_to_quote_amount(
+                    assets.base.to_contract_units(1.25),
+                    defaults.base_decimals,
+                    assets.base.to_contract_units(71000.0),
+                    defaults.price_decimals,
+                    defaults.quote_decimals,
+                );
+                let remaining_deposit = deposit - order_amount_in_quote;
+                let alice_amount_in_quote = base_to_quote_amount(
+                    assets.base.to_contract_units(1.0),
+                    defaults.base_decimals,
+                    assets.base.to_contract_units(70000.0),
+                    defaults.price_decimals,
+                    defaults.quote_decimals,
+                );
+                let remaining_amount = order_amount_in_quote - alice_amount_in_quote;
+
+                // deposit is liquid quote
+                // lock some in quote for order (deposit - order)
+                // fulfil order which is less than locked amount (deposit - order) - alice in quote
                 let bob_account = bob_contract.account(user.identity()).await?.value.unwrap();
                 let bob_expected_account = create_account(
                     assets.base.to_contract_units(1.0),
+                    remaining_deposit,
                     0,
-                    0,
-                    assets.quote.to_contract_units(35000.0),
+                    remaining_amount,
                 );
                 assert_eq!(bob_account, bob_expected_account);
                 assert_eq!(bob_orders, 1);
                 Ok(())
             }
 
-            // TODO: greater price, smaller amount
             #[ignore]
             #[tokio::test]
-            async fn partial_amount() -> anyhow::Result<()> {
+            async fn bob_buy_greater_price_same_amount() -> anyhow::Result<()> {
+                // Bob should only get the exact amount that alice is selling
+                Ok(())
+            }
+
+            #[ignore]
+            #[tokio::test]
+            async fn bob_buy_greater_price_smaller_amount() -> anyhow::Result<()> {
+                // Bob should get more than his order because he is paying more than the price that alice set
+                let defaults = Defaults::default();
+                let (alice_contract, owner, user, assets) = setup(
+                    defaults.base_decimals,
+                    defaults.quote_decimals,
+                    defaults.price_decimals,
+                )
+                .await?;
+                let bob_contract = alice_contract.with_account(&user.wallet).await?;
+
+                let alice_order_id = open_order(
+                    &alice_contract,
+                    &assets.base,
+                    1.0,
+                    OrderType::Sell,
+                    1.0,
+                    &assets.base,
+                    70000.0,
+                    &owner,
+                    true,
+                    1,
+                    &defaults,
+                )
+                .await?;
+
+                let bob_order_id = open_order(
+                    &bob_contract,
+                    &assets.quote,
+                    70000.0 * 1.5,
+                    OrderType::Buy,
+                    0.5,
+                    &assets.base,
+                    71000.0,
+                    &user,
+                    false,
+                    1,
+                    &defaults,
+                )
+                .await?;
+
+                let bought_amount_in_base = assets
+                    .base
+                    .to_contract_units(calc_amount(0.5, 71000.0, 70000.0));
+                dbg!(bought_amount_in_base);
+                let bought_amount_in_quote = base_to_quote_amount(
+                    bought_amount_in_base,
+                    defaults.base_decimals,
+                    assets.base.to_contract_units(71000.0),
+                    defaults.price_decimals,
+                    defaults.quote_decimals,
+                );
+                let alice_remaining_locked_base =
+                    assets.base.to_contract_units(1.0) - bought_amount_in_base;
+
+                // TODO: assert log events
+                let _response = alice_contract
+                    .batch_fulfill(alice_order_id, vec![bob_order_id])
+                    .await?;
+
+                let alice_orders = alice_contract
+                    .user_orders(owner.identity())
+                    .await?
+                    .value
+                    .len() as u64;
+                let alice_account = alice_contract
+                    .account(owner.identity())
+                    .await?
+                    .value
+                    .unwrap();
+                let alice_expected_account =
+                    create_account(0, bought_amount_in_quote, alice_remaining_locked_base, 0);
+                assert_eq!(alice_account, alice_expected_account);
+                assert_eq!(alice_orders, 0);
+
+                let bob_orders = alice_contract
+                    .user_orders(user.identity())
+                    .await?
+                    .value
+                    .len() as u64;
+
+                let deposit = assets.quote.to_contract_units(70000.0 * 1.5);
+                let order_amount_in_quote = base_to_quote_amount(
+                    assets.base.to_contract_units(0.5),
+                    defaults.base_decimals,
+                    assets.base.to_contract_units(71000.0),
+                    defaults.price_decimals,
+                    defaults.quote_decimals,
+                );
+                let remaining_deposit = deposit - order_amount_in_quote;
+                let alice_amount_in_quote = base_to_quote_amount(
+                    assets.base.to_contract_units(1.0),
+                    defaults.base_decimals,
+                    assets.base.to_contract_units(70000.0),
+                    defaults.price_decimals,
+                    defaults.quote_decimals,
+                );
+                let remaining_amount = order_amount_in_quote - alice_amount_in_quote;
+
+                // deposit is liquid quote
+                // lock some in quote for order (deposit - order)
+                // fulfil order which is less than locked amount (deposit - order) - alice in quote
+                let bob_account = bob_contract.account(user.identity()).await?.value.unwrap();
+                let bob_expected_account = create_account(
+                    assets.base.to_contract_units(1.0),
+                    remaining_deposit,
+                    0,
+                    remaining_amount,
+                );
+                assert_eq!(bob_account, bob_expected_account);
+                assert_eq!(bob_orders, 1);
+                Ok(())
+            }
+
+            #[tokio::test]
+            async fn bob_buy_same_price_same_amount() -> anyhow::Result<()> {
                 let defaults = Defaults::default();
                 let (alice_contract, owner, user, assets) = setup(
                     defaults.base_decimals,
@@ -168,9 +321,9 @@ mod success {
                     &assets.quote,
                     70000.0,
                     OrderType::Buy,
-                    0.5,
+                    1.0,
                     &assets.base,
-                    71000.0,
+                    70000.0,
                     &user,
                     false,
                     1,
@@ -179,7 +332,7 @@ mod success {
                 .await?;
 
                 // TODO: assert log events
-                let response = alice_contract
+                let _response = alice_contract
                     .batch_fulfill(alice_order_id, vec![bob_order_id])
                     .await?;
 
@@ -205,36 +358,234 @@ mod success {
                     .len() as u64;
 
                 let bob_account = bob_contract.account(user.identity()).await?.value.unwrap();
-                let bob_expected_account = create_account(
-                    assets.base.to_contract_units(1.0),
-                    0,
-                    0,
-                    assets.quote.to_contract_units(35000.0),
-                );
+                let bob_expected_account =
+                    create_account(assets.base.to_contract_units(1.0), 0, 0, 0);
                 assert_eq!(bob_account, bob_expected_account);
-                assert_eq!(bob_orders, 1);
+                assert_eq!(bob_orders, 0);
+                Ok(())
+            }
+
+            #[ignore]
+            #[tokio::test]
+            async fn bob_buy_same_price_greater_amount() -> anyhow::Result<()> {
+                // Bob should only get the exact amount that alice is selling
+                Ok(())
+            }
+
+            #[ignore]
+            #[tokio::test]
+            async fn bob_buy_same_price_smaller_amount() -> anyhow::Result<()> {
+                // Bob should get the exact amount that he wants to buy
                 Ok(())
             }
         }
 
         // Alice is trying to buy the base asset from the batch of a single seller with her quote asset
         mod alice_buy_base {
+
             use super::*;
 
             #[ignore]
             #[tokio::test]
-            async fn full_amount() -> anyhow::Result<()> {
+            async fn bob_sell_smaller_price_greater_amount() -> anyhow::Result<()> {
                 Ok(())
             }
 
             #[ignore]
             #[tokio::test]
-            async fn partial_amount() -> anyhow::Result<()> {
+            async fn bob_sell_smaller_price_same_amount() -> anyhow::Result<()> {
+                Ok(())
+            }
+
+            #[ignore]
+            #[tokio::test]
+            async fn bob_sell_smaller_price_smaller_amount() -> anyhow::Result<()> {
+                let defaults = Defaults::default();
+                let (alice_contract, owner, user, assets) = setup(
+                    defaults.base_decimals,
+                    defaults.quote_decimals,
+                    defaults.price_decimals,
+                )
+                .await?;
+                let bob_contract = alice_contract.with_account(&user.wallet).await?;
+
+                let alice_order_id = open_order(
+                    &alice_contract,
+                    &assets.quote,
+                    70000.0 * 1.5,
+                    OrderType::Buy,
+                    1.25,
+                    &assets.base,
+                    71000.0,
+                    &owner,
+                    false,
+                    1,
+                    &defaults,
+                )
+                .await?;
+
+                let bob_order_id = open_order(
+                    &bob_contract,
+                    &assets.base,
+                    1.0,
+                    OrderType::Sell,
+                    1.0,
+                    &assets.base,
+                    70000.0,
+                    &user,
+                    true,
+                    1,
+                    &defaults,
+                )
+                .await?;
+
+                // TODO: assert log events
+                let _response = alice_contract
+                    .batch_fulfill(alice_order_id, vec![bob_order_id])
+                    .await?;
+
+                let alice_orders = alice_contract
+                    .user_orders(owner.identity())
+                    .await?
+                    .value
+                    .len() as u64;
+                let alice_account = alice_contract
+                    .account(owner.identity())
+                    .await?
+                    .value
+                    .unwrap();
+                let alice_expected_account =
+                    create_account(0, assets.quote.to_contract_units(70000.0), 0, 0);
+                assert_eq!(alice_account, alice_expected_account);
+                assert_eq!(alice_orders, 0);
+
+                let bob_orders = alice_contract
+                    .user_orders(user.identity())
+                    .await?
+                    .value
+                    .len() as u64;
+
+                let deposit = assets.quote.to_contract_units(70000.0 * 1.5);
+                let order_amount_in_quote = base_to_quote_amount(
+                    assets.base.to_contract_units(1.25),
+                    defaults.base_decimals,
+                    assets.base.to_contract_units(71000.0),
+                    defaults.price_decimals,
+                    defaults.quote_decimals,
+                );
+                let remaining_deposit = deposit - order_amount_in_quote;
+                let alice_amount_in_quote = base_to_quote_amount(
+                    assets.base.to_contract_units(1.0),
+                    defaults.base_decimals,
+                    assets.base.to_contract_units(70000.0),
+                    defaults.price_decimals,
+                    defaults.quote_decimals,
+                );
+                let remaining_amount = order_amount_in_quote - alice_amount_in_quote;
+
+                // deposit is liquid quote
+                // lock some in quote for order (deposit - order)
+                // fulfil order which is less than locked amount (deposit - order) - alice in quote
+                let bob_account = bob_contract.account(user.identity()).await?.value.unwrap();
+                let bob_expected_account = create_account(
+                    assets.base.to_contract_units(1.0),
+                    remaining_deposit,
+                    0,
+                    remaining_amount,
+                );
+                assert_eq!(bob_account, bob_expected_account);
+                assert_eq!(bob_orders, 1);
+                Ok(())
+            }
+
+            #[tokio::test]
+            async fn bob_sell_same_price_same_amount() -> anyhow::Result<()> {
+                let defaults = Defaults::default();
+                let (alice_contract, owner, user, assets) = setup(
+                    defaults.base_decimals,
+                    defaults.quote_decimals,
+                    defaults.price_decimals,
+                )
+                .await?;
+                let bob_contract = alice_contract.with_account(&user.wallet).await?;
+
+                let alice_order_id = open_order(
+                    &alice_contract,
+                    &assets.quote,
+                    70000.0,
+                    OrderType::Buy,
+                    1.0,
+                    &assets.base,
+                    70000.0,
+                    &owner,
+                    false,
+                    1,
+                    &defaults,
+                )
+                .await?;
+
+                let bob_order_id = open_order(
+                    &bob_contract,
+                    &assets.base,
+                    1.0,
+                    OrderType::Sell,
+                    1.0,
+                    &assets.base,
+                    70000.0,
+                    &user,
+                    true,
+                    1,
+                    &defaults,
+                )
+                .await?;
+
+                // TODO: assert log events
+                let _response = alice_contract
+                    .batch_fulfill(alice_order_id, vec![bob_order_id])
+                    .await?;
+
+                let alice_orders = alice_contract
+                    .user_orders(owner.identity())
+                    .await?
+                    .value
+                    .len() as u64;
+                let alice_account = alice_contract
+                    .account(owner.identity())
+                    .await?
+                    .value
+                    .unwrap();
+                let alice_expected_account =
+                    create_account(assets.base.to_contract_units(1.0), 0, 0, 0);
+                assert_eq!(alice_account, alice_expected_account);
+                assert_eq!(alice_orders, 0);
+
+                let bob_orders = alice_contract
+                    .user_orders(user.identity())
+                    .await?
+                    .value
+                    .len() as u64;
+
+                let bob_account = bob_contract.account(user.identity()).await?.value.unwrap();
+                let bob_expected_account =
+                    create_account(0, assets.quote.to_contract_units(70000.0), 0, 0);
+                assert_eq!(bob_account, bob_expected_account);
+                assert_eq!(bob_orders, 0);
+                Ok(())
+            }
+
+            #[tokio::test]
+            async fn bob_sell_same_price_greater_amount() -> anyhow::Result<()> {
+                Ok(())
+            }
+
+            #[tokio::test]
+            async fn bob_sell_same_price_smaller_amount() -> anyhow::Result<()> {
                 Ok(())
             }
         }
     }
 
+    #[ignore]
     #[tokio::test]
     async fn alice_sell_exact_amount_base_asset_to_bob() -> anyhow::Result<()> {
         let defaults = Defaults::default();
@@ -276,7 +627,7 @@ mod success {
         )
         .await?;
 
-        let response = alice_contract
+        let _response = alice_contract
             .batch_fulfill(alice_order_id, vec![bob_order_id])
             .await?;
 
@@ -357,7 +708,7 @@ mod success {
         let bob_expected_account = create_account(0, 0, bob_deposit, 0);
         assert_eq!(bob_account, bob_expected_account);
 
-        let response = alice_contract
+        let _response = alice_contract
             .batch_fulfill(alice_order_id, vec![bob_order_id])
             .await?;
 
@@ -446,7 +797,7 @@ mod success {
         let bob_expected_account = create_account(0, 0, bob_deposit, 0);
         assert_eq!(bob_account, bob_expected_account);
 
-        let response = alice_contract
+        let _response = alice_contract
             .batch_fulfill(alice_order_id, vec![bob_order_id1, bob_order_id2])
             .await?;
 
