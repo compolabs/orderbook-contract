@@ -31,127 +31,127 @@ fn calc_amount(buy_amount: u64, buy_price: u64, sell_price: u64) -> u64 {
     amount.as_u64().unwrap()
 }
 
-// pub fn attempt_trade(
-//     alice: Order,
-//     bob: Order,
-//     base_asset_decimals: u32,
-//     quote_asset_decimals: u32,
-//     price_decimals: u32,
-// ) -> Result<(u64, u64, u64, u64), TradeError> {
-//     // In this function:   
-//     //  Decrease the order size for alice and bob until they are 0 == their orders are fulfilled
-//     //  Track the amount that each account has to transfer for their trade
+pub fn attempt_trade(
+    alice: Order,
+    bob: Order,
+    base_asset_decimals: u32,
+    quote_asset_decimals: u32,
+    price_decimals: u32,
+) -> Result<(u64, u64, u64, u64), TradeError> {
+    // In this function:   
+    //  Decrease the order size for alice and bob until they are 0 == their orders are fulfilled
+    //  Track the amount that each account has to transfer for their trade
 
-//     // To keep the code DRY (do not repeat yourself) force the seller to be left side, buyer right
-//     let (
-//         seller,
-//         buyer,
-//         mut seller_order_amount_decrease,
-//         mut seller_account_delta,
-//         mut buyer_order_amount_decrease,
-//         mut buyer_account_delta,
-//     ) = match alice.order_type {
-//         OrderType::Sell => (alice, bob, 0, 0, 0, 0),
-//         OrderType::Buy => (bob, alice, 0, 0, 0, 0),
-//     };
+    // To keep the code DRY (do not repeat yourself) force the seller to be left side, buyer right
+    let (
+        seller,
+        buyer,
+        mut seller_order_amount_decrease,
+        mut seller_account_delta,
+        mut buyer_order_amount_decrease,
+        mut buyer_account_delta,
+    ) = match alice.order_type {
+        OrderType::Sell => (alice, bob, 0, 0, 0, 0),
+        OrderType::Buy => (bob, alice, 0, 0, 0, 0),
+    };
 
-//     if buyer.price < seller.price {
-//         return Result::Err(TradeError::CannotTrade);
-//     }
+    if buyer.price < seller.price {
+        return Result::Err(TradeError::CannotTrade);
+    }
 
-//     match seller.asset_type {
-//         AssetType::Base => {
-//             let buyer_buy_amount = calc_amount(buyer.amount, buyer.price, seller.price);
-//             if seller.amount < buyer_buy_amount {
-//                 seller_order_amount_decrease = seller.amount;
-//                 buyer_order_amount_decrease = seller.amount;
-//                 buyer_account_delta = base_to_quote_amount(
-//                     buyer_order_amount_decrease,
-//                     base_asset_decimals,
-//                     seller
-//                         .price,
-//                     price_decimals,
-//                     quote_asset_decimals,
-//                 ) * quote_asset_decimals.as_u64();
-//             } else if buyer_buy_amount < seller.amount {
-//                 seller_order_amount_decrease = buyer_buy_amount;
-//                 buyer_order_amount_decrease = buyer_buy_amount;
-//                 buyer_account_delta = base_to_quote_amount(
-//                     buyer_order_amount_decrease,
-//                     base_asset_decimals,
-//                     buyer.price,
-//                     price_decimals,
-//                     quote_asset_decimals,
-//                 ) * quote_asset_decimals.as_u64();
-//             } else {
-//                 seller_order_amount_decrease = buyer_buy_amount;
-//                 buyer_order_amount_decrease = buyer_buy_amount;
-//                 buyer_account_delta = base_to_quote_amount(
-//                     buyer_order_amount_decrease,
-//                     base_asset_decimals,
-//                     buyer.price,
-//                     price_decimals,
-//                     quote_asset_decimals,
-//                 ) * quote_asset_decimals.as_u64();
-//             }
+    match seller.asset_type {
+        AssetType::Base => {
+            let buyer_buy_amount = calc_amount(buyer.amount, buyer.price, seller.price);
+            if seller.amount < buyer_buy_amount {
+                seller_order_amount_decrease = seller.amount;
+                buyer_order_amount_decrease = seller.amount;
+                buyer_account_delta = base_to_quote_amount(
+                    buyer_order_amount_decrease,
+                    base_asset_decimals,
+                    seller
+                        .price,
+                    price_decimals,
+                    quote_asset_decimals,
+                ) * quote_asset_decimals.as_u64();
+            } else if buyer_buy_amount < seller.amount {
+                seller_order_amount_decrease = buyer_buy_amount;
+                buyer_order_amount_decrease = buyer_buy_amount;
+                buyer_account_delta = base_to_quote_amount(
+                    buyer_order_amount_decrease,
+                    base_asset_decimals,
+                    buyer.price,
+                    price_decimals,
+                    quote_asset_decimals,
+                ) * quote_asset_decimals.as_u64();
+            } else {
+                seller_order_amount_decrease = buyer_buy_amount;
+                buyer_order_amount_decrease = buyer_buy_amount;
+                buyer_account_delta = base_to_quote_amount(
+                    buyer_order_amount_decrease,
+                    base_asset_decimals,
+                    buyer.price,
+                    price_decimals,
+                    quote_asset_decimals,
+                ) * quote_asset_decimals.as_u64();
+            }
 
-//             seller_account_delta = seller_order_amount_decrease * base_asset_decimals.as_u64();
-//         }
-//         AssetType::Quote => {
-//             let buyer_buy_amount = calc_amount(buyer.amount, buyer.price, seller.price);
-//             if seller.amount < buyer_buy_amount {
-//                 seller_order_amount_decrease = seller.amount;
-//                 buyer_order_amount_decrease = seller.amount;
-//                 buyer_account_delta = quote_to_base_amount(
-//                     buyer_order_amount_decrease,
-//                     base_asset_decimals,
-//                     seller
-//                         .price,
-//                     price_decimals,
-//                     quote_asset_decimals,
-//                 ) * base_asset_decimals.as_u64();
-//             } else if buyer_buy_amount < seller.amount {
-//                 seller_order_amount_decrease = buyer_buy_amount;
-//                 buyer_order_amount_decrease = buyer_buy_amount;
-//                 buyer_account_delta = quote_to_base_amount(
-//                     buyer_order_amount_decrease,
-//                     base_asset_decimals,
-//                     buyer.price,
-//                     price_decimals,
-//                     quote_asset_decimals,
-//                 ) * base_asset_decimals.as_u64();
-//             } else {
-//                 seller_order_amount_decrease = buyer_buy_amount;
-//                 buyer_order_amount_decrease = buyer_buy_amount;
-//                 buyer_account_delta = quote_to_base_amount(
-//                     buyer_order_amount_decrease,
-//                     base_asset_decimals,
-//                     buyer.price,
-//                     price_decimals,
-//                     quote_asset_decimals,
-//                 ) * base_asset_decimals.as_u64();
-//             }
+            seller_account_delta = seller_order_amount_decrease * base_asset_decimals.as_u64();
+        }
+        AssetType::Quote => {
+            let buyer_buy_amount = calc_amount(buyer.amount, buyer.price, seller.price);
+            if seller.amount < buyer_buy_amount {
+                seller_order_amount_decrease = seller.amount;
+                buyer_order_amount_decrease = seller.amount;
+                buyer_account_delta = quote_to_base_amount(
+                    buyer_order_amount_decrease,
+                    base_asset_decimals,
+                    seller
+                        .price,
+                    price_decimals,
+                    quote_asset_decimals,
+                ) * base_asset_decimals.as_u64();
+            } else if buyer_buy_amount < seller.amount {
+                seller_order_amount_decrease = buyer_buy_amount;
+                buyer_order_amount_decrease = buyer_buy_amount;
+                buyer_account_delta = quote_to_base_amount(
+                    buyer_order_amount_decrease,
+                    base_asset_decimals,
+                    buyer.price,
+                    price_decimals,
+                    quote_asset_decimals,
+                ) * base_asset_decimals.as_u64();
+            } else {
+                seller_order_amount_decrease = buyer_buy_amount;
+                buyer_order_amount_decrease = buyer_buy_amount;
+                buyer_account_delta = quote_to_base_amount(
+                    buyer_order_amount_decrease,
+                    base_asset_decimals,
+                    buyer.price,
+                    price_decimals,
+                    quote_asset_decimals,
+                ) * base_asset_decimals.as_u64();
+            }
 
-//             seller_account_delta = seller_order_amount_decrease * quote_asset_decimals.as_u64();
-//         }
-//     };
+            seller_account_delta = seller_order_amount_decrease * quote_asset_decimals.as_u64();
+        }
+    };
 
-//     // Alice must be returned first (left side arguments) then bob after for caller logic to work
-//     match alice.order_type {
-//         OrderType::Sell => Result::Ok((
-//             seller_order_amount_decrease,
-//             seller_account_delta,
-//             buyer_order_amount_decrease,
-//             buyer_account_delta,
-//         )),
-//         OrderType::Buy => Result::Ok((
-//             buyer_order_amount_decrease,
-//             buyer_account_delta,
-//             seller_order_amount_decrease,
-//             seller_account_delta,
-//         )),
-//     }
-// }
+    // Alice must be returned first (left side arguments) then bob after for caller logic to work
+    match alice.order_type {
+        OrderType::Sell => Result::Ok((
+            seller_order_amount_decrease,
+            seller_account_delta,
+            buyer_order_amount_decrease,
+            buyer_account_delta,
+        )),
+        OrderType::Buy => Result::Ok((
+            buyer_order_amount_decrease,
+            buyer_account_delta,
+            seller_order_amount_decrease,
+            seller_account_delta,
+        )),
+    }
+}
 
 pub fn base_to_quote_amount(
     amount: u64,
