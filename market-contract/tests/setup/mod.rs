@@ -82,6 +82,26 @@ pub(crate) fn create_account(
     }
 }
 
+pub(crate) fn base_to_quote_amount(
+    amount: u64,
+    base_asset_decimals: u32,
+    base_price: u64,
+    price_decimals: u32,
+    quote_asset_decimals: u32,
+) -> u64 {
+    (amount * base_price) / 10_u64.pow(base_asset_decimals + price_decimals - quote_asset_decimals)
+}
+
+pub(crate) fn quote_to_base_amount(
+    amount: u64,
+    base_asset_decimals: u32,
+    base_price: u64,
+    price_decimals: u32,
+    quote_asset_decimals: u32,
+) -> u64 {
+    (amount * 10_u64.pow(base_asset_decimals + price_decimals - quote_asset_decimals)) / base_price
+}
+
 pub(crate) async fn setup(
     base_decimals: u32,
     quote_decimals: u32,
@@ -89,7 +109,7 @@ pub(crate) async fn setup(
 ) -> anyhow::Result<(MarketContract, User, User, Assets)> {
     let number_of_wallets = 2;
     let coins_per_wallet = 1;
-    let amount_per_coin = 100_000_000_000_000;
+    let amount_per_coin = 100_000_000_000_000_000;
 
     let base_asset_id = AssetId::new([0; 32]);
     let quote_asset_id = AssetId::new([1; 32]);
