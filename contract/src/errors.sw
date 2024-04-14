@@ -11,4 +11,6 @@ pub enum Error {
     BadAsset: (),
     BadValue: (),
     BadPrice: (),
+    PriceCannotBeZero: (),
+    AmountCannotBeZero: (),
 }

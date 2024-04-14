@@ -5,7 +5,7 @@ mod events;
 mod math;
 mod structs;
 
-use errors::*;
+use errors::Error;
 use events::*;
 use i64::*;
 use math::*;
@@ -119,7 +119,10 @@ impl OrderBook for Contract {
 
         let msg_sender = msg_sender_address();
 
-        let order_id = gen_order_id(msg_sender, base_token, base_price);
+        // let order_id = gen_order_id(msg_sender, base_token, base_price);
+
+        let order = Order::new(msg_sender, base_token, base_size, base_price,);
+        let order_id = order.id();
         let order = storage.orders.get(order_id).try_read();
 
         if order.is_some() {
@@ -135,7 +138,7 @@ impl OrderBook for Contract {
             }
         } else {
             let order = Order {
-                id: order_id,
+                // id: order_id,
                 trader: msg_sender,
                 base_token,
                 base_size,
@@ -166,7 +169,7 @@ impl OrderBook for Contract {
         require(msg_sender == order.trader, Error::AccessDenied);
 
         log(OrderChangeEvent {
-            order_id: order.id,
+            order_id: order.id(),
             trader: msg_sender,
             base_token: order.base_token,
             base_size_change: order.base_size.flip(),
@@ -237,7 +240,7 @@ impl OrderBook for Contract {
         let msg_sender = msg_sender_address();
 
         log(OrderChangeEvent {
-            order_id: order_sell.id,
+            order_id: order_sell.id(),
             trader: seller,
             base_token: order_sell.base_token,
             base_size_change: I64::from(trade_size),
@@ -245,7 +248,7 @@ impl OrderBook for Contract {
             timestamp: timestamp(),
         });
         log(OrderChangeEvent {
-            order_id: order_buy.id,
+            order_id: order_buy.id(),
             trader: buyer,
             base_token: order_buy.base_token,
             base_size_change: I64::neg_from(trade_size),
@@ -260,8 +263,8 @@ impl OrderBook for Contract {
             seller: order_sell.trader,
             trade_size: trade_size,
             trade_price: order_sell.base_price,
-            sell_order_id: order_sell.id,
-            buy_order_id: order_buy.id,
+            sell_order_id: order_sell.id(),
+            buy_order_id: order_buy.id(),
             timestamp: timestamp(),
         });
     }
@@ -283,12 +286,12 @@ impl OrderBook for Contract {
 
 #[storage(read, write)]
 fn add_order_internal(order: Order) {
-    storage.orders.insert(order.id, order);
-    storage.orders_by_trader.get(order.trader).push(order.id);
+    storage.orders.insert(order.id(), order);
+    storage.orders_by_trader.get(order.trader).push(order.id());
     storage
         .order_positions_by_trader
         .get(order.trader)
-        .insert(order.id, storage.orders_by_trader.get(order.trader).len()); // pos + 1 indexed
+        .insert(order.id(), storage.orders_by_trader.get(order.trader).len()); // pos + 1 indexed
 }
 
 #[storage(read, write)]
@@ -324,14 +327,14 @@ fn cancel_order_internal(order: Order) -> (AssetId, u64) {
 #[storage(read, write)]
 fn remove_update_order_internal(order: Order, base_size: I64) {
     if (order.base_size == base_size.flip()) {
-        let pos_id = storage.order_positions_by_trader.get(order.trader).get(order.id).read() - 1; // pos + 1 indexed
-        assert(storage.order_positions_by_trader.get(order.trader).remove(order.id));
-        assert(storage.orders_by_trader.get(order.trader).swap_remove(pos_id) == order.id);
-        assert(storage.orders.remove(order.id));
+        let pos_id = storage.order_positions_by_trader.get(order.trader).get(order.id()).read() - 1; // pos + 1 indexed
+        assert(storage.order_positions_by_trader.get(order.trader).remove(order.id()));
+        assert(storage.orders_by_trader.get(order.trader).swap_remove(pos_id) == order.id());
+        assert(storage.orders.remove(order.id()));
     } else {
         let mut order = order;
         order.base_size += base_size;
-        storage.orders.insert(order.id, order);
+        storage.orders.insert(order.id(), order);
     }
 }
 
@@ -362,13 +365,13 @@ fn base_size_to_quote_amount(base_size: u64, base_decimals: u32, base_price: u64
     )
 }
 
-fn gen_order_id(
-    trader_address: Address,
-    base_token: AssetId,
-    base_price: u64,
-) -> b256 {
-    sha256((trader_address, base_token, base_price))
-}
+// fn gen_order_id(
+//     trader_address: Address,
+//     base_token: AssetId,
+//     base_price: u64,
+// ) -> b256 {
+//     sha256((trader_address, base_token, base_price))
+// }
 
 pub fn msg_sender_address() -> Address {
     match std::auth::msg_sender().unwrap() {
