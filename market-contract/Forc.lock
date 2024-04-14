@@ -3,17 +3,9 @@ name = "core"
 source = "path+from-root-566CA1D5F8BEAFBF"
 
 [[package]]
-name = "i64"
-source = "git+https://github.com/compolabs/i64?default-branch#b983e37ec72b60a3544bde52babebec61b15c710"
-dependencies = ["std"]
-
-[[package]]
 name = "market-contract"
 source = "member"
-dependencies = [
-    "i64",
-    "std",
-]
+dependencies = ["std"]
 
 [[package]]
 name = "std"

@@ -310,8 +310,8 @@ impl Market for Contract {
         require(order_buy.order_type == OrderType::Buy, TradeError::CannotTrade);
         require(order_sell.order_type == OrderType::Sell, TradeError::CannotTrade);
         
-        require(order_buy.asset_type == AssetType::Base, TradeError::CannotTrade);
-        require(order_sell.asset_type == AssetType::Base, TradeError::CannotTrade);
+        require(order_buy.asset == order_sell.asset, TradeError::CannotTrade);
+        require(order_sell.price <= order_buy.price, TradeError::CannotTrade);
     
 
         let mut tmp = order_sell;
@@ -335,8 +335,8 @@ impl Market for Contract {
             TradeError::CannotTrade,
         );
 
-        // transfer_to_address(seller, sellerDealAssetId, sellerDealRefund);
-        // transfer_to_address(buyer, buyerDealAssetId, buyerDealRefund);
+        transfer(seller, sellerDealAssetId, sellerDealRefund);
+        transfer(buyer, buyerDealAssetId, buyerDealRefund);
     }
 
     #[storage(write)]
@@ -447,7 +447,7 @@ fn remove_update_order_internal(order: Order, base_size: u64) {
         let pos_id = storage.user_order_indexes.get(order.owner).get(order.id()).read() - 1; // pos + 1 indexed
         assert(storage.user_order_indexes.get(order.owner).remove(order.id()));
         assert(storage.user_orders.get(order.owner).swap_remove(pos_id) == order.id());
-        assert(storage.orders.remove(order.id(  )));
+        assert(storage.orders.remove(order.id()));
     } else {
         let mut order = order;
         order.amount += base_size;
