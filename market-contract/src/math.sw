@@ -72,7 +72,7 @@ pub fn attempt_trade(
                         .price,
                     price_decimals,
                     quote_asset_decimals,
-                ) * quote_asset_decimals.as_u64();
+                );
             } else if buyer_buy_amount < seller.amount {
                 seller_order_amount_decrease = buyer_buy_amount;
                 buyer_order_amount_decrease = buyer_buy_amount;
@@ -82,7 +82,7 @@ pub fn attempt_trade(
                     buyer.price,
                     price_decimals,
                     quote_asset_decimals,
-                ) * quote_asset_decimals.as_u64();
+                );
             } else {
                 seller_order_amount_decrease = buyer_buy_amount;
                 buyer_order_amount_decrease = buyer_buy_amount;
@@ -92,10 +92,10 @@ pub fn attempt_trade(
                     buyer.price,
                     price_decimals,
                     quote_asset_decimals,
-                ) * quote_asset_decimals.as_u64();
+                );
             }
 
-            seller_account_delta = seller_order_amount_decrease * base_asset_decimals.as_u64();
+            seller_account_delta = seller_order_amount_decrease;
         }
         AssetType::Quote => {
             let buyer_buy_amount = calc_amount(buyer.amount, buyer.price, seller.price);
@@ -109,7 +109,7 @@ pub fn attempt_trade(
                         .price,
                     price_decimals,
                     quote_asset_decimals,
-                ) * base_asset_decimals.as_u64();
+                );
             } else if buyer_buy_amount < seller.amount {
                 seller_order_amount_decrease = buyer_buy_amount;
                 buyer_order_amount_decrease = buyer_buy_amount;
@@ -119,7 +119,7 @@ pub fn attempt_trade(
                     buyer.price,
                     price_decimals,
                     quote_asset_decimals,
-                ) * base_asset_decimals.as_u64();
+                );
             } else {
                 seller_order_amount_decrease = buyer_buy_amount;
                 buyer_order_amount_decrease = buyer_buy_amount;
@@ -129,10 +129,10 @@ pub fn attempt_trade(
                     buyer.price,
                     price_decimals,
                     quote_asset_decimals,
-                ) * base_asset_decimals.as_u64();
+                );
             }
 
-            seller_account_delta = seller_order_amount_decrease * quote_asset_decimals.as_u64();
+            seller_account_delta = seller_order_amount_decrease;
         }
     };
 

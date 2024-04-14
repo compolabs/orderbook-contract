@@ -245,87 +245,41 @@ impl Market for Contract {
         // Order is about to be cancelled, unlock illiquid funds
         match order.order_type {
             OrderType::Sell => {
-                // TODO: use amount to credit liquid balance
-                let (_amount, asset_type) = if order.asset == BASE_ASSET {
-                    (order.amount * BASE_ASSET_DECIMALS.as_u64(), AssetType::Base)
-                } else {
-                    (order.amount * QUOTE_ASSET_DECIMALS.as_u64(), AssetType::Quote)
-                };
                 account.locked.debit(order.amount, order.asset_type);
                 account.liquid.credit(order.amount, order.asset_type);
             }
             OrderType::Buy => {
-                // TODO: these "amounts" do not return expected values
-                let amount = match order.asset == BASE_ASSET {
-                    true => quote_to_base_amount(
-                        order.amount,
-                        BASE_ASSET_DECIMALS,
-                        order.price,
-                        PRICE_DECIMALS,
-                        QUOTE_ASSET_DECIMALS,
+                let (amount, asset_type) = match order.asset == BASE_ASSET {
+                    true => (
+                        base_to_quote_amount(
+                            order.amount,
+                            BASE_ASSET_DECIMALS,
+                            order.price,
+                            PRICE_DECIMALS,
+                            QUOTE_ASSET_DECIMALS,
+                        ),
+                        AssetType::Quote,
                     ),
-                    false => base_to_quote_amount(
-                        order.amount,
-                        BASE_ASSET_DECIMALS,
-                        order.price,
-                        PRICE_DECIMALS,
-                        QUOTE_ASSET_DECIMALS,
+                    false => (
+                        quote_to_base_amount(
+                            order.amount,
+                            BASE_ASSET_DECIMALS,
+                            order.price,
+                            PRICE_DECIMALS,
+                            QUOTE_ASSET_DECIMALS,
+                        ),
+                        AssetType::Base,
                     ),
                 };
 
-                // Swap the asset types because you've payed with what you have when you were buying the other asset
-                let asset_type = if order.asset == BASE_ASSET {
-                    AssetType::Quote
-                } else {
-                    AssetType::Base
-                };
-
-                account.locked.credit(amount, asset_type);
-                account.liquid.debit(amount, asset_type);
+                account.locked.debit(amount, asset_type);
+                account.liquid.credit(amount, asset_type);
             }
         }
 
         require(storage.orders.remove(order_id), OrderError::FailedToRemove);
 
-        let index = storage.user_order_indexes.get(user).get(order_id).read();
-        let order_count = storage.user_orders.get(user).len();
-
-        require(
-            storage
-                .user_order_indexes
-                .get(user)
-                .remove(order_id),
-            OrderError::FailedToRemove,
-        ); // TODO: Different error
-        if order_count == 1 {
-            // There's only 1 element so no swapping. Pop it from the end
-            require(
-                storage
-                    .user_orders
-                    .get(user)
-                    .pop()
-                    .unwrap() == order_id,
-                OrderError::FailedToRemove,
-            );
-        } else {
-            // The order ID at the end is about to have its index changed via swap_remove()
-            let last_element = storage.user_orders.get(user).last().unwrap().read();
-
-            // Remove the current order by replacing it with the order at the end of storage vec
-            require(
-                storage
-                    .user_orders
-                    .get(user)
-                    .swap_remove(index) == order_id,
-                OrderError::FailedToRemove,
-            );
-
-            // Last element has been shifted so update its index
-            storage
-                .user_order_indexes
-                .get(user)
-                .insert(last_element, index);
-        }
+        remove_user_order(user, order_id);
 
         storage.account.insert(user, account);
 
@@ -337,8 +291,6 @@ impl Market for Contract {
 
     #[storage(read, write)]
     fn batch_fulfill(order_id: b256, orders: Vec<b256>) {
-        // TODO: batching is WIP, almost done but needs more work
-
         // Order must exist to be fulfilled
         let alice = storage.orders.get(order_id).try_read();
         require(alice.is_some(), OrderError::NoOrdersFound);
@@ -397,17 +349,17 @@ impl Market for Contract {
             // Update the accounts for bob and alice based on the traded assets
             let mut bob_account = storage.account.get(bob.owner).read();
 
-            alice_account
-                .locked
-                .debit(alice_account_delta, alice.asset_type);
-            alice_account
-                .liquid
-                .credit(bob_account_delta, bob.asset_type);
+            // Determine which asset should be credited and debited
+            let (asset_1, asset_2) = match alice.asset_type == AssetType::Base {
+                true => (AssetType::Base, AssetType::Quote),
+                false => (AssetType::Quote, AssetType::Base),
+            };
 
-            bob_account.locked.debit(bob_account_delta, bob.asset_type);
-            bob_account
-                .liquid
-                .credit(alice_account_delta, alice.asset_type);
+            alice_account.locked.debit(alice_account_delta, asset_1);
+            alice_account.liquid.credit(bob_account_delta, asset_2);
+
+            bob_account.locked.debit(bob_account_delta, asset_2);
+            bob_account.liquid.credit(alice_account_delta, asset_1);
 
             // Save bob's account because his order is finished
             // For optimization save alice at the end of the batch
@@ -416,6 +368,7 @@ impl Market for Contract {
             // If bob's order has been fully filled then we remove it from orders
             if bob.amount == 0 {
                 require(storage.orders.remove(bob_id), OrderError::FailedToRemove);
+                remove_user_order(bob.owner, bob_id);
 
                 // TODO: Emit event
                 // log(TradeEvent {
@@ -426,6 +379,9 @@ impl Market for Contract {
                 // We were only partially able to fill bob's order so we replace the old order
                 // with the updated order
                 require(storage.orders.remove(bob_id), OrderError::FailedToRemove);
+                // TODO: could optimize by inserting in place of old order
+                remove_user_order(bob.owner, bob_id);
+
                 let bob_id = bob.id();
 
                 // Reject identical orders to prevent accounting issues
@@ -439,6 +395,11 @@ impl Market for Contract {
                 );
 
                 storage.orders.insert(bob_id, bob);
+                storage.user_orders.get(bob.owner).push(bob_id);
+                storage
+                    .user_order_indexes
+                    .get(bob.owner)
+                    .insert(bob_id, storage.user_orders.get(bob.owner).len() - 1);
 
                 // TODO: event
             }
@@ -446,6 +407,7 @@ impl Market for Contract {
             // If the target order has been fulfilled then finish processing batch
             if alice.amount == 0 {
                 require(storage.orders.remove(order_id), OrderError::FailedToRemove);
+                remove_user_order(alice.owner, order_id);
                 break;
             }
 
@@ -454,6 +416,9 @@ impl Market for Contract {
 
         if alice.amount != 0 {
             require(storage.orders.remove(order_id), OrderError::FailedToRemove);
+            // TODO: could optimize by inserting in place of old order
+            remove_user_order(alice.owner, order_id);
+
             let alice_id = alice.id();
 
             // Reject identical orders to prevent accounting issues
@@ -467,6 +432,11 @@ impl Market for Contract {
             );
 
             storage.orders.insert(alice_id, alice);
+            storage.user_orders.get(alice.owner).push(alice_id);
+                storage
+                    .user_order_indexes
+                    .get(alice.owner)
+                    .insert(alice_id, storage.user_orders.get(alice.owner).len() - 1);
         }
 
         storage.account.insert(alice.owner, alice_account);
@@ -545,5 +515,48 @@ impl Info for Contract {
             AssetType::Quote
         };
         Order::new(amount, asset, asset_type, order_type, owner, price).id()
+    }
+}
+
+#[storage(read, write)]
+fn remove_user_order(user: Identity, order_id: b256) {
+    let index = storage.user_order_indexes.get(user).get(order_id).read();
+    let order_count = storage.user_orders.get(user).len();
+
+    require(
+        storage
+            .user_order_indexes
+            .get(user)
+            .remove(order_id),
+        OrderError::FailedToRemove,
+    ); // TODO: Different error
+    if order_count == 1 {
+        // There's only 1 element so no swapping. Pop it from the end
+        require(
+            storage
+                .user_orders
+                .get(user)
+                .pop()
+                .unwrap() == order_id,
+            OrderError::FailedToRemove,
+        );
+    } else {
+        // The order ID at the end is about to have its index changed via swap_remove()
+        let last_element = storage.user_orders.get(user).last().unwrap().read();
+
+        // Remove the current order by replacing it with the order at the end of storage vec
+        require(
+            storage
+                .user_orders
+                .get(user)
+                .swap_remove(index) == order_id,
+            OrderError::FailedToRemove,
+        );
+
+        // Last element has been shifted so update its index
+        storage
+            .user_order_indexes
+            .get(user)
+            .insert(last_element, index);
     }
 }
