@@ -12,7 +12,6 @@ abi Market {
 
     #[storage(read, write)]
     fn open_order(
-        id: b256,
         amount: u64,
         asset: AssetId,
         order_type: OrderType,
@@ -47,11 +46,11 @@ abi Info {
 
     fn config() -> (Address, AssetId, u32, AssetId, u32, u32);
 
-    // fn order_id(
-    //     amount: u64,
-    //     asset: AssetId,
-    //     order_type: OrderType,
-    //     owner: Identity,
-    //     price: u64,
-    // ) -> b256;
+    fn order_id(
+        amount: u64,
+        asset: AssetId,
+        order_type: OrderType,
+        owner: Identity,
+        price: u64,
+    ) -> b256;
 }

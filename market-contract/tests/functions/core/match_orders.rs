@@ -84,7 +84,7 @@ mod success {
         assert_eq!(alice_account.locked.quote, alice_deposit_quote_amount);
         assert_eq!(alice_account.liquid.quote, 0);
 
-        batch_fulfill(&contract, bob_order_id, vec![alice_order_id]).await;
+        batch_fulfill(&contract, bob_order_id, alice_order_id).await;
 
         let bob_account = account(&contract, bob.identity()).await.value.unwrap();
         assert_eq!(bob_account.locked.base, 0);
@@ -172,7 +172,7 @@ mod success {
         assert_eq!(alice_account.locked.quote, alice_deposit_quote_amount);
         assert_eq!(alice_account.liquid.quote, 0);
 
-        batch_fulfill(&contract, bob_order_id, vec![alice_order_id]).await;
+        batch_fulfill(&contract, bob_order_id, alice_order_id).await;
 
         let bob_account = account(&contract, bob.identity()).await.value.unwrap();
         assert_eq!(
@@ -262,7 +262,7 @@ mod success {
         assert_eq!(alice_account.locked.quote, alice_deposit_quote_amount);
         assert_eq!(alice_account.liquid.quote, 0);
 
-        batch_fulfill(&contract, bob_order_id, vec![alice_order_id]).await;
+        batch_fulfill(&contract, bob_order_id, alice_order_id).await;
 
         let bob_account = account(&contract, bob.identity()).await.value.unwrap();
         assert_eq!(bob_account.locked.base, 0);
@@ -349,7 +349,7 @@ mod success {
         assert_eq!(alice_account.locked.quote, alice_deposit_quote_amount);
         assert_eq!(alice_account.liquid.quote, 0);
 
-        batch_fulfill(&contract, bob_order_id, vec![alice_order_id]).await;
+        batch_fulfill(&contract, bob_order_id, alice_order_id).await;
 
         let bob_account = account(&contract, bob.identity()).await.value.unwrap();
         assert_eq!(bob_account.locked.base, 0);
@@ -437,7 +437,7 @@ mod success {
         assert_eq!(alice_account.locked.quote, alice_deposit_quote_amount);
         assert_eq!(alice_account.liquid.quote, 0);
 
-        batch_fulfill(&contract, bob_order_id, vec![alice_order_id]).await;
+        batch_fulfill(&contract, bob_order_id, alice_order_id).await;
 
         let bob_account = account(&contract, bob.identity()).await.value.unwrap();
         assert_eq!(
@@ -521,7 +521,7 @@ mod success {
         assert_eq!(alice_account.locked.quote, alice_deposit_quote_amount);
         assert_eq!(alice_account.liquid.quote, 0);
 
-        batch_fulfill(&contract, bob_order_id, vec![alice_order_id]).await;
+        batch_fulfill(&contract, bob_order_id, alice_order_id).await;
 
         let bob_account = account(&contract, bob.identity()).await.value.unwrap();
         assert_eq!(bob_account.locked.base, 0);

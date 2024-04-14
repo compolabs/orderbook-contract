@@ -41,7 +41,6 @@ pub(crate) async fn withdraw(
 
 pub(crate) async fn open_order(
     contract: &Market<WalletUnlocked>,
-    id: b256,
     amount: u64,
     asset: AssetId,
     order_type: OrderType,
@@ -49,7 +48,7 @@ pub(crate) async fn open_order(
 ) -> FuelCallResponse<Bits256> {
     contract
         .methods()
-        .open_order(id, amount, asset, order_type, price)
+        .open_order(amount, asset, order_type, price)
         .call()
         .await
         .unwrap()
@@ -67,15 +66,15 @@ pub(crate) async fn cancel_order(
         .unwrap()
 }
 
-// #[allow(dead_code)]
+#[allow(dead_code)]
 pub(crate) async fn batch_fulfill(
     contract: &Market<WalletUnlocked>,
-    order_id: Bits256,
-    orders: Vec<Bits256>,
+    order_buy_id: Bits256,
+    order_sell_id: Bits256,
 ) -> FuelCallResponse<()> {
     contract
         .methods()
-        .batch_fulfill(order_id, orders)
+        .batch_fulfill(order_buy_id, order_sell_id)
         .call()
         .await
         .unwrap()

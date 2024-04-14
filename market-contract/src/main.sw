@@ -105,7 +105,7 @@ impl Market for Contract {
     }
 
     #[storage(read, write)]
-    fn open_order(id: b256, amount: u64, asset: AssetId, order_type: OrderType, price: u64) -> b256 {
+    fn open_order(amount: u64, asset: AssetId, order_type: OrderType, price: u64) -> b256 {
         require(asset == BASE_ASSET || asset == QUOTE_ASSET, AssetError::InvalidAsset);
 
         let asset_type = if asset == BASE_ASSET { AssetType::Base } else { AssetType::Quote };
@@ -149,7 +149,7 @@ impl Market for Contract {
             }
         }
 
-        let order = Order::new(id, amount, asset, asset_type, order_type, user, price);
+        let order = Order::new(amount, asset, asset_type, order_type, user, price);
         let order_id = order.id();
 
         // Reject identical orders
@@ -304,8 +304,8 @@ impl Market for Contract {
         let order_buy = order_buy.unwrap();
         let order_sell = order_sell.unwrap();
 
-        let mut buyer_account = storage.account.get(order_buy.owner).read();
-        let mut seller_account = storage.account.get(order_sell.owner).read();
+        // let mut buyer_account = storage.account.get(order_buy.owner).read();
+        // let mut seller_account = storage.account.get(order_sell.owner).read();
 
         require(order_buy.order_type == OrderType::Buy, TradeError::CannotTrade);
         require(order_sell.order_type == OrderType::Sell, TradeError::CannotTrade);
@@ -393,24 +393,24 @@ impl Info for Contract {
         )
     }
 
-    // fn order_id(
-    //     amount: u64,
-    //     asset: AssetId,
-    //     order_type: OrderType,
-    //     owner: Identity,
-    //     price: u64,
-    // ) -> b256 {
-    //     require(
-    //         asset == BASE_ASSET || asset == QUOTE_ASSET,
-    //         AssetError::InvalidAsset,
-    //     );
-    //     let asset_type = if asset == BASE_ASSET {
-    //         AssetType::Base
-    //     } else {
-    //         AssetType::Quote
-    //     };
-    //     Order::new(amount, asset, asset_type, order_type, owner, price).id()
-    // }
+    fn order_id(
+        amount: u64,
+        asset: AssetId,
+        order_type: OrderType,
+        owner: Identity,
+        price: u64,
+    ) -> b256 {
+        require(
+            asset == BASE_ASSET || asset == QUOTE_ASSET,
+            AssetError::InvalidAsset,
+        );
+        let asset_type = if asset == BASE_ASSET {
+            AssetType::Base
+        } else {
+            AssetType::Quote
+        };
+        Order::new(amount, asset, asset_type, order_type, owner, price).id()
+    }
 }
 
 
@@ -444,14 +444,14 @@ fn base_size_to_quote_amount(base_size: u64, base_decimals: u32, base_price: u64
 #[storage(read, write)]
 fn remove_update_order_internal(order: Order, base_size: u64) {
     if (order.amount == base_size && order.order_type == OrderType::Sell) {
-        let pos_id = storage.user_order_indexes.get(order.owner).get(order.id).read() - 1; // pos + 1 indexed
-        assert(storage.user_order_indexes.get(order.owner).remove(order.id));
-        assert(storage.user_orders.get(order.owner).swap_remove(pos_id) == order.id);
-        assert(storage.orders.remove(order.id));
+        let pos_id = storage.user_order_indexes.get(order.owner).get(order.id()).read() - 1; // pos + 1 indexed
+        assert(storage.user_order_indexes.get(order.owner).remove(order.id()));
+        assert(storage.user_orders.get(order.owner).swap_remove(pos_id) == order.id());
+        assert(storage.orders.remove(order.id(  )));
     } else {
         let mut order = order;
         order.amount += base_size;
-        storage.orders.insert(order.id, order);
+        storage.orders.insert(order.id(), order);
     }
 }
 
