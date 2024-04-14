@@ -18,8 +18,8 @@ abi Market {
         price: u64,
     ) -> b256;
 
-    #[storage(read, write)]
-    fn cancel_order(order_id: b256);
+    // #[storage(read, write)]
+    // fn cancel_order(order_id: b256);
 
     // #[storage(read, write)]
     // fn fulfill(order_id: b256);

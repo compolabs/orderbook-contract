@@ -32,12 +32,12 @@ impl Order {
 
     pub fn id(self) -> b256 {
         // TODO: include asset type in id?
-        sha256((self.amount, self.asset, self.order_type, self.owner, self.price))
+        sha256((self.base_amount, self.order_type, self.owner, self.price))
     }
 
     pub fn set_amount(ref mut self, amount: u64) {
         require(amount != 0, OrderError::AmountCannotBeZero);
-        self.amount = amount;
+        self.base_amount = amount;
     }
 
     pub fn set_price(ref mut self, price: u64) {
