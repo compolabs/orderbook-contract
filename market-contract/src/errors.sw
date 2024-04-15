@@ -10,10 +10,10 @@ pub enum OrderError {
     PriceCannotBeZero: (),
     AmountCannotBeZero: (),
     FailedToRemove: (),
-}
-
-pub enum TradeError {
-    CannotTrade: (),
+    LeftShouldBeSellOrder: (),
+    RightShouldBeBuyOrder: (),
+    AssetMismatch: (),
+    InsufficientBuyPrice: (),
 }
 
 pub enum AuthError {

@@ -24,10 +24,15 @@ impl Asset {
         (value * 10_f64.powf(self.decimals as f64)) as u64
     }
 
+    // TODO: unused, delete or use somewhere?
     #[allow(dead_code)]
     pub(crate) fn to_human_units(&self, value: f64) -> f64 {
         value / 10_f64.powf(self.decimals as f64)
     }
+}
+
+pub(crate) fn price_to_contract_units(decimals: u32, value: f64) -> u64 {
+    (value * 10_f64.powf(decimals as f64)) as u64
 }
 
 pub(crate) struct Defaults {
@@ -102,12 +107,10 @@ pub(crate) fn quote_to_base_amount(
     price_decimals: u32,
     quote_asset_decimals: u32,
 ) -> u64 {
-    (amount * 10_u64.pow(base_asset_decimals + price_decimals - quote_asset_decimals)) / base_price
-}
-
-pub(crate) fn calc_amount(buy_amount: f64, buyer_price: f64, seller_price: f64) -> f64 {
-    let price_ratio = buyer_price / seller_price;
-    price_ratio * buy_amount
+    ((amount as u128 * 10_u128.pow(base_asset_decimals + price_decimals - quote_asset_decimals))
+        / base_price as u128)
+        .try_into()
+        .expect("quote_to_base_amount overflow")
 }
 
 pub(crate) async fn setup(

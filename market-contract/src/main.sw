@@ -296,6 +296,10 @@ impl Market for Contract {
         require(alice.is_some(), OrderError::NoOrdersFound);
 
         let mut alice = alice.unwrap();
+        require(
+            alice.order_type == OrderType::Sell,
+            OrderError::LeftShouldBeSellOrder,
+        );
         // Cannot open an order without having an account so it's safe to read
         let mut alice_account = storage.account.get(alice.owner).read();
 
@@ -310,62 +314,49 @@ impl Market for Contract {
             let mut bob = bob.unwrap();
 
             // Order types must be different in order to trade (buy against sell)
-            // Asset types must be the same you trade asset A for asset A instead of B
-            if alice.order_type == bob.order_type
-                || alice.asset != bob.asset
-            {
-                continue;
-            }
+            require(
+                bob.order_type == OrderType::Buy,
+                OrderError::RightShouldBeBuyOrder,
+            );
+            require(alice.asset == bob.asset, OrderError::AssetMismatch);
+            require(alice.price <= bob.price, OrderError::InsufficientBuyPrice);
 
             // Upon a trade the id will change so track it before any trades
             let bob_id = bob.id();
 
+            // Update the accounts for bob and alice based on the traded assets
+            let mut bob_account = storage.account.get(bob.owner).read();
+
             // Attempt to trade orders, figure out amounts that can be traded
-            let trade = attempt_trade(
-                alice,
-                bob,
-                BASE_ASSET_DECIMALS,
-                QUOTE_ASSET_DECIMALS,
-                PRICE_DECIMALS,
-            );
-
-            // Failed to trade ex. insufficient price or remaining amount
-            if trade.is_err() {
-                continue;
-            }
-
-            // Retrieve the amount of each asset that can be traded
             let (
                 alice_order_amount_decrease,
                 alice_account_delta,
                 bob_order_amount_decrease,
                 bob_account_delta,
                 bob_unlock_amount,
-            ) = trade.unwrap();
+            ) = attempt_trade(
+                alice,
+                bob,
+                BASE_ASSET_DECIMALS,
+                QUOTE_ASSET_DECIMALS,
+                PRICE_DECIMALS,
+                bob_account,
+            );
 
             // Update the order quantities with the amounts that can be traded
             alice.amount -= alice_order_amount_decrease;
             bob.amount -= bob_order_amount_decrease;
 
-            // Update the accounts for bob and alice based on the traded assets
-            let mut bob_account = storage.account.get(bob.owner).read();
-
             // Determine which asset should be credited and debited
             let (asset_1, asset_2) = match alice.asset_type == AssetType::Base {
-                true => match alice.order_type {
-                    OrderType::Buy => (AssetType::Quote, AssetType::Base),
-                    OrderType::Sell => (AssetType::Base, AssetType::Quote),
-                },
-                false => match alice.order_type {
-                    OrderType::Buy => (AssetType::Base, AssetType::Quote),
-                    OrderType::Sell => (AssetType::Quote, AssetType::Base),
-                },
+                true => (AssetType::Base, AssetType::Quote),
+                false => (AssetType::Quote, AssetType::Base),
             };
 
             alice_account.locked.debit(alice_account_delta, asset_1);
             alice_account.liquid.credit(bob_account_delta, asset_2);
 
-            bob_account.locked.debit(bob_account_delta, asset_2); //todo
+            bob_account.locked.debit(bob_account_delta, asset_2);
             bob_account.liquid.credit(alice_account_delta, asset_1);
 
             // Save bob's account because his order is finished
@@ -381,7 +372,7 @@ impl Market for Contract {
                 // amount to 0
                 // Ex. Alice sell 1 BTC @ 70k, Bob buy 1 BTC @ 71k. Rescue 1k worth of locked funds
                 if bob_unlock_amount != 0 {
-                    bob_account.locked.debit(bob_unlock_amount, asset_2); //todo
+                    bob_account.locked.debit(bob_unlock_amount, asset_2);
                     bob_account.liquid.credit(bob_unlock_amount, asset_2);
                     storage.account.insert(bob.owner, bob_account);
                 }
