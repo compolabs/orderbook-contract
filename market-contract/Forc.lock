@@ -3,9 +3,17 @@ name = "core"
 source = "path+from-root-566CA1D5F8BEAFBF"
 
 [[package]]
+name = "fixed_point"
+source = "git+https://github.com/FuelLabs/sway-libs?tag=v0.18.0#8d196e9379463d4596ac582a20a84ed52ff58c69"
+dependencies = ["std"]
+
+[[package]]
 name = "market-contract"
 source = "member"
-dependencies = ["std"]
+dependencies = [
+    "fixed_point",
+    "std",
+]
 
 [[package]]
 name = "std"

@@ -5,3 +5,4 @@ license = "Apache-2.0"
 name = "market-contract"
 
 [dependencies]
+fixed_point = { git = "https://github.com/FuelLabs/sway-libs", tag = "v0.18.0" }

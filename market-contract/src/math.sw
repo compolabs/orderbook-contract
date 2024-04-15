@@ -4,6 +4,7 @@ use ::data_structures::{asset_type::AssetType, order::Order, order_type::OrderTy
 use ::errors::TradeError;
 
 use std::u128::U128;
+use fixed_point::ufp128::UFP128;
 
 impl u64 {
     pub fn mul_div(self, mul_to: u64, div_to: u64) -> u64 {
@@ -26,9 +27,9 @@ impl u64 {
 }
 
 fn calc_amount(buy_amount: u64, buy_price: u64, sell_price: u64) -> u64 {
-    let price_ratio = U128::from((0, buy_price)) / U128::from((0, sell_price));
-    let amount = price_ratio * U128::from((0, buy_amount));
-    amount.as_u64().unwrap()
+    let price_ratio = UFP128::from((0, buy_price)) / UFP128::from((0, sell_price));
+    let amount = price_ratio * UFP128::from((0, buy_amount));
+    U128::from(amount.into()).as_u64().unwrap()
 }
 
 pub fn attempt_trade(
@@ -37,7 +38,7 @@ pub fn attempt_trade(
     base_asset_decimals: u32,
     quote_asset_decimals: u32,
     price_decimals: u32,
-) -> Result<(u64, u64, u64, u64), TradeError> {
+) -> Result<(u64, u64, u64, u64, u64), TradeError> {
     // In this function:   
     //  Decrease the order size for alice and bob until they are 0 == their orders are fulfilled
     //  Track the amount that each account has to transfer for their trade
@@ -50,9 +51,10 @@ pub fn attempt_trade(
         mut seller_account_delta,
         mut buyer_order_amount_decrease,
         mut buyer_account_delta,
+        mut bob_unlock_amount,
     ) = match alice.order_type {
-        OrderType::Sell => (alice, bob, 0, 0, 0, 0),
-        OrderType::Buy => (bob, alice, 0, 0, 0, 0),
+        OrderType::Sell => (alice, bob, 0, 0, 0, 0, 0),
+        OrderType::Buy => (bob, alice, 0, 0, 0, 0, 0),
     };
 
     if buyer.price < seller.price {
@@ -73,11 +75,12 @@ pub fn attempt_trade(
                     price_decimals,
                     quote_asset_decimals,
                 );
+                bob_unlock_amount = buyer.price - seller.price;
             } else if buyer_buy_amount < seller.amount {
                 seller_order_amount_decrease = buyer_buy_amount;
-                buyer_order_amount_decrease = buyer_buy_amount;
+                buyer_order_amount_decrease = buyer.amount;
                 buyer_account_delta = base_to_quote_amount(
-                    buyer_order_amount_decrease,
+                    seller_order_amount_decrease,
                     base_asset_decimals,
                     buyer.price,
                     price_decimals,
@@ -110,6 +113,7 @@ pub fn attempt_trade(
                     price_decimals,
                     quote_asset_decimals,
                 );
+                bob_unlock_amount = buyer.price - seller.price;
             } else if buyer_buy_amount < seller.amount {
                 seller_order_amount_decrease = buyer_buy_amount;
                 buyer_order_amount_decrease = buyer_buy_amount;
@@ -143,12 +147,14 @@ pub fn attempt_trade(
             seller_account_delta,
             buyer_order_amount_decrease,
             buyer_account_delta,
+            bob_unlock_amount,
         )),
         OrderType::Buy => Result::Ok((
             buyer_order_amount_decrease,
             buyer_account_delta,
             seller_order_amount_decrease,
             seller_account_delta,
+            bob_unlock_amount,
         )),
     }
 }
