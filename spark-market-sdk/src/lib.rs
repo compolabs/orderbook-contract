@@ -99,7 +99,6 @@ impl MarketContract {
         amount: u64,
         asset: AssetId,
     ) -> anyhow::Result<FuelCallResponse<()>> {
-        // TODO: Spark CLI seems broken here for some reason
         Ok(self
             .instance
             .methods()
