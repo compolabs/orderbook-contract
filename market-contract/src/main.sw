@@ -356,7 +356,7 @@ impl Market for Contract {
             alice_account.locked.debit(alice_account_delta, asset_1);
             alice_account.liquid.credit(bob_account_delta, asset_2);
 
-            bob_account.locked.debit(bob_account_delta, asset_2);
+            bob_account.locked.debit(bob_account_delta, asset_2); //todo
             bob_account.liquid.credit(alice_account_delta, asset_1);
 
             // Save bob's account because his order is finished
@@ -372,7 +372,7 @@ impl Market for Contract {
                 // amount to 0
                 // Ex. Alice sell 1 BTC @ 70k, Bob buy 1 BTC @ 71k. Rescue 1k worth of locked funds
                 if bob_unlock_amount != 0 {
-                    bob_account.locked.debit(bob_unlock_amount, asset_2);
+                    bob_account.locked.debit(bob_unlock_amount, asset_2); //todo
                     bob_account.liquid.credit(bob_unlock_amount, asset_2);
                     storage.account.insert(bob.owner, bob_account);
                 }

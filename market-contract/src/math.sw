@@ -43,40 +43,21 @@ pub fn attempt_trade(
     match alice.asset_type {
         AssetType::Base => {
             let buyer_buy_amount = calc_amount(bob.amount, bob.price, alice.price);
-            if alice.amount < buyer_buy_amount {
-                alice_order_amount_decrease = alice.amount;
-                bob_order_amount_decrease = alice.amount;
-                bob_account_delta = base_to_quote_amount(
-                    bob_order_amount_decrease,
-                    base_asset_decimals,
-                    alice.price,
-                    price_decimals,
-                    quote_asset_decimals,
-                );
-                bob_unlock_amount = bob.price - alice.price;
-            } else if buyer_buy_amount < alice.amount {
-                bob_account_delta = base_to_quote_amount(
-                    buyer_buy_amount,
-                    base_asset_decimals,
-                    bob.price,
-                    price_decimals,
-                    quote_asset_decimals,
-                );
-                alice_order_amount_decrease = buyer_buy_amount;
-                bob_order_amount_decrease = bob.amount;
-
-                if bob_account.locked.quote < bob_account_delta {
-                    let buyer_buy_amount = quote_to_base_amount(
-                        bob_account
-                            .locked
-                            .quote,
+            match alice.amount <= buyer_buy_amount {
+                true => {
+                    alice_order_amount_decrease = alice.amount;
+                    bob_order_amount_decrease = alice.amount;
+                    bob_account_delta = base_to_quote_amount(
+                        bob_order_amount_decrease,
                         base_asset_decimals,
-                        bob.price,
+                        alice.price,
                         price_decimals,
                         quote_asset_decimals,
                     );
-                    alice_order_amount_decrease = buyer_buy_amount;
-                    bob_order_amount_decrease = buyer_buy_amount;
+                    bob_unlock_amount = bob.price - alice.price;
+                }
+                false => {
+                    // buyer_buy_amount < alice.amount
                     bob_account_delta = base_to_quote_amount(
                         buyer_buy_amount,
                         base_asset_decimals,
@@ -84,57 +65,51 @@ pub fn attempt_trade(
                         price_decimals,
                         quote_asset_decimals,
                     );
+                    alice_order_amount_decrease = buyer_buy_amount;
+                    bob_order_amount_decrease = bob.amount;
+
+                    if bob_account.locked.quote < bob_account_delta {
+                        let buyer_buy_amount = quote_to_base_amount(
+                            bob_account
+                                .locked
+                                .quote,
+                            base_asset_decimals,
+                            bob.price,
+                            price_decimals,
+                            quote_asset_decimals,
+                        );
+                        alice_order_amount_decrease = buyer_buy_amount;
+                        bob_order_amount_decrease = buyer_buy_amount;
+                        bob_account_delta = base_to_quote_amount(
+                            buyer_buy_amount,
+                            base_asset_decimals,
+                            bob.price,
+                            price_decimals,
+                            quote_asset_decimals,
+                        );
+                    }
                 }
-            } else {
-                alice_order_amount_decrease = buyer_buy_amount;
-                bob_order_amount_decrease = buyer_buy_amount;
-                bob_account_delta = base_to_quote_amount(
-                    bob_order_amount_decrease,
-                    base_asset_decimals,
-                    bob.price,
-                    price_decimals,
-                    quote_asset_decimals,
-                );
             }
 
             alice_account_delta = alice_order_amount_decrease;
         }
         AssetType::Quote => {
             let buyer_buy_amount = calc_amount(bob.amount, bob.price, alice.price);
-            if alice.amount < buyer_buy_amount {
-                alice_order_amount_decrease = alice.amount;
-                bob_order_amount_decrease = alice.amount;
-                bob_account_delta = quote_to_base_amount(
-                    bob_order_amount_decrease,
-                    base_asset_decimals,
-                    alice.price,
-                    price_decimals,
-                    quote_asset_decimals,
-                );
-                bob_unlock_amount = bob.price - alice.price;
-            } else if buyer_buy_amount < alice.amount {
-                bob_account_delta = quote_to_base_amount(
-                    buyer_buy_amount,
-                    base_asset_decimals,
-                    bob.price,
-                    price_decimals,
-                    quote_asset_decimals,
-                );
-                alice_order_amount_decrease = buyer_buy_amount;
-                bob_order_amount_decrease = bob.amount;
-
-                if bob_account.locked.base < bob_account_delta {
-                    let buyer_buy_amount = base_to_quote_amount(
-                        bob_account
-                            .locked
-                            .base,
+            match alice.amount <= buyer_buy_amount {
+                true => {
+                    alice_order_amount_decrease = alice.amount;
+                    bob_order_amount_decrease = alice.amount;
+                    bob_account_delta = quote_to_base_amount(
+                        bob_order_amount_decrease,
                         base_asset_decimals,
-                        bob.price,
+                        alice.price,
                         price_decimals,
                         quote_asset_decimals,
                     );
-                    alice_order_amount_decrease = buyer_buy_amount;
-                    bob_order_amount_decrease = buyer_buy_amount;
+                    bob_unlock_amount = bob.price - alice.price;
+                }
+                false => {
+                    // buyer_buy_amount < alice.amount
                     bob_account_delta = quote_to_base_amount(
                         buyer_buy_amount,
                         base_asset_decimals,
@@ -142,17 +117,30 @@ pub fn attempt_trade(
                         price_decimals,
                         quote_asset_decimals,
                     );
+                    alice_order_amount_decrease = buyer_buy_amount;
+                    bob_order_amount_decrease = bob.amount;
+
+                    if bob_account.locked.base < bob_account_delta {
+                        let buyer_buy_amount = base_to_quote_amount(
+                            bob_account
+                                .locked
+                                .base,
+                            base_asset_decimals,
+                            bob.price,
+                            price_decimals,
+                            quote_asset_decimals,
+                        );
+                        alice_order_amount_decrease = buyer_buy_amount;
+                        bob_order_amount_decrease = buyer_buy_amount;
+                        bob_account_delta = quote_to_base_amount(
+                            buyer_buy_amount,
+                            base_asset_decimals,
+                            bob.price,
+                            price_decimals,
+                            quote_asset_decimals,
+                        );
+                    }
                 }
-            } else {
-                alice_order_amount_decrease = buyer_buy_amount;
-                bob_order_amount_decrease = buyer_buy_amount;
-                bob_account_delta = quote_to_base_amount(
-                    bob_order_amount_decrease,
-                    base_asset_decimals,
-                    bob.price,
-                    price_decimals,
-                    quote_asset_decimals,
-                );
             }
 
             alice_account_delta = alice_order_amount_decrease;
