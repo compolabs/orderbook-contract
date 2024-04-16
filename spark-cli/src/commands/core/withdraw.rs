@@ -42,15 +42,13 @@ impl WithdrawCommand {
         // Connect to the deployed contract via the rpc
         let contract = MarketContract::new(contract_id, wallet.clone()).await;
 
-        let r = contract.withdraw(self.amount, asset).await?;
-        // TODO: sdk debugging
-        dbg!(r);
+        let _ = contract.withdraw(self.amount, asset).await?;
 
         // Balance post-call
         let new_balance = wallet.get_asset_balance(&AssetId::BASE).await?;
 
         // TODO: replace println with tracing
-        println!("Contract call cost: {}", balance - new_balance);
+        println!("\nContract call cost: {}", balance - new_balance);
         println!("Withdrawn {} amount of {} asset", self.amount, self.asset);
 
         Ok(())
