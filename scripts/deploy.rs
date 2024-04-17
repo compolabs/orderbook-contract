@@ -41,6 +41,6 @@ async fn main() {
 
 
 /* 
-🏁 Start_block: 9969039
-The orderbook contract has been deployed 79ae17178894b793fadf4fd80df5cfa382280745dc62aa8ab36d4082e202a379
+🏁 Start_block: 9976374
+The orderbook contract has been deployed 1fdc9849457604cc8af9103c5d3cc339da2ce29df8b6e46d358f7c330918cd79
 */
