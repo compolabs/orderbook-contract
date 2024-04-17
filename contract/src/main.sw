@@ -326,7 +326,14 @@ fn remove_update_order_internal(order: Order, base_size: I64) {
     if (order.base_size == base_size.flip()) {
         let pos_id = storage.order_indexes_by_trader.get(order.trader).get(order.id).read() - 1; // pos + 1 indexed
         require(storage.order_indexes_by_trader.get(order.trader).remove(order.id), Error::CannotRemoveOrderIndex);
-        // require(storage.orders_by_trader.get(order.trader).swap_remove(pos_id) == order.id, Error::CannotRemoveOrderByTrader);
+        let last_pos = storage.orders_by_trader.get(order.trader).len() - 1;
+        if last_pos != pos_id {
+            let last_id = storage.orders_by_trader.get(order.trader).get(last_pos).unwrap().read();
+            require(storage.orders_by_trader.get(order.trader).swap_remove(pos_id) == order.id, Error::CannotRemoveOrderByTrader);
+            storage.order_indexes_by_trader.get(order.trader).insert(last_id, pos_id + 1); 
+        } else {
+            require(storage.orders_by_trader.get(order.trader).pop().unwrap() == order.id, Error::CannotRemoveOrderByTrader);
+        }
         require(storage.orders.remove(order.id), Error::CannotRemoveOrder);
     } else {
         let mut order = order;
