@@ -29,8 +29,18 @@ async fn main() {
     );
     let usdc = Asset::new(wallet.clone(), token_contarct.contract_id().into(), "USDC");
     let contract = Orderbook::deploy(&wallet, usdc.asset_id, usdc.decimals, 9).await;
+
+    let block = provider.latest_block_height().await.unwrap();
+    println!("🏁 Start_block: {block}");
+
     println!(
         "The orderbook contract has been deployed {}\n",
         contract.instance.contract_id().hash
     );
 }
+
+
+/* 
+🏁 Start_block: 9969039
+The orderbook contract has been deployed 79ae17178894b793fadf4fd80df5cfa382280745dc62aa8ab36d4082e202a379
+*/

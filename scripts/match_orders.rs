@@ -11,9 +11,9 @@ use orderbook::{
 use src20_sdk::token_utils::{Asset, TokenContract};
 use std::str::FromStr;
 
-const MARKET_SYMBOL: &str = "UNI";
-const BASE_SIZE: u64 = 100; //units
-const BASE_PRICE: u64 = 10; //units
+const MARKET_SYMBOL: &str = "BTC";
+const BASE_SIZE: u64 = 1; //units
+const BASE_PRICE: u64 = 70000; //units
 
 #[tokio::main]
 async fn main() {
@@ -45,7 +45,7 @@ async fn main() {
 
     // sell
     let sell_order_id = orderbook
-        .open_order(base_asset.asset_id, -1 * base_size as i64, price) //fixme Response errors; Validity(InsufficientFeeAmount { expected: 326087, provided: 0 })" })
+        .open_order(base_asset.asset_id, -1 * base_size as i64, price - 1)
         .await
         .unwrap()
         .value;
@@ -63,6 +63,16 @@ async fn main() {
         .await
         .unwrap()
         .value;
+
+    println!(
+        "buy_order = {:?}\n",
+        orderbook.order_by_id(&buy_order_id).await.unwrap().value.unwrap()
+    );
+    println!(
+        "sell_order = {:?}",
+        orderbook.order_by_id(&sell_order_id).await.unwrap().value.unwrap()
+    );
+
 
     //todo match orders
     orderbook

@@ -11,4 +11,8 @@ pub enum Error {
     BadAsset: (),
     BadValue: (),
     BadPrice: (),
+    BaseSizeIsZero: (),
+    CannotRemoveOrderIndex: (),
+    CannotRemoveOrderByTrader: (),
+    CannotRemoveOrder: (),
 }
