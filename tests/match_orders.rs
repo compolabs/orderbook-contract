@@ -177,7 +177,7 @@ async fn match1() {
 
 #[tokio::test]
 async fn match0() {
-    let (alice, bob, base_asset, quote_asset, orderbook) = init().await;
+    let (alice, _bob, base_asset, quote_asset, orderbook) = init().await;
 
     let BASE_SIZE: u64 = 1; //units
     let BASE_PRICE: u64 = 70000; //units
