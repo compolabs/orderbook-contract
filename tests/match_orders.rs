@@ -1,7 +1,7 @@
 use fuels::types::Bits256;
 use fuels::{accounts::wallet::Wallet, prelude::*};
 use orderbook::orderbook_utils::Orderbook;
-use src20_sdk::token_utils::{deploy_token_contract, Asset, TokenContract};
+use src20_sdk::token_utils::{deploy_token_contract, Asset};
 use std::result::Result;
 const PRICE_DECIMALS: u64 = 9;
 const TOLERANCE: f64 = 0.0005;
@@ -126,6 +126,51 @@ async fn open_orders_match(
     }
 }
 
+const BASE_SIZE: u64 = 1; //units
+const BASE_PRICE: u64 = 70000; //units
+#[tokio::test]
+async fn match0() {
+    let (alice, _bob, base_asset, quote_asset, orderbook) = init().await;
+
+    let price = BASE_PRICE * 10u64.pow(orderbook.price_decimals as u32);
+
+    //mint base asset to sell
+    let base_size = base_asset.parse_units(BASE_SIZE as f64) as u64;
+    base_asset
+        .mint(alice.address().into(), base_size)
+        .await
+        .unwrap();
+
+    // sell
+    let sell_order_id = orderbook
+        .with_account(&alice)
+        .open_order(base_asset.asset_id, -1 * base_size as i64, price - 1)
+        .await
+        .unwrap()
+        .value;
+
+    //mint quote asset to buy
+    let quote_size = quote_asset.parse_units(BASE_SIZE as f64 * BASE_PRICE as f64);
+    quote_asset
+        .mint(alice.address().into(), quote_size as u64)
+        .await
+        .unwrap();
+
+    //buy
+    let buy_order_id = orderbook
+        .with_account(&alice)
+        .open_order(base_asset.asset_id, base_size as i64, price)
+        .await
+        .unwrap()
+        .value;
+
+    //todo match orders
+    orderbook
+        .match_orders(&sell_order_id, &buy_order_id)
+        .await
+        .unwrap();
+}
+
 // ✅ buyOrder.orderPrice > sellOrder.orderPrice & buyOrder.baseSize > sellOrder.baseSize
 #[tokio::test]
 async fn match1() {
@@ -173,76 +218,6 @@ async fn match1() {
     let expected_balance = (45_000_f64 * 1e6) as u64;
     let actual_balance = bob.get_asset_balance(&usdc.asset_id).await.unwrap();
     tolerance_eq(expected_balance, actual_balance);
-}
-
-#[tokio::test]
-async fn match0() {
-    let (alice, _bob, base_asset, quote_asset, orderbook) = init().await;
-
-    let BASE_SIZE: u64 = 1; //units
-    let BASE_PRICE: u64 = 70000; //units
-
-    let price = BASE_PRICE * 10u64.pow(orderbook.price_decimals as u32);
-
-    //mint base asset to sell
-    let base_size = base_asset.parse_units(BASE_SIZE as f64) as u64;
-    base_asset
-        .mint(alice.address().into(), base_size)
-        .await
-        .unwrap();
-
-    // sell
-    let sell_order_id = orderbook
-        .with_account(&alice)
-        .open_order(base_asset.asset_id, -1 * base_size as i64, price - 1)
-        .await
-        .unwrap()
-        .value;
-
-    //mint quote asset to buy
-    println!(
-        "BASE_SIZE as f64 * BASE_PRICE as f64 = {:?}",
-        BASE_SIZE as f64 * BASE_PRICE as f64
-    );
-
-    let quote_size = quote_asset.parse_units(BASE_SIZE as f64 * BASE_PRICE as f64);
-    quote_asset
-        .mint(alice.address().into(), quote_size as u64)
-        .await
-        .unwrap();
-
-    //buy
-    let buy_order_id = orderbook
-        .with_account(&alice)
-        .open_order(base_asset.asset_id, base_size as i64, price)
-        .await
-        .unwrap()
-        .value;
-
-    println!(
-        "buy_order = {:?}\n",
-        orderbook
-            .order_by_id(&buy_order_id)
-            .await
-            .unwrap()
-            .value
-            .unwrap()
-    );
-    println!(
-        "sell_order = {:?}\n",
-        orderbook
-            .order_by_id(&sell_order_id)
-            .await
-            .unwrap()
-            .value
-            .unwrap()
-    );
-
-    //todo match orders
-    orderbook
-        .match_orders(&sell_order_id, &buy_order_id)
-        .await
-        .unwrap();
 }
 
 // ✅ buyOrder.orderPrice > sellOrder.orderPrice & buyOrder.baseSize < sellOrder.baseSize

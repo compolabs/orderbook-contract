@@ -68,11 +68,7 @@ impl Orderbook {
         self.instance
             .methods()
             .order_by_id(*id)
-            .with_tx_policies(
-                TxPolicies::default()
-                    .with_max_fee(100000000)
-                    .with_gas_price(2),
-            )
+            .with_tx_policies(TxPolicies::default())
             .simulate()
             .await
     }
@@ -120,11 +116,7 @@ impl Orderbook {
             .append_variable_outputs(2)
             .call_params(call_params)
             .unwrap()
-            .with_tx_policies(
-                TxPolicies::default()
-                    .with_max_fee(100000000)
-                    .with_gas_price(2),
-            )
+            .with_tx_policies(TxPolicies::default())
             .call()
             .await
     }
@@ -152,8 +144,6 @@ impl Orderbook {
             .append_variable_outputs(2)
             .with_tx_policies(
                 TxPolicies::default()
-                    .with_max_fee(100000000)
-                    .with_gas_price(2),
             )
             .call()
             .await
