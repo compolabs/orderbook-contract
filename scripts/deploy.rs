@@ -38,9 +38,3 @@ async fn main() {
         contract.instance.contract_id().hash
     );
 }
-
-
-/* 
-🏁 Start_block: 9976374
-The orderbook contract has been deployed 1fdc9849457604cc8af9103c5d3cc339da2ce29df8b6e46d358f7c330918cd79
-*/
