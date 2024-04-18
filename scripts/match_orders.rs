@@ -12,8 +12,8 @@ use src20_sdk::token_utils::{Asset, TokenContract};
 use std::str::FromStr;
 
 const MARKET_SYMBOL: &str = "BTC";
-const BASE_SIZE: u64 = 1; //units
-const BASE_PRICE: u64 = 70000; //units
+const BASE_SIZE: f64 = 0.01; //units
+const BASE_PRICE: f64 = 65500.; //units
 
 #[tokio::main]
 async fn main() {
@@ -34,7 +34,7 @@ async fn main() {
     let quote_asset = Asset::new(wallet.clone(), token_contract_id, "USDC");
 
     let orderbook = Orderbook::new(&wallet, ORDERBOOK_CONTRACT_ID).await;
-    let price = BASE_PRICE * 10u64.pow(orderbook.price_decimals as u32);
+    let price = (BASE_PRICE * 10f64.powf(orderbook.price_decimals as f64)) as u64;
 
     //mint base asset to sell
     let base_size = base_asset.parse_units(BASE_SIZE as f64) as u64;

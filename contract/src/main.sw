@@ -143,14 +143,13 @@ impl OrderBook for Contract {
             };
             add_order_internal(order);
         }
+
         log(OrderChangeEvent {
             order_id: order_id,
-            trader: msg_sender,
-            base_token: base_token,
-            base_size_change: base_size,
-            base_price: base_price,
             timestamp: timestamp(),
+            order: storage.orders.get(order_id).try_read(),
         });
+
         order_id
     }
 
@@ -165,17 +164,14 @@ impl OrderBook for Contract {
         let msg_sender = msg_sender_address();
         require(msg_sender == order.trader, Error::AccessDenied);
 
-        log(OrderChangeEvent {
-            order_id: order.id,
-            trader: msg_sender,
-            base_token: order.base_token,
-            base_size_change: order.base_size.flip(),
-            base_price: order.base_price,
-            timestamp: timestamp(),
-        });
-
         let (asset_id, refund) = cancel_order_internal(order);
         transfer_to_address(msg_sender, asset_id, refund);
+
+        log(OrderChangeEvent {
+            order_id: order.id,
+            timestamp: timestamp(),
+            order: storage.orders.get(order.id).try_read(),
+        });
     }
 
     #[storage(read, write)]
@@ -238,19 +234,13 @@ impl OrderBook for Contract {
 
         log(OrderChangeEvent {
             order_id: order_sell.id,
-            trader: seller,
-            base_token: order_sell.base_token,
-            base_size_change: I64::from(trade_size),
-            base_price: order_sell.base_price,
             timestamp: timestamp(),
+            order: storage.orders.get(order_sell.id).try_read(),
         });
         log(OrderChangeEvent {
             order_id: order_buy.id,
-            trader: buyer,
-            base_token: order_buy.base_token,
-            base_size_change: I64::neg_from(trade_size),
-            base_price: order_buy.base_price,
             timestamp: timestamp(),
+            order: storage.orders.get(order_buy.id).try_read(),
         });
 
         log(TradeEvent {
