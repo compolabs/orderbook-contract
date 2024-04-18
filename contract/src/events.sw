@@ -10,11 +10,8 @@ pub struct MarketCreateEvent {
 
 pub struct OrderChangeEvent {
     order_id: b256,
-    trader: Address,
-    base_token: AssetId,
-    base_size_change: I64,
-    base_price: u64,
     timestamp: u64,
+    order: Option<Order>, 
 }
 
 pub struct TradeEvent {

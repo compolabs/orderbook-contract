@@ -11,7 +11,7 @@ use rand::{rngs::StdRng, SeedableRng};
 use src20_sdk::token_utils::{Asset, TokenContract};
 use std::str::FromStr;
 
-const AMOUNT_OF_WALLETS: u64 = 500;
+const AMOUNT_OF_WALLETS: u64 = 5;
 // const AMOUNT_OF_WALLETS: u64 = 1;
 const ETH_AMOUNT: f64 = 0.005;
 const BASE_SYMBOL: &str = "BTC";

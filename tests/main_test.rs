@@ -370,7 +370,7 @@ async fn match_orders_test() {
 
     let order = response.value.unwrap();
     assert_eq!(base_price, order.base_price);
-    assert_eq!(base_size_sell1, order.base_size.value as i64);
+    assert_eq!(base_size_sell1.abs(), order.base_size.value as i64);
     assert!(order.base_size.negative);
 
     // Match orders

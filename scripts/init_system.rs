@@ -4,16 +4,16 @@ use fuels::{
     types::ContractId,
 };
 use orderbook::{
-    constants::{ORDERBOOK_CONTRACT_ID, RPC, TOKEN_CONTRACT_ID},
+    constants::{RPC, TOKEN_CONTRACT_ID},
     orderbook_utils::Orderbook,
     print_title,
 };
 use src20_sdk::token_utils::{Asset, TokenContract};
 use std::str::FromStr;
-
-const MARKET_SYMBOL: &str = "BTC";
-const BASE_SIZE: f64 = 0.01; //units
-const BASE_PRICE: f64 = 65500.; //units
+use hex::ToHex;
+const MARKET_SYMBOL: &str = "UNI";
+const BASE_SIZE: u64 = 100; //units
+const BASE_PRICE: u64 = 10; //units
 
 #[tokio::main]
 async fn main() {
@@ -23,18 +23,49 @@ async fn main() {
     let secret = std::env::var("ADMIN").unwrap();
     let wallet =
         WalletUnlocked::new_from_private_key(secret.parse().unwrap(), Some(provider.clone()));
+    println!("admin address = {:?}", wallet.address().to_string());
 
     let token_contract = TokenContract::new(
         &ContractId::from_str(TOKEN_CONTRACT_ID).unwrap().into(),
         wallet.clone(),
     );
+    
+    // deploy
+    let usdc = Asset::new(wallet.clone(), token_contract.contract_id().into(), "USDC");
+    let contract = Orderbook::deploy(&wallet, usdc.asset_id, usdc.decimals, 9).await;
+    
+    let contract_id_str = contract.instance.contract_id().hash.encode_hex::<String>();
+    println!(
+        "The orderbook contract has been deployed with contract id: {}\n",
+        contract_id_str
+    );
+
+    // create market
+    let asset = Asset::new(
+        wallet.clone(),
+        token_contract.contract_id().into(),
+        MARKET_SYMBOL,
+    );
+
+    let orderbook = Orderbook::new(&wallet, &contract_id_str).await;
+
+    orderbook
+        ._create_market(asset.asset_id, asset.decimals as u32)
+        .await
+        .unwrap();
+
+    println!(
+        "Market created on contract id: {}\n",
+        contract_id_str
+    );
+    
 
     let token_contract_id = token_contract.contract_id().into();
     let base_asset = Asset::new(wallet.clone(), token_contract_id, MARKET_SYMBOL);
     let quote_asset = Asset::new(wallet.clone(), token_contract_id, "USDC");
 
-    let orderbook = Orderbook::new(&wallet, ORDERBOOK_CONTRACT_ID).await;
-    let price = (BASE_PRICE * 10f64.powf(orderbook.price_decimals as f64)) as u64;
+    let orderbook = Orderbook::new(&wallet, &contract_id_str).await;
+    let price = BASE_PRICE * 10u64.pow(orderbook.price_decimals as u32);
 
     //mint base asset to sell
     let base_size = base_asset.parse_units(BASE_SIZE as f64) as u64;
@@ -65,16 +96,25 @@ async fn main() {
         .value;
 
     println!(
-        "buy_order = {:?}\n",
-        orderbook.order_by_id(&buy_order_id).await.unwrap().value.unwrap()
+        "buy_order = {:?}",
+        orderbook
+            .order_by_id(&buy_order_id)
+            .await
+            .unwrap()
+            .value
+            .unwrap()
     );
+    
     println!(
         "sell_order = {:?}",
-        orderbook.order_by_id(&sell_order_id).await.unwrap().value.unwrap()
+        orderbook
+            .order_by_id(&sell_order_id)
+            .await
+            .unwrap()
+            .value
+            .unwrap()
     );
 
-
-    //todo match orders
     orderbook
         .match_orders(&sell_order_id, &buy_order_id)
         .await

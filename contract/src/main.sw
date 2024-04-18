@@ -32,7 +32,7 @@ storage {
     orders: StorageMap<b256, Order> = StorageMap {},
     markets: StorageMap<AssetId, Market> = StorageMap {},
     orders_by_trader: StorageMap<Address, StorageVec<b256>> = StorageMap {},
-    order_positions_by_trader: StorageMap<Address, StorageMap<b256, u64>> = StorageMap {},
+    order_indexes_by_trader: StorageMap<Address, StorageMap<b256, u64>> = StorageMap {},
 }
 
 abi OrderBook {
@@ -143,14 +143,13 @@ impl OrderBook for Contract {
             };
             add_order_internal(order);
         }
+
         log(OrderChangeEvent {
             order_id: order_id,
-            trader: msg_sender,
-            base_token: base_token,
-            base_size_change: base_size,
-            base_price: base_price,
             timestamp: timestamp(),
+            order: storage.orders.get(order_id).try_read(),
         });
+
         order_id
     }
 
@@ -165,17 +164,14 @@ impl OrderBook for Contract {
         let msg_sender = msg_sender_address();
         require(msg_sender == order.trader, Error::AccessDenied);
 
-        log(OrderChangeEvent {
-            order_id: order.id,
-            trader: msg_sender,
-            base_token: order.base_token,
-            base_size_change: order.base_size.flip(),
-            base_price: order.base_price,
-            timestamp: timestamp(),
-        });
-
         let (asset_id, refund) = cancel_order_internal(order);
         transfer_to_address(msg_sender, asset_id, refund);
+
+        log(OrderChangeEvent {
+            order_id: order.id,
+            timestamp: timestamp(),
+            order: storage.orders.get(order.id).try_read(),
+        });
     }
 
     #[storage(read, write)]
@@ -238,19 +234,13 @@ impl OrderBook for Contract {
 
         log(OrderChangeEvent {
             order_id: order_sell.id,
-            trader: seller,
-            base_token: order_sell.base_token,
-            base_size_change: I64::from(trade_size),
-            base_price: order_sell.base_price,
             timestamp: timestamp(),
+            order: storage.orders.get(order_sell.id).try_read(),
         });
         log(OrderChangeEvent {
             order_id: order_buy.id,
-            trader: buyer,
-            base_token: order_buy.base_token,
-            base_size_change: I64::neg_from(trade_size),
-            base_price: order_buy.base_price,
             timestamp: timestamp(),
+            order: storage.orders.get(order_buy.id).try_read(),
         });
 
         log(TradeEvent {
@@ -286,14 +276,14 @@ fn add_order_internal(order: Order) {
     storage.orders.insert(order.id, order);
     storage.orders_by_trader.get(order.trader).push(order.id);
     storage
-        .order_positions_by_trader
+        .order_indexes_by_trader
         .get(order.trader)
         .insert(order.id, storage.orders_by_trader.get(order.trader).len()); // pos + 1 indexed
 }
 
 #[storage(read, write)]
 fn update_order_internal(order: Order, base_size: I64) -> ((AssetId, u64), (AssetId, u64)) {
-    assert(order.base_size.value != 0);
+    require(order.base_size.value != 0, Error::BaseSizeIsZero);
     let mut refund = ((BASE_ASSET_ID, 0), (BASE_ASSET_ID, 0));
     if order.base_size == base_size.flip() {
         let mut tmp = order;
@@ -315,7 +305,7 @@ fn update_order_internal(order: Order, base_size: I64) -> ((AssetId, u64), (Asse
 
 #[storage(read, write)]
 fn cancel_order_internal(order: Order) -> (AssetId, u64) {
-    assert(order.base_size.value != 0);
+    require(order.base_size.value != 0,Error::BaseSizeIsZero);
     let refund = order_return_asset_amount(order);
     remove_update_order_internal(order, order.base_size.flip());
     refund
@@ -324,10 +314,17 @@ fn cancel_order_internal(order: Order) -> (AssetId, u64) {
 #[storage(read, write)]
 fn remove_update_order_internal(order: Order, base_size: I64) {
     if (order.base_size == base_size.flip()) {
-        let pos_id = storage.order_positions_by_trader.get(order.trader).get(order.id).read() - 1; // pos + 1 indexed
-        assert(storage.order_positions_by_trader.get(order.trader).remove(order.id));
-        assert(storage.orders_by_trader.get(order.trader).swap_remove(pos_id) == order.id);
-        assert(storage.orders.remove(order.id));
+        let pos_id = storage.order_indexes_by_trader.get(order.trader).get(order.id).read() - 1; // pos + 1 indexed
+        require(storage.order_indexes_by_trader.get(order.trader).remove(order.id), Error::CannotRemoveOrderIndex);
+        let last_pos = storage.orders_by_trader.get(order.trader).len() - 1;
+        if last_pos != pos_id {
+            let last_id = storage.orders_by_trader.get(order.trader).get(last_pos).unwrap().read();
+            require(storage.orders_by_trader.get(order.trader).swap_remove(pos_id) == order.id, Error::CannotRemoveOrderByTrader);
+            storage.order_indexes_by_trader.get(order.trader).insert(last_id, pos_id + 1); 
+        } else {
+            require(storage.orders_by_trader.get(order.trader).pop().unwrap() == order.id, Error::CannotRemoveOrderByTrader);
+        }
+        require(storage.orders.remove(order.id), Error::CannotRemoveOrder);
     } else {
         let mut order = order;
         order.base_size += base_size;

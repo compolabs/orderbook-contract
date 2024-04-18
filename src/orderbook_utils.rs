@@ -65,7 +65,12 @@ impl Orderbook {
         &self,
         id: &Bits256,
     ) -> Result<FuelCallResponse<Option<Order>>, fuels::types::errors::Error> {
-        self.instance.methods().order_by_id(*id).simulate().await
+        self.instance
+            .methods()
+            .order_by_id(*id)
+            .with_tx_policies(TxPolicies::default())
+            .simulate()
+            .await
     }
 
     pub async fn orders_by_trader(
@@ -111,6 +116,7 @@ impl Orderbook {
             .append_variable_outputs(2)
             .call_params(call_params)
             .unwrap()
+            .with_tx_policies(TxPolicies::default())
             .call()
             .await
     }
@@ -136,6 +142,9 @@ impl Orderbook {
             .methods()
             .match_orders(*sell_order_id, *buy_order_id)
             .append_variable_outputs(2)
+            .with_tx_policies(
+                TxPolicies::default()
+            )
             .call()
             .await
     }

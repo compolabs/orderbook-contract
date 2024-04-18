@@ -12,7 +12,7 @@ use orderbook::{
 };
 use src20_sdk::token_utils::{Asset, TokenContract};
 
-const MARKET_SYMBOL: &str = "UNI";
+const MARKET_SYMBOL: &str = "BTC";
 
 #[tokio::main]
 async fn main() {

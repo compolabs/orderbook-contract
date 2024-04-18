@@ -1,7 +1,7 @@
 pub const RPC: &str = "beta-5.fuel.network";
 
 pub const ORDERBOOK_CONTRACT_ID: &str =
-    "0x72175cdd41bbf890f8cddfe54fa55ac0f311f963c010746337f1c2ac3d79ffbb";
+    "7134802bdefd097f1c9d8ad86ef27081ae609b84de0afc87b58bd4e04afc6a23";
 
 pub const TOKEN_CONTRACT_ID: &str =
     "0x6bd9643c9279204b474a778dea7f923226060cb94a4c61c5aae015cf96b5aad2";
