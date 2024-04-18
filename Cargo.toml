@@ -12,6 +12,7 @@ rand = "0.8.5"
 tokio = { version = "1.12", features = ["rt", "macros"] }
 src20_sdk = { git = "https://github.com/compolabs/src-20.git", branch = "master" }
 dotenv = "0.15.0"
+hex = "0.4"
 
 [[test]]
 harness = true
@@ -42,3 +43,7 @@ path = "scripts/match_orders.rs"
 [[bin]]
 name = "create_accounts_with_tokens"
 path = "scripts/create_accounts_with_tokens.rs"
+
+[[bin]]
+name = "init_system"
+path = "scripts/init_system.rs"
