@@ -20,6 +20,7 @@ use std::constants::BASE_ASSET_ID;
 use std::context::msg_amount;
 use std::hash::*;
 use std::storage::storage_vec::*;
+use std::tx::tx_id;
 
 
 configurable {
@@ -33,6 +34,8 @@ storage {
     markets: StorageMap<AssetId, Market> = StorageMap {},
     orders_by_trader: StorageMap<Address, StorageVec<b256>> = StorageMap {},
     order_indexes_by_trader: StorageMap<Address, StorageMap<b256, u64>> = StorageMap {},
+    
+    order_change_events: StorageMap<b256, StorageVec<OrderChangeEvent>> = StorageMap {},
 }
 
 abi OrderBook {
@@ -58,7 +61,10 @@ abi OrderBook {
     fn market_exists(asset_id: AssetId) -> bool;
     
     #[storage(read)]
-    fn get_market_by_id(asset_id: AssetId) -> Market;
+    fn get_market_by_id(asset_id: AssetId) -> Market;    
+    
+    #[storage(read)]
+    fn get_order_change_events_by_order(order: b256) -> Vec<OrderChangeEvent>;
 
     fn get_configurables() -> (AssetId, u32, u32);
 }
@@ -84,6 +90,7 @@ impl OrderBook for Contract {
             asset_id: asset_id,
             asset_decimals: asset_decimals,
             timestamp: timestamp(),
+            tx_id: tx_id()
         });
     }
 
@@ -102,6 +109,7 @@ impl OrderBook for Contract {
         reentrancy_guard();
 
         let market = storage.markets.get(base_token).try_read();
+        require(base_size.value != 0,Error::BaseSizeIsZero);
         require(market.is_some(), Error::NoMarketFound);
         require(base_price != 0, Error::BadPrice);
 
@@ -126,7 +134,6 @@ impl OrderBook for Contract {
             let order = order.unwrap();
             let ((asset_id_0, refund_0), (asset_id_1, refund_1)) = update_order_internal(order, base_size);
 
-            // log
             if refund_0 > 0 {
                 transfer_to_address(msg_sender, asset_id_0, refund_0);
             }
@@ -144,11 +151,9 @@ impl OrderBook for Contract {
             add_order_internal(order);
         }
 
-        log(OrderChangeEvent {
-            order_id: order_id,
-            timestamp: timestamp(),
-            order: storage.orders.get(order_id).try_read(),
-        });
+        let event = OrderChangeEvent::open(order_id, storage.orders.get(order_id).try_read());
+        storage.order_change_events.get(order_id).push(event);
+        log(event);
 
         order_id
     }
@@ -167,11 +172,9 @@ impl OrderBook for Contract {
         let (asset_id, refund) = cancel_order_internal(order);
         transfer_to_address(msg_sender, asset_id, refund);
 
-        log(OrderChangeEvent {
-            order_id: order.id,
-            timestamp: timestamp(),
-            order: storage.orders.get(order.id).try_read(),
-        });
+        let event = OrderChangeEvent::cancel(order_id, storage.orders.get(order_id).try_read());
+        storage.order_change_events.get(order_id).push(event);
+        log(event);
     }
 
     #[storage(read, write)]
@@ -232,16 +235,13 @@ impl OrderBook for Contract {
 
         let msg_sender = msg_sender_address();
 
-        log(OrderChangeEvent {
-            order_id: order_sell.id,
-            timestamp: timestamp(),
-            order: storage.orders.get(order_sell.id).try_read(),
-        });
-        log(OrderChangeEvent {
-            order_id: order_buy.id,
-            timestamp: timestamp(),
-            order: storage.orders.get(order_buy.id).try_read(),
-        });
+        let event = OrderChangeEvent::match_orders(order_sell.id, storage.orders.get(order_sell.id).try_read());
+        storage.order_change_events.get(order_sell.id).push(event);
+        log(event);
+        
+        let event = OrderChangeEvent::match_orders(order_buy.id, storage.orders.get(order_buy.id).try_read());
+        storage.order_change_events.get(order_buy.id).push(event);
+        log(event);
 
         log(TradeEvent {
             base_token: order_sell.base_token,
@@ -253,6 +253,7 @@ impl OrderBook for Contract {
             sell_order_id: order_sell.id,
             buy_order_id: order_buy.id,
             timestamp: timestamp(),
+            tx_id: tx_id()
         });
     }
 
@@ -264,6 +265,11 @@ impl OrderBook for Contract {
     #[storage(read)]
     fn order_by_id(order: b256) -> Option<Order> {
         storage.orders.get(order).try_read()
+    }
+
+    #[storage(read)]
+    fn get_order_change_events_by_order(order: b256) -> Vec<OrderChangeEvent> {
+         storage.order_change_events.get(order).load_vec()
     }
 
     fn get_configurables() -> (AssetId, u32, u32){
