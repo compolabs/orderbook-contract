@@ -116,7 +116,7 @@ impl Orderbook {
             .append_variable_outputs(2)
             .call_params(call_params)
             .unwrap()
-            .with_tx_policies(TxPolicies::default())
+            .with_tx_policies(TxPolicies::default().with_gas_price(1))
             .call()
             .await
     }
@@ -142,9 +142,7 @@ impl Orderbook {
             .methods()
             .match_orders(*sell_order_id, *buy_order_id)
             .append_variable_outputs(2)
-            .with_tx_policies(
-                TxPolicies::default()
-            )
+            .with_tx_policies(TxPolicies::default())
             .call()
             .await
     }
