@@ -34,7 +34,7 @@ storage {
     markets: StorageMap<AssetId, Market> = StorageMap {},
     orders_by_trader: StorageMap<Address, StorageVec<b256>> = StorageMap {},
     order_indexes_by_trader: StorageMap<Address, StorageMap<b256, u64>> = StorageMap {},
-    
+
     order_change_events: StorageMap<b256, StorageVec<OrderChangeEvent>> = StorageMap {},
 }
 
@@ -61,8 +61,8 @@ abi OrderBook {
     fn market_exists(asset_id: AssetId) -> bool;
     
     #[storage(read)]
-    fn get_market_by_id(asset_id: AssetId) -> Market;    
-    
+    fn get_market_by_id(asset_id: AssetId) -> Market;
+
     #[storage(read)]
     fn get_order_change_events_by_order(order: b256) -> Vec<OrderChangeEvent>;
 
@@ -238,7 +238,7 @@ impl OrderBook for Contract {
         let event = OrderChangeEvent::match_orders(order_sell.id, storage.orders.get(order_sell.id).try_read());
         storage.order_change_events.get(order_sell.id).push(event);
         log(event);
-        
+
         let event = OrderChangeEvent::match_orders(order_buy.id, storage.orders.get(order_buy.id).try_read());
         storage.order_change_events.get(order_buy.id).push(event);
         log(event);
@@ -326,7 +326,7 @@ fn remove_update_order_internal(order: Order, base_size: I64) {
         if last_pos != pos_id {
             let last_id = storage.orders_by_trader.get(order.trader).get(last_pos).unwrap().read();
             require(storage.orders_by_trader.get(order.trader).swap_remove(pos_id) == order.id, Error::CannotRemoveOrderByTrader);
-            storage.order_indexes_by_trader.get(order.trader).insert(last_id, pos_id + 1); 
+            storage.order_indexes_by_trader.get(order.trader).insert(last_id, pos_id + 1);
         } else {
             require(storage.orders_by_trader.get(order.trader).pop().unwrap() == order.id, Error::CannotRemoveOrderByTrader);
         }

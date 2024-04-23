@@ -43,37 +43,37 @@ impl OrderChangeEvent{
     pub fn open(id: b256, order: Option<Order>) -> self {
         Self {
             order_id: id,
-            order, 
+            order,
             sender: std::auth::msg_sender().unwrap(),
             identifier: OrderChangeEventIdentifier::OrderOpenEvent,
-            timestamp: std::block::timestamp(), 
+            timestamp: std::block::timestamp(),
             tx_id: std::tx::tx_id()
         }
     }
-    
-    
+
+
     pub fn cancel(order_id: b256, order: Option<Order>)-> self{
         Self {
             order_id,
             order,
             sender: std::auth::msg_sender().unwrap(),
             identifier: OrderChangeEventIdentifier::OrderCancelEvent,
-            timestamp: std::block::timestamp(), 
+            timestamp: std::block::timestamp(),
             tx_id: std::tx::tx_id()
         }
     }
-    
-    
+
+
     pub fn match_orders(id: b256, order: Option<Order>)-> self{
         Self {
             order_id: id,
-            order, 
+            order,
             sender: std::auth::msg_sender().unwrap(),
             identifier: OrderChangeEventIdentifier::OrderMatchEvent,
-            timestamp: std::block::timestamp(), 
+            timestamp: std::block::timestamp(),
             tx_id: std::tx::tx_id()
         }
-    }    
+    }
 
 }
 

@@ -2335,6 +2335,7 @@ version = "0.1.0"
 dependencies = [
  "dotenv",
  "fuels",
+ "hex",
  "rand",
  "src20_sdk",
  "tokio",
