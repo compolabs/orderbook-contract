@@ -47,3 +47,7 @@ path = "scripts/create_accounts_with_tokens.rs"
 [[bin]]
 name = "init_system"
 path = "scripts/init_system.rs"
+
+[[bin]]
+name = "fill_orderbook"
+path = "scripts/fill_orderbook.rs"

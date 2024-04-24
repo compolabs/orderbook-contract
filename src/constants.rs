@@ -1,7 +1,7 @@
 pub const RPC: &str = "beta-5.fuel.network";
 
 pub const ORDERBOOK_CONTRACT_ID: &str =
-    "7134802bdefd097f1c9d8ad86ef27081ae609b84de0afc87b58bd4e04afc6a23";
+    "0f0c1065a7b82d026069c5cf070b21ee65713fd1ac92ec1d25eacc3100187f78";
 
 pub const TOKEN_CONTRACT_ID: &str =
     "0x6bd9643c9279204b474a778dea7f923226060cb94a4c61c5aae015cf96b5aad2";
@@ -11,3 +11,6 @@ pub const BTC_ASSET_ID_STR: &str =
     "0x593b117a05f5ea64b39ba1f9bc3fb7e7a791c9be130e28376ad552eacdb3b746";
 pub const UNI_ASSET_ID_STR: &str =
     "0xae37bc0feb66e60a89e301d450bb4640aa9bd7cedd856e253e23989eae536e92";
+
+    /* 🏁 Start_block: 10487767
+The orderbook contract has been deployed 0f0c1065a7b82d026069c5cf070b21ee65713fd1ac92ec1d25eacc3100187f78 */
