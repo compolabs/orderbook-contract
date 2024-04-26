@@ -6,10 +6,10 @@ use fuels::{
     prelude::{Provider, WalletUnlocked},
     types::{transaction::TxPolicies, ContractId},
 };
-use orderbook::constants::{RPC, TOKEN_CONTRACT_ID};
 use rand::{rngs::StdRng, SeedableRng};
 use src20_sdk::token_utils::{Asset, TokenContract};
 use std::str::FromStr;
+use utils::constants::{RPC, TOKEN_CONTRACT_ID};
 
 const AMOUNT_OF_WALLETS: u64 = 5;
 // const AMOUNT_OF_WALLETS: u64 = 1;
@@ -19,15 +19,14 @@ const BASE_SIZE: f64 = 1.;
 const QUOTE_SIZE: f64 = 70000.;
 
 #[tokio::main]
-async fn main() {
+async fn main() -> anyhow::Result<()> {
     dotenv().ok();
-    let provider = Provider::connect(RPC).await.unwrap();
-    let secret = std::env::var("ADMIN").unwrap();
-    let admin =
-        WalletUnlocked::new_from_private_key(secret.parse().unwrap(), Some(provider.clone()));
+    let provider = Provider::connect(RPC).await?;
+    let secret = std::env::var("ADMIN")?;
+    let admin = WalletUnlocked::new_from_private_key(secret.parse()?, Some(provider.clone()));
 
     let token_contract = TokenContract::new(
-        &ContractId::from_str(TOKEN_CONTRACT_ID).unwrap().into(),
+        ContractId::from_str(TOKEN_CONTRACT_ID).unwrap(),
         admin.clone(),
     );
 
@@ -62,17 +61,14 @@ async fn main() {
                 BASE_ASSET_ID,
                 TxPolicies::default(),
             )
-            .await
-            .unwrap();
+            .await?;
 
-        base_asset
-            .mint(wallet.address().into(), base_size)
-            .await
-            .unwrap();
+        base_asset.mint(wallet.address().into(), base_size).await?;
 
         quote_asset
             .mint(wallet.address().into(), quote_size as u64)
-            .await
-            .unwrap();
+            .await?;
     }
+
+    Ok(())
 }

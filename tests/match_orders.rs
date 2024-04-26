@@ -1,9 +1,8 @@
 use fuels::types::Bits256;
 use fuels::{accounts::wallet::Wallet, prelude::*};
-use orderbook::orderbook_utils::Orderbook;
+use spark_market_sdk::OrderbookContract;
 use src20_sdk::token_utils::{deploy_token_contract, Asset};
-use std::result::Result;
-const PRICE_DECIMALS: u64 = 9;
+const PRICE_DECIMALS: u32 = 9;
 const TOLERANCE: f64 = 0.0005;
 
 fn tolerance_eq(expected: u64, actual: u64) -> bool {
@@ -35,7 +34,13 @@ fn tolerance_eq(expected: u64, actual: u64) -> bool {
     }
 }
 
-async fn init() -> (WalletUnlocked, WalletUnlocked, Asset, Asset, Orderbook) {
+async fn init() -> anyhow::Result<(
+    WalletUnlocked,
+    WalletUnlocked,
+    Asset,
+    Asset,
+    OrderbookContract,
+)> {
     //--------------- WALLETS ---------------
     let wallets_config = WalletsConfig::new(Some(5), Some(1), Some(1_000_000_000));
     let wallets = launch_custom_provider_and_get_wallets(wallets_config, None, None)
@@ -59,15 +64,17 @@ async fn init() -> (WalletUnlocked, WalletUnlocked, Asset, Asset, Orderbook) {
         "USDC",
     );
 
-    let orderbook = Orderbook::deploy(&admin, usdc.asset_id, usdc.decimals, PRICE_DECIMALS).await;
+    let orderbook =
+        OrderbookContract::deploy(&admin, usdc.asset_id, usdc.decimals as u32, PRICE_DECIMALS)
+            .await?;
 
     // Create Market
     orderbook
-        ._create_market(btc.asset_id, btc.decimals as u32)
+        .create_market(btc.asset_id, btc.decimals as u32)
         .await
         .expect("Failed to create market");
 
-    (alice, bob, btc, usdc, orderbook)
+    Ok((alice, bob, btc, usdc, orderbook))
 }
 
 async fn mint_tokens(
@@ -77,17 +84,16 @@ async fn mint_tokens(
     bob: &Wallet,
     usdc_mint_amount: u64,
     btc_mint_amount: u64,
-) {
-    usdc.mint(alice.address().into(), usdc_mint_amount)
-        .await
-        .unwrap();
-    btc.mint(bob.address().into(), btc_mint_amount)
-        .await
-        .unwrap();
+) -> anyhow::Result<()> {
+    usdc.mint(alice.address().into(), usdc_mint_amount).await?;
+    btc.mint(bob.address().into(), btc_mint_amount).await?;
+
+    Ok(())
 }
 
+#[allow(clippy::too_many_arguments)]
 async fn open_orders_match(
-    orderbook: &Orderbook,
+    orderbook: &OrderbookContract,
     alice: &WalletUnlocked,
     bob: &WalletUnlocked,
     btc: &Asset,
@@ -95,27 +101,25 @@ async fn open_orders_match(
     buy_price: f64,
     sell_size: f64,
     sell_price: f64,
-) -> Result<(Bits256, Bits256), fuels::types::errors::Error> {
+) -> anyhow::Result<(Bits256, Bits256)> {
     let alice_order_id = orderbook
-        .with_account(&alice)
+        .with_account(alice)?
         .open_order(
             btc.asset_id,
             (buy_size * 1e8) as i64,
             (buy_price * 1e9) as u64,
         )
-        .await
-        .unwrap()
+        .await?
         .value;
 
     let bob_order_id = orderbook
-        .with_account(&bob)
+        .with_account(bob)?
         .open_order(
             btc.asset_id,
             (sell_size * 1e8) as i64,
             (sell_price * 1e9) as u64,
         )
-        .await
-        .unwrap()
+        .await?
         .value;
 
     let res = orderbook.match_orders(&bob_order_id, &alice_order_id).await;
@@ -129,52 +133,47 @@ async fn open_orders_match(
 const BASE_SIZE: u64 = 1; //units
 const BASE_PRICE: u64 = 70000; //units
 #[tokio::test]
-async fn match0() {
-    let (alice, _bob, base_asset, quote_asset, orderbook) = init().await;
+async fn match0() -> anyhow::Result<()> {
+    let (alice, _bob, base_asset, quote_asset, orderbook) = init().await?;
 
-    let price = BASE_PRICE * 10u64.pow(orderbook.price_decimals as u32);
+    let price = BASE_PRICE * 10u64.pow(orderbook.price_decimals);
 
     //mint base asset to sell
     let base_size = base_asset.parse_units(BASE_SIZE as f64) as u64;
-    base_asset
-        .mint(alice.address().into(), base_size)
-        .await
-        .unwrap();
+    base_asset.mint(alice.address().into(), base_size).await?;
 
     // sell
     let sell_order_id = orderbook
-        .with_account(&alice)
-        .open_order(base_asset.asset_id, -1 * base_size as i64, price - 1)
-        .await
-        .unwrap()
+        .with_account(&alice)?
+        .open_order(base_asset.asset_id, -(base_size as i64), price - 1)
+        .await?
         .value;
 
     //mint quote asset to buy
     let quote_size = quote_asset.parse_units(BASE_SIZE as f64 * BASE_PRICE as f64);
     quote_asset
         .mint(alice.address().into(), quote_size as u64)
-        .await
-        .unwrap();
+        .await?;
 
     //buy
     let buy_order_id = orderbook
-        .with_account(&alice)
+        .with_account(&alice)?
         .open_order(base_asset.asset_id, base_size as i64, price)
-        .await
-        .unwrap()
+        .await?
         .value;
 
     //todo match orders
     orderbook
         .match_orders(&sell_order_id, &buy_order_id)
-        .await
-        .unwrap();
+        .await?;
+
+    Ok(())
 }
 
 // ✅ buyOrder.orderPrice > sellOrder.orderPrice & buyOrder.baseSize > sellOrder.baseSize
 #[tokio::test]
-async fn match1() {
-    let (alice, bob, btc, usdc, orderbook) = init().await;
+async fn match1() -> anyhow::Result<()> {
+    let (alice, bob, btc, usdc, orderbook) = init().await?;
 
     let buy_price = 46_000_f64; // Higher buy price
     let sell_price = 45_000_f64; // Lower sell price
@@ -184,7 +183,7 @@ async fn match1() {
     // Mint BTC & USDC
     let usdc_mint_amount = usdc.parse_units(92_000_f64) as u64;
     let btc_mint_amount = btc.parse_units(1_f64) as u64;
-    mint_tokens(&usdc, &btc, &alice, &bob, usdc_mint_amount, btc_mint_amount).await;
+    mint_tokens(&usdc, &btc, &alice, &bob, usdc_mint_amount, btc_mint_amount).await?;
 
     // Open and match orders
     let (alice_order_id, _bob_order_id) = open_orders_match(
@@ -195,35 +194,36 @@ async fn match1() {
 
     // Проверяем, что у Alice есть 1 BTC после совершения сделки
     let expected_balance = (1_f64 * 1e8) as u64;
-    let actual_balance = alice.get_asset_balance(&btc.asset_id).await.unwrap();
+    let actual_balance = alice.get_asset_balance(&btc.asset_id).await?;
     tolerance_eq(expected_balance, actual_balance);
 
     orderbook
-        .with_account(&alice)
+        .with_account(&alice)?
         .cancel_order(&alice_order_id)
-        .await
-        .unwrap();
+        .await?;
 
     // Проверяем, что у Alice осталось 47,000 USDC после покупки 1 BTC по цене 45,000 USDC
     let expected_balance = (47_000_f64 * 1e6) as u64;
-    let actual_balance = alice.get_asset_balance(&usdc.asset_id).await.unwrap();
+    let actual_balance = alice.get_asset_balance(&usdc.asset_id).await?;
     tolerance_eq(expected_balance, actual_balance);
 
     // Проверяем, что у Bob есть 0 BTC после продажи
     let expected_balance = 0;
-    let actual_balance = bob.get_asset_balance(&btc.asset_id).await.unwrap();
+    let actual_balance = bob.get_asset_balance(&btc.asset_id).await?;
     tolerance_eq(expected_balance, actual_balance);
 
     // Проверяем, что у Bob есть 45,000 USDC после продажи своего BTC
     let expected_balance = (45_000_f64 * 1e6) as u64;
-    let actual_balance = bob.get_asset_balance(&usdc.asset_id).await.unwrap();
+    let actual_balance = bob.get_asset_balance(&usdc.asset_id).await?;
     tolerance_eq(expected_balance, actual_balance);
+
+    Ok(())
 }
 
 // ✅ buyOrder.orderPrice > sellOrder.orderPrice & buyOrder.baseSize < sellOrder.baseSize
 #[tokio::test]
-async fn match2() {
-    let (alice, bob, btc, usdc, orderbook) = init().await;
+async fn match2() -> anyhow::Result<()> {
+    let (alice, bob, btc, usdc, orderbook) = init().await?;
 
     let buy_price = 46_000_f64; // Higher buy price
     let sell_price = 45_000_f64; // Lower sell price
@@ -233,7 +233,7 @@ async fn match2() {
     // Mint BTC & USDC
     let usdc_mint_amount = usdc.parse_units(46_000_f64) as u64;
     let btc_mint_amount = btc.parse_units(2_f64) as u64;
-    mint_tokens(&usdc, &btc, &alice, &bob, usdc_mint_amount, btc_mint_amount).await;
+    mint_tokens(&usdc, &btc, &alice, &bob, usdc_mint_amount, btc_mint_amount).await?;
 
     // Open and match orders
     let (_alice_order_id, bob_order_id) = open_orders_match(
@@ -243,36 +243,37 @@ async fn match2() {
     .expect("Failed to open and match orders");
 
     // Проверяем, что у Alice есть 1 BTC после совершения сделки
-    let expected_balance = 102222222 as u64;
-    let actual_balance = alice.get_asset_balance(&btc.asset_id).await.unwrap();
+    let expected_balance = 102222222;
+    let actual_balance = alice.get_asset_balance(&btc.asset_id).await?;
     tolerance_eq(expected_balance, actual_balance);
 
     // Проверяем, что у Alice осталось 1000 USDC сдачи после покупки 1 BTC по цене 45,000 USDC
-    let expected_balance = 0 as u64;
-    let actual_balance = alice.get_asset_balance(&usdc.asset_id).await.unwrap();
+    let expected_balance = 0;
+    let actual_balance = alice.get_asset_balance(&usdc.asset_id).await?;
     tolerance_eq(expected_balance, actual_balance);
 
     orderbook
-        .with_account(&bob)
+        .with_account(&bob)?
         .cancel_order(&bob_order_id)
-        .await
-        .unwrap();
+        .await?;
 
     // Проверяем, что у Bob остался 1 BTC после продажи 1 BTC из 2
-    let expected_balance = 97777778 as u64;
-    let actual_balance = bob.get_asset_balance(&btc.asset_id).await.unwrap();
+    let expected_balance = 97777778;
+    let actual_balance = bob.get_asset_balance(&btc.asset_id).await?;
     tolerance_eq(expected_balance, actual_balance);
 
     // Проверяем, что у Bob есть 45,000 USDC после продажи своего BTC
-    let expected_balance = 45999999900 as u64;
-    let actual_balance = bob.get_asset_balance(&usdc.asset_id).await.unwrap();
+    let expected_balance = 45999999900;
+    let actual_balance = bob.get_asset_balance(&usdc.asset_id).await?;
     tolerance_eq(expected_balance, actual_balance);
+
+    Ok(())
 }
 
 // ✅ buyOrder.orderPrice > sellOrder.orderPrice & buyOrder.baseSize = sellOrder.baseSize
 #[tokio::test]
-async fn match3() {
-    let (alice, bob, btc, usdc, orderbook) = init().await;
+async fn match3() -> anyhow::Result<()> {
+    let (alice, bob, btc, usdc, orderbook) = init().await?;
 
     let buy_price = 46_000_f64;
     let sell_price = 45_000_f64;
@@ -282,7 +283,7 @@ async fn match3() {
     // Mint BTC & USDC
     let usdc_mint_amount = usdc.parse_units(46_000_f64) as u64;
     let btc_mint_amount = btc.parse_units(1_f64) as u64;
-    mint_tokens(&usdc, &btc, &alice, &bob, usdc_mint_amount, btc_mint_amount).await;
+    mint_tokens(&usdc, &btc, &alice, &bob, usdc_mint_amount, btc_mint_amount).await?;
 
     // Open and match orders
     let (alice_order_id, _bob_order_id) = open_orders_match(
@@ -291,35 +292,37 @@ async fn match3() {
     .await
     .expect("Failed to open and match orders");
     orderbook
-        .with_account(&alice)
+        .with_account(&alice)?
         .cancel_order(&alice_order_id)
-        .await
-        .unwrap();
+        .await?;
+
     // Проверяем, что у Alice есть 1 BTC после совершения сделки
     let expected_balance = (1_f64 * 1e8) as u64;
-    let actual_balance = alice.get_asset_balance(&btc.asset_id).await.unwrap();
+    let actual_balance = alice.get_asset_balance(&btc.asset_id).await?;
     tolerance_eq(expected_balance, actual_balance);
 
     // у Alice должно остаться 1000 USDC после покупки 1 BTC
     let expected_balance = (1000_f64 * 1e6) as u64;
-    let actual_balance = alice.get_asset_balance(&usdc.asset_id).await.unwrap();
+    let actual_balance = alice.get_asset_balance(&usdc.asset_id).await?;
     tolerance_eq(expected_balance, actual_balance);
 
     // Проверяем, что у Bob остался 0 BTC после продажи 1 BTC
     let expected_balance = 0;
-    let actual_balance = bob.get_asset_balance(&btc.asset_id).await.unwrap();
+    let actual_balance = bob.get_asset_balance(&btc.asset_id).await?;
     tolerance_eq(expected_balance, actual_balance);
 
     // Проверяем, что у Bob есть 45,000 USDC после продажи своего BTC
     let expected_balance = (45_000_f64 * 1e6) as u64;
-    let actual_balance = bob.get_asset_balance(&usdc.asset_id).await.unwrap();
+    let actual_balance = bob.get_asset_balance(&usdc.asset_id).await?;
     tolerance_eq(expected_balance, actual_balance);
+
+    Ok(())
 }
 
 // ❌ buyOrder.orderPrice < sellOrder.orderPrice & buyOrder.baseSize > sellOrder.baseSize
 #[tokio::test]
-async fn match4() {
-    let (alice, bob, btc, usdc, orderbook) = init().await;
+async fn match4() -> anyhow::Result<()> {
+    let (alice, bob, btc, usdc, orderbook) = init().await?;
 
     let buy_price = 44_000_f64;
     let sell_price = 45_000_f64;
@@ -329,7 +332,7 @@ async fn match4() {
     // Mint BTC & USDC
     let usdc_mint_amount = usdc.parse_units(88_000_f64) as u64;
     let btc_mint_amount = btc.parse_units(1_f64) as u64;
-    mint_tokens(&usdc, &btc, &alice, &bob, usdc_mint_amount, btc_mint_amount).await;
+    mint_tokens(&usdc, &btc, &alice, &bob, usdc_mint_amount, btc_mint_amount).await?;
 
     // Open and match orders
     let res = open_orders_match(
@@ -342,12 +345,14 @@ async fn match4() {
         .unwrap()
         .to_string()
         .contains("OrdersCantBeMatched"));
+
+    Ok(())
 }
 
 // ❌ buyOrder.orderPrice < sellOrder.orderPrice & buyOrder.baseSize < sellOrder.baseSize
 #[tokio::test]
-async fn match5() {
-    let (alice, bob, btc, usdc, orderbook) = init().await;
+async fn match5() -> anyhow::Result<()> {
+    let (alice, bob, btc, usdc, orderbook) = init().await?;
 
     let buy_price = 44_000_f64;
     let sell_price = 45_000_f64;
@@ -357,7 +362,7 @@ async fn match5() {
     // Mint BTC & USDC
     let usdc_mint_amount = usdc.parse_units(44_000_f64) as u64;
     let btc_mint_amount = btc.parse_units(2_f64) as u64;
-    mint_tokens(&usdc, &btc, &alice, &bob, usdc_mint_amount, btc_mint_amount).await;
+    mint_tokens(&usdc, &btc, &alice, &bob, usdc_mint_amount, btc_mint_amount).await?;
 
     // Open and match orders
     let res = open_orders_match(
@@ -370,12 +375,14 @@ async fn match5() {
         .unwrap()
         .to_string()
         .contains("OrdersCantBeMatched"));
+
+    Ok(())
 }
 
 // ❌ buyOrder.orderPrice < sellOrder.orderPrice & buyOrder.baseSize = sellOrder.baseSize
 #[tokio::test]
-async fn match6() {
-    let (alice, bob, btc, usdc, orderbook) = init().await;
+async fn match6() -> anyhow::Result<()> {
+    let (alice, bob, btc, usdc, orderbook) = init().await?;
 
     let buy_price = 44_000_f64;
     let sell_price = 45_000_f64;
@@ -385,7 +392,7 @@ async fn match6() {
     // Mint BTC & USDC
     let usdc_mint_amount = usdc.parse_units(44_000_f64) as u64;
     let btc_mint_amount = btc.parse_units(1_f64) as u64;
-    mint_tokens(&usdc, &btc, &alice, &bob, usdc_mint_amount, btc_mint_amount).await;
+    mint_tokens(&usdc, &btc, &alice, &bob, usdc_mint_amount, btc_mint_amount).await?;
 
     // Open and match orders
     let res = open_orders_match(
@@ -398,13 +405,15 @@ async fn match6() {
         .unwrap()
         .to_string()
         .contains("OrdersCantBeMatched"));
+
+    Ok(())
 }
 
 // ✅ buyOrder.orderPrice = sellOrder.orderPrice & buyOrder.baseSize > sellOrder.baseSize
 #[tokio::test]
-async fn match7() {
+async fn match7() -> anyhow::Result<()> {
     //--------------- WALLETS ---------------
-    let (alice, bob, btc, usdc, orderbook) = init().await;
+    let (alice, bob, btc, usdc, orderbook) = init().await?;
 
     let buy_price = 45_000_f64;
     let sell_price = 45_000_f64;
@@ -414,7 +423,7 @@ async fn match7() {
     // Mint BTC & USDC
     let usdc_mint_amount = usdc.parse_units(90_000_f64) as u64;
     let btc_mint_amount = btc.parse_units(1_f64) as u64;
-    mint_tokens(&usdc, &btc, &alice, &bob, usdc_mint_amount, btc_mint_amount).await;
+    mint_tokens(&usdc, &btc, &alice, &bob, usdc_mint_amount, btc_mint_amount).await?;
 
     // Open and match orders
     let (alice_order_id, _bob_order_id) = open_orders_match(
@@ -424,36 +433,37 @@ async fn match7() {
     .expect("Failed to open and match orders");
 
     orderbook
-        .with_account(&alice)
+        .with_account(&alice)?
         .cancel_order(&alice_order_id)
-        .await
-        .unwrap();
+        .await?;
 
     // Проверяем, что у Alice есть 1 BTC после совершения сделки
     let expected_balance = (1_f64 * 1e8) as u64;
-    let actual_balance = alice.get_asset_balance(&btc.asset_id).await.unwrap();
+    let actual_balance = alice.get_asset_balance(&btc.asset_id).await?;
     tolerance_eq(expected_balance, actual_balance);
 
     // у Alice должно остаться 45,000 USDC после покупки 1 BTC
     let expected_balance = (45_000_f64 * 1e6) as u64;
-    let actual_balance = alice.get_asset_balance(&usdc.asset_id).await.unwrap();
+    let actual_balance = alice.get_asset_balance(&usdc.asset_id).await?;
     tolerance_eq(expected_balance, actual_balance);
 
     // Проверяем, что у Bob остался 0 BTC после продажи 1 BTC
     let expected_balance = 0;
-    let actual_balance = bob.get_asset_balance(&btc.asset_id).await.unwrap();
+    let actual_balance = bob.get_asset_balance(&btc.asset_id).await?;
     tolerance_eq(expected_balance, actual_balance);
 
     // Проверяем, что у Bob есть 45,000 USDC после продажи своего BTC
     let expected_balance = (45_000_f64 * 1e6) as u64;
-    let actual_balance = bob.get_asset_balance(&usdc.asset_id).await.unwrap();
+    let actual_balance = bob.get_asset_balance(&usdc.asset_id).await?;
     tolerance_eq(expected_balance, actual_balance);
+
+    Ok(())
 }
 
 // ✅ buyOrder.orderPrice = sellOrder.orderPrice & buyOrder.baseSize < sellOrder.baseSize
 #[tokio::test]
-async fn match8() {
-    let (alice, bob, btc, usdc, orderbook) = init().await;
+async fn match8() -> anyhow::Result<()> {
+    let (alice, bob, btc, usdc, orderbook) = init().await?;
 
     let buy_price = 45_000_f64;
     let sell_price = 45_000_f64;
@@ -463,7 +473,7 @@ async fn match8() {
     // Mint BTC & USDC
     let usdc_mint_amount = usdc.parse_units(45_000_f64) as u64;
     let btc_mint_amount = btc.parse_units(2_f64) as u64;
-    mint_tokens(&usdc, &btc, &alice, &bob, usdc_mint_amount, btc_mint_amount).await;
+    mint_tokens(&usdc, &btc, &alice, &bob, usdc_mint_amount, btc_mint_amount).await?;
 
     // Open and match orders
     let (_alice_order_id, bob_order_id) = open_orders_match(
@@ -474,35 +484,36 @@ async fn match8() {
 
     // Проверяем, что у Alice есть 1 BTC после совершения сделки
     let expected_balance = (1_f64 * 1e8) as u64;
-    let actual_balance = alice.get_asset_balance(&btc.asset_id).await.unwrap();
+    let actual_balance = alice.get_asset_balance(&btc.asset_id).await?;
     tolerance_eq(expected_balance, actual_balance);
 
     // у Alice должно остаться 0,000 USDC после покупки 1 BTC
     let expected_balance = 0;
-    let actual_balance = alice.get_asset_balance(&usdc.asset_id).await.unwrap();
+    let actual_balance = alice.get_asset_balance(&usdc.asset_id).await?;
     tolerance_eq(expected_balance, actual_balance);
 
     orderbook
-        .with_account(&bob)
+        .with_account(&bob)?
         .cancel_order(&bob_order_id)
-        .await
-        .unwrap();
+        .await?;
 
     // Проверяем, что у Bob остался 1 BTC после продажи 1 BTC из 2
     let expected_balance = (1_f64 * 1e8) as u64;
-    let actual_balance = bob.get_asset_balance(&btc.asset_id).await.unwrap();
+    let actual_balance = bob.get_asset_balance(&btc.asset_id).await?;
     tolerance_eq(expected_balance, actual_balance);
 
     // Проверяем, что у Bob есть 45,000 USDC после продажи своего BTC
     let expected_balance = (45_000_f64 * 1e6) as u64;
-    let actual_balance = bob.get_asset_balance(&usdc.asset_id).await.unwrap();
+    let actual_balance = bob.get_asset_balance(&usdc.asset_id).await?;
     tolerance_eq(expected_balance, actual_balance);
+
+    Ok(())
 }
 
 //✅ buyOrder.orderPrice = sellOrder.orderPrice & buyOrder.baseSize = sellOrder.baseSize
 #[tokio::test]
-async fn match9() {
-    let (alice, bob, btc, usdc, orderbook) = init().await;
+async fn match9() -> anyhow::Result<()> {
+    let (alice, bob, btc, usdc, orderbook) = init().await?;
 
     let buy_price = 45_000_f64;
     let sell_price = 45_000_f64;
@@ -512,7 +523,7 @@ async fn match9() {
     // Mint BTC & USDC
     let usdc_mint_amount = usdc.parse_units(45_000_f64) as u64;
     let btc_mint_amount = btc.parse_units(1_f64) as u64;
-    mint_tokens(&usdc, &btc, &alice, &bob, usdc_mint_amount, btc_mint_amount).await;
+    mint_tokens(&usdc, &btc, &alice, &bob, usdc_mint_amount, btc_mint_amount).await?;
 
     // Open and match orders
     let (_alice_order_id, _bob_order_id) = open_orders_match(
@@ -523,21 +534,23 @@ async fn match9() {
 
     // Проверяем, что у Alice есть 1 BTC после совершения сделки
     let expected_balance = (1_f64 * 1e8) as u64;
-    let actual_balance = alice.get_asset_balance(&btc.asset_id).await.unwrap();
+    let actual_balance = alice.get_asset_balance(&btc.asset_id).await?;
     tolerance_eq(expected_balance, actual_balance);
 
     // у Alice должно остаться 0,000 USDC после покупки 1 BTC
     let expected_balance = 0;
-    let actual_balance = alice.get_asset_balance(&usdc.asset_id).await.unwrap();
+    let actual_balance = alice.get_asset_balance(&usdc.asset_id).await?;
     tolerance_eq(expected_balance, actual_balance);
 
     // Проверяем, что у Bob остался 0 BTC после продажи 1 BTC
     let expected_balance = 0;
-    let actual_balance = bob.get_asset_balance(&btc.asset_id).await.unwrap();
+    let actual_balance = bob.get_asset_balance(&btc.asset_id).await?;
     tolerance_eq(expected_balance, actual_balance);
 
     // Проверяем, что у Bob есть 45,000 USDC после продажи своего BTC
     let expected_balance = (45_000_f64 * 1e6) as u64;
-    let actual_balance = bob.get_asset_balance(&usdc.asset_id).await.unwrap();
+    let actual_balance = bob.get_asset_balance(&usdc.asset_id).await?;
     tolerance_eq(expected_balance, actual_balance);
+
+    Ok(())
 }

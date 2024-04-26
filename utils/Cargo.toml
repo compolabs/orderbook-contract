@@ -1,0 +1,13 @@
+[package]
+name = "utils"
+authors = { workspace = true }
+version = { workspace = true }
+edition = { workspace = true }
+license = { workspace = true }
+rust-version = { workspace = true }
+
+[lib]
+name = "utils"
+path = "lib.rs"
+test = false
+doctest = false

@@ -1,0 +1,58 @@
+[package]
+name = "scripts"
+authors = { workspace = true }
+version = { workspace = true }
+edition = { workspace = true }
+license = { workspace = true }
+rust-version = { workspace = true }
+
+[dependencies]
+anyhow = { workspace = true }
+fuels = { workspace = true }
+tokio = { workspace = true }
+spark-market-sdk = { path = "../spark-market-sdk" }
+utils = { path = "../utils" }
+src20_sdk = { workspace = true }
+dotenv = "0.15.0"
+hex = "0.4"
+rand = { workspace = true }
+
+[[bin]]
+name = "create_market"
+path = "create_market.rs"
+test = false
+
+[[bin]]
+name = "create_order"
+path = "create_order.rs"
+test = false
+
+[[bin]]
+name = "cancel_order"
+path = "cancel_order.rs"
+test = false
+
+[[bin]]
+name = "deploy"
+path = "deploy.rs"
+test = false
+
+[[bin]]
+name = "match_orders"
+path = "match_orders.rs"
+test = false
+
+[[bin]]
+name = "create_accounts_with_tokens"
+path = "create_accounts_with_tokens.rs"
+test = false
+
+[[bin]]
+name = "init_system"
+path = "init_system.rs"
+test = false
+
+[[bin]]
+name = "fill_orderbook"
+path = "fill_orderbook.rs"
+test = false
