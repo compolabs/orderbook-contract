@@ -1,3 +1,5 @@
+//! Wrapper for the orderbook contract exposing an interface for simpler contract calls
+
 use fuels::{
     prelude::{
         abigen, AssetId, CallParameters, Contract, ContractId, LoadConfiguration,
@@ -9,14 +11,17 @@ use fuels::{
 };
 use rand::Rng;
 
+// Import all components into scope using the Fuel Rust SDK
 abigen!(Contract(
     name = "Orderbook",
     abi = "./contract/out/debug/orderbook-abi.json"
 ));
 
+// Specify the binary and storage paths for contract deployment
 const ORDERBOOK_CONTRACT_BINARY_PATH: &str = "../contract/out/debug/orderbook.bin";
 const ORDERBOOK_CONTRACT_STORAGE_PATH: &str = "../contract/out/debug/orderbook-storage_slots.json";
 
+// Wrapper for the instance of the orderbook contract
 pub struct OrderbookContract {
     instance: Orderbook<WalletUnlocked>,
     pub quote_token: AssetId,
@@ -25,6 +30,7 @@ pub struct OrderbookContract {
 }
 
 impl OrderbookContract {
+    /// Deploy a new instance of the orderbook contract and return the interface for contract calls
     pub async fn deploy(
         wallet: &WalletUnlocked,
         quote_token: AssetId,
@@ -61,6 +67,7 @@ impl OrderbookContract {
         })
     }
 
+    /// Create a new instance of a contract without redeploying
     pub async fn new(contract_id: ContractId, wallet: WalletUnlocked) -> anyhow::Result<Self> {
         let instance = Orderbook::new(contract_id, wallet);
         let (quote_token, quote_token_decimals, price_decimals) = instance
@@ -78,10 +85,12 @@ impl OrderbookContract {
         })
     }
 
+    /// Return the hash of the contract ID
     pub fn id(&self) -> Bytes32 {
         self.instance.contract_id().hash
     }
 
+    /// Change the owner of the wrapper to a new account
     pub fn with_account(&self, account: &WalletUnlocked) -> anyhow::Result<Self> {
         Ok(Self {
             instance: self.instance.with_account(account.clone())?,
@@ -91,6 +100,7 @@ impl OrderbookContract {
         })
     }
 
+    /// Create a new market in the orderbook
     pub async fn create_market(
         &self,
         asset_id: AssetId,
@@ -104,6 +114,7 @@ impl OrderbookContract {
             .await?)
     }
 
+    /// Open a new order in the orderbook
     pub async fn open_order(
         &self,
         base_token: AssetId,
@@ -139,6 +150,7 @@ impl OrderbookContract {
             .await?)
     }
 
+    /// Cancel an existing order in the orderbook
     pub async fn cancel_order(&self, order_id: &Bits256) -> anyhow::Result<FuelCallResponse<()>> {
         Ok(self
             .instance
@@ -149,6 +161,7 @@ impl OrderbookContract {
             .await?)
     }
 
+    /// Match a sell order with a buy order in the orderbook
     pub async fn match_orders(
         &self,
         sell_order_id: &Bits256,
@@ -164,6 +177,7 @@ impl OrderbookContract {
             .await?)
     }
 
+    /// Return the market ID for a specific asset
     pub async fn get_market_by_id(
         &self,
         asset_id: AssetId,
@@ -176,6 +190,7 @@ impl OrderbookContract {
             .await?)
     }
 
+    /// Return whether a market exists for an asset
     pub async fn market_exists(&self, asset_id: AssetId) -> anyhow::Result<FuelCallResponse<bool>> {
         Ok(self
             .instance
@@ -185,6 +200,7 @@ impl OrderbookContract {
             .await?)
     }
 
+    /// Return the order information associated with a specific ID
     pub async fn order_by_id(
         &self,
         id: &Bits256,
@@ -198,6 +214,7 @@ impl OrderbookContract {
             .await?)
     }
 
+    /// Return the orders for a user
     pub async fn orders_by_trader(
         &self,
         trader: &Bech32Address,
