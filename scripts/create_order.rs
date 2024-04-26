@@ -47,7 +47,7 @@ async fn main() -> anyhow::Result<()> {
         let base_size = base_asset.parse_units(BASE_SIZE.abs() as f64) as u64;
         base_asset.mint(wallet.address().into(), base_size).await?;
     }
-    let price = BASE_PRICE * 10u64.pow(orderbook.price_decimals as u32);
+    let price = BASE_PRICE * 10u64.pow(orderbook.price_decimals);
     let result = orderbook
         .open_order(base_asset.asset_id, BASE_SIZE, price)
         .await;
