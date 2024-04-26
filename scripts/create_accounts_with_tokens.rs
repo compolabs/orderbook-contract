@@ -66,7 +66,7 @@ async fn main() -> anyhow::Result<()> {
         base_asset.mint(wallet.address().into(), base_size).await?;
 
         quote_asset
-            .mint(wallet.address().into(), quote_size as u64)
+            .mint(wallet.address().into(), quote_size)
             .await?;
     }
 
