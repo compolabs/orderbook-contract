@@ -14,7 +14,7 @@ use rand::Rng;
 // Import all components into scope using the Fuel Rust SDK
 abigen!(Contract(
     name = "Orderbook",
-    abi = "./contract/out/debug/orderbook-abi.json"
+    abi = "contract/out/debug/orderbook-abi.json"
 ));
 
 // Specify the binary and storage paths for contract deployment
