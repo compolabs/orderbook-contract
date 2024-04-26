@@ -1,6 +1,7 @@
 use fuels::prelude::*;
 use spark_market_sdk::OrderbookContract;
 use src20_sdk::token_utils::{deploy_token_contract, Asset};
+use utils::constants::ORDERBOOK_CONTRACT_BINARY_PATH;
 
 const PRICE_DECIMALS: u32 = 9;
 
@@ -17,9 +18,14 @@ async fn open_base_token_order_cancel_test() -> anyhow::Result<()> {
     let token_contract = deploy_token_contract(admin).await;
     let usdc = Asset::new(admin.clone(), token_contract.contract_id().into(), "USDC");
 
-    let orderbook =
-        OrderbookContract::deploy(admin, usdc.asset_id, usdc.decimals as u32, PRICE_DECIMALS)
-            .await?;
+    let orderbook = OrderbookContract::deploy(
+        admin,
+        usdc.asset_id,
+        usdc.decimals as u32,
+        PRICE_DECIMALS,
+        ORDERBOOK_CONTRACT_BINARY_PATH,
+    )
+    .await?;
 
     // Create Market
     orderbook
@@ -186,9 +192,14 @@ async fn open_quote_token_order_cancel_by_reverse_order_test() -> anyhow::Result
     let token_contract = deploy_token_contract(admin).await;
     let usdc = Asset::new(admin.clone(), token_contract.contract_id().into(), "USDC");
 
-    let orderbook =
-        OrderbookContract::deploy(admin, usdc.asset_id, usdc.decimals as u32, PRICE_DECIMALS)
-            .await?;
+    let orderbook = OrderbookContract::deploy(
+        admin,
+        usdc.asset_id,
+        usdc.decimals as u32,
+        PRICE_DECIMALS,
+        ORDERBOOK_CONTRACT_BINARY_PATH,
+    )
+    .await?;
 
     // Create Market
     orderbook
@@ -271,9 +282,14 @@ async fn match_orders_test() -> anyhow::Result<()> {
     let token_contract = deploy_token_contract(admin).await;
     let usdc = Asset::new(admin.clone(), token_contract.contract_id().into(), "USDC");
 
-    let orderbook =
-        OrderbookContract::deploy(admin, usdc.asset_id, usdc.decimals as u32, PRICE_DECIMALS)
-            .await?;
+    let orderbook = OrderbookContract::deploy(
+        admin,
+        usdc.asset_id,
+        usdc.decimals as u32,
+        PRICE_DECIMALS,
+        ORDERBOOK_CONTRACT_BINARY_PATH,
+    )
+    .await?;
 
     // Create Market
     orderbook

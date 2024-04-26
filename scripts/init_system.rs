@@ -8,7 +8,7 @@ use spark_market_sdk::OrderbookContract;
 use src20_sdk::token_utils::{Asset, TokenContract};
 use std::str::FromStr;
 use utils::{
-    constants::{RPC, TOKEN_CONTRACT_ID},
+    constants::{ORDERBOOK_CONTRACT_BINARY_PATH, RPC, TOKEN_CONTRACT_ID},
     title::print_title,
 };
 const MARKET_SYMBOL: &str = "UNI";
@@ -31,8 +31,14 @@ async fn main() -> anyhow::Result<()> {
 
     // deploy
     let usdc = Asset::new(wallet.clone(), token_contract.contract_id().into(), "USDC");
-    let contract =
-        OrderbookContract::deploy(&wallet, usdc.asset_id, usdc.decimals as u32, 9).await?;
+    let contract = OrderbookContract::deploy(
+        &wallet,
+        usdc.asset_id,
+        usdc.decimals as u32,
+        9,
+        ORDERBOOK_CONTRACT_BINARY_PATH,
+    )
+    .await?;
 
     let contract_id_str = contract.id().encode_hex::<String>();
     println!(

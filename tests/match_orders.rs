@@ -5,6 +5,9 @@ use src20_sdk::token_utils::{deploy_token_contract, Asset};
 const PRICE_DECIMALS: u32 = 9;
 const TOLERANCE: f64 = 0.0005;
 
+// Specify the binary path for contract deployment
+const ORDERBOOK_CONTRACT_BINARY_PATH: &str = "../contract/out/debug/orderbook.bin";
+
 fn tolerance_eq(expected: u64, actual: u64) -> bool {
     let difference = (expected as f64 - actual as f64).abs();
     let relative_difference = difference / expected as f64;
@@ -64,9 +67,14 @@ async fn init() -> anyhow::Result<(
         "USDC",
     );
 
-    let orderbook =
-        OrderbookContract::deploy(&admin, usdc.asset_id, usdc.decimals as u32, PRICE_DECIMALS)
-            .await?;
+    let orderbook = OrderbookContract::deploy(
+        &admin,
+        usdc.asset_id,
+        usdc.decimals as u32,
+        PRICE_DECIMALS,
+        ORDERBOOK_CONTRACT_BINARY_PATH,
+    )
+    .await?;
 
     // Create Market
     orderbook

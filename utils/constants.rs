@@ -12,5 +12,8 @@ pub const BTC_ASSET_ID_STR: &str =
 pub const UNI_ASSET_ID_STR: &str =
     "0xae37bc0feb66e60a89e301d450bb4640aa9bd7cedd856e253e23989eae536e92";
 
+// Specify the binary path for contract deployment
+pub const ORDERBOOK_CONTRACT_BINARY_PATH: &str = "../contract/out/debug/orderbook.bin";
+
 /* 🏁 Start_block: 10487767
 The orderbook contract has been deployed 0f0c1065a7b82d026069c5cf070b21ee65713fd1ac92ec1d25eacc3100187f78 */

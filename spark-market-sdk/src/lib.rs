@@ -2,8 +2,8 @@
 
 use fuels::{
     prelude::{
-        abigen, AssetId, CallParameters, Contract, ContractId, LoadConfiguration,
-        StorageConfiguration, TxPolicies, WalletUnlocked,
+        abigen, AssetId, CallParameters, Contract, ContractId, LoadConfiguration, TxPolicies,
+        WalletUnlocked,
     },
     programs::{call_response::FuelCallResponse, call_utils::TxDependencyExtension},
     tx::Bytes32,
@@ -14,12 +14,8 @@ use rand::Rng;
 // Import all components into scope using the Fuel Rust SDK
 abigen!(Contract(
     name = "Orderbook",
-    abi = "contract/out/debug/orderbook-abi.json"
+    abi = "./contract/out/debug/orderbook-abi.json"
 ));
-
-// Specify the binary and storage paths for contract deployment
-const ORDERBOOK_CONTRACT_BINARY_PATH: &str = "../contract/out/debug/orderbook.bin";
-const ORDERBOOK_CONTRACT_STORAGE_PATH: &str = "../contract/out/debug/orderbook-storage_slots.json";
 
 // Wrapper for the instance of the orderbook contract
 pub struct OrderbookContract {
@@ -36,23 +32,19 @@ impl OrderbookContract {
         quote_token: AssetId,
         quote_token_decimals: u32,
         price_decimals: u32,
+        contract_binary_path: &str,
     ) -> anyhow::Result<Self> {
         let mut rng = rand::thread_rng();
         let salt = rng.gen::<[u8; 32]>();
-
-        let storage_configuration = StorageConfiguration::default()
-            .add_slot_overrides_from_file(ORDERBOOK_CONTRACT_STORAGE_PATH);
 
         let configurables = OrderbookConfigurables::default()
             .with_QUOTE_TOKEN(quote_token)
             .with_QUOTE_TOKEN_DECIMALS(quote_token_decimals)
             .with_PRICE_DECIMALS(price_decimals);
 
-        let contract_configuration = LoadConfiguration::default()
-            .with_storage_configuration(storage_configuration?)
-            .with_configurables(configurables);
+        let contract_configuration = LoadConfiguration::default().with_configurables(configurables);
 
-        let id = Contract::load_from(ORDERBOOK_CONTRACT_BINARY_PATH, contract_configuration)?
+        let id = Contract::load_from(contract_binary_path, contract_configuration)?
             .with_salt(salt)
             .deploy(wallet, TxPolicies::default())
             .await?;

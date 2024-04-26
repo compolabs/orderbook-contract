@@ -12,6 +12,7 @@ fuels = { workspace = true }
 spark-market-sdk = { path = "../spark-market-sdk" }
 src20_sdk = { workspace = true }
 tokio = { workspace = true }
+utils = { path = "../utils" }
 
 [[test]]
 name = "main_test"

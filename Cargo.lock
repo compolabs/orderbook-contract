@@ -3396,6 +3396,7 @@ dependencies = [
  "spark-market-sdk",
  "src20_sdk",
  "tokio",
+ "utils",
 ]
 
 [[package]]
