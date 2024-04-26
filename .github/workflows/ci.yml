@@ -170,6 +170,17 @@ jobs:
       - name: Init cache
         uses: Swatinem/rust-cache@v2
     
+      - name: Install Fuel toolchain
+        uses: FuelLabs/action-fuel-toolchain@v0.6.0
+        with:
+          toolchain: nightly
+          date: 2024-02-07
+    
+      - name: Build Sway
+        run: |
+          cd "contract"
+          forc build --locked
+      
       - name: Build Rust files
         run: cargo build --locked --manifest-path scripts/Cargo.toml
         

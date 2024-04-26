@@ -8,14 +8,14 @@ rust-version = { workspace = true }
 
 [dependencies]
 anyhow = { workspace = true }
-fuels = { workspace = true }
-tokio = { workspace = true }
-spark-market-sdk = { path = "../spark-market-sdk" }
-utils = { path = "../utils" }
-src20_sdk = { workspace = true }
 dotenv = "0.15.0"
+fuels = { workspace = true }
 hex = "0.4"
 rand = { workspace = true }
+spark-market-sdk = { path = "../spark-market-sdk" }
+src20_sdk = { workspace = true }
+tokio = { workspace = true }
+utils = { path = "../utils" }
 
 [[bin]]
 name = "create_market"

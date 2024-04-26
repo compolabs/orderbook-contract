@@ -17,6 +17,6 @@ rust-version = "1.75.0"
 [workspace.dependencies]
 anyhow = "1.0.81"
 fuels = { version = "0.55.1", features = ["fuel-core-lib"] }
-tokio = { version = "1.12", features = ["rt", "macros"] }
-src20_sdk = { git = "https://github.com/compolabs/src-20.git", branch = "master" }
 rand = "0.8.5"
+src20_sdk = { git = "https://github.com/compolabs/src-20.git", branch = "master" }
+tokio = { version = "1.12", features = ["rt", "macros"] }
