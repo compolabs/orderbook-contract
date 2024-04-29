@@ -20,10 +20,12 @@ async fn main() {
     print_title("Init system");
     dotenv().ok();
     let provider = Provider::connect(RPC).await.unwrap();
+    let block = provider.latest_block_height().await.unwrap();
+    println!("🏁 Start_block: {block}\n");
     let secret = std::env::var("ADMIN").unwrap();
     let wallet =
         WalletUnlocked::new_from_private_key(secret.parse().unwrap(), Some(provider.clone()));
-    println!("admin address = {:?}", wallet.address().to_string());
+    println!("admin address = {:?}\n", wallet.address().to_string());
 
     let token_contract = TokenContract::new(
         &ContractId::from_str(TOKEN_CONTRACT_ID).unwrap().into(),
@@ -36,10 +38,9 @@ async fn main() {
 
     let block = provider.latest_block_height().await.unwrap();
     println!("🏁 Start_block: {block}");
-
     let contract_id_str = contract.instance.contract_id().hash.encode_hex::<String>();
     println!(
-        "The orderbook contract has been deployed with contract id: {}\n",
+        "The orderbook contract has been deployed with contract id: 0x{}\n",
         contract_id_str
     );
 
@@ -57,7 +58,7 @@ async fn main() {
         .await
         .unwrap();
 
-    println!("Market created on contract id: {}\n", contract_id_str);
+    println!("Market created on contract id: 0x{}\n", contract_id_str);
 
     let token_contract_id = token_contract.contract_id().into();
     let base_asset = Asset::new(wallet.clone(), token_contract_id, MARKET_SYMBOL);
@@ -95,7 +96,7 @@ async fn main() {
         .value;
 
     println!(
-        "buy_order = {:?}",
+        "buy_order = {:?}\n",
         orderbook
             .order_by_id(&buy_order_id)
             .await
@@ -105,7 +106,7 @@ async fn main() {
     );
 
     println!(
-        "sell_order = {:?}",
+        "sell_order = {:?}\n",
         orderbook
             .order_by_id(&sell_order_id)
             .await
@@ -119,3 +120,4 @@ async fn main() {
         .await
         .unwrap();
 }
+
