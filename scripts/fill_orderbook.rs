@@ -12,7 +12,7 @@ use src20_sdk::token_utils::{Asset, TokenContract};
 use std::str::FromStr;
 
 const MARKET_SYMBOL: &str = "BTC";
-const BASE_SIZE: f64 = 0.01; //units
+const BASE_SIZE: f64 = 15.; //units
 const START_PRICE: f64 = 65500.; //units
 const STEP: f64 = 100.;
 

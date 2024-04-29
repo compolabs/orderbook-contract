@@ -3,6 +3,7 @@ use fuels::{
     prelude::{Provider, WalletUnlocked},
     types::ContractId,
 };
+use hex::ToHex;
 use orderbook::{
     constants::{RPC, TOKEN_CONTRACT_ID},
     orderbook_utils::Orderbook,
@@ -10,14 +11,13 @@ use orderbook::{
 };
 use src20_sdk::token_utils::{Asset, TokenContract};
 use std::str::FromStr;
-use hex::ToHex;
 const MARKET_SYMBOL: &str = "UNI";
 const BASE_SIZE: u64 = 100; //units
 const BASE_PRICE: u64 = 10; //units
 
 #[tokio::main]
 async fn main() {
-    print_title("Match Orders");
+    print_title("Init system");
     dotenv().ok();
     let provider = Provider::connect(RPC).await.unwrap();
     let secret = std::env::var("ADMIN").unwrap();
@@ -29,11 +29,14 @@ async fn main() {
         &ContractId::from_str(TOKEN_CONTRACT_ID).unwrap().into(),
         wallet.clone(),
     );
-    
+
     // deploy
     let usdc = Asset::new(wallet.clone(), token_contract.contract_id().into(), "USDC");
     let contract = Orderbook::deploy(&wallet, usdc.asset_id, usdc.decimals, 9).await;
-    
+
+    let block = provider.latest_block_height().await.unwrap();
+    println!("🏁 Start_block: {block}");
+
     let contract_id_str = contract.instance.contract_id().hash.encode_hex::<String>();
     println!(
         "The orderbook contract has been deployed with contract id: {}\n",
@@ -54,11 +57,7 @@ async fn main() {
         .await
         .unwrap();
 
-    println!(
-        "Market created on contract id: {}\n",
-        contract_id_str
-    );
-    
+    println!("Market created on contract id: {}\n", contract_id_str);
 
     let token_contract_id = token_contract.contract_id().into();
     let base_asset = Asset::new(wallet.clone(), token_contract_id, MARKET_SYMBOL);
@@ -104,7 +103,7 @@ async fn main() {
             .value
             .unwrap()
     );
-    
+
     println!(
         "sell_order = {:?}",
         orderbook

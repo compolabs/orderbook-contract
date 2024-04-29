@@ -1,4 +1,4 @@
-use std::str::FromStr;
+use std::{path::PathBuf, str::FromStr};
 
 use fuels::{
     accounts::wallet::WalletUnlocked,
@@ -191,7 +191,8 @@ impl Orderbook {
             .with_PRICE_DECIMALS(price_decimals.try_into().unwrap());
         let config = LoadConfiguration::default().with_configurables(configurables);
 
-        let id = Contract::load_from("contract/out/debug/orderbook.bin", config)
+        let bin_path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("contract/out/debug/orderbook.bin");
+        let id = Contract::load_from(bin_path, config)
             .unwrap()
             .with_salt(salt)
             .deploy(wallet, TxPolicies::default().with_gas_price(1))
