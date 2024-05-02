@@ -53,7 +53,7 @@ async fn main() {
                 Ok(response) => {
                     let id = Address::from(response.value.0).to_string();
                     println!("Sell order created successfully. OrderId: 0x{}", id);
-                    println!("Gas Used: {:?}", response.gas_used);
+                    // println!("Gas Used: {:?}", response.gas_used);
                     println!("Transaction ID: {:?}\n", response.tx_id.unwrap());
                 }
                 Err(error) => {
@@ -78,7 +78,7 @@ async fn main() {
                 Ok(response) => {
                     let id = Address::from(response.value.0).to_string();
                     println!("Buy order created successfully. OrderId: 0x{}", id);
-                    println!("Gas Used: {:?}", response.gas_used);
+                    // println!("Gas Used: {:?}", response.gas_used);
                     println!("Transaction ID: {:?}\n", response.tx_id.unwrap());
                 }
                 Err(error) => {
