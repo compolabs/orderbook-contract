@@ -1,7 +1,7 @@
 use dotenv::dotenv;
 use fuels::{
     prelude::{Provider, WalletUnlocked},
-    types::ContractId,
+    types::{Address, ContractId},
 };
 use orderbook::{
     constants::{ORDERBOOK_CONTRACT_ID, RPC, TOKEN_CONTRACT_ID},
@@ -49,10 +49,16 @@ async fn main() {
                 .open_order(base_asset.asset_id, -1 * base_size as i64, sell_price - 1)
                 .await;
 
-            if order_tx.is_err() {
-                println!("Cannot crete a sell order {:?}", order_tx.err().unwrap());
-            } else {
-                println!("Sell order created = {:?}", order_tx.unwrap().value);
+            match order_tx {
+                Ok(response) => {
+                    let id = Address::from(response.value.0).to_string();
+                    println!("Sell order created successfully. OrderId: 0x{}", id);
+                    println!("Gas Used: {:?}", response.gas_used);
+                    println!("Transaction ID: {:?}\n", response.tx_id.unwrap());
+                }
+                Err(error) => {
+                    println!("Failed to create a sell order: {:?}\n", error);
+                }
             }
         }
 
@@ -68,10 +74,16 @@ async fn main() {
                 .open_order(base_asset.asset_id, base_size as i64, buy_price)
                 .await;
 
-            if order_tx.is_err() {
-                println!("Cannot crete a buy order {:?}", order_tx.err().unwrap());
-            } else {
-                println!("BUY order created = {:?}", order_tx.unwrap().value);
+            match order_tx {
+                Ok(response) => {
+                    let id = Address::from(response.value.0).to_string();
+                    println!("Buy order created successfully. OrderId: 0x{}", id);
+                    println!("Gas Used: {:?}", response.gas_used);
+                    println!("Transaction ID: {:?}\n", response.tx_id.unwrap());
+                }
+                Err(error) => {
+                    println!("Failed to create a buy order: {:?}\n", error);
+                }
             }
         }
     }

@@ -11,7 +11,7 @@ use orderbook::{
 };
 use src20_sdk::token_utils::{Asset, TokenContract};
 use std::str::FromStr;
-const MARKET_SYMBOL: &str = "UNI";
+const MARKET_SYMBOL: &str = "BTC";
 const BASE_SIZE: u64 = 100; //units
 const BASE_PRICE: u64 = 10; //units
 
