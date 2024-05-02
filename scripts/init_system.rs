@@ -63,10 +63,9 @@ async fn main() {
     let base_asset = Asset::new(wallet.clone(), token_contract_id, MARKET_SYMBOL);
     let quote_asset = Asset::new(wallet.clone(), token_contract_id, "USDC");
 
-    let orderbook = Orderbook::new(&wallet, &contract_id_str).await;
     let base_size = base_asset.parse_units(BASE_SIZE as f64) as u64;
     for i in 1..41 {
-        let diff = STEP * i as f64;
+        let diff = i as f64;
         //sell
         let sell_price =
             ((START_PRICE + diff) * 10f64.powf(orderbook.price_decimals as f64)) as u64;
@@ -90,8 +89,8 @@ async fn main() {
         }
 
         //buy
-        let buy_price = ((START_PRICE - diff) * 10f64.powf(orderbook.price_decimals as f64)) as u64;
-        let quote_size = quote_asset.parse_units(BASE_SIZE as f64 * (START_PRICE - diff) as f64);
+        let buy_price = ((START_PRICE + diff) * 10f64.powf(orderbook.price_decimals as f64)) as u64;
+        let quote_size = quote_asset.parse_units(BASE_SIZE as f64 * (START_PRICE + diff) as f64);
 
         let mint_tx = quote_asset
             .mint(wallet.address().into(), quote_size as u64)
