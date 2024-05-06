@@ -164,7 +164,6 @@ async fn match0() {
         .unwrap()
         .value;
 
-    //todo match orders
     orderbook
         .match_orders(&sell_order_id, &buy_order_id)
         .await

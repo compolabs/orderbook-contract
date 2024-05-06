@@ -14,7 +14,7 @@ use std::str::FromStr;
 const MARKET_SYMBOL: &str = "BTC";
 const BASE_SIZE: f64 = 15.; //units
 const START_PRICE: f64 = 65500.; //units
-const STEP: f64 = 100.;
+// const STEP: f64 = 100.;
 
 #[tokio::main]
 async fn main() {

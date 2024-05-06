@@ -8,6 +8,14 @@ source = "git+https://github.com/compolabs/i64?default-branch#b983e37ec72b60a354
 dependencies = ["std"]
 
 [[package]]
+name = "match-script"
+source = "member"
+dependencies = [
+    "i64",
+    "std",
+]
+
+[[package]]
 name = "orderbook"
 source = "member"
 dependencies = [
