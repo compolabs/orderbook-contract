@@ -47,6 +47,8 @@ fn main(order_id: b256, orders: Vec<b256>) {
             caller.match_orders(other_order.id, order.id);
         }
 
+        //todo после матча состояние order могло измениться, надо обновить order
+
         index += 1;
     }
 }

@@ -1,2 +1,2 @@
 [workspace]
-members = ["contract", "match-script"]
+members = ["contract", "match-script", "fulfill-script"]
