@@ -49,6 +49,16 @@ impl Orderbook {
             .simulate()
             .await
     }
+    pub async fn get_order_change_events_by_order(
+        &self,
+        ordr_id: Bits256,
+    ) -> Result<FuelCallResponse<Vec<OrderChangeEvent>>, fuels::types::errors::Error> {
+        self.instance
+            .methods()
+            .get_order_change_events_by_order(ordr_id)
+            .simulate()
+            .await
+    }
 
     pub async fn market_exists(
         &self,

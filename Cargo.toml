@@ -51,3 +51,7 @@ path = "scripts/init_system.rs"
 [[bin]]
 name = "fill_orderbook"
 path = "scripts/fill_orderbook.rs"
+
+[[bin]]
+name = "get_order_change_events_by_order"
+path = "scripts/get_order_change_events_by_order.rs"
