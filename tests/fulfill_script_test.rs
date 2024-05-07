@@ -1,4 +1,4 @@
-use fuels::prelude::*;
+use fuels::{prelude::*, types::Bits256};
 use orderbook::orderbook_utils::Orderbook;
 use src20_sdk::token_utils::{deploy_token_contract, Asset};
 
@@ -71,7 +71,13 @@ async fn fulfill_script_test() {
         .unwrap();
 
     let match_script =
-        FulfillScript::new(admin.clone(), "fulfill-script/out/debug/fulfill-script.bin");
+        FulfillScript::new(admin.clone(), "fulfill-script/out/debug/fulfill-script.bin")
+            .with_configurables(
+                FulfillScriptConfigurables::default().with_ORDER_BOOK_CONTRACT_ID(
+                    Bits256::from_hex_str(&orderbook.instance.contract_id().hash().to_string())
+                        .unwrap(),
+                ),
+            );
 
     match_script
         .main(
