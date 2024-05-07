@@ -4,7 +4,6 @@
 .DS_Store
 .env
 *target/
-*/out/*
 .vscode
 note.txt
 log.txt
