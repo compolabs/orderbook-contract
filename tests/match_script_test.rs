@@ -1,4 +1,4 @@
-use fuels::prelude::*;
+use fuels::{prelude::*, types::Bits256};
 use orderbook::orderbook_utils::Orderbook;
 use src20_sdk::token_utils::{deploy_token_contract, Asset};
 
@@ -78,7 +78,12 @@ async fn match_script_test() {
         .unwrap()
         .value;
 
-    let match_script = MatchScript::new(admin.clone(), "match-script/out/debug/match-script.bin");
+    let match_script = MatchScript::new(admin.clone(), "match-script/out/debug/match-script.bin")
+        .with_configurables(
+            MatchScriptConfigurables::default().with_ORDER_BOOK_CONTRACT_ID(
+                Bits256::from_hex_str(&orderbook.instance.contract_id().hash().to_string()).unwrap(),
+            ),
+        );
 
     match_script
         .main(sell_order_id, vec![buy_order_id])
