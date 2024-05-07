@@ -22,11 +22,10 @@ use std::hash::*;
 use std::storage::storage_vec::*;
 use std::tx::tx_id;
 
-
 configurable {
     QUOTE_TOKEN: AssetId = BASE_ASSET_ID,
     QUOTE_TOKEN_DECIMALS: u32 = 9,
-    PRICE_DECIMALS: u32 = 9
+    PRICE_DECIMALS: u32 = 9,
 }
 
 storage {
@@ -34,7 +33,6 @@ storage {
     markets: StorageMap<AssetId, Market> = StorageMap {},
     orders_by_trader: StorageMap<Address, StorageVec<b256>> = StorageMap {},
     order_indexes_by_trader: StorageMap<Address, StorageMap<b256, u64>> = StorageMap {},
-
     order_change_events: StorageMap<b256, StorageVec<OrderChangeEvent>> = StorageMap {},
 }
 
@@ -59,7 +57,7 @@ abi OrderBook {
 
     #[storage(read)]
     fn market_exists(asset_id: AssetId) -> bool;
-    
+
     #[storage(read)]
     fn get_market_by_id(asset_id: AssetId) -> Market;
 
@@ -90,12 +88,12 @@ impl OrderBook for Contract {
             asset_id: asset_id,
             asset_decimals: asset_decimals,
             timestamp: timestamp(),
-            tx_id: tx_id()
+            tx_id: tx_id(),
         });
     }
 
     #[storage(read)]
-    fn get_market_by_id(asset_id: AssetId) -> Market{
+    fn get_market_by_id(asset_id: AssetId) -> Market {
         storage.markets.get(asset_id).read()
     }
 
@@ -109,7 +107,7 @@ impl OrderBook for Contract {
         reentrancy_guard();
 
         let market = storage.markets.get(base_token).try_read();
-        require(base_size.value != 0,Error::BaseSizeIsZero);
+        require(base_size.value != 0, Error::BaseSizeIsZero);
         require(market.is_some(), Error::NoMarketFound);
         require(base_price != 0, Error::BadPrice);
 
@@ -211,9 +209,17 @@ impl OrderBook for Contract {
 
         let mut tmp = order_sell;
         tmp.base_size = tmp.base_size.flip();
-        let trade_size = min(order_sell.base_size.value, order_buy.base_size.value.mul_div(order_buy.base_price, order_sell.base_price));
+        let trade_size = min(
+            order_sell
+                .base_size
+                .value,
+            order_buy
+                .base_size
+                .value
+                .mul_div(order_buy.base_price, order_sell.base_price),
+        );
         tmp.base_size.value = trade_size;
-        
+
         let seller: Address = order_sell.trader;
         let (sellerDealAssetId, sellerDealRefund) = order_return_asset_amount(tmp);
         remove_update_order_internal(order_sell, tmp.base_size);
@@ -253,7 +259,7 @@ impl OrderBook for Contract {
             sell_order_id: order_sell.id,
             buy_order_id: order_buy.id,
             timestamp: timestamp(),
-            tx_id: tx_id()
+            tx_id: tx_id(),
         });
     }
 
@@ -269,10 +275,10 @@ impl OrderBook for Contract {
 
     #[storage(read)]
     fn get_order_change_events_by_order(order: b256) -> Vec<OrderChangeEvent> {
-         storage.order_change_events.get(order).load_vec()
+        storage.order_change_events.get(order).load_vec()
     }
 
-    fn get_configurables() -> (AssetId, u32, u32){
+    fn get_configurables() -> (AssetId, u32, u32) {
         (QUOTE_TOKEN, QUOTE_TOKEN_DECIMALS, PRICE_DECIMALS)
     }
 }
@@ -311,7 +317,7 @@ fn update_order_internal(order: Order, base_size: I64) -> ((AssetId, u64), (Asse
 
 #[storage(read, write)]
 fn cancel_order_internal(order: Order) -> (AssetId, u64) {
-    require(order.base_size.value != 0,Error::BaseSizeIsZero);
+    require(order.base_size.value != 0, Error::BaseSizeIsZero);
     let refund = order_return_asset_amount(order);
     remove_update_order_internal(order, order.base_size.flip());
     refund
@@ -321,14 +327,36 @@ fn cancel_order_internal(order: Order) -> (AssetId, u64) {
 fn remove_update_order_internal(order: Order, base_size: I64) {
     if (order.base_size == base_size.flip()) {
         let pos_id = storage.order_indexes_by_trader.get(order.trader).get(order.id).read() - 1; // pos + 1 indexed
-        require(storage.order_indexes_by_trader.get(order.trader).remove(order.id), Error::CannotRemoveOrderIndex);
+        require(
+            storage
+                .order_indexes_by_trader
+                .get(order.trader)
+                .remove(order.id),
+            Error::CannotRemoveOrderIndex,
+        );
         let last_pos = storage.orders_by_trader.get(order.trader).len() - 1;
         if last_pos != pos_id {
             let last_id = storage.orders_by_trader.get(order.trader).get(last_pos).unwrap().read();
-            require(storage.orders_by_trader.get(order.trader).swap_remove(pos_id) == order.id, Error::CannotRemoveOrderByTrader);
-            storage.order_indexes_by_trader.get(order.trader).insert(last_id, pos_id + 1);
+            require(
+                storage
+                    .orders_by_trader
+                    .get(order.trader)
+                    .swap_remove(pos_id) == order.id,
+                Error::CannotRemoveOrderByTrader,
+            );
+            storage
+                .order_indexes_by_trader
+                .get(order.trader)
+                .insert(last_id, pos_id + 1);
         } else {
-            require(storage.orders_by_trader.get(order.trader).pop().unwrap() == order.id, Error::CannotRemoveOrderByTrader);
+            require(
+                storage
+                    .orders_by_trader
+                    .get(order.trader)
+                    .pop()
+                    .unwrap() == order.id,
+                Error::CannotRemoveOrderByTrader,
+            );
         }
         require(storage.orders.remove(order.id), Error::CannotRemoveOrder);
     } else {

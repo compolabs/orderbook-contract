@@ -5,5 +5,5 @@ license = "Apache-2.0"
 name = "orderbook"
 
 [dependencies]
-reentrancy = { git = "https://github.com/FuelLabs/sway-libs", tag = "v0.18.0" }
 i64 = { git = "https://github.com/compolabs/i64" }
+reentrancy = { git = "https://github.com/FuelLabs/sway-libs", tag = "v0.18.0" }
