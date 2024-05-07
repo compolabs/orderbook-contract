@@ -148,9 +148,13 @@ impl Orderbook {
         sell_order_id: &Bits256,
         buy_order_id: &Bits256,
     ) -> Result<FuelCallResponse<()>, fuels::types::errors::Error> {
+        let mut sell_order_ids = Vec::new();
+        sell_order_ids.push(*sell_order_id);
+        let mut buy_order_ids = Vec::new();
+        buy_order_ids.push(*buy_order_id);
         self.instance
             .methods()
-            .match_orders(*sell_order_id, *buy_order_id)
+            .match_orders_many(sell_order_ids, buy_order_ids)
             .append_variable_outputs(2)
             .with_tx_policies(TxPolicies::default())
             .call()
@@ -201,7 +205,8 @@ impl Orderbook {
             .with_PRICE_DECIMALS(price_decimals.try_into().unwrap());
         let config = LoadConfiguration::default().with_configurables(configurables);
 
-        let bin_path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("contract/out/debug/orderbook.bin");
+        let bin_path =
+            PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("contract/out/debug/orderbook.bin");
         let id = Contract::load_from(bin_path, config)
             .unwrap()
             .with_salt(salt)

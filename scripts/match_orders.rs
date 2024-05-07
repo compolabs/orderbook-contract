@@ -66,13 +66,22 @@ async fn main() {
 
     println!(
         "buy_order = {:?}\n",
-        orderbook.order_by_id(&buy_order_id).await.unwrap().value.unwrap()
+        orderbook
+            .order_by_id(&buy_order_id)
+            .await
+            .unwrap()
+            .value
+            .unwrap()
     );
     println!(
         "sell_order = {:?}",
-        orderbook.order_by_id(&sell_order_id).await.unwrap().value.unwrap()
+        orderbook
+            .order_by_id(&sell_order_id)
+            .await
+            .unwrap()
+            .value
+            .unwrap()
     );
-
 
     orderbook
         .match_orders(&sell_order_id, &buy_order_id)

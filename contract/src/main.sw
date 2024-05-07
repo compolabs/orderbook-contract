@@ -49,6 +49,9 @@ abi OrderBook {
     #[storage(read, write)]
     fn match_orders(order_sell_id: b256, order_buy_id: b256);
 
+    #[storage(read, write)]
+    fn match_orders_many(order_sell_ids: Vec<b256>, order_buy_ids: Vec<b256>);
+
     #[storage(read)]
     fn orders_by_trader(trader: Address) -> Vec<b256>;
 
@@ -178,89 +181,31 @@ impl OrderBook for Contract {
     #[storage(read, write)]
     fn match_orders(order_sell_id: b256, order_buy_id: b256) {
         reentrancy_guard();
+        match_orders(order_sell_id, order_buy_id);
+    }
 
-        let order_sell = storage.orders.get(order_sell_id).try_read();
-        let order_buy = storage.orders.get(order_buy_id).try_read();
+    #[storage(read, write)]
+    fn match_orders_many(order_sell_ids: Vec<b256>, order_buy_ids: Vec<b256>) {
         require(
-            order_sell
-                .is_some() && order_buy
-                .is_some(),
-            Error::NoOrdersFound,
-        );
-
-        let order_sell = order_sell.unwrap();
-        let order_buy = order_buy.unwrap();
-        require(
-            order_sell
-                .base_size
-                .negative && !order_buy
-                .base_size
-                .negative,
-            Error::FirstArgumentShouldBeOrderSellSecondOrderBuy,
-        );
-        require(
-            order_sell
-                .base_token == order_buy
-                .base_token && order_sell
-                .base_price <= order_buy
-                .base_price,
+            order_sell_ids
+                .len > 0 && order_buy_ids
+                .len > 0,
             Error::OrdersCantBeMatched,
         );
-
-        let mut tmp = order_sell;
-        tmp.base_size = tmp.base_size.flip();
-        let trade_size = min(
-            order_sell
-                .base_size
-                .value,
-            order_buy
-                .base_size
-                .value
-                .mul_div(order_buy.base_price, order_sell.base_price),
-        );
-        tmp.base_size.value = trade_size;
-
-        let seller: Address = order_sell.trader;
-        let (sellerDealAssetId, sellerDealRefund) = order_return_asset_amount(tmp);
-        remove_update_order_internal(order_sell, tmp.base_size);
-
-        tmp.base_size = tmp.base_size.flip();
-
-        let buyer: Address = order_buy.trader;
-        let (buyerDealAssetId, buyerDealRefund) = order_return_asset_amount(tmp);
-        tmp.base_size.value = tmp.base_size.value.mul_div_rounding_up(order_sell.base_price, order_buy.base_price);
-        remove_update_order_internal(order_buy, tmp.base_size);
-
-        require(
-            sellerDealRefund != 0 && buyerDealRefund != 0,
-            Error::ZeroAssetAmountToSend,
-        );
-
-        transfer_to_address(seller, sellerDealAssetId, sellerDealRefund);
-        transfer_to_address(buyer, buyerDealAssetId, buyerDealRefund);
-
-        let msg_sender = msg_sender_address();
-
-        let event = OrderChangeEvent::match_orders(order_sell.id, storage.orders.get(order_sell.id).try_read());
-        storage.order_change_events.get(order_sell.id).push(event);
-        log(event);
-
-        let event = OrderChangeEvent::match_orders(order_buy.id, storage.orders.get(order_buy.id).try_read());
-        storage.order_change_events.get(order_buy.id).push(event);
-        log(event);
-
-        log(TradeEvent {
-            base_token: order_sell.base_token,
-            order_matcher: msg_sender,
-            buyer: order_buy.trader,
-            seller: order_sell.trader,
-            trade_size: trade_size,
-            trade_price: order_sell.base_price,
-            sell_order_id: order_sell.id,
-            buy_order_id: order_buy.id,
-            timestamp: timestamp(),
-            tx_id: tx_id(),
-        });
+        reentrancy_guard();
+        let mut s = 0;
+        let mut b = 0;
+        while (s < order_sell_ids.len && b < order_buy_ids.len) {
+            let sid = order_sell_ids.get(s).unwrap();
+            let bid = order_buy_ids.get(b).unwrap();
+            match_orders(sid, bid);
+            if storage.orders.get(sid).try_read().is_none() {
+                s += 1;
+            }
+            if storage.orders.get(bid).try_read().is_none() {
+                b += 1;
+            }
+        }
     }
 
     #[storage(read)]
@@ -364,6 +309,94 @@ fn remove_update_order_internal(order: Order, base_size: I64) {
         order.base_size += base_size;
         storage.orders.insert(order.id, order);
     }
+}
+
+#[storage(read, write)]
+fn match_orders(order_sell_id: b256, order_buy_id: b256) {
+    reentrancy_guard();
+
+    let order_sell = storage.orders.get(order_sell_id).try_read();
+    let order_buy = storage.orders.get(order_buy_id).try_read();
+    require(
+        order_sell
+            .is_some() && order_buy
+            .is_some(),
+        Error::NoOrdersFound,
+    );
+
+    let order_sell = order_sell.unwrap();
+    let order_buy = order_buy.unwrap();
+    require(
+        order_sell
+            .base_size
+            .negative && !order_buy
+            .base_size
+            .negative,
+        Error::FirstArgumentShouldBeOrderSellSecondOrderBuy,
+    );
+    require(
+        order_sell
+            .base_token == order_buy
+            .base_token && order_sell
+            .base_price <= order_buy
+            .base_price,
+        Error::OrdersCantBeMatched,
+    );
+
+    let mut tmp = order_sell;
+    tmp.base_size = tmp.base_size.flip();
+    let trade_size = min(
+        order_sell
+            .base_size
+            .value,
+        order_buy
+            .base_size
+            .value
+            .mul_div(order_buy.base_price, order_sell.base_price),
+    );
+    tmp.base_size.value = trade_size;
+
+    let seller: Address = order_sell.trader;
+    let (sellerDealAssetId, sellerDealRefund) = order_return_asset_amount(tmp);
+    remove_update_order_internal(order_sell, tmp.base_size);
+
+    tmp.base_size = tmp.base_size.flip();
+
+    let buyer: Address = order_buy.trader;
+    let (buyerDealAssetId, buyerDealRefund) = order_return_asset_amount(tmp);
+    tmp.base_size.value = tmp.base_size.value.mul_div_rounding_up(order_sell.base_price, order_buy.base_price);
+    remove_update_order_internal(order_buy, tmp.base_size);
+
+    require(
+        sellerDealRefund != 0 && buyerDealRefund != 0,
+        Error::ZeroAssetAmountToSend,
+    );
+
+    transfer_to_address(seller, sellerDealAssetId, sellerDealRefund);
+    transfer_to_address(buyer, buyerDealAssetId, buyerDealRefund);
+
+    let msg_sender = msg_sender_address();
+
+    let event = OrderChangeEvent::match_orders(order_sell.id, storage.orders.get(order_sell.id).try_read());
+    storage.order_change_events.get(order_sell.id).push(event);
+    log(event);
+
+    let event = OrderChangeEvent::match_orders(order_buy.id, storage.orders.get(order_buy.id).try_read());
+    storage.order_change_events.get(order_buy.id).push(event);
+    log(event);
+
+    log(TradeEvent {
+        base_token: order_sell.base_token,
+        order_matcher: msg_sender,
+        buyer: order_buy.trader,
+        seller: order_sell.trader,
+        trade_size: trade_size,
+        trade_price: order_sell.base_price,
+        sell_order_id: order_sell.id,
+        buy_order_id: order_buy.id,
+        timestamp: timestamp(),
+        tx_id: tx_id(),
+    });
 }
 
 #[storage(read)]
