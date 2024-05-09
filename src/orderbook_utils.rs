@@ -148,10 +148,19 @@ impl Orderbook {
         sell_order_id: &Bits256,
         buy_order_id: &Bits256,
     ) -> Result<FuelCallResponse<()>, fuels::types::errors::Error> {
-        let mut sell_order_ids = Vec::new();
-        sell_order_ids.push(*sell_order_id);
-        let mut buy_order_ids = Vec::new();
-        buy_order_ids.push(*buy_order_id);
+        self.instance
+            .methods()
+            .match_orders(sell_order_id.clone(), buy_order_id.clone())
+            .append_variable_outputs(2)
+            .with_tx_policies(TxPolicies::default())
+            .call()
+            .await
+    }
+    pub async fn match_orders_many(
+        &self,
+        sell_order_ids: Vec<Bits256>,
+        buy_order_ids: Vec<Bits256>,
+    ) -> Result<FuelCallResponse<()>, fuels::types::errors::Error> {
         self.instance
             .methods()
             .match_orders_many(sell_order_ids, buy_order_ids)
