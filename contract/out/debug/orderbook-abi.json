@@ -353,6 +353,11 @@
           "typeArguments": null
         },
         {
+          "name": "index",
+          "type": 23,
+          "typeArguments": null
+        },
+        {
           "name": "tx_id",
           "type": 2,
           "typeArguments": null
@@ -720,15 +725,15 @@
       },
       "attributes": [
         {
+          "name": "payable",
+          "arguments": []
+        },
+        {
           "name": "storage",
           "arguments": [
             "read",
             "write"
           ]
-        },
-        {
-          "name": "payable",
-          "arguments": []
         }
       ]
     },
@@ -1330,7 +1335,7 @@
         "type": 12,
         "typeArguments": []
       },
-      "offset": 158828
+      "offset": 168316
     },
     {
       "name": "QUOTE_TOKEN_DECIMALS",
@@ -1339,7 +1344,7 @@
         "type": 22,
         "typeArguments": null
       },
-      "offset": 158764
+      "offset": 168252
     },
     {
       "name": "PRICE_DECIMALS",
@@ -1348,7 +1353,7 @@
         "type": 22,
         "typeArguments": null
       },
-      "offset": 158748
+      "offset": 168236
     }
   ]
 }
