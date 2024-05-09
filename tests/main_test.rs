@@ -1,7 +1,7 @@
 use fuels::prelude::*;
+use orderbook::orderbook_utils::OrderChangeEvent;
 use orderbook::orderbook_utils::Orderbook;
 use src20_sdk::token_utils::{deploy_token_contract, Asset};
-
 const PRICE_DECIMALS: u64 = 9;
 
 #[tokio::test]
@@ -47,10 +47,15 @@ async fn open_base_token_order_cancel_test() {
     assert_eq!(balance, amount_btc);
 
     // Open order
-    orderbook
+    let res = orderbook
         .open_order(btc.asset_id, base_size_sell1, base_price)
         .await
         .unwrap();
+
+    res.decode_logs_with_type::<OrderChangeEvent>()
+        .unwrap()
+        .iter()
+        .for_each(|event| println!("Index: {}", event.index));
 
     assert_eq!(admin.get_asset_balance(&btc.asset_id).await.unwrap(), 0);
 
@@ -68,10 +73,15 @@ async fn open_base_token_order_cancel_test() {
     // Add btc value to order
     btc.mint(admin.address().into(), amount_btc).await.unwrap();
 
-    orderbook
+    let res = orderbook
         .open_order(btc.asset_id, base_size_sell1, base_price)
         .await
         .unwrap();
+
+    res.decode_logs_with_type::<OrderChangeEvent>()
+        .unwrap()
+        .iter()
+        .for_each(|event| println!("Index: {}", event.index));
 
     assert_eq!(admin.get_asset_balance(&btc.asset_id).await.unwrap(), 0);
 
@@ -105,10 +115,15 @@ async fn open_base_token_order_cancel_test() {
     assert_eq!(balance, amount_usdc);
 
     // Add usdc value to order
-    orderbook
+    let res = orderbook
         .open_order(btc.asset_id, base_size_buy1, base_price)
         .await
         .unwrap();
+
+    res.decode_logs_with_type::<OrderChangeEvent>()
+        .unwrap()
+        .iter()
+        .for_each(|event| println!("Index: {}", event.index));
 
     let balance = admin.get_asset_balance(&usdc.asset_id).await.unwrap();
     assert_eq!(balance, amount_usdc);
@@ -138,11 +153,16 @@ async fn open_base_token_order_cancel_test() {
     // Add more usdc value to order
     let base_size_buy2 = base_size_buy1 * 2;
 
-    orderbook
+    let res = orderbook
         .open_order(btc.asset_id, base_size_buy2.clone(), base_price)
         .await
         .unwrap();
 
+    res.decode_logs_with_type::<OrderChangeEvent>()
+        .unwrap()
+        .iter()
+        .for_each(|event| println!("Index: {}", event.index));
+    
     let balance = admin.get_asset_balance(&usdc.asset_id).await.unwrap();
     assert_eq!(balance, amount_usdc);
 
@@ -167,8 +187,12 @@ async fn open_base_token_order_cancel_test() {
         .expect_err("Order cancelled by another user");
 
     // Cancel order
-    orderbook.cancel_order(order_id).await.unwrap();
-
+    let res = orderbook.cancel_order(order_id).await.unwrap();
+    
+    res.decode_logs_with_type::<OrderChangeEvent>()
+        .unwrap()
+        .iter()
+        .for_each(|event| println!("Index: {}", event.index));
     let response = orderbook.orders_by_trader(admin.address()).await.unwrap();
     assert_eq!(0, response.value.len());
 
@@ -353,12 +377,16 @@ async fn match_orders_test() {
 
     // Open BTC order
 
-    orderbook
+    let res = orderbook
         .with_account(user2)
         .open_order(btc.asset_id, base_size_sell1.clone(), base_price)
         .await
         .unwrap();
 
+    println!(
+        "create order event: {:#?}\n",
+        res.decode_logs_with_type::<OrderChangeEvent>().unwrap()
+    );
     assert_eq!(user2.get_asset_balance(&btc.asset_id).await.unwrap(), 0);
 
     let response = orderbook.orders_by_trader(user2.address()).await.unwrap();
