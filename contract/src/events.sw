@@ -33,12 +33,13 @@ pub struct OrderChangeEvent {
     sender: Identity,
     timestamp: u64,
     identifier: OrderChangeEventIdentifier,
+    index: u64,
     tx_id: b256,
     order: Option<Order>,
 }
 
 impl OrderChangeEvent {
-    pub fn open(id: b256, order: Option<Order>) -> self {
+    pub fn open(id: b256, order: Option<Order>, index: u64) -> self {
         Self {
             order_id: id,
             order,
@@ -46,10 +47,11 @@ impl OrderChangeEvent {
             identifier: OrderChangeEventIdentifier::OrderOpenEvent,
             timestamp: std::block::timestamp(),
             tx_id: std::tx::tx_id(),
+            index
         }
     }
 
-    pub fn cancel(order_id: b256, order: Option<Order>) -> self {
+    pub fn cancel(order_id: b256, order: Option<Order>, index: u64) -> self {
         Self {
             order_id,
             order,
@@ -57,10 +59,11 @@ impl OrderChangeEvent {
             identifier: OrderChangeEventIdentifier::OrderCancelEvent,
             timestamp: std::block::timestamp(),
             tx_id: std::tx::tx_id(),
+            index
         }
     }
 
-    pub fn match_orders(id: b256, order: Option<Order>) -> self {
+    pub fn match_orders(id: b256, order: Option<Order>, index: u64) -> self {
         Self {
             order_id: id,
             order,
@@ -68,6 +71,7 @@ impl OrderChangeEvent {
             identifier: OrderChangeEventIdentifier::OrderMatchEvent,
             timestamp: std::block::timestamp(),
             tx_id: std::tx::tx_id(),
+            index
         }
     }
 }

@@ -34,6 +34,7 @@ storage {
     orders_by_trader: StorageMap<Address, StorageVec<b256>> = StorageMap {},
     order_indexes_by_trader: StorageMap<Address, StorageMap<b256, u64>> = StorageMap {},
     order_change_events: StorageMap<b256, StorageVec<OrderChangeEvent>> = StorageMap {},
+    order_change_events_len: u64 = 0,
 }
 
 abi OrderBook {
@@ -152,8 +153,9 @@ impl OrderBook for Contract {
             add_order_internal(order);
         }
 
-        let event = OrderChangeEvent::open(order_id, storage.orders.get(order_id).try_read());
+        let event = OrderChangeEvent::open(order_id, storage.orders.get(order_id).try_read(), storage.order_change_events.read());
         storage.order_change_events.get(order_id).push(event);
+        //todo increment order_change_events_len
         log(event);
 
         order_id
@@ -175,6 +177,7 @@ impl OrderBook for Contract {
 
         let event = OrderChangeEvent::cancel(order_id, storage.orders.get(order_id).try_read());
         storage.order_change_events.get(order_id).push(event);
+        //todo increment order_change_events_len
         log(event);
     }
 
@@ -379,10 +382,12 @@ fn match_orders(order_sell_id: b256, order_buy_id: b256) {
 
     let event = OrderChangeEvent::match_orders(order_sell.id, storage.orders.get(order_sell.id).try_read());
     storage.order_change_events.get(order_sell.id).push(event);
+    //todo increment order_change_events_len
     log(event);
 
     let event = OrderChangeEvent::match_orders(order_buy.id, storage.orders.get(order_buy.id).try_read());
     storage.order_change_events.get(order_buy.id).push(event);
+    //todo increment order_change_events_len
     log(event);
 
     log(TradeEvent {
