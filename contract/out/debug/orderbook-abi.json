@@ -725,15 +725,15 @@
       },
       "attributes": [
         {
-          "name": "payable",
-          "arguments": []
-        },
-        {
           "name": "storage",
           "arguments": [
             "read",
             "write"
           ]
+        },
+        {
+          "name": "payable",
+          "arguments": []
         }
       ]
     },
@@ -1335,7 +1335,7 @@
         "type": 12,
         "typeArguments": []
       },
-      "offset": 168316
+      "offset": 168364
     },
     {
       "name": "QUOTE_TOKEN_DECIMALS",
@@ -1344,7 +1344,7 @@
         "type": 22,
         "typeArguments": null
       },
-      "offset": 168252
+      "offset": 168300
     },
     {
       "name": "PRICE_DECIMALS",
@@ -1353,7 +1353,7 @@
         "type": 22,
         "typeArguments": null
       },
-      "offset": 168236
+      "offset": 168284
     }
   ]
 }

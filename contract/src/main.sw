@@ -155,9 +155,8 @@ impl OrderBook for Contract {
 
         let event = OrderChangeEvent::open(order_id, storage.orders.get(order_id).try_read(), storage.order_change_events_len.read());
         storage.order_change_events.get(order_id).push(event);
-        let current_value = storage.order_change_events_len.try_read(); 
-        let updated_value = current_value.unwrap() + 1;
-        storage.order_change_events_len.write(updated_value);
+        storage.order_change_events_len.write(storage.order_change_events_len.read() + 1);
+
         log(event);
 
         order_id
@@ -179,9 +178,8 @@ impl OrderBook for Contract {
 
         let event = OrderChangeEvent::cancel(order_id, storage.orders.get(order_id).try_read(), storage.order_change_events_len.read());
         storage.order_change_events.get(order_id).push(event);
-        let current_value = storage.order_change_events_len.try_read(); 
-        let updated_value = current_value.unwrap() + 1;
-        storage.order_change_events_len.write(updated_value);
+        storage.order_change_events_len.write(storage.order_change_events_len.read() + 1);
+
         log(event);
     }
 
@@ -386,16 +384,14 @@ fn match_orders(order_sell_id: b256, order_buy_id: b256) {
 
     let event = OrderChangeEvent::match_orders(order_sell.id, storage.orders.get(order_sell.id).try_read(), storage.order_change_events_len.read());
     storage.order_change_events.get(order_sell.id).push(event);
-    let current_value = storage.order_change_events_len.try_read(); 
-    let updated_value = current_value.unwrap() + 1;
-    storage.order_change_events_len.write(updated_value);    
+    storage.order_change_events_len.write(storage.order_change_events_len.read() + 1);
+
     log(event);
 
     let event = OrderChangeEvent::match_orders(order_buy.id, storage.orders.get(order_buy.id).try_read(), storage.order_change_events_len.read());
     storage.order_change_events.get(order_buy.id).push(event);
-    let current_value = storage.order_change_events_len.try_read(); 
-        let updated_value = current_value.unwrap() + 1;
-        storage.order_change_events_len.write(updated_value);
+    storage.order_change_events_len.write(storage.order_change_events_len.read() + 1);
+
     log(event);
 
     log(TradeEvent {
