@@ -126,7 +126,7 @@ impl Orderbook {
             .append_variable_outputs(2)
             .call_params(call_params)
             .unwrap()
-            .with_tx_policies(TxPolicies::default().with_tip(1))
+            .with_tx_policies(TxPolicies::default().with_gas_price(1))
             .call()
             .await
     }
@@ -210,7 +210,7 @@ impl Orderbook {
         let id = Contract::load_from(bin_path, config)
             .unwrap()
             .with_salt(salt)
-            .deploy(wallet, TxPolicies::default().with_tip(1))
+            .deploy(wallet, TxPolicies::default().with_gas_price(1))
             .await
             .unwrap();
 
