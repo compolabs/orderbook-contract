@@ -8,8 +8,7 @@ use orderbook::{
     orderbook_utils::{OrderChangeEvent, Orderbook},
     print_title,
 };
-
-const ORDER_ID: &str = "0x540cbb1379766b2a1f506435d1aecfa71a9cd0bd06522c7a20aabf444487b6b7";
+const ORDER_ID: &str = "0xf23b5ac54f9a7ea1e47e141a44717e227d88e1c185591bbde083ca37df0abc38";
 
 #[tokio::main]
 async fn main() {
@@ -41,27 +40,31 @@ async fn main() {
 fn print_order_change_event(event: OrderChangeEvent) {
     let order = event.order.as_ref();
     let tx_id_hex = format!("0x{}", hex::encode(&event.tx_id.0));
+
     println!(
         "
-        order_id: 0x{:?},
-        sender: {:?},
-        timestamp: {:?},
         identifier: {:?},
         tx_id: {:?},
+        timestamp: {:?},
+        sender: {:?},
         base_token: {:?},
         base_size: {:?},
         base_price: {:?},
+        order_id: 0x{:?},
     ",
-        Address::from(event.order_id.0),
-        event.sender,
-        event.timestamp,
         event.identifier,
         tx_id_hex,
-        order.map_or_else(|| "-".to_owned(), |o| o.base_token.to_string()),
+        event.timestamp,
+        event.sender,
+        format!(
+            "0x{}",
+            order.map_or_else(|| "-".to_owned(), |o| o.base_token.to_string())
+        ),
         order.map_or_else(
             || "-".to_owned(),
             |o| o.base_size.clone().as_i64().to_string()
         ),
         order.map_or_else(|| "-".to_owned(), |o| o.base_price.to_string()),
+        Address::from(event.order_id.0),
     );
 }
