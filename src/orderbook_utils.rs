@@ -126,7 +126,7 @@ impl Orderbook {
             .append_variable_outputs(2)
             .call_params(call_params)
             .unwrap()
-            .with_tx_policies(TxPolicies::default().with_gas_price(1))
+            .with_tx_policies(TxPolicies::default().with_tip(1))
             .call()
             .await
     }
@@ -163,7 +163,7 @@ impl Orderbook {
 
     pub fn with_account(&self, account: &WalletUnlocked) -> Self {
         Self {
-            instance: self.instance.with_account(account.clone()).unwrap(),
+            instance: self.instance.clone().with_account(account.clone()),
             quote_token: self.quote_token,
             quote_token_decimals: self.quote_token_decimals,
             price_decimals: self.price_decimals,
@@ -200,9 +200,9 @@ impl Orderbook {
         let salt = rng.gen::<[u8; 32]>();
 
         let configurables = OrderbookContractConfigurables::default()
-            .with_QUOTE_TOKEN(quote_token)
-            .with_QUOTE_TOKEN_DECIMALS(quote_token_decimals.try_into().unwrap())
-            .with_PRICE_DECIMALS(price_decimals.try_into().unwrap());
+            .with_QUOTE_TOKEN(quote_token).unwrap()
+            .with_QUOTE_TOKEN_DECIMALS(quote_token_decimals.try_into().unwrap()).unwrap()
+            .with_PRICE_DECIMALS(price_decimals.try_into().unwrap()).unwrap();
         let config = LoadConfiguration::default().with_configurables(configurables);
 
         let bin_path =
@@ -210,7 +210,7 @@ impl Orderbook {
         let id = Contract::load_from(bin_path, config)
             .unwrap()
             .with_salt(salt)
-            .deploy(wallet, TxPolicies::default().with_gas_price(1))
+            .deploy(wallet, TxPolicies::default().with_tip(1))
             .await
             .unwrap();
 

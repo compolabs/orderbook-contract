@@ -1,10 +1,9 @@
 use dotenv::dotenv;
 use fuels::{
     accounts::Account,
-    core::constants::BASE_ASSET_ID,
     crypto::SecretKey,
     prelude::{Provider, WalletUnlocked},
-    types::{transaction::TxPolicies, ContractId},
+    types::{AssetId, transaction::TxPolicies, ContractId},
 };
 use orderbook::constants::{RPC, TOKEN_CONTRACT_ID};
 use rand::{rngs::StdRng, SeedableRng};
@@ -35,7 +34,7 @@ async fn main() {
     let base_asset = Asset::new(admin.clone(), token_contract_id, BASE_SYMBOL);
     let quote_asset = Asset::new(admin.clone(), token_contract_id, "USDC");
     let eth = Asset {
-        asset_id: BASE_ASSET_ID,
+        asset_id: AssetId::zeroed(),
         decimals: 9,
         symbol: "ETH".to_string(),
         token_contract_instance: None,
@@ -59,7 +58,7 @@ async fn main() {
             .transfer(
                 wallet.address(),
                 eth_size,
-                BASE_ASSET_ID,
+                AssetId::zeroed(),
                 TxPolicies::default(),
             )
             .await
