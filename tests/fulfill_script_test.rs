@@ -11,6 +11,7 @@ abigen!(Script(
     abi = "fulfill-script/out/debug/fulfill-script-abi.json"
 ));
 
+//fixme
 #[tokio::test]
 async fn fulfill_script_test() {
     //--------------- WALLETS ---------------
