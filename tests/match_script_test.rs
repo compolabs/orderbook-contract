@@ -82,13 +82,13 @@ async fn match_script_test() {
         .with_configurables(
             MatchScriptConfigurables::default().with_ORDER_BOOK_CONTRACT_ID(
                 Bits256::from_hex_str(&orderbook.instance.contract_id().hash().to_string()).unwrap(),
-            ),
+            ).unwrap(),
         );
 
     match_script
         .main(sell_order_id, vec![buy_order_id])
         .with_contracts(&[&orderbook.instance])
-        .with_tx_policies(TxPolicies::default().with_gas_price(1))
+        .with_tx_policies(TxPolicies::default().with_tip(1))
         .append_variable_outputs(2)
         .call()
         .await
