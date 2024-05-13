@@ -7,10 +7,10 @@ authors = ["alexey <alexnagornnyy.an@gmail.com>"]
 license = "Apache-2.0"
 
 [dependencies]
-fuels = { version = "0.57.0", features = ["fuel-core-lib"] }
+fuels = { version = "0.60.0", features = ["fuel-core-lib"] }
 rand = "0.8.5"
 tokio = { version = "1.12", features = ["rt", "macros"] }
-src20_sdk = { git = "https://github.com/compolabs/src-20.git", branch = "feat-fuels-0.57" }
+src20_sdk = { git = "https://github.com/compolabs/src-20.git", branch = "devnet" }
 dotenv = "0.15.0"
 hex = "0.4"
 chrono = "0.4.19"

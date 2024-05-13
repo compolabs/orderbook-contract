@@ -1,4 +1,4 @@
-pub const RPC: &str = "beta-5.fuel.network";
+pub const RPC: &str = "devnet.fuel.network";
 
 pub const ORDERBOOK_CONTRACT_ID: &str =
     "0x0f0c1065a7b82d026069c5cf070b21ee65713fd1ac92ec1d25eacc3100187f78";

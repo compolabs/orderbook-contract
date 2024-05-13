@@ -4,7 +4,7 @@ use std::constants::ZERO_B256;
 use i64::I64;
 
 configurable {
-    ORDER_BOOK_CONTRACT_ID: b256 = ZERO_B256
+    ORDER_BOOK_CONTRACT_ID: b256 = ZERO_B256,
 }
 
 pub struct Order {
@@ -49,9 +49,9 @@ fn main(order_id: b256, orders: Vec<b256>) {
 
         let order_option = caller.order_by_id(order_id);
 
-        if order_option.is_none(){
+        if order_option.is_none() {
             return
-        }else{
+        } else {
             order = order_option.unwrap()
         }
 

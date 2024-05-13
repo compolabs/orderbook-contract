@@ -1,4 +1,5 @@
 {
+  "encoding": "1",
   "types": [
     {
       "typeId": 0,
@@ -35,7 +36,7 @@
       "type": "struct AssetId",
       "components": [
         {
-          "name": "value",
+          "name": "bits",
           "type": 1,
           "typeArguments": null
         }
@@ -181,7 +182,7 @@
         "type": 1,
         "typeArguments": null
       },
-      "offset": 1176
+      "offset": 37424
     }
   ]
 }

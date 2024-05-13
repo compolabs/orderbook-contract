@@ -209,9 +209,12 @@ impl Orderbook {
         let salt = rng.gen::<[u8; 32]>();
 
         let configurables = OrderbookContractConfigurables::default()
-            .with_QUOTE_TOKEN(quote_token).unwrap()
-            .with_QUOTE_TOKEN_DECIMALS(quote_token_decimals.try_into().unwrap()).unwrap()
-            .with_PRICE_DECIMALS(price_decimals.try_into().unwrap()).unwrap();
+            .with_QUOTE_TOKEN(quote_token)
+            .unwrap()
+            .with_QUOTE_TOKEN_DECIMALS(quote_token_decimals.try_into().unwrap())
+            .unwrap()
+            .with_PRICE_DECIMALS(price_decimals.try_into().unwrap())
+            .unwrap();
         let config = LoadConfiguration::default().with_configurables(configurables);
 
         let bin_path =
@@ -219,7 +222,12 @@ impl Orderbook {
         let id = Contract::load_from(bin_path, config)
             .unwrap()
             .with_salt(salt)
-            .deploy(wallet, TxPolicies::default().with_tip(1))
+            .deploy(
+                wallet,
+                TxPolicies::default()
+                    .with_tip(1)
+                    .with_script_gas_limit(10_000_000),
+            )
             .await
             .unwrap();
 

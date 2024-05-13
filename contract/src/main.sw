@@ -11,19 +11,19 @@ use i64::*;
 use math::*;
 use structs::*;
 
-use reentrancy::reentrancy_guard;
+use sway_libs::reentrancy::reentrancy_guard;
 
-use std::asset::*;
+use std::asset::transfer;
 use std::block::timestamp;
 use std::call_frames::msg_asset_id;
-use std::constants::BASE_ASSET_ID;
+use std::constants::ZERO_B256;
 use std::context::msg_amount;
 use std::hash::*;
 use std::storage::storage_vec::*;
 use std::tx::tx_id;
 
 configurable {
-    QUOTE_TOKEN: AssetId = BASE_ASSET_ID,
+    QUOTE_TOKEN: AssetId = AssetId::from(ZERO_B256),
     QUOTE_TOKEN_DECIMALS: u32 = 9,
     PRICE_DECIMALS: u32 = 9,
 }
@@ -136,10 +136,10 @@ impl OrderBook for Contract {
             let ((asset_id_0, refund_0), (asset_id_1, refund_1)) = update_order_internal(order, base_size);
 
             if refund_0 > 0 {
-                transfer_to_address(msg_sender, asset_id_0, refund_0);
+                transfer(Identity::Address(msg_sender), asset_id_0, refund_0);
             }
             if refund_1 > 0 {
-                transfer_to_address(msg_sender, asset_id_1, refund_1);
+                transfer(Identity::Address(msg_sender), asset_id_1, refund_1);
             }
         } else {
             let order = Order {
@@ -171,7 +171,7 @@ impl OrderBook for Contract {
         require(msg_sender == order.trader, Error::AccessDenied);
 
         let (asset_id, refund) = cancel_order_internal(order);
-        transfer_to_address(msg_sender, asset_id, refund);
+        transfer(Identity::Address(msg_sender), asset_id, refund);
 
         let event = OrderChangeEvent::cancel(order_id, storage.orders.get(order_id).try_read());
         storage.order_change_events.get(order_id).push(event);
@@ -186,24 +186,28 @@ impl OrderBook for Contract {
 
     #[storage(read, write)]
     fn match_orders_many(order_sell_ids: Vec<b256>, order_buy_ids: Vec<b256>) {
-        require(
-            order_sell_ids
-                .len > 0 && order_buy_ids
-                .len > 0,
-            Error::OrdersCantBeMatched,
-        );
+        let s_len = order_sell_ids.len();
+        let b_len = order_buy_ids.len();
+        require(s_len > 0 && b_len > 0, Error::OrdersCantBeMatched);
         reentrancy_guard();
+
         let mut s = 0;
         let mut b = 0;
-        while (s < order_sell_ids.len && b < order_buy_ids.len) {
+        while true {
             let sid = order_sell_ids.get(s).unwrap();
             let bid = order_buy_ids.get(b).unwrap();
             match_orders(sid, bid);
             if storage.orders.get(sid).try_read().is_none() {
                 s += 1;
+                if s == s_len {
+                    break;
+                }
             }
             if storage.orders.get(bid).try_read().is_none() {
                 b += 1;
+                if b == b_len {
+                    break;
+                }
             }
         }
     }
@@ -241,7 +245,7 @@ fn add_order_internal(order: Order) {
 #[storage(read, write)]
 fn update_order_internal(order: Order, base_size: I64) -> ((AssetId, u64), (AssetId, u64)) {
     require(order.base_size.value != 0, Error::BaseSizeIsZero);
-    let mut refund = ((BASE_ASSET_ID, 0), (BASE_ASSET_ID, 0));
+    let mut refund = ((AssetId::from(ZERO_B256), 0), (AssetId::from(ZERO_B256), 0));
     if order.base_size == base_size.flip() {
         let mut tmp = order;
         refund.0 = cancel_order_internal(order);
@@ -372,8 +376,12 @@ fn match_orders(order_sell_id: b256, order_buy_id: b256) {
         Error::ZeroAssetAmountToSend,
     );
 
-    transfer_to_address(seller, sellerDealAssetId, sellerDealRefund);
-    transfer_to_address(buyer, buyerDealAssetId, buyerDealRefund);
+    transfer(
+        Identity::Address(seller),
+        sellerDealAssetId,
+        sellerDealRefund,
+    );
+    transfer(Identity::Address(buyer), buyerDealAssetId, buyerDealRefund);
 
     let msg_sender = msg_sender_address();
 

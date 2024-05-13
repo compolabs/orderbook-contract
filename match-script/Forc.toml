@@ -5,4 +5,4 @@ license = "Apache-2.0"
 name = "match-script"
 
 [dependencies]
-i64 = { git = "https://github.com/compolabs/i64" }
+i64 = { git = "https://github.com/compolabs/i64", branch = "devnet" }

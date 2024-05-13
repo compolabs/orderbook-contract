@@ -3,7 +3,7 @@ use fuels::{
     accounts::Account,
     crypto::SecretKey,
     prelude::{Provider, WalletUnlocked},
-    types::{AssetId, transaction::TxPolicies, ContractId},
+    types::{transaction::TxPolicies, AssetId, ContractId},
 };
 use orderbook::constants::{RPC, TOKEN_CONTRACT_ID};
 use rand::{rngs::StdRng, SeedableRng};

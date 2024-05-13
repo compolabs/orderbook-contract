@@ -7,7 +7,7 @@ use std::tx::tx_id;
 use i64::I64;
 
 configurable {
-    ORDER_BOOK_CONTRACT_ID: b256 = ZERO_B256
+    ORDER_BOOK_CONTRACT_ID: b256 = ZERO_B256,
 }
 
 pub struct Order {
@@ -35,7 +35,12 @@ abi OrderBook {
 }
 
 #[payable]
-fn main(orders: Vec<b256>, price: u64, base_token: AssetId, base_size: I64) {
+fn main(
+    orders: Vec<b256>,
+    price: u64,
+    base_token: AssetId,
+    base_size: I64,
+) {
     let caller = abi(OrderBook, ORDER_BOOK_CONTRACT_ID);
 
     let configurables = caller.get_configurables();
@@ -43,7 +48,11 @@ fn main(orders: Vec<b256>, price: u64, base_token: AssetId, base_size: I64) {
     let payment_asset = msg_asset_id();
     let payment_amount = msg_amount();
 
-    require(payment_asset == configurables.0 || caller.market_exists(payment_asset), 228);
+    require(
+        payment_asset == configurables.0 || caller
+            .market_exists(payment_asset),
+        228,
+    );
     require(caller.market_exists(base_token), 228);
 
     let new_order_id = caller.open_order {
