@@ -161,10 +161,12 @@ impl Orderbook {
         sell_order_ids: Vec<Bits256>,
         buy_order_ids: Vec<Bits256>,
     ) -> Result<FuelCallResponse<()>, fuels::types::errors::Error> {
+        let buys_count = buy_order_ids.len() as u64;
+        let sells_count = sell_order_ids.len() as u64;
         self.instance
             .methods()
             .match_orders_many(sell_order_ids, buy_order_ids)
-            .append_variable_outputs(2)
+            .append_variable_outputs((sells_count + buys_count) * 3)
             .with_tx_policies(TxPolicies::default())
             .call()
             .await
