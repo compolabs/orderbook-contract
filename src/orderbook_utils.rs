@@ -14,10 +14,19 @@ use rand::Rng;
 
 use self::abigen_bindings::orderbook_contract_mod;
 
-abigen!(Contract(
-    name = "OrderbookContract",
-    abi = "contract/out/debug/orderbook-abi.json"
-));
+abigen!(
+    Contract(
+        name = "OrderbookContract",
+        abi = "contract/out/debug/orderbook-abi.json"
+    ),
+    Script(
+        name = "MatchManyScript",
+        abi = "match-many-script/out/debug/match-many-script-abi.json"
+    )
+);
+
+const CONTRACT_BIN_PATH: &str = "contract/out/debug/orderbook.bin";
+const MATCH_MANY_SCRIPT_BIN_PATH: &str = "match-many-script/out/debug/match-many-script.bin";
 
 pub struct Orderbook {
     pub instance: OrderbookContract<WalletUnlocked>,
@@ -161,13 +170,21 @@ impl Orderbook {
         sell_order_ids: Vec<Bits256>,
         buy_order_ids: Vec<Bits256>,
     ) -> Result<FuelCallResponse<()>, fuels::types::errors::Error> {
+        let wallet = self.instance.account();
+        let bin_path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join(MATCH_MANY_SCRIPT_BIN_PATH);
+
+        let match_script = MatchManyScript::new(wallet.clone(), bin_path.to_str().unwrap()).with_configurables(
+            MatchManyScriptConfigurables::default().with_ORDER_BOOK_CONTRACT_ID(
+                Bits256::from_hex_str(&self.instance.contract_id().hash().to_string()).unwrap(),
+            ),
+        );
         let buys_count = buy_order_ids.len() as u64;
         let sells_count = sell_order_ids.len() as u64;
-        self.instance
-            .methods()
-            .match_orders_many(sell_order_ids, buy_order_ids)
+        match_script
+            .main(sell_order_ids, buy_order_ids)
+            .with_contracts(&[&self.instance])
+            .with_tx_policies(TxPolicies::default().with_gas_price(1))
             .append_variable_outputs((sells_count + buys_count) * 3)
-            .with_tx_policies(TxPolicies::default())
             .call()
             .await
     }
@@ -216,8 +233,7 @@ impl Orderbook {
             .with_PRICE_DECIMALS(price_decimals.try_into().unwrap());
         let config = LoadConfiguration::default().with_configurables(configurables);
 
-        let bin_path =
-            PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("contract/out/debug/orderbook.bin");
+        let bin_path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join(CONTRACT_BIN_PATH);
         let id = Contract::load_from(bin_path, config)
             .unwrap()
             .with_salt(salt)

@@ -49,9 +49,6 @@ abi OrderBook {
     #[storage(read, write)]
     fn match_orders(order_sell_id: b256, order_buy_id: b256);
 
-    #[storage(read, write)]
-    fn match_orders_many(order_sell_ids: Vec<b256>, order_buy_ids: Vec<b256>);
-
     #[storage(read)]
     fn orders_by_trader(trader: Address) -> Vec<b256>;
 
@@ -184,29 +181,29 @@ impl OrderBook for Contract {
         match_orders(order_sell_id, order_buy_id);
     }
 
-    #[storage(read, write)]
-    fn match_orders_many(order_sell_ids: Vec<b256>, order_buy_ids: Vec<b256>) {
-        require(
-            order_sell_ids
-                .len > 0 && order_buy_ids
-                .len > 0,
-            Error::OrdersCantBeMatched,
-        );
-        reentrancy_guard();
-        let mut s = 0;
-        let mut b = 0;
-        while (s < order_sell_ids.len && b < order_buy_ids.len) {
-            let sid = order_sell_ids.get(s).unwrap();
-            let bid = order_buy_ids.get(b).unwrap();
-            match_orders(sid, bid);
-            if storage.orders.get(sid).try_read().is_none() {
-                s += 1;
-            }
-            if storage.orders.get(bid).try_read().is_none() {
-                b += 1;
-            }
-        }
-    }
+    // #[storage(read, write)]
+    // fn match_orders_many(order_sell_ids: Vec<b256>, order_buy_ids: Vec<b256>) {
+    //     require(
+    //         order_sell_ids
+    //             .len > 0 && order_buy_ids
+    //             .len > 0,
+    //         Error::OrdersCantBeMatched,
+    //     );
+    //     reentrancy_guard();
+    //     let mut s = 0;
+    //     let mut b = 0;
+    //     while (s < order_sell_ids.len && b < order_buy_ids.len) {
+    //         let sid = order_sell_ids.get(s).unwrap();
+    //         let bid = order_buy_ids.get(b).unwrap();
+    //         match_orders(sid, bid);
+    //         if storage.orders.get(sid).try_read().is_none() {
+    //             s += 1;
+    //         }
+    //         if storage.orders.get(bid).try_read().is_none() {
+    //             b += 1;
+    //         }
+    //     }
+    // }
 
     #[storage(read)]
     fn orders_by_trader(trader: Address) -> Vec<b256> {
