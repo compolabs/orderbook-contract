@@ -16,6 +16,11 @@ source = "git+https://github.com/compolabs/i64?default-branch#b983e37ec72b60a354
 dependencies = ["std"]
 
 [[package]]
+name = "match-in-pairs-script"
+source = "member"
+dependencies = ["std"]
+
+[[package]]
 name = "match-many-script"
 source = "member"
 dependencies = [
