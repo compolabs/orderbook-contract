@@ -15,97 +15,62 @@
     },
     {
       "typeId": 2,
-      "type": "bool",
-      "components": null,
-      "typeParameters": null
-    },
-    {
-      "typeId": 3,
       "type": "generic T",
       "components": null,
       "typeParameters": null
     },
     {
-      "typeId": 4,
+      "typeId": 3,
       "type": "raw untyped ptr",
       "components": null,
       "typeParameters": null
     },
     {
-      "typeId": 5,
-      "type": "struct AssetId",
-      "components": [
-        {
-          "name": "bits",
-          "type": 1,
-          "typeArguments": null
-        }
-      ],
-      "typeParameters": null
-    },
-    {
-      "typeId": 6,
-      "type": "struct I64",
-      "components": [
-        {
-          "name": "value",
-          "type": 9,
-          "typeArguments": null
-        },
-        {
-          "name": "negative",
-          "type": 2,
-          "typeArguments": null
-        }
-      ],
-      "typeParameters": null
-    },
-    {
-      "typeId": 7,
+      "typeId": 4,
       "type": "struct RawVec",
       "components": [
         {
           "name": "ptr",
-          "type": 4,
+          "type": 3,
           "typeArguments": null
         },
         {
           "name": "cap",
-          "type": 9,
+          "type": 6,
           "typeArguments": null
         }
       ],
       "typeParameters": [
-        3
+        2
       ]
     },
     {
-      "typeId": 8,
+      "typeId": 5,
       "type": "struct Vec",
       "components": [
         {
           "name": "buf",
-          "type": 7,
+          "type": 4,
           "typeArguments": [
             {
               "name": "",
-              "type": 3,
+              "type": 2,
               "typeArguments": null
             }
           ]
         },
         {
           "name": "len",
-          "type": 9,
+          "type": 6,
           "typeArguments": null
         }
       ],
       "typeParameters": [
-        3
+        2
       ]
     },
     {
-      "typeId": 9,
+      "typeId": 6,
       "type": "u64",
       "components": null,
       "typeParameters": null
@@ -115,8 +80,13 @@
     {
       "inputs": [
         {
+          "name": "order_id",
+          "type": 1,
+          "typeArguments": null
+        },
+        {
           "name": "orders",
-          "type": 8,
+          "type": 5,
           "typeArguments": [
             {
               "name": "",
@@ -124,21 +94,6 @@
               "typeArguments": null
             }
           ]
-        },
-        {
-          "name": "price",
-          "type": 9,
-          "typeArguments": null
-        },
-        {
-          "name": "base_token",
-          "type": 5,
-          "typeArguments": null
-        },
-        {
-          "name": "base_size",
-          "type": 6,
-          "typeArguments": null
         }
       ],
       "name": "main",
@@ -147,32 +102,10 @@
         "type": 0,
         "typeArguments": null
       },
-      "attributes": [
-        {
-          "name": "payable",
-          "arguments": []
-        }
-      ]
+      "attributes": null
     }
   ],
-  "loggedTypes": [
-    {
-      "logId": 0,
-      "loggedType": {
-        "name": "",
-        "type": 9,
-        "typeArguments": null
-      }
-    },
-    {
-      "logId": 1,
-      "loggedType": {
-        "name": "",
-        "type": 9,
-        "typeArguments": null
-      }
-    }
-  ],
+  "loggedTypes": [],
   "messagesTypes": [],
   "configurables": [
     {
@@ -182,7 +115,7 @@
         "type": 1,
         "typeArguments": null
       },
-      "offset": 24016
+      "offset": 9312
     }
   ]
 }
