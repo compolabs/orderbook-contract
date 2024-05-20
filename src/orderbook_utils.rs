@@ -14,10 +14,25 @@ use rand::Rng;
 
 use self::abigen_bindings::orderbook_contract_mod;
 
-abigen!(Contract(
-    name = "OrderbookContract",
-    abi = "contract/out/release/orderbook-abi.json"
-));
+abigen!(
+    Contract(
+        name = "OrderbookContract",
+        abi = "contract/out/release/orderbook-abi.json"
+    ),
+    Script(
+        name = "MatchManyScript",
+        abi = "match-many-script/out/debug/match-many-script-abi.json"
+    ),
+    Script(
+        name = "MatchInPairsScript",
+        abi = "match-in-pairs-script/out/debug/match-in-pairs-script-abi.json"
+    )
+);
+
+const CONTRACT_BIN_PATH: &str = "contract/out/debug/orderbook.bin";
+const MATCH_MANY_SCRIPT_BIN_PATH: &str = "match-many-script/out/debug/match-many-script.bin";
+const MATCH_IN_PAIRS_SCRIPT_BIN_PATH: &str =
+    "match-in-pairs-script/out/debug/match-in-pairs-script.bin";
 
 pub struct Orderbook {
     pub instance: OrderbookContract<WalletUnlocked>,
@@ -156,19 +171,55 @@ impl Orderbook {
             .call()
             .await
     }
-    // pub async fn match_orders_many(
-    //     &self,
-    //     sell_order_ids: Vec<Bits256>,
-    //     buy_order_ids: Vec<Bits256>,
-    // ) -> Result<FuelCallResponse<()>, fuels::types::errors::Error> {
-    //     self.instance
-    //         .methods()
-    //         .match_orders_many(sell_order_ids, buy_order_ids)
-    //         .append_variable_outputs(2)
-    //         .with_tx_policies(TxPolicies::default())
-    //         .call()
-    //         .await
-    // }
+
+    pub async fn match_orders_many(
+        &self,
+        sell_order_ids: Vec<Bits256>,
+        buy_order_ids: Vec<Bits256>,
+    ) -> Result<FuelCallResponse<()>, fuels::types::errors::Error> {
+        let wallet = self.instance.account();
+        let bin_path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join(MATCH_MANY_SCRIPT_BIN_PATH);
+
+        let match_script = MatchManyScript::new(wallet.clone(), bin_path.to_str().unwrap())
+            .with_configurables(
+                MatchManyScriptConfigurables::default().with_ORDER_BOOK_CONTRACT_ID(
+                    Bits256::from_hex_str(&self.instance.contract_id().hash().to_string()).unwrap(),
+                ),
+            );
+        let buys_count = buy_order_ids.len() as u64;
+        let sells_count = sell_order_ids.len() as u64;
+        match_script
+            .main(sell_order_ids, buy_order_ids)
+            .with_contracts(&[&self.instance])
+            .with_tx_policies(TxPolicies::default().with_gas_price(1))
+            .append_variable_outputs((sells_count + buys_count) * 3)
+            .call()
+            .await
+    }
+
+    pub async fn match_in_pairs(
+        &self,
+        orders: Vec<(Bits256, Bits256)>,
+    ) -> Result<FuelCallResponse<()>, fuels::types::errors::Error> {
+        let wallet = self.instance.account();
+        let bin_path =
+            PathBuf::from(env!("CARGO_MANIFEST_DIR")).join(MATCH_IN_PAIRS_SCRIPT_BIN_PATH);
+
+        let match_script = MatchInPairsScript::new(wallet.clone(), bin_path.to_str().unwrap())
+            .with_configurables(
+                MatchInPairsScriptConfigurables::default().with_ORDER_BOOK_CONTRACT_ID(
+                    Bits256::from_hex_str(&self.instance.contract_id().hash().to_string()).unwrap(),
+                ),
+            );
+        let variable_outputs = orders.len() as u64 * 6;
+        match_script
+            .main(orders)
+            .with_contracts(&[&self.instance])
+            .with_tx_policies(TxPolicies::default().with_gas_price(1))
+            .append_variable_outputs(variable_outputs)
+            .call()
+            .await
+    }
 
     pub fn with_account(&self, account: &WalletUnlocked) -> Self {
         Self {
@@ -217,8 +268,7 @@ impl Orderbook {
             .unwrap();
         let config = LoadConfiguration::default().with_configurables(configurables);
 
-        let bin_path =
-            PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("contract/out/release/orderbook.bin");
+        let bin_path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join(CONTRACT_BIN_PATH);
         let id = Contract::load_from(bin_path, config)
             .unwrap()
             .with_salt(salt)
