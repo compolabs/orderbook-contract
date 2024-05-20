@@ -33,16 +33,10 @@ async fn main() {
     let token_contract_id = token_contract.contract_id().into();
     let base_asset = Asset::new(admin.clone(), token_contract_id, BASE_SYMBOL);
     let quote_asset = Asset::new(admin.clone(), token_contract_id, "USDC");
-    let eth = Asset {
-        asset_id: AssetId::zeroed(),
-        decimals: 9,
-        symbol: "ETH".to_string(),
-        token_contract_instance: None,
-    };
 
     let base_size = base_asset.parse_units(BASE_SIZE) as u64;
     let quote_size = quote_asset.parse_units(QUOTE_SIZE) as u64;
-    let eth_size = eth.parse_units(ETH_AMOUNT) as u64;
+    let eth_size = (ETH_AMOUNT * 10_f64.powf(9_f64)) as u64;
 
     for _ in 0..AMOUNT_OF_WALLETS {
         let mut rng = StdRng::from_entropy();
