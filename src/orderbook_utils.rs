@@ -16,7 +16,7 @@ use self::abigen_bindings::orderbook_contract_mod;
 
 abigen!(Contract(
     name = "OrderbookContract",
-    abi = "contract/out/release/orderbook-abi.json"
+    abi = "contract/out/debug/orderbook-abi.json"
 ));
 
 pub struct Orderbook {
@@ -156,6 +156,11 @@ impl Orderbook {
             .call()
             .await
     }
+    pub async fn get_configurables(
+        &self,
+    ) -> Result<FuelCallResponse<(AssetId, u32, u32)>, fuels::types::errors::Error> {
+        self.instance.methods().get_configurables().simulate().await
+    }
     // pub async fn match_orders_many(
     //     &self,
     //     sell_order_ids: Vec<Bits256>,
@@ -218,7 +223,7 @@ impl Orderbook {
         let config = LoadConfiguration::default().with_configurables(configurables);
 
         let bin_path =
-            PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("contract/out/release/orderbook.bin");
+            PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("contract/out/debug/orderbook.bin");
         let id = Contract::load_from(bin_path, config)
             .unwrap()
             .with_salt(salt)
