@@ -1,7 +1,7 @@
 pub const RPC: &str = "devnet.fuel.network";
 
 pub const ORDERBOOK_CONTRACT_ID: &str =
-    "0x0f0c1065a7b82d026069c5cf070b21ee65713fd1ac92ec1d25eacc3100187f78";
+    "0d79fb0ddede07ad15eb97576e902d107cc68321d2715b959f6ba762c4b27a4e";
 
 pub const TOKEN_CONTRACT_ID: &str =
     "0x6bd9643c9279204b474a778dea7f923226060cb94a4c61c5aae015cf96b5aad2";
