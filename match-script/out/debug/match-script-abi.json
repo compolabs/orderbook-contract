@@ -1,4 +1,5 @@
 {
+  "encoding": "1",
   "types": [
     {
       "typeId": 0,
@@ -114,7 +115,7 @@
         "type": 1,
         "typeArguments": null
       },
-      "offset": 876
+      "offset": 17776
     }
   ]
 }

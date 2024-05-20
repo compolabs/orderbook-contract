@@ -3,23 +3,23 @@ use ::structs::*;
 use i64::I64;
 
 pub struct MarketCreateEvent {
-    asset_id: AssetId,
-    asset_decimals: u32,
-    timestamp: u64,
-    tx_id: b256,
+    pub asset_id: AssetId,
+    pub asset_decimals: u32,
+    pub timestamp: u64,
+    pub tx_id: b256,
 }
 
 pub struct TradeEvent {
-    base_token: AssetId,
-    order_matcher: Address,
-    seller: Address,
-    buyer: Address,
-    trade_size: u64,
-    trade_price: u64,
-    sell_order_id: b256,
-    buy_order_id: b256,
-    timestamp: u64,
-    tx_id: b256,
+    pub base_token: AssetId,
+    pub order_matcher: Address,
+    pub seller: Address,
+    pub buyer: Address,
+    pub trade_size: u64,
+    pub trade_price: u64,
+    pub sell_order_id: b256,
+    pub buy_order_id: b256,
+    pub timestamp: u64,
+    pub tx_id: b256,
 }
 
 enum OrderChangeEventIdentifier {
@@ -29,12 +29,12 @@ enum OrderChangeEventIdentifier {
 }
 
 pub struct OrderChangeEvent {
-    order_id: b256,
-    sender: Identity,
-    timestamp: u64,
-    identifier: OrderChangeEventIdentifier,
-    tx_id: b256,
-    order: Option<Order>,
+    pub order_id: b256,
+    pub sender: Identity,
+    pub timestamp: u64,
+    pub identifier: OrderChangeEventIdentifier,
+    pub tx_id: b256,
+    pub order: Option<Order>,
 }
 
 impl OrderChangeEvent {

@@ -16,7 +16,7 @@ use self::abigen_bindings::orderbook_contract_mod;
 
 abigen!(Contract(
     name = "OrderbookContract",
-    abi = "contract/out/debug/orderbook-abi.json"
+    abi = "contract/out/release/orderbook-abi.json"
 ));
 
 pub struct Orderbook {
@@ -126,7 +126,7 @@ impl Orderbook {
             .append_variable_outputs(2)
             .call_params(call_params)
             .unwrap()
-            .with_tx_policies(TxPolicies::default().with_gas_price(1))
+            .with_tx_policies(TxPolicies::default().with_tip(1))
             .call()
             .await
     }
@@ -156,23 +156,23 @@ impl Orderbook {
             .call()
             .await
     }
-    pub async fn match_orders_many(
-        &self,
-        sell_order_ids: Vec<Bits256>,
-        buy_order_ids: Vec<Bits256>,
-    ) -> Result<FuelCallResponse<()>, fuels::types::errors::Error> {
-        self.instance
-            .methods()
-            .match_orders_many(sell_order_ids, buy_order_ids)
-            .append_variable_outputs(2)
-            .with_tx_policies(TxPolicies::default())
-            .call()
-            .await
-    }
+    // pub async fn match_orders_many(
+    //     &self,
+    //     sell_order_ids: Vec<Bits256>,
+    //     buy_order_ids: Vec<Bits256>,
+    // ) -> Result<FuelCallResponse<()>, fuels::types::errors::Error> {
+    //     self.instance
+    //         .methods()
+    //         .match_orders_many(sell_order_ids, buy_order_ids)
+    //         .append_variable_outputs(2)
+    //         .with_tx_policies(TxPolicies::default())
+    //         .call()
+    //         .await
+    // }
 
     pub fn with_account(&self, account: &WalletUnlocked) -> Self {
         Self {
-            instance: self.instance.with_account(account.clone()).unwrap(),
+            instance: self.instance.clone().with_account(account.clone()),
             quote_token: self.quote_token,
             quote_token_decimals: self.quote_token_decimals,
             price_decimals: self.price_decimals,
@@ -210,16 +210,19 @@ impl Orderbook {
 
         let configurables = OrderbookContractConfigurables::default()
             .with_QUOTE_TOKEN(quote_token)
+            .unwrap()
             .with_QUOTE_TOKEN_DECIMALS(quote_token_decimals.try_into().unwrap())
-            .with_PRICE_DECIMALS(price_decimals.try_into().unwrap());
+            .unwrap()
+            .with_PRICE_DECIMALS(price_decimals.try_into().unwrap())
+            .unwrap();
         let config = LoadConfiguration::default().with_configurables(configurables);
 
         let bin_path =
-            PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("contract/out/debug/orderbook.bin");
+            PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("contract/out/release/orderbook.bin");
         let id = Contract::load_from(bin_path, config)
             .unwrap()
             .with_salt(salt)
-            .deploy(wallet, TxPolicies::default().with_gas_price(1))
+            .deploy(wallet, TxPolicies::default().with_max_fee(250000))
             .await
             .unwrap();
 

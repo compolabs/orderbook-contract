@@ -2,14 +2,14 @@ library;
 use i64::I64;
 
 pub struct Order {
-    id: b256,
-    trader: Address,
-    base_token: AssetId,
-    base_size: I64,
-    base_price: u64,
+    pub id: b256,
+    pub trader: Address,
+    pub base_token: AssetId,
+    pub base_size: I64,
+    pub base_price: u64,
 }
 
 pub struct Market {
-    asset_id: AssetId,
-    asset_decimals: u32,
+    pub asset_id: AssetId,
+    pub asset_decimals: u32,
 }

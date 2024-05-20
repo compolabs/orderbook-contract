@@ -15,7 +15,6 @@ const MARKET_SYMBOL: &str = "BTC";
 const BASE_SIZE: f64 = 15.; //units
 const START_PRICE: f64 = 65500.; //units
 
-
 #[tokio::main]
 async fn main() {
     print_title("Init system");

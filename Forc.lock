@@ -1,6 +1,6 @@
 [[package]]
 name = "core"
-source = "path+from-root-566CA1D5F8BEAFBF"
+source = "path+from-root-93B310ED66A2D489"
 
 [[package]]
 name = "fulfill-script"
@@ -12,7 +12,7 @@ dependencies = [
 
 [[package]]
 name = "i64"
-source = "git+https://github.com/compolabs/i64?default-branch#b983e37ec72b60a3544bde52babebec61b15c710"
+source = "git+https://github.com/compolabs/i64?branch=devnet#81bb0f2c3108dae0724d1e786ef82e9a3536cac6"
 dependencies = ["std"]
 
 [[package]]
@@ -28,16 +28,24 @@ name = "orderbook"
 source = "member"
 dependencies = [
     "i64",
-    "reentrancy",
     "std",
+    "sway_libs",
 ]
 
 [[package]]
-name = "reentrancy"
-source = "git+https://github.com/FuelLabs/sway-libs?tag=v0.18.0#8d196e9379463d4596ac582a20a84ed52ff58c69"
+name = "standards"
+source = "git+https://github.com/FuelLabs/sway-standards?tag=v0.4.3#6f63eb7dff2458a7d976184e565b5cbf26f61da2"
 dependencies = ["std"]
 
 [[package]]
 name = "std"
-source = "git+https://github.com/fuellabs/sway?tag=v0.49.3#0dc6570377ee9c4a6359ade597fa27351e02a728"
+source = "git+https://github.com/fuellabs/sway?rev#3c86abb4008017cfb93132c759758cd7a02fc8d9"
 dependencies = ["core"]
+
+[[package]]
+name = "sway_libs"
+source = "git+https://github.com/FuelLabs/sway-libs?default-branch#8045a19e3297599750abdf6300c11e9927a29d40"
+dependencies = [
+    "standards",
+    "std",
+]
