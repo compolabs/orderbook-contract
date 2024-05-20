@@ -2,6 +2,7 @@ use std::str::FromStr;
 
 use dotenv::dotenv;
 use fuels::{
+    accounts::ViewOnlyAccount,
     prelude::{Provider, WalletUnlocked},
     types::ContractId,
 };
@@ -17,12 +18,13 @@ async fn main() {
     print_title("Deploy");
 
     dotenv().ok();
+    println!("RPC = {:?}", RPC);
     let provider = Provider::connect(RPC).await.unwrap();
     let secret = std::env::var("ADMIN").unwrap();
     let wallet =
         WalletUnlocked::new_from_private_key(secret.parse().unwrap(), Some(provider.clone()));
-    println!("admin address = {:?}", wallet.address().to_string());
-
+    println!("wallet address = {:?}", wallet.address().to_string());
+    println!("balance = {:?}", wallet.get_balances().await.unwrap());
     let token_contarct = TokenContract::new(
         &ContractId::from_str(TOKEN_CONTRACT_ID).unwrap().into(),
         wallet.clone(),

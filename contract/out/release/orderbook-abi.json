@@ -1859,7 +1859,7 @@
         "type": 12,
         "typeArguments": []
       },
-      "offset": 597312
+      "offset": 205608
     },
     {
       "name": "QUOTE_TOKEN_DECIMALS",
@@ -1868,7 +1868,7 @@
         "type": 22,
         "typeArguments": null
       },
-      "offset": 597272
+      "offset": 205664
     },
     {
       "name": "PRICE_DECIMALS",
@@ -1877,7 +1877,7 @@
         "type": 22,
         "typeArguments": null
       },
-      "offset": 597256
+      "offset": 205648
     }
   ]
 }

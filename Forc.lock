@@ -1,6 +1,6 @@
 [[package]]
 name = "core"
-source = "path+from-root-CC7184DF2EE4172B"
+source = "path+from-root-93B310ED66A2D489"
 
 [[package]]
 name = "fulfill-script"
@@ -39,12 +39,12 @@ dependencies = ["std"]
 
 [[package]]
 name = "std"
-source = "git+https://github.com/fuellabs/sway?rev#850a2c48ddac019aa04bf7f5c1319381edc53fea"
+source = "git+https://github.com/fuellabs/sway?rev#3c86abb4008017cfb93132c759758cd7a02fc8d9"
 dependencies = ["core"]
 
 [[package]]
 name = "sway_libs"
-source = "git+https://github.com/FuelLabs/sway-libs?tag=v0.21.0#6a227ed34c86fe1ebd334dbdfeccf66c43e3915b"
+source = "git+https://github.com/FuelLabs/sway-libs?default-branch#8045a19e3297599750abdf6300c11e9927a29d40"
 dependencies = [
     "standards",
     "std",
