@@ -215,11 +215,12 @@ impl Orderbook {
 
         let configurables = OrderbookContractConfigurables::default()
             .with_QUOTE_TOKEN(quote_token)
-            .unwrap()
-            .with_QUOTE_TOKEN_DECIMALS(quote_token_decimals.try_into().unwrap())
-            .unwrap()
-            .with_PRICE_DECIMALS(price_decimals.try_into().unwrap())
             .unwrap();
+        //fixme uncomment after https://forum.fuel.network/t/issue-with-configurable-values-after-deployment-on-devnet/5323
+        // .with_QUOTE_TOKEN_DECIMALS(quote_token_decimals.try_into().unwrap())
+        // .unwrap()
+        // .with_PRICE_DECIMALS(price_decimals.try_into().unwrap())
+        // .unwrap();
         let config = LoadConfiguration::default().with_configurables(configurables);
 
         let bin_path =
