@@ -23,27 +23,36 @@ abi OrderBook {
     fn order_by_id(order_id: b256) -> Option<Order>;
 }
 
+pub enum Error {
+    OrdersCantBeMatched: (),
+}
+
+
 fn main(order_sell_ids: Vec<b256>, order_buy_ids: Vec<b256>) {
-    require(
-        order_sell_ids
-            .len > 0 && order_buy_ids
-            .len > 0,
-        "Error::OrdersCantBeMatched",
-    );
+    let s_len = order_sell_ids.len();
+    let b_len = order_buy_ids.len();
+    require(s_len > 0 && b_len > 0, Error::OrdersCantBeMatched);
+    
     let caller = abi(OrderBook, ORDER_BOOK_CONTRACT_ID);
 
     let mut s = 0;
     let mut b = 0;
-    while (s < order_sell_ids.len && b < order_buy_ids.len) {
-        let sid = order_sell_ids.get(s).unwrap();
-        let bid = order_buy_ids.get(b).unwrap();
-        caller.match_orders(sid, bid);
+    while true {
+        let sell_id = order_sell_ids.get(s).unwrap();
+        let buy_id = order_buy_ids.get(b).unwrap();
+        caller.match_orders(sell_id, buy_id);
         
-        if caller.order_by_id(sid).is_none() {
+        if caller.order_by_id(sell_id).is_none() {
             s += 1;
+            if s == s_len {
+                break;
+            }
         }
-        if caller.order_by_id(bid).is_none() {
+        if caller.order_by_id(buy_id).is_none() {
             b += 1;
+            if b == b_len {
+                break;
+            }
         }
     }
 }
