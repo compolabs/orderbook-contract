@@ -17,7 +17,7 @@ use self::abigen_bindings::orderbook_contract_mod;
 abigen!(
     Contract(
         name = "OrderbookContract",
-        abi = "contract/out/release/orderbook-abi.json"
+        abi = "contract/out/debug/orderbook-abi.json"
     ),
     Script(
         name = "MatchManyScript",
@@ -171,6 +171,24 @@ impl Orderbook {
             .call()
             .await
     }
+    pub async fn get_configurables(
+        &self,
+    ) -> Result<FuelCallResponse<(AssetId, u32, u32)>, fuels::types::errors::Error> {
+        self.instance.methods().get_configurables().simulate().await
+    }
+    // pub async fn match_orders_many(
+    //     &self,
+    //     sell_order_ids: Vec<Bits256>,
+    //     buy_order_ids: Vec<Bits256>,
+    // ) -> Result<FuelCallResponse<()>, fuels::types::errors::Error> {
+    //     self.instance
+    //         .methods()
+    //         .match_orders_many(sell_order_ids, buy_order_ids)
+    //         .append_variable_outputs(2)
+    //         .with_tx_policies(TxPolicies::default())
+    //         .call()
+    //         .await
+    // }
 
     pub async fn match_orders_many(
         &self,
@@ -267,11 +285,12 @@ impl Orderbook {
 
         let configurables = OrderbookContractConfigurables::default()
             .with_QUOTE_TOKEN(quote_token)
-            .unwrap()
-            .with_QUOTE_TOKEN_DECIMALS(quote_token_decimals.try_into().unwrap())
-            .unwrap()
-            .with_PRICE_DECIMALS(price_decimals.try_into().unwrap())
             .unwrap();
+        //fixme uncomment after https://forum.fuel.network/t/issue-with-configurable-values-after-deployment-on-devnet/5323
+        // .with_QUOTE_TOKEN_DECIMALS(quote_token_decimals.try_into().unwrap())
+        // .unwrap()
+        // .with_PRICE_DECIMALS(price_decimals.try_into().unwrap())
+        // .unwrap();
         let config = LoadConfiguration::default().with_configurables(configurables);
 
         let bin_path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join(CONTRACT_BIN_PATH);
