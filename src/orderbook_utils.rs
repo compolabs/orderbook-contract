@@ -90,10 +90,13 @@ impl Orderbook {
         &self,
         id: &Bits256,
     ) -> Result<FuelCallResponse<Option<Order>>, fuels::types::errors::Error> {
+        let wallet = self.instance.account();
+        let provider = wallet.provider().unwrap();
+        let estimated_gas_limit = provider.consensus_parameters().tx_params.max_gas_per_tx / 2;
         self.instance
             .methods()
             .order_by_id(*id)
-            .with_tx_policies(TxPolicies::default())
+            .with_tx_policies(TxPolicies::default().with_script_gas_limit(estimated_gas_limit))
             .simulate()
             .await
     }
@@ -163,11 +166,14 @@ impl Orderbook {
         sell_order_id: &Bits256,
         buy_order_id: &Bits256,
     ) -> Result<FuelCallResponse<()>, fuels::types::errors::Error> {
+        let wallet = self.instance.account();
+        let provider = wallet.provider().unwrap();
+        let estimated_gas_limit = provider.consensus_parameters().tx_params.max_gas_per_tx / 2;
         self.instance
             .methods()
             .match_orders(sell_order_id.clone(), buy_order_id.clone())
             .append_variable_outputs(2)
-            .with_tx_policies(TxPolicies::default())
+            .with_tx_policies(TxPolicies::default().with_max_fee(estimated_gas_limit))
             .call()
             .await
     }
@@ -178,6 +184,8 @@ impl Orderbook {
         buy_order_ids: Vec<Bits256>,
     ) -> Result<FuelCallResponse<()>, fuels::types::errors::Error> {
         let wallet = self.instance.account();
+        let provider = wallet.provider().unwrap();
+        let estimated_gas_limit = provider.consensus_parameters().tx_params.max_gas_per_tx / 2;
         let bin_path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join(MATCH_MANY_SCRIPT_BIN_PATH);
 
         let match_script = MatchManyScript::new(wallet.clone(), bin_path.to_str().unwrap())
@@ -191,8 +199,12 @@ impl Orderbook {
         match_script
             .main(sell_order_ids, buy_order_ids)
             .with_contracts(&[&self.instance])
-            .with_tx_policies(TxPolicies::default().with_gas_price(1))
-            .append_variable_outputs((sells_count + buys_count) * 3)
+            .with_tx_policies(
+                TxPolicies::default()
+                    .with_gas_price(1)
+                    .with_script_gas_limit(estimated_gas_limit),
+            )
+            .append_variable_outputs((sells_count + buys_count) * 6)
             .call()
             .await
     }
@@ -202,6 +214,8 @@ impl Orderbook {
         orders: Vec<(Bits256, Bits256)>,
     ) -> Result<FuelCallResponse<()>, fuels::types::errors::Error> {
         let wallet = self.instance.account();
+        let provider = wallet.provider().unwrap();
+        let estimated_gas_limit = provider.consensus_parameters().tx_params.max_gas_per_tx / 2;
         let bin_path =
             PathBuf::from(env!("CARGO_MANIFEST_DIR")).join(MATCH_IN_PAIRS_SCRIPT_BIN_PATH);
 
@@ -211,11 +225,15 @@ impl Orderbook {
                     Bits256::from_hex_str(&self.instance.contract_id().hash().to_string()).unwrap(),
                 ),
             );
-        let variable_outputs = orders.len() as u64 * 6;
+        let variable_outputs = orders.len() as u64 * 12;
         match_script
             .main(orders)
             .with_contracts(&[&self.instance])
-            .with_tx_policies(TxPolicies::default().with_gas_price(1))
+            .with_tx_policies(
+                TxPolicies::default()
+                    .with_gas_price(1)
+                    .with_script_gas_limit(estimated_gas_limit),
+            )
             .append_variable_outputs(variable_outputs)
             .call()
             .await
@@ -235,9 +253,14 @@ impl Orderbook {
             &ContractId::from_str(contract_id).unwrap().into(),
             wallet.clone(),
         );
+        let provider = wallet.provider().unwrap();
+        let estimated_gas_limit = provider.consensus_parameters().tx_params.max_gas_per_tx / 2;
         let (quote_token, quote_token_decimals, price_decimals) = instance
             .methods()
             .get_configurables()
+            .with_tx_policies(
+                TxPolicies::default().with_script_gas_limit((estimated_gas_limit) as u64),
+            )
             .simulate()
             .await
             .unwrap()
