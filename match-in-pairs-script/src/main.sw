@@ -14,7 +14,7 @@ abi OrderBook {
 fn main(orders: Vec<(b256, b256)>) {
     let caller = abi(OrderBook, ORDER_BOOK_CONTRACT_ID);
     let mut i = 0;
-    while (i < orders.len) {
+    while (i < orders.len()) {
         let (sell_id, buy_id) = orders.get(i).unwrap();
         caller.match_orders(sell_id, buy_id);
         i += 1;

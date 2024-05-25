@@ -657,47 +657,6 @@
     {
       "inputs": [
         {
-          "name": "order_sell_ids",
-          "type": 21,
-          "typeArguments": [
-            {
-              "name": "",
-              "type": 2,
-              "typeArguments": null
-            }
-          ]
-        },
-        {
-          "name": "order_buy_ids",
-          "type": 21,
-          "typeArguments": [
-            {
-              "name": "",
-              "type": 2,
-              "typeArguments": null
-            }
-          ]
-        }
-      ],
-      "name": "match_orders_many",
-      "output": {
-        "name": "",
-        "type": 0,
-        "typeArguments": null
-      },
-      "attributes": [
-        {
-          "name": "storage",
-          "arguments": [
-            "read",
-            "write"
-          ]
-        }
-      ]
-    },
-    {
-      "inputs": [
-        {
           "name": "base_token",
           "type": 12,
           "typeArguments": null
@@ -1029,7 +988,7 @@
       "logId": 29,
       "loggedType": {
         "name": "",
-        "type": 4,
+        "type": 8,
         "typeArguments": []
       }
     },
@@ -1037,7 +996,7 @@
       "logId": 30,
       "loggedType": {
         "name": "",
-        "type": 8,
+        "type": 4,
         "typeArguments": []
       }
     },
@@ -1045,7 +1004,7 @@
       "logId": 31,
       "loggedType": {
         "name": "",
-        "type": 8,
+        "type": 4,
         "typeArguments": []
       }
     },
@@ -1149,7 +1108,7 @@
       "logId": 44,
       "loggedType": {
         "name": "",
-        "type": 18,
+        "type": 4,
         "typeArguments": []
       }
     },
@@ -1157,7 +1116,7 @@
       "logId": 45,
       "loggedType": {
         "name": "",
-        "type": 18,
+        "type": 4,
         "typeArguments": []
       }
     },
@@ -1165,7 +1124,7 @@
       "logId": 46,
       "loggedType": {
         "name": "",
-        "type": 20,
+        "type": 4,
         "typeArguments": []
       }
     },
@@ -1173,7 +1132,7 @@
       "logId": 47,
       "loggedType": {
         "name": "",
-        "type": 8,
+        "type": 18,
         "typeArguments": []
       }
     },
@@ -1181,7 +1140,7 @@
       "logId": 48,
       "loggedType": {
         "name": "",
-        "type": 4,
+        "type": 8,
         "typeArguments": []
       }
     },
@@ -1245,7 +1204,7 @@
       "logId": 56,
       "loggedType": {
         "name": "",
-        "type": 4,
+        "type": 18,
         "typeArguments": []
       }
     },
@@ -1269,7 +1228,7 @@
       "logId": 59,
       "loggedType": {
         "name": "",
-        "type": 4,
+        "type": 16,
         "typeArguments": []
       }
     },
@@ -1277,7 +1236,7 @@
       "logId": 60,
       "loggedType": {
         "name": "",
-        "type": 4,
+        "type": 8,
         "typeArguments": []
       }
     },
@@ -1285,7 +1244,7 @@
       "logId": 61,
       "loggedType": {
         "name": "",
-        "type": 4,
+        "type": 8,
         "typeArguments": []
       }
     },
@@ -1317,7 +1276,7 @@
       "logId": 65,
       "loggedType": {
         "name": "",
-        "type": 18,
+        "type": 4,
         "typeArguments": []
       }
     },
@@ -1325,7 +1284,7 @@
       "logId": 66,
       "loggedType": {
         "name": "",
-        "type": 8,
+        "type": 4,
         "typeArguments": []
       }
     },
@@ -1397,7 +1356,7 @@
       "logId": 75,
       "loggedType": {
         "name": "",
-        "type": 4,
+        "type": 18,
         "typeArguments": []
       }
     },
@@ -1405,7 +1364,7 @@
       "logId": 76,
       "loggedType": {
         "name": "",
-        "type": 4,
+        "type": 20,
         "typeArguments": []
       }
     },
@@ -1413,7 +1372,7 @@
       "logId": 77,
       "loggedType": {
         "name": "",
-        "type": 16,
+        "type": 8,
         "typeArguments": []
       }
     },
@@ -1421,7 +1380,7 @@
       "logId": 78,
       "loggedType": {
         "name": "",
-        "type": 8,
+        "type": 4,
         "typeArguments": []
       }
     },
@@ -1429,7 +1388,7 @@
       "logId": 79,
       "loggedType": {
         "name": "",
-        "type": 8,
+        "type": 4,
         "typeArguments": []
       }
     },
@@ -1533,7 +1492,7 @@
       "logId": 92,
       "loggedType": {
         "name": "",
-        "type": 18,
+        "type": 4,
         "typeArguments": []
       }
     },
@@ -1541,7 +1500,7 @@
       "logId": 93,
       "loggedType": {
         "name": "",
-        "type": 18,
+        "type": 4,
         "typeArguments": []
       }
     },
@@ -1549,300 +1508,12 @@
       "logId": 94,
       "loggedType": {
         "name": "",
-        "type": 20,
+        "type": 4,
         "typeArguments": []
       }
     },
     {
       "logId": 95,
-      "loggedType": {
-        "name": "",
-        "type": 4,
-        "typeArguments": []
-      }
-    },
-    {
-      "logId": 96,
-      "loggedType": {
-        "name": "",
-        "type": 8,
-        "typeArguments": []
-      }
-    },
-    {
-      "logId": 97,
-      "loggedType": {
-        "name": "",
-        "type": 8,
-        "typeArguments": []
-      }
-    },
-    {
-      "logId": 98,
-      "loggedType": {
-        "name": "",
-        "type": 4,
-        "typeArguments": []
-      }
-    },
-    {
-      "logId": 99,
-      "loggedType": {
-        "name": "",
-        "type": 4,
-        "typeArguments": []
-      }
-    },
-    {
-      "logId": 100,
-      "loggedType": {
-        "name": "",
-        "type": 4,
-        "typeArguments": []
-      }
-    },
-    {
-      "logId": 101,
-      "loggedType": {
-        "name": "",
-        "type": 4,
-        "typeArguments": []
-      }
-    },
-    {
-      "logId": 102,
-      "loggedType": {
-        "name": "",
-        "type": 4,
-        "typeArguments": []
-      }
-    },
-    {
-      "logId": 103,
-      "loggedType": {
-        "name": "",
-        "type": 4,
-        "typeArguments": []
-      }
-    },
-    {
-      "logId": 104,
-      "loggedType": {
-        "name": "",
-        "type": 4,
-        "typeArguments": []
-      }
-    },
-    {
-      "logId": 105,
-      "loggedType": {
-        "name": "",
-        "type": 4,
-        "typeArguments": []
-      }
-    },
-    {
-      "logId": 106,
-      "loggedType": {
-        "name": "",
-        "type": 4,
-        "typeArguments": []
-      }
-    },
-    {
-      "logId": 107,
-      "loggedType": {
-        "name": "",
-        "type": 4,
-        "typeArguments": []
-      }
-    },
-    {
-      "logId": 108,
-      "loggedType": {
-        "name": "",
-        "type": 4,
-        "typeArguments": []
-      }
-    },
-    {
-      "logId": 109,
-      "loggedType": {
-        "name": "",
-        "type": 4,
-        "typeArguments": []
-      }
-    },
-    {
-      "logId": 110,
-      "loggedType": {
-        "name": "",
-        "type": 18,
-        "typeArguments": []
-      }
-    },
-    {
-      "logId": 111,
-      "loggedType": {
-        "name": "",
-        "type": 18,
-        "typeArguments": []
-      }
-    },
-    {
-      "logId": 112,
-      "loggedType": {
-        "name": "",
-        "type": 20,
-        "typeArguments": []
-      }
-    },
-    {
-      "logId": 113,
-      "loggedType": {
-        "name": "",
-        "type": 8,
-        "typeArguments": []
-      }
-    },
-    {
-      "logId": 114,
-      "loggedType": {
-        "name": "",
-        "type": 4,
-        "typeArguments": []
-      }
-    },
-    {
-      "logId": 115,
-      "loggedType": {
-        "name": "",
-        "type": 4,
-        "typeArguments": []
-      }
-    },
-    {
-      "logId": 116,
-      "loggedType": {
-        "name": "",
-        "type": 4,
-        "typeArguments": []
-      }
-    },
-    {
-      "logId": 117,
-      "loggedType": {
-        "name": "",
-        "type": 4,
-        "typeArguments": []
-      }
-    },
-    {
-      "logId": 118,
-      "loggedType": {
-        "name": "",
-        "type": 4,
-        "typeArguments": []
-      }
-    },
-    {
-      "logId": 119,
-      "loggedType": {
-        "name": "",
-        "type": 4,
-        "typeArguments": []
-      }
-    },
-    {
-      "logId": 120,
-      "loggedType": {
-        "name": "",
-        "type": 4,
-        "typeArguments": []
-      }
-    },
-    {
-      "logId": 121,
-      "loggedType": {
-        "name": "",
-        "type": 4,
-        "typeArguments": []
-      }
-    },
-    {
-      "logId": 122,
-      "loggedType": {
-        "name": "",
-        "type": 4,
-        "typeArguments": []
-      }
-    },
-    {
-      "logId": 123,
-      "loggedType": {
-        "name": "",
-        "type": 4,
-        "typeArguments": []
-      }
-    },
-    {
-      "logId": 124,
-      "loggedType": {
-        "name": "",
-        "type": 4,
-        "typeArguments": []
-      }
-    },
-    {
-      "logId": 125,
-      "loggedType": {
-        "name": "",
-        "type": 4,
-        "typeArguments": []
-      }
-    },
-    {
-      "logId": 126,
-      "loggedType": {
-        "name": "",
-        "type": 4,
-        "typeArguments": []
-      }
-    },
-    {
-      "logId": 127,
-      "loggedType": {
-        "name": "",
-        "type": 4,
-        "typeArguments": []
-      }
-    },
-    {
-      "logId": 128,
-      "loggedType": {
-        "name": "",
-        "type": 4,
-        "typeArguments": []
-      }
-    },
-    {
-      "logId": 129,
-      "loggedType": {
-        "name": "",
-        "type": 4,
-        "typeArguments": []
-      }
-    },
-    {
-      "logId": 130,
-      "loggedType": {
-        "name": "",
-        "type": 4,
-        "typeArguments": []
-      }
-    },
-    {
-      "logId": 131,
       "loggedType": {
         "name": "",
         "type": 18,
@@ -1859,7 +1530,7 @@
         "type": 12,
         "typeArguments": []
       },
-      "offset": 205608
+      "offset": 178728
     },
     {
       "name": "QUOTE_TOKEN_DECIMALS",
@@ -1868,7 +1539,7 @@
         "type": 22,
         "typeArguments": null
       },
-      "offset": 205664
+      "offset": 178784
     },
     {
       "name": "PRICE_DECIMALS",
@@ -1877,7 +1548,7 @@
         "type": 22,
         "typeArguments": null
       },
-      "offset": 205648
+      "offset": 178768
     }
   ]
 }

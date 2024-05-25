@@ -17,22 +17,22 @@ use self::abigen_bindings::orderbook_contract_mod;
 abigen!(
     Contract(
         name = "OrderbookContract",
-        abi = "contract/out/debug/orderbook-abi.json"
+        abi = "contract/out/release/orderbook-abi.json"
     ),
     Script(
         name = "MatchManyScript",
-        abi = "match-many-script/out/debug/match-many-script-abi.json"
+        abi = "match-many-script/out/release/match-many-script-abi.json"
     ),
     Script(
         name = "MatchInPairsScript",
-        abi = "match-in-pairs-script/out/debug/match-in-pairs-script-abi.json"
+        abi = "match-in-pairs-script/out/release/match-in-pairs-script-abi.json"
     )
 );
 
-const CONTRACT_BIN_PATH: &str = "contract/out/debug/orderbook.bin";
-const MATCH_MANY_SCRIPT_BIN_PATH: &str = "match-many-script/out/debug/match-many-script.bin";
+const CONTRACT_BIN_PATH: &str = "contract/out/release/orderbook.bin";
+const MATCH_MANY_SCRIPT_BIN_PATH: &str = "match-many-script/out/release/match-many-script.bin";
 const MATCH_IN_PAIRS_SCRIPT_BIN_PATH: &str =
-    "match-in-pairs-script/out/debug/match-in-pairs-script.bin";
+    "match-in-pairs-script/out/release/match-in-pairs-script.bin";
 
 pub struct Orderbook {
     pub instance: OrderbookContract<WalletUnlocked>,

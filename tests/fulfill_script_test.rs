@@ -72,7 +72,7 @@ async fn fulfill_script_test() {
         .await
         .unwrap();
 
-    let match_script =
+    let script =
         FulfillScript::new(admin.clone(), "fulfill-script/out/debug/fulfill-script.bin")
             .with_configurables(
                 FulfillScriptConfigurables::default()
@@ -83,20 +83,20 @@ async fn fulfill_script_test() {
                     .unwrap(),
             );
 
-    /*match_script
-    .main(
-        vec![sell_order0_id, sell_order1_id],
-        price,
-        base_asset.asset_id,
-        I64 {
-            value: base_size,
-            negative: false,
-        },
-    )
-    .with_contracts(&[&orderbook.instance])
-    .with_tx_policies(TxPolicies::default().with_tip(1))
-    .append_variable_outputs(2)
-    .call()
-    .await
-    .unwrap();*/
+    script
+        .main(
+            vec![sell_order0_id, sell_order1_id],
+            price,
+            base_asset.asset_id,
+            I64 {
+                value: base_size,
+                negative: false,
+            },
+        )
+        .with_contracts(&[&orderbook.instance])
+        .with_tx_policies(TxPolicies::default().with_tip(1))
+        .append_variable_outputs(2)
+        .call()
+        .await
+        .unwrap();
 }
