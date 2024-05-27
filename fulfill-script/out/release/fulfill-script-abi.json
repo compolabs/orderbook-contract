@@ -157,15 +157,7 @@
   ],
   "loggedTypes": [
     {
-      "logId": 0,
-      "loggedType": {
-        "name": "",
-        "type": 9,
-        "typeArguments": null
-      }
-    },
-    {
-      "logId": 1,
+      "logId": "1515152261580153489",
       "loggedType": {
         "name": "",
         "type": 9,
@@ -182,7 +174,7 @@
         "type": 1,
         "typeArguments": null
       },
-      "offset": 14272
+      "offset": 10392
     }
   ]
 }

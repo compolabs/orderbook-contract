@@ -6,6 +6,3 @@ members = [
     "match-in-pairs-script",
     "fulfill-script",
 ]
-
-[forc]
-compiler-version = "0.58"

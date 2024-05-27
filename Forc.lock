@@ -1,6 +1,6 @@
 [[package]]
 name = "core"
-source = "path+from-root-93B310ED66A2D489"
+source = "path+from-root-856C7E4E7C8AB7C2"
 
 [[package]]
 name = "fulfill-script"
@@ -12,7 +12,7 @@ dependencies = [
 
 [[package]]
 name = "i64"
-source = "git+https://github.com/compolabs/i64?branch=devnet#81bb0f2c3108dae0724d1e786ef82e9a3536cac6"
+source = "git+https://github.com/compolabs/i64?branch=testnet#81bb0f2c3108dae0724d1e786ef82e9a3536cac6"
 dependencies = ["std"]
 
 [[package]]
@@ -52,7 +52,7 @@ dependencies = ["std"]
 
 [[package]]
 name = "std"
-source = "git+https://github.com/fuellabs/sway?rev#3c86abb4008017cfb93132c759758cd7a02fc8d9"
+source = "git+https://github.com/fuellabs/sway?rev#d93bb91ab51baddc966753ced9af6cfd60378f80"
 dependencies = ["core"]
 
 [[package]]
