@@ -55,6 +55,7 @@ impl Orderbook {
         self.instance
             .methods()
             .create_market(asset_id, decimal)
+            .with_tx_policies(TxPolicies::default().with_script_gas_limit(350000))
             .call()
             .await
     }
@@ -304,6 +305,7 @@ impl Orderbook {
         let (quote_token, quote_token_decimals, price_decimals) = instance
             .methods()
             .get_configurables()
+            .with_tx_policies(TxPolicies::default().with_script_gas_limit(350000))
             .simulate()
             .await
             .unwrap()

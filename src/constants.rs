@@ -1,7 +1,7 @@
 pub const RPC: &str = "testnet.fuel.network";
 
 pub const ORDERBOOK_CONTRACT_ID: &str =
-    "0d79fb0ddede07ad15eb97576e902d107cc68321d2715b959f6ba762c4b27a4e";
+    "0x4a2ce054e3e94155f7092f7365b212f7f45105b74819c623744ebcc5d065c6ac";
 
 pub const TOKEN_CONTRACT_ID: &str =
     "0x3141a3f11e3f784364d57860e3a4dcf9b73d42e23fd49038773cefb09c633348";
@@ -13,9 +13,6 @@ pub const UNI_ASSET_ID_STR: &str =
     "0x6bb660d910df84bdd1cb329b4c8aad4f1994bad999a49c969af9a37f0920b9d8";
 
 /*
-RPC = "testnet.fuel.network"
-wallet address = "fuel1r9xy6hfjr63mct58zz054pjjpttqlyjfnrm8qp75slfuczkvghfqs6ndle"
-balance = {"f8f8b6283d7fa5b672b530cbb84fcccb4ff8dc40f8176ef4544ddb1f1952ad07": 1608828}
-🏁 Start_block: 677810
-The orderbook contract has been deployed 098924badca7b0c87ba8c09b99528834db57bd8386a7510cc4de7f0a732d2d47
+🏁 Start_block: 1030723
+The orderbook contract has been deployed with contract id: 0x4a2ce054e3e94155f7092f7365b212f7f45105b74819c623744ebcc5d065c6ac
 */
