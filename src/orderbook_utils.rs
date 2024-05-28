@@ -26,10 +26,15 @@ abigen!(
     Script(
         name = "MatchInPairsScript",
         abi = "match-in-pairs-script/out/release/match-in-pairs-script-abi.json"
+    ),
+    Script(
+        name = "FulfillScript",
+        abi = "fulfill-script/out/release/fulfill-script-abi.json"
     )
 );
 
 const CONTRACT_BIN_PATH: &str = "contract/out/release/orderbook.bin";
+const FULFILL_SCRIPT_BIN_PATH: &str = "fulfill-script/out/release/fulfill-script.bin";
 const MATCH_MANY_SCRIPT_BIN_PATH: &str = "match-many-script/out/release/match-many-script.bin";
 const MATCH_IN_PAIRS_SCRIPT_BIN_PATH: &str =
     "match-in-pairs-script/out/release/match-in-pairs-script.bin";
@@ -214,6 +219,43 @@ impl Orderbook {
             .with_contracts(&[&self.instance])
             .with_tx_policies(TxPolicies::default().with_tip(1))
             .append_variable_outputs((sells_count + buys_count) * 3)
+            .call()
+            .await
+    }
+
+    pub async fn fulfill(
+        &self,
+        price: u64,
+        base_token: AssetId,
+        base_size: i64,
+        fulfill_orders: Vec<Bits256>,
+    ) -> Result<FuelCallResponse<()>, fuels::types::errors::Error> {
+        let wallet = self.instance.account();
+        let bin_path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join(FULFILL_SCRIPT_BIN_PATH);
+
+        let script = FulfillScript::new(wallet.clone(), bin_path.to_str().unwrap())
+            .with_configurables(
+                FulfillScriptConfigurables::default()
+                    .with_ORDER_BOOK_CONTRACT_ID(
+                        Bits256::from_hex_str(&self.instance.contract_id().hash().to_string())
+                            .unwrap(),
+                    )
+                    .unwrap(),
+            );
+
+        script
+            .main(
+                fulfill_orders,
+                price,
+                base_token,
+                I64 {
+                    value: base_size.abs() as u64,
+                    negative: base_size < 0,
+                },
+            )
+            .with_contracts(&[&self.instance])
+            .with_tx_policies(TxPolicies::default().with_tip(1))
+            .append_variable_outputs(2)
             .call()
             .await
     }

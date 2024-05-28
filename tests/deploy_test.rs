@@ -10,7 +10,7 @@ async fn deploy_test() {
     let wallets = launch_custom_provider_and_get_wallets(wallets_config, None, None)
         .await
         .unwrap();
-    let admin = &wallets[0];
+    let admin = wallets[0].clone();
 
     let token_contract = deploy_token_contract(&admin).await;
     let quote_asset = Asset::new(admin.clone(), token_contract.contract_id().into(), "USDC");

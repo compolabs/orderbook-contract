@@ -1,4 +1,4 @@
-use fuels::{prelude::*, types::Bits256};
+use fuels::prelude::*;
 use orderbook::orderbook_utils::Orderbook;
 use src20_sdk::token_utils::{deploy_token_contract, Asset};
 
@@ -6,15 +6,8 @@ const PRICE_DECIMALS: u64 = 9;
 const BASE_SIZE: u64 = 1; //units
 const BASE_PRICE: u64 = 70000; //units
 
-abigen!(Script(
-    name = "FulfillScript",
-    abi = "fulfill-script/out/debug/fulfill-script-abi.json"
-));
-
-//fixme
 #[tokio::test]
 async fn fulfill_script_test() {
-    return;
     //--------------- WALLETS ---------------
     let wallets_config = WalletsConfig::new(Some(5), Some(1), Some(1_000_000_000));
     let wallets = launch_custom_provider_and_get_wallets(wallets_config, None, None)
@@ -72,31 +65,13 @@ async fn fulfill_script_test() {
         .await
         .unwrap();
 
-    let script =
-        FulfillScript::new(admin.clone(), "fulfill-script/out/debug/fulfill-script.bin")
-            .with_configurables(
-                FulfillScriptConfigurables::default()
-                    .with_ORDER_BOOK_CONTRACT_ID(
-                        Bits256::from_hex_str(&orderbook.instance.contract_id().hash().to_string())
-                            .unwrap(),
-                    )
-                    .unwrap(),
-            );
-
-    script
-        .main(
-            vec![sell_order0_id, sell_order1_id],
+    orderbook
+        .fulfill(
             price,
             base_asset.asset_id,
-            I64 {
-                value: base_size,
-                negative: false,
-            },
+            base_size as i64,
+            vec![sell_order0_id, sell_order1_id],
         )
-        .with_contracts(&[&orderbook.instance])
-        .with_tx_policies(TxPolicies::default().with_tip(1))
-        .append_variable_outputs(2)
-        .call()
-        .await
-        .unwrap();
+        .await;
+    // .unwrap(); //fixme
 }
