@@ -9,13 +9,24 @@
     },
     {
       "typeId": 1,
-      "type": "b256",
-      "components": null,
+      "type": "(_, _)",
+      "components": [
+        {
+          "name": "__tuple_element",
+          "type": 2,
+          "typeArguments": null
+        },
+        {
+          "name": "__tuple_element",
+          "type": 2,
+          "typeArguments": null
+        }
+      ],
       "typeParameters": null
     },
     {
       "typeId": 2,
-      "type": "bool",
+      "type": "b256",
       "components": null,
       "typeParameters": null
     },
@@ -33,35 +44,6 @@
     },
     {
       "typeId": 5,
-      "type": "struct AssetId",
-      "components": [
-        {
-          "name": "bits",
-          "type": 1,
-          "typeArguments": null
-        }
-      ],
-      "typeParameters": null
-    },
-    {
-      "typeId": 6,
-      "type": "struct I64",
-      "components": [
-        {
-          "name": "value",
-          "type": 9,
-          "typeArguments": null
-        },
-        {
-          "name": "negative",
-          "type": 2,
-          "typeArguments": null
-        }
-      ],
-      "typeParameters": null
-    },
-    {
-      "typeId": 7,
       "type": "struct RawVec",
       "components": [
         {
@@ -71,7 +53,7 @@
         },
         {
           "name": "cap",
-          "type": 9,
+          "type": 7,
           "typeArguments": null
         }
       ],
@@ -80,12 +62,12 @@
       ]
     },
     {
-      "typeId": 8,
+      "typeId": 6,
       "type": "struct Vec",
       "components": [
         {
           "name": "buf",
-          "type": 7,
+          "type": 5,
           "typeArguments": [
             {
               "name": "",
@@ -96,7 +78,7 @@
         },
         {
           "name": "len",
-          "type": 9,
+          "type": 7,
           "typeArguments": null
         }
       ],
@@ -105,7 +87,7 @@
       ]
     },
     {
-      "typeId": 9,
+      "typeId": 7,
       "type": "u64",
       "components": null,
       "typeParameters": null
@@ -116,7 +98,7 @@
       "inputs": [
         {
           "name": "orders",
-          "type": 8,
+          "type": 6,
           "typeArguments": [
             {
               "name": "",
@@ -124,21 +106,6 @@
               "typeArguments": null
             }
           ]
-        },
-        {
-          "name": "price",
-          "type": 9,
-          "typeArguments": null
-        },
-        {
-          "name": "base_token",
-          "type": 5,
-          "typeArguments": null
-        },
-        {
-          "name": "base_size",
-          "type": 6,
-          "typeArguments": null
         }
       ],
       "name": "main",
@@ -147,34 +114,20 @@
         "type": 0,
         "typeArguments": null
       },
-      "attributes": [
-        {
-          "name": "payable",
-          "arguments": []
-        }
-      ]
+      "attributes": null
     }
   ],
-  "loggedTypes": [
-    {
-      "logId": "1515152261580153489",
-      "loggedType": {
-        "name": "",
-        "type": 9,
-        "typeArguments": null
-      }
-    }
-  ],
+  "loggedTypes": [],
   "messagesTypes": [],
   "configurables": [
     {
       "name": "ORDER_BOOK_CONTRACT_ID",
       "configurableType": {
         "name": "",
-        "type": 1,
+        "type": 2,
         "typeArguments": null
       },
-      "offset": 12272
+      "offset": 3776
     }
   ]
 }

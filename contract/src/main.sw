@@ -24,8 +24,8 @@ use std::tx::tx_id;
 
 configurable {
     QUOTE_TOKEN: AssetId = AssetId::from(ZERO_B256),
-    QUOTE_TOKEN_DECIMALS: u32 = 6,
-    PRICE_DECIMALS: u32 = 9,
+    QUOTE_TOKEN_DECIMALS: u32 = 0,
+    PRICE_DECIMALS: u32 = 0,
 }
 
 storage {
