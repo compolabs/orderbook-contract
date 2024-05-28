@@ -8,7 +8,7 @@ const BASE_PRICE: u64 = 70000; //units
 
 abigen!(Script(
     name = "MatchScript",
-    abi = "match-script/out/debug/match-script-abi.json"
+    abi = "match-script/out/release/match-script-abi.json"
 ));
 
 #[tokio::test]
@@ -77,7 +77,7 @@ async fn match_script_test() {
         .unwrap()
         .value;
 
-    let match_script = MatchScript::new(admin.clone(), "match-script/out/debug/match-script.bin")
+    let match_script = MatchScript::new(admin.clone(), "match-script/out/release/match-script.bin")
         .with_configurables(
             MatchScriptConfigurables::default()
                 .with_ORDER_BOOK_CONTRACT_ID(

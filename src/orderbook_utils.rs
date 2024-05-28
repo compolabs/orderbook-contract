@@ -67,6 +67,7 @@ impl Orderbook {
         self.instance
             .methods()
             .get_market_by_id(asset_id)
+            .with_tx_policies(TxPolicies::default().with_script_gas_limit(350000))
             .simulate()
             .await
     }
@@ -99,7 +100,7 @@ impl Orderbook {
         self.instance
             .methods()
             .order_by_id(*id)
-            .with_tx_policies(TxPolicies::default())
+            .with_tx_policies(TxPolicies::default().with_script_gas_limit(350000))
             .simulate()
             .await
     }
@@ -147,7 +148,7 @@ impl Orderbook {
             .append_variable_outputs(2)
             .call_params(call_params)
             .unwrap()
-            .with_tx_policies(TxPolicies::default().with_tip(1))
+            .with_tx_policies(TxPolicies::default().with_script_gas_limit(3500000))
             .call()
             .await
     }
@@ -173,7 +174,7 @@ impl Orderbook {
             .methods()
             .match_orders(sell_order_id.clone(), buy_order_id.clone())
             .append_variable_outputs(2)
-            .with_tx_policies(TxPolicies::default())
+            .with_tx_policies(TxPolicies::default().with_script_gas_limit(3500000))
             .call()
             .await
     }
