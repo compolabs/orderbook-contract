@@ -12,8 +12,8 @@ use src20_sdk::token_utils::{Asset, TokenContract};
 use std::{env, str::FromStr};
 
 const MARKET_SYMBOL: &str = "BTC";
-const BASE_SIZE: i64 = 1; //units
-const BASE_PRICE: u64 = 69001; //units
+const BASE_SIZE: i64 = -100; //units
+const BASE_PRICE: u64 = 69432; //units
 
 #[tokio::main]
 async fn main() {

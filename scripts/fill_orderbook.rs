@@ -13,8 +13,8 @@ use std::str::FromStr;
 
 const MARKET_SYMBOL: &str = "BTC";
 const BASE_SIZE: f64 = 15.; //units
-const START_PRICE: f64 = 65500.; //units
-const STEP: f64 = 100.;
+const START_PRICE: f64 = 69000.; //units
+const STEP: f64 = 1.;
 
 #[tokio::main]
 async fn main() {
@@ -53,8 +53,9 @@ async fn main() {
                 Ok(response) => {
                     let id = Address::from(response.value.0).to_string();
                     println!("Sell order created successfully. OrderId: 0x{}", id);
+                    println!("Sell Price: {}", sell_price);
+                    println!("Transaction ID: 0x{:?}\n", response.tx_id.unwrap());
                     // println!("Gas Used: {:?}", response.gas_used);
-                    println!("Transaction ID: {:?}\n", response.tx_id.unwrap());
                 }
                 Err(error) => {
                     println!("Failed to create a sell order: {:?}\n", error);
@@ -78,8 +79,9 @@ async fn main() {
                 Ok(response) => {
                     let id = Address::from(response.value.0).to_string();
                     println!("Buy order created successfully. OrderId: 0x{}", id);
+                    println!("Buy Price: {}", buy_price);
+                    println!("Transaction ID: 0x{:?}\n", response.tx_id.unwrap());
                     // println!("Gas Used: {:?}", response.gas_used);
-                    println!("Transaction ID: {:?}\n", response.tx_id.unwrap());
                 }
                 Err(error) => {
                     println!("Failed to create a buy order: {:?}\n", error);

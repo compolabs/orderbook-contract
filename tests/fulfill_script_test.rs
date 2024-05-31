@@ -65,7 +65,7 @@ async fn fulfill_script_test() {
         .await
         .unwrap();
 
-    orderbook
+    let result = orderbook
         .fulfill(
             price,
             base_asset.asset_id,
@@ -73,5 +73,8 @@ async fn fulfill_script_test() {
             vec![sell_order0_id, sell_order1_id],
         )
         .await;
-    // .unwrap(); //fixme
+
+    if let Err(e) = result {
+        eprintln!("Error fulfilling order: {:?}", e);
+    }
 }
