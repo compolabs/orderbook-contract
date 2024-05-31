@@ -284,7 +284,7 @@ impl Orderbook {
         match_script
             .main(orders)
             .with_contracts(&[&self.instance])
-            .with_tx_policies(TxPolicies::default().with_tip(1))
+            .with_tx_policies(TxPolicies::default().with_tip(1).with_script_gas_limit(9000000))
             .append_variable_outputs(variable_outputs)
             .call()
             .await
