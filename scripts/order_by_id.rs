@@ -9,11 +9,11 @@ use orderbook::{
     print_title,
 };
 
-const ORDER_ID: &str = "0x2b04ddb4fe13fd38f0edf10c347ba059f8404bc9063e76857df31a414163db38";
+const ORDER_ID: &str = "0xf8464e16ffcae5065d22d8b3edef985760e802bedc34b5730e66660d4d29c2d4";
 
 #[tokio::main]
 async fn main() {
-    print_title("Cancel order");
+    print_title("Order by id order");
     dotenv().ok();
     let provider = Provider::connect(RPC).await.unwrap();
     let secret = std::env::var("ADMIN").unwrap();
@@ -25,8 +25,5 @@ async fn main() {
     let id = &Bits256::from_hex_str(ORDER_ID).unwrap();
 
     let order = orderbook.order_by_id(id).await.unwrap().value;
-
-    assert!(order.is_some());
-
-    orderbook.cancel_order(id).await.unwrap();
+    println!("order = {:?}", order);
 }

@@ -78,6 +78,7 @@ impl Orderbook {
         self.instance
             .methods()
             .get_order_change_events_by_order(ordr_id)
+            .with_tx_policies(TxPolicies::default().with_script_gas_limit(350000))
             .simulate()
             .await
     }

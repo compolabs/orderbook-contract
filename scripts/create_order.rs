@@ -1,7 +1,7 @@
 use dotenv::dotenv;
 use fuels::{
     prelude::{Provider, WalletUnlocked},
-    types::ContractId,
+    types::{Address, ContractId},
 };
 use orderbook::{
     constants::{ORDERBOOK_CONTRACT_ID, RPC, TOKEN_CONTRACT_ID},
@@ -12,8 +12,8 @@ use src20_sdk::token_utils::{Asset, TokenContract};
 use std::str::FromStr;
 
 const MARKET_SYMBOL: &str = "BTC";
-const BASE_SIZE: i64 = -100; //units
-const BASE_PRICE: u64 = 10; //units
+const BASE_SIZE: i64 = 1; //units
+const BASE_PRICE: u64 = 69001; //units
 
 #[tokio::main]
 async fn main() {
@@ -23,7 +23,7 @@ async fn main() {
     let secret = std::env::var("ADMIN").unwrap();
     let wallet =
         WalletUnlocked::new_from_private_key(secret.parse().unwrap(), Some(provider.clone()));
-    
+    println!("wallet address = {:?}", wallet.address());
     let token_contract = TokenContract::new(
         &ContractId::from_str(TOKEN_CONTRACT_ID).unwrap().into(),
         wallet.clone(),
@@ -49,22 +49,21 @@ async fn main() {
             .unwrap();
     }
     let price = BASE_PRICE * 10u64.pow(orderbook.price_decimals as u32);
-    orderbook
+    let result = orderbook
         .open_order(base_asset.asset_id, BASE_SIZE, price)
-        .await
-        .unwrap();
+        .await;
 
-    // match result {
-    //     Ok(response) => {
-    //         let id = Address::from(response.value.0).to_string();
-    //         println!("Order opened successfully. OrderId: 0x{id}");
-    //         // println!("Value: {:?}", response.value);
-    //         // println!("Receipts: {:?}", response.receipts);
-    //         println!("Gas Used: {:?}", response.gas_used);
-    //         println!("Transaction ID: {:?}", response.tx_id.unwrap());
-    //     }
-    //     Err(error) => {
-    //         eprintln!("Failed to open order: {:?}", error);
-    //     }
-    // }
+    match result {
+        Ok(response) => {
+            let id = Address::from(response.value.0).to_string();
+            println!("Order opened successfully. OrderId: 0x{id}");
+            // println!("Value: {:?}", response.value);
+            // println!("Receipts: {:?}", response.receipts);
+            println!("Gas Used: {:?}", response.gas_used);
+            println!("Transaction ID: {:?}", response.tx_id.unwrap());
+        }
+        Err(error) => {
+            eprintln!("Failed to open order: {:?}", error);
+        }
+    }
 }
