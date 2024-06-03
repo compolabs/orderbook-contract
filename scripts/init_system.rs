@@ -79,7 +79,8 @@ async fn main() {
                 Ok(response) => {
                     let id = Address::from(response.value.0).to_string();
                     println!("Sell OrderId: 0x{}", id);
-                    println!("Transaction ID: {:?}\n", response.tx_id.unwrap());
+                    println!("Sell Price: {}", sell_price);
+                    println!("Transaction ID: 0x{:?}\n", response.tx_id.unwrap());
                 }
                 Err(error) => {
                     println!("Failed to create a sell order: {:?}\n", error);
@@ -103,7 +104,8 @@ async fn main() {
                 Ok(response) => {
                     let id = Address::from(response.value.0).to_string();
                     println!("Buy OrderId: 0x{}", id);
-                    println!("Transaction ID: {:?}\n", response.tx_id.unwrap());
+                    println!("Buy Price: {}", buy_price);
+                    println!("Transaction ID: 0x{:?}\n", response.tx_id.unwrap());
                 }
                 Err(error) => {
                     println!("Failed to create a buy order: {:?}\n", error);
