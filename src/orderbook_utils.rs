@@ -1,4 +1,4 @@
-use std::{path::PathBuf, str::FromStr};
+use std::{path::PathBuf, str::FromStr, time::Instant};
 
 use fuels::{
     accounts::wallet::WalletUnlocked,
@@ -123,6 +123,7 @@ impl Orderbook {
         base_size: i64,
         base_price: u64,
     ) -> Result<FuelCallResponse<Bits256>, fuels::types::errors::Error> {
+        let start = Instant::now();
         let call_params: CallParameters = if base_size.is_negative() {
             CallParameters::default()
                 .with_asset_id(base_token)
@@ -139,7 +140,8 @@ impl Orderbook {
                 .with_amount(quote_size as u64)
         };
 
-        self.instance
+        let result = self
+            .instance
             .methods()
             .open_order(
                 base_token,
@@ -151,7 +153,17 @@ impl Orderbook {
             .unwrap()
             .with_tx_policies(TxPolicies::default().with_script_gas_limit(3500000))
             .call()
-            .await
+            .await;
+
+        if std::env::var("LOG_LEVEL").is_ok_and(|v| v == "debug") {
+            let tx_id = if result.is_ok() {
+                result.as_ref().unwrap().tx_id
+            } else {
+                None
+            };
+            println!("Open order tx ({:?}) = {:?}", start.elapsed(), tx_id);
+        }
+        result
     }
 
     pub async fn cancel_order(
@@ -284,7 +296,11 @@ impl Orderbook {
         match_script
             .main(orders)
             .with_contracts(&[&self.instance])
-            .with_tx_policies(TxPolicies::default().with_tip(1).with_script_gas_limit(9000000))
+            .with_tx_policies(
+                TxPolicies::default()
+                    .with_tip(1)
+                    .with_script_gas_limit(9000000),
+            )
             .append_variable_outputs(variable_outputs)
             .call()
             .await

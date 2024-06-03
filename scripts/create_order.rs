@@ -23,7 +23,7 @@ async fn main() {
     let secret = env::var("ADMIN").unwrap();
     let wallet =
         WalletUnlocked::new_from_private_key(secret.parse().unwrap(), Some(provider.clone()));
-println!("wallet address = {:?}", wallet.address());
+    println!("wallet address = {:?}", wallet.address());
     let token_contract = TokenContract::new(
         &ContractId::from_str(TOKEN_CONTRACT_ID).unwrap().into(),
         wallet.clone(),
