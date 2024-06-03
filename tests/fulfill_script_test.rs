@@ -74,7 +74,6 @@ async fn fulfill_script_test() {
         )
         .await;
 
-    if let Err(e) = result {
-        eprintln!("Error fulfilling order: {:?}", e);
-    }
+    //fixme
+    result.unwrap();
 }
