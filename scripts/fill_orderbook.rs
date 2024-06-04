@@ -9,10 +9,10 @@ use orderbook::{
     print_title,
 };
 use src20_sdk::token_utils::{Asset, TokenContract};
-use std::str::FromStr;
+use std::{str::FromStr, time::Instant};
 
 const MARKET_SYMBOL: &str = "BTC";
-const BASE_SIZE: f64 = 15.; //units
+const BASE_SIZE: f64 = 1.; //units
 const START_PRICE: f64 = 69000.; //units
 const STEP: f64 = 100.;
 
@@ -44,18 +44,20 @@ async fn main() {
             ((START_PRICE + diff) * 10f64.powf(orderbook.price_decimals as f64)) as u64;
 
         let mint_tx = base_asset.mint(wallet.address().into(), base_size).await;
+        let start = Instant::now();
         if mint_tx.is_ok() {
             let order_tx = orderbook
                 .open_order(base_asset.asset_id, -1 * base_size as i64, sell_price - 1)
                 .await;
-
+            let finish = start.elapsed();
             match order_tx {
                 Ok(response) => {
                     let id = Address::from(response.value.0).to_string();
                     println!("Sell order created successfully. OrderId: 0x{}", id);
-                    println!("Sell Price: {}", sell_price);
-                    println!("Transaction ID: 0x{:?}\n", response.tx_id.unwrap());
-                    // println!("Gas Used: {:?}", response.gas_used);
+                    println!("Gas Used: {:?}", response.gas_used);
+                    println!("Transaction ID: 0x{:?}", response.tx_id.unwrap());
+                    println!("Duration: {:?}", finish);
+                    println!("Sell Price: {}\n", sell_price);
                 }
                 Err(error) => {
                     println!("Failed to create a sell order: {:?}\n", error);
@@ -70,18 +72,20 @@ async fn main() {
         let mint_tx = quote_asset
             .mint(wallet.address().into(), quote_size as u64)
             .await;
+        let start = Instant::now();
         if mint_tx.is_ok() {
             let order_tx = orderbook
                 .open_order(base_asset.asset_id, base_size as i64, buy_price)
                 .await;
-
+            let finish = start.elapsed();
             match order_tx {
                 Ok(response) => {
                     let id = Address::from(response.value.0).to_string();
                     println!("Buy order created successfully. OrderId: 0x{}", id);
-                    println!("Buy Price: {}", buy_price);
-                    println!("Transaction ID: 0x{:?}\n", response.tx_id.unwrap());
-                    // println!("Gas Used: {:?}", response.gas_used);
+                    println!("Gas Used: {:?}", response.gas_used);
+                    println!("Transaction ID: 0x{:?}", response.tx_id.unwrap());
+                    println!("Duration: {:?}", finish);
+                    println!("Buy Price: {}\n", buy_price);
                 }
                 Err(error) => {
                     println!("Failed to create a buy order: {:?}\n", error);
