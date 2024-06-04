@@ -44,8 +44,8 @@ async fn main() {
             ((START_PRICE + diff) * 10f64.powf(orderbook.price_decimals as f64)) as u64;
 
         let mint_tx = base_asset.mint(wallet.address().into(), base_size).await;
-        let start = Instant::now();
         if mint_tx.is_ok() {
+            let start = Instant::now();
             let order_tx = orderbook
                 .open_order(base_asset.asset_id, -1 * base_size as i64, sell_price - 1)
                 .await;
@@ -72,8 +72,8 @@ async fn main() {
         let mint_tx = quote_asset
             .mint(wallet.address().into(), quote_size as u64)
             .await;
-        let start = Instant::now();
         if mint_tx.is_ok() {
+            let start = Instant::now();
             let order_tx = orderbook
                 .open_order(base_asset.asset_id, base_size as i64, buy_price)
                 .await;

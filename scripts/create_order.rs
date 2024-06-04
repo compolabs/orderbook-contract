@@ -9,7 +9,7 @@ use orderbook::{
     print_title,
 };
 use src20_sdk::token_utils::{Asset, TokenContract};
-use std::{env, str::FromStr};
+use std::{env, str::FromStr, time::Instant};
 
 const MARKET_SYMBOL: &str = "BTC";
 const BASE_SIZE: i64 = 1; //units
@@ -50,16 +50,18 @@ async fn main() {
     }
 
     let price = BASE_PRICE * 10u64.pow(orderbook.price_decimals as u32);
-
+    let start = Instant::now();
     match orderbook
         .open_order(base_asset.asset_id, BASE_SIZE, price)
         .await
     {
         Ok(response) => {
+            let finish = start.elapsed();
             let id = Address::from(response.value.0).to_string();
             println!("Order opened successfully. OrderId: 0x{id}");
             println!("Gas Used: {:?}", response.gas_used);
             println!("Transaction ID: 0x{:?}", response.tx_id.unwrap());
+            println!("Duration: {:?}", finish);
         }
         Err(error) => {
             eprintln!("Failed to open order: {:?}", error);

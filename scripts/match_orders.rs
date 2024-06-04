@@ -9,7 +9,7 @@ use orderbook::{
     print_title,
 };
 use src20_sdk::token_utils::{Asset, TokenContract};
-use std::str::FromStr;
+use std::{str::FromStr, time::Instant};
 
 const MARKET_SYMBOL: &str = "BTC";
 const BASE_SIZE: f64 = 0.01; //units
@@ -44,13 +44,16 @@ async fn main() {
         .unwrap();
 
     // sell
+    let start = Instant::now();
     let sell_order_id = orderbook
         .open_order(base_asset.asset_id, -1 * base_size as i64, price - 1)
         .await
         .unwrap()
         .value;
+    let finish = start.elapsed();
+    println!("Open order duration: {:?}", finish);
     println!(
-        "sell_order = {:?}",
+        "sell_order = {:?}\n",
         orderbook.order_by_id(&sell_order_id).await.unwrap().value
     );
 
@@ -62,19 +65,23 @@ async fn main() {
         .unwrap();
 
     //buy
+    let start = Instant::now();
     let buy_order_id = orderbook
         .open_order(base_asset.asset_id, base_size as i64, price)
         .await
         .unwrap()
         .value;
-
+    let finish = start.elapsed();
+    println!("Open order duration: {:?}", finish);
     println!(
         "buy_order = {:?}\n",
         orderbook.order_by_id(&buy_order_id).await.unwrap().value
     );
-
+    let start = Instant::now();
     orderbook
         .match_orders(&sell_order_id, &buy_order_id)
         .await
         .unwrap();
+    let finish = start.elapsed();
+    println!("Match duration: {:?}", finish);
 }

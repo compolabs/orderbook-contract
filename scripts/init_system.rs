@@ -10,10 +10,10 @@ use orderbook::{
     print_title,
 };
 use src20_sdk::token_utils::{Asset, TokenContract};
-use std::str::FromStr;
+use std::{str::FromStr, time::Instant};
 const MARKET_SYMBOL: &str = "BTC";
-const BASE_SIZE: f64 = 15.; //units
-const START_PRICE: f64 = 65500.; //units
+const BASE_SIZE: f64 = 1.; //units
+const START_PRICE: f64 = 69500.; //units
 
 #[tokio::main]
 async fn main() {
@@ -71,16 +71,19 @@ async fn main() {
 
         let mint_tx = base_asset.mint(wallet.address().into(), base_size).await;
         if mint_tx.is_ok() {
+            let start = Instant::now();
             let order_tx = orderbook
                 .open_order(base_asset.asset_id, -1 * base_size as i64, sell_price - 1)
                 .await;
-
+            let finish = start.elapsed();
             match order_tx {
                 Ok(response) => {
                     let id = Address::from(response.value.0).to_string();
                     println!("Sell OrderId: 0x{}", id);
-                    println!("Sell Price: {}", sell_price);
-                    println!("Transaction ID: 0x{:?}\n", response.tx_id.unwrap());
+                    println!("Gas Used: {:?}", response.gas_used);
+                    println!("Transaction ID: 0x{:?}", response.tx_id.unwrap());
+                    println!("Duration: {:?}", finish);
+                    println!("Sell Price: {}\n", sell_price);
                 }
                 Err(error) => {
                     println!("Failed to create a sell order: {:?}\n", error);
@@ -96,16 +99,19 @@ async fn main() {
             .mint(wallet.address().into(), quote_size as u64)
             .await;
         if mint_tx.is_ok() {
+            let start = Instant::now();
             let order_tx = orderbook
                 .open_order(base_asset.asset_id, base_size as i64, buy_price)
                 .await;
-
+            let finish = start.elapsed();
             match order_tx {
                 Ok(response) => {
                     let id = Address::from(response.value.0).to_string();
                     println!("Buy OrderId: 0x{}", id);
-                    println!("Buy Price: {}", buy_price);
-                    println!("Transaction ID: 0x{:?}\n", response.tx_id.unwrap());
+                    println!("Gas Used: {:?}", response.gas_used);
+                    println!("Transaction ID: 0x{:?}", response.tx_id.unwrap());
+                    println!("Duration: {:?}", finish);
+                    println!("Buy Price: {}\n", sell_price);
                 }
                 Err(error) => {
                     println!("Failed to create a buy order: {:?}\n", error);
