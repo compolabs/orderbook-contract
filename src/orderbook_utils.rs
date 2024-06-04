@@ -232,7 +232,7 @@ impl Orderbook {
         match_script
             .main(sell_order_ids, buy_order_ids)
             .with_contracts(&[&self.instance])
-            .with_tx_policies(TxPolicies::default().with_tip(1))
+            .with_tx_policies(TxPolicies::default().with_script_gas_limit(9000000))
             .append_variable_outputs((sells_count + buys_count) * 3)
             .call()
             .await
