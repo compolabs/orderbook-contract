@@ -8,7 +8,7 @@ use spark_market_sdk::MarketContract;
 
 #[derive(Args, Clone)]
 #[command(about = "Closes an open order")]
-pub(crate) struct CloseCommand {
+pub(crate) struct CancelCommand {
     /// The b256 id of the order
     #[clap(long)]
     pub(crate) order_id: String,
@@ -23,7 +23,7 @@ pub(crate) struct CloseCommand {
     pub(crate) rpc: String,
 }
 
-impl CloseCommand {
+impl CancelCommand {
     pub(crate) async fn run(&self) -> anyhow::Result<()> {
         let wallet = setup(&self.rpc).await?;
         let contract_id = validate_contract_id(&self.contract_id)?;

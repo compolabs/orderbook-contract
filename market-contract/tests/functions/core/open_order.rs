@@ -167,7 +167,6 @@ mod success {
         Ok(())
     }
 
-    #[ignore]
     #[tokio::test]
     async fn buy_base() -> anyhow::Result<()> {
         let defaults = Defaults::default();
@@ -185,7 +184,7 @@ mod success {
         let asset_to_buy = assets.base.id;
         let asset_to_pay_wth = assets.quote.id;
         let order_type = OrderType::Buy;
-        let price = 70000;
+        let price = 70000 * 10_u64.pow(defaults.price_decimals);
         let expected_id = contract
             .order_id(
                 order_amount,
@@ -249,7 +248,6 @@ mod success {
         Ok(())
     }
 
-    #[ignore]
     #[tokio::test]
     async fn buy_quote() -> anyhow::Result<()> {
         let defaults = Defaults::default();
@@ -267,7 +265,7 @@ mod success {
         let asset_to_buy = assets.quote.id;
         let asset_to_pay_wth = assets.base.id;
         let order_type = OrderType::Buy;
-        let price = 70000;
+        let price = 70000 * 10_u64.pow(defaults.price_decimals);
         let expected_id = contract
             .order_id(
                 order_amount,
@@ -361,7 +359,7 @@ mod revert {
     }
 
     #[tokio::test]
-    #[should_panic(expected = "InvalidUser")]
+    #[should_panic(expected = "InsufficientBalance")]
     async fn when_invalid_user() {
         let defaults = Defaults::default();
         let (contract, _owner, user, assets) = setup(

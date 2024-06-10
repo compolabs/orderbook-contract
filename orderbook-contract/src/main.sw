@@ -87,6 +87,6 @@ impl Orderbook for Contract {
     }
 
     fn config() -> Address {
-        (OWNER)
+        OWNER
     }
 }

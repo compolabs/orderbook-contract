@@ -180,3 +180,22 @@ pub fn quote_to_base_amount(
         base_price,
     )
 }
+
+pub fn convert(
+    amount: u64,
+    base_asset_decimals: u32,
+    base_price: u64,
+    price_decimals: u32,
+    quote_asset_decimals: u32,
+    base_to_quote: bool,
+) -> u64 {
+    let (op1, op2) = (
+        base_price,
+        10_u64.pow(base_asset_decimals + price_decimals - quote_asset_decimals),
+    );
+    if base_to_quote {
+        amount.mul_div(op1, op2)
+    } else {
+        amount.mul_div(op2, op1)
+    }
+}

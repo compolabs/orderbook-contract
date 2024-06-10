@@ -4,6 +4,10 @@ pub enum AssetError {
     InvalidAsset: (),
 }
 
+pub enum ValueError {
+    InvalidAmount: (),
+}
+
 pub enum OrderError {
     NoOrdersFound: (),
     DuplicateOrder: (),
@@ -22,5 +26,4 @@ pub enum AuthError {
 
 pub enum AccountError {
     InsufficientBalance: (u64, u64),
-    InvalidUser: (),
 }

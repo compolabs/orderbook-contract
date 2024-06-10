@@ -126,7 +126,7 @@ mod revert {
     }
 
     #[tokio::test]
-    #[should_panic(expected = "InvalidUser")]
+    #[should_panic(expected = "InsufficientBalance")]
     async fn when_withdrawing_without_account() {
         let defaults = Defaults::default();
         let (contract, _owner, _user, assets) = setup(

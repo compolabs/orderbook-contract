@@ -1,5 +1,5 @@
 use crate::commands::core::{
-    batch_fulfill::BatchCommand, close_order::CloseCommand, deploy::DeployCommand,
+    batch_fulfill::BatchCommand, cancel_order::CancelCommand, deploy::DeployCommand,
     deposit::DepositCommand, open_order::OpenCommand, set_fee::SetFeeCommand,
     withdraw::WithdrawCommand,
 };
@@ -13,7 +13,7 @@ pub(crate) enum CoreCommands {
 
     /// Close an open order
     #[clap(short_flag = 'C')]
-    Close(CloseCommand),
+    Cancel(CancelCommand),
 
     /// Deploy a new market contract
     #[clap(short_flag = 'D')]

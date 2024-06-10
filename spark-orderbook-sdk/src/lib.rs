@@ -4,7 +4,7 @@ use fuels::{
         WalletUnlocked,
     },
     programs::call_response::FuelCallResponse,
-    types::Bytes32,
+    types::{Address, Bytes32},
 };
 use rand::Rng;
 
@@ -87,6 +87,10 @@ impl OrderbookContract {
             .unregister_market(asset)
             .call()
             .await?)
+    }
+
+    pub async fn config(&self) -> anyhow::Result<FuelCallResponse<Address>> {
+        Ok(self.instance.methods().config().simulate().await?)
     }
 
     pub async fn registered_markets(
