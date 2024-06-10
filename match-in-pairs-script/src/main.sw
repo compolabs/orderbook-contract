@@ -3,7 +3,7 @@ script;
 use std::constants::ZERO_B256;
 
 configurable {
-    ORDER_BOOK_CONTRACT_ID: b256 = ZERO_B256
+    ORDER_BOOK_CONTRACT_ID: b256 = ZERO_B256,
 }
 
 abi OrderBook {

@@ -1,62 +1,23 @@
-[package]
-name = "orderbook"
-description = "A cargo-generate template for Rust + Sway integration testing."
+[workspace]
+resolver = "1"
+members = [
+    "spark-cli", 
+    "spark-market-sdk", 
+    "market-contract",
+    "orderbook-contract"
+]
+
+[workspace.package]
+authors = ["alexey <alexnagornnyy.an@gmail.com>"]
 version = "0.1.0"
 edition = "2021"
-authors = ["alexey <alexnagornnyy.an@gmail.com>"]
 license = "Apache-2.0"
+rust-version = "1.75.0"
 
-[dependencies]
+[workspace.dependencies]
+anyhow = "1.0.81"
 fuels = { version = "0.63.0", features = ["fuel-core-lib"] }
-rand = "0.8.5"
 tokio = { version = "1.12", features = ["rt", "macros"] }
-src20_sdk = { git = "https://github.com/compolabs/src-20.git", branch = "testnet" }
-dotenv = "0.15.0"
-hex = "0.4"
-chrono = "0.4.19"
+# TODO: remove src20_sdk from repo entirely
+src20_sdk = { git = "https://github.com/compolabs/src-20.git", branch = "master" }
 
-[[test]]
-harness = true
-name = "integration_tests"
-path = "tests/harness.rs"
-
-
-[[bin]]
-name = "create_market"
-path = "scripts/create_market.rs"
-
-[[bin]]
-name = "create_order"
-path = "scripts/create_order.rs"
-
-[[bin]]
-name = "cancel_order"
-path = "scripts/cancel_order.rs"
-
-[[bin]]
-name = "deploy"
-path = "scripts/deploy.rs"
-
-[[bin]]
-name = "match_orders"
-path = "scripts/match_orders.rs"
-
-[[bin]]
-name = "create_accounts_with_tokens"
-path = "scripts/create_accounts_with_tokens.rs"
-
-[[bin]]
-name = "init_system"
-path = "scripts/init_system.rs"
-
-[[bin]]
-name = "fill_orderbook"
-path = "scripts/fill_orderbook.rs"
-
-[[bin]]
-name = "get_order_change_events_by_order"
-path = "scripts/get_order_change_events_by_order.rs"
-
-[[bin]]
-name = "order_by_id"
-path = "scripts/order_by_id.rs"
