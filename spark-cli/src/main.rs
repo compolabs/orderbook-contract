@@ -26,7 +26,6 @@ async fn main() -> anyhow::Result<()> {
             BookCommands::Unregister(args) => args.run().await,
         },
         Command::Core(args) => match args.commands {
-            CoreCommands::Batch(args) => args.run().await,
             CoreCommands::Cancel(args) => args.run().await,
             CoreCommands::Deploy(args) => args.run().await,
             CoreCommands::Deposit(args) => args.run().await,

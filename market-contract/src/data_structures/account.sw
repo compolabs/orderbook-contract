@@ -1,6 +1,9 @@
 library;
 
-use ::data_structures::balance::Balance;
+use ::data_structures::{
+    asset_type::AssetType,
+    balance::Balance,
+};
 
 pub struct Account {
     // Available funds
@@ -15,5 +18,15 @@ impl Account {
             liquid: Balance::new(),
             locked: Balance::new(),
         }
+    }
+
+    pub fn lock_amount(ref mut self, amount: u64, asset: AssetType) {
+        self.liquid.debit(amount, asset);
+        self.locked.credit(amount, asset);
+    }
+
+    pub fn unlock_amount(ref mut self, amount: u64, asset: AssetType) {
+        self.liquid.credit(amount, asset);
+        self.locked.debit(amount, asset);
     }
 }

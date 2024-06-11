@@ -1,4 +1,3 @@
-pub(crate) mod batch_fulfill;
 pub(crate) mod cancel_order;
 pub(crate) mod cli;
 pub(crate) mod deploy;

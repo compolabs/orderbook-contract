@@ -138,19 +138,6 @@ impl MarketContract {
             .await?)
     }
 
-    pub async fn batch_fulfill(
-        &self,
-        order_id: Bits256,
-        orders: Vec<Bits256>,
-    ) -> anyhow::Result<FuelCallResponse<()>> {
-        Ok(self
-            .instance
-            .methods()
-            .batch_fulfill(order_id, orders)
-            .call()
-            .await?)
-    }
-
     pub async fn set_fee(
         &self,
         amount: u64,

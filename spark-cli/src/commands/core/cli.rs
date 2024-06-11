@@ -1,17 +1,12 @@
 use crate::commands::core::{
-    batch_fulfill::BatchCommand, cancel_order::CancelCommand, deploy::DeployCommand,
-    deposit::DepositCommand, open_order::OpenCommand, set_fee::SetFeeCommand,
-    withdraw::WithdrawCommand,
+    cancel_order::CancelCommand, deploy::DeployCommand, deposit::DepositCommand,
+    open_order::OpenCommand, set_fee::SetFeeCommand, withdraw::WithdrawCommand,
 };
 use clap::Subcommand;
 
 #[derive(Clone, Subcommand)]
 pub(crate) enum CoreCommands {
-    /// Attempt to batch solve orders
-    #[clap(short_flag = 'B')]
-    Batch(BatchCommand),
-
-    /// Close an open order
+    /// Cancel an open order
     #[clap(short_flag = 'C')]
     Cancel(CancelCommand),
 

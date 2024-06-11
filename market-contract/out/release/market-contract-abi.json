@@ -521,41 +521,6 @@
           "name": "order_id",
           "type": 3,
           "typeArguments": null
-        },
-        {
-          "name": "orders",
-          "type": 26,
-          "typeArguments": [
-            {
-              "name": "",
-              "type": 3,
-              "typeArguments": null
-            }
-          ]
-        }
-      ],
-      "name": "batch_fulfill",
-      "output": {
-        "name": "",
-        "type": 0,
-        "typeArguments": null
-      },
-      "attributes": [
-        {
-          "name": "storage",
-          "arguments": [
-            "read",
-            "write"
-          ]
-        }
-      ]
-    },
-    {
-      "inputs": [
-        {
-          "name": "order_id",
-          "type": 3,
-          "typeArguments": null
         }
       ],
       "name": "cancel_order",
@@ -587,6 +552,36 @@
           "name": "payable",
           "arguments": []
         },
+        {
+          "name": "storage",
+          "arguments": [
+            "read",
+            "write"
+          ]
+        }
+      ]
+    },
+    {
+      "inputs": [
+        {
+          "name": "orders",
+          "type": 26,
+          "typeArguments": [
+            {
+              "name": "",
+              "type": 3,
+              "typeArguments": null
+            }
+          ]
+        }
+      ],
+      "name": "match_orders",
+      "output": {
+        "name": "",
+        "type": 0,
+        "typeArguments": null
+      },
+      "attributes": [
         {
           "name": "storage",
           "arguments": [
@@ -871,18 +866,18 @@
       }
     },
     {
-      "logId": "15329379498675066312",
-      "loggedType": {
-        "name": "",
-        "type": 4,
-        "typeArguments": []
-      }
-    },
-    {
       "logId": "487470194140633944",
       "loggedType": {
         "name": "",
         "type": 7,
+        "typeArguments": []
+      }
+    },
+    {
+      "logId": "15329379498675066312",
+      "loggedType": {
+        "name": "",
+        "type": 4,
         "typeArguments": []
       }
     },
@@ -952,7 +947,7 @@
         "type": 17,
         "typeArguments": []
       },
-      "offset": 60216
+      "offset": 52552
     },
     {
       "name": "BASE_ASSET_DECIMALS",
@@ -961,7 +956,7 @@
         "type": 28,
         "typeArguments": null
       },
-      "offset": 60160
+      "offset": 52408
     },
     {
       "name": "OWNER",
@@ -970,7 +965,7 @@
         "type": 16,
         "typeArguments": []
       },
-      "offset": 60296
+      "offset": 52488
     },
     {
       "name": "PRICE_DECIMALS",
@@ -979,7 +974,7 @@
         "type": 28,
         "typeArguments": null
       },
-      "offset": 60184
+      "offset": 52424
     },
     {
       "name": "QUOTE_ASSET",
@@ -988,7 +983,7 @@
         "type": 17,
         "typeArguments": []
       },
-      "offset": 60360
+      "offset": 52584
     },
     {
       "name": "QUOTE_ASSET_DECIMALS",
@@ -997,7 +992,7 @@
         "type": 28,
         "typeArguments": null
       },
-      "offset": 60176
+      "offset": 52432
     }
   ]
 }

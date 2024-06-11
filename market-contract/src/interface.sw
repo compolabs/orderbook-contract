@@ -21,11 +21,8 @@ abi Market {
     #[storage(read, write)]
     fn cancel_order(order_id: b256);
 
-    // #[storage(read, write)]
-    // fn fulfill(order_id: b256);
-
     #[storage(read, write)]
-    fn batch_fulfill(order_id: b256, orders: Vec<b256>);
+    fn match_orders(orders: Vec<b256>);
 
     #[storage(write)]
     fn set_fee(amount: u64, user: Option<Identity>);

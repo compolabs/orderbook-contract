@@ -152,6 +152,20 @@ mod success {
         assert_eq!(orders.pop().unwrap(), id);
         assert_eq!(id, expected_id);
 
+        let response = contract.cancel_order(id).await?;
+        let log = response
+            .decode_logs_with_type::<CancelOrderEvent>()
+            .unwrap();
+        let event = log.first().unwrap();
+        assert_eq!(*event, CancelOrderEvent { order_id: id });
+
+        let user_account = contract.account(owner.identity()).await?.value.unwrap();
+        let expected_account = create_account(0, deposit_amount, 0, 0);
+        let orders = contract.user_orders(owner.identity()).await?.value;
+        assert_eq!(user_account, expected_account);
+        assert_eq!(orders.len(), 0);
+        assert!(contract.order(id).await?.value.is_none());
+
         Ok(())
     }
 
@@ -208,6 +222,20 @@ mod success {
         assert_eq!(orders.len(), 1);
         assert_eq!(orders.pop().unwrap(), id);
         assert_eq!(id, expected_id);
+
+        let response = contract.cancel_order(id).await?;
+        let log = response
+            .decode_logs_with_type::<CancelOrderEvent>()
+            .unwrap();
+        let event = log.first().unwrap();
+        assert_eq!(*event, CancelOrderEvent { order_id: id });
+
+        let user_account = contract.account(owner.identity()).await?.value.unwrap();
+        let expected_account = create_account(deposit_amount, 0, 0, 0);
+        let orders = contract.user_orders(owner.identity()).await?.value;
+        assert_eq!(user_account, expected_account);
+        assert_eq!(orders.len(), 0);
+        assert!(contract.order(id).await?.value.is_none());
 
         Ok(())
     }
