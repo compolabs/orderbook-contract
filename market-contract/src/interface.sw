@@ -22,6 +22,9 @@ abi Market {
     fn cancel_order(order_id: b256);
 
     #[storage(read, write)]
+    fn match_order_pair(order0_id: b256, order1_id: b256);
+
+    #[storage(read, write)]
     fn match_orders(orders: Vec<b256>);
 
     #[storage(write)]

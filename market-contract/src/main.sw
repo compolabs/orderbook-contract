@@ -14,7 +14,7 @@ use ::data_structures::{
     order::Order,
     order_type::OrderType,
 };
-use ::errors::{AccountError, AssetError, AuthError, OrderError, ValueError};
+use ::errors::{AccountError, AssetError, AuthError, MatchError, OrderError, ValueError};
 use ::events::{
     CancelOrderEvent,
     DepositEvent,
@@ -139,7 +139,7 @@ impl Market for Contract {
             }
         }
 
-        let order = Order::new(amount, asset, asset_type, order_type, user, price);
+        let order = Order::new(amount, asset_type, order_type, user, price);
         let order_id = order.id();
 
         // Reject identical orders
@@ -179,7 +179,7 @@ impl Market for Contract {
     fn cancel_order(order_id: b256) {
         // Order must exist to be cancelled
         let order = storage.orders.get(order_id).try_read();
-        require(order.is_some(), OrderError::NoOrdersFound);
+        require(order.is_some(), OrderError::OrderNotFound(order_id));
 
         let order = order.unwrap();
         let user = msg_sender().unwrap();
@@ -218,7 +218,71 @@ impl Market for Contract {
     }
 
     #[storage(read, write)]
-    fn match_orders(orders: Vec<b256>) {}
+    fn match_order_pair(order0_id: b256, order1_id: b256) {
+        let order0 = storage.orders.get(order0_id).try_read();
+        require(order0.is_some(), OrderError::OrderNotFound(order0_id));
+        let order1 = storage.orders.get(order1_id).try_read();
+        require(order1.is_some(), OrderError::OrderNotFound(order1_id));
+        require(match_order_internal(order0.unwrap(), order1.unwrap()) > 0, MatchError::CantMatch((order0_id, order1_id)));
+    }
+
+    #[storage(read, write)]
+    fn match_orders(orders: Vec<b256>) {
+        require(orders.len() > 1, ValueError::InvalidLength);
+
+        let len = orders.len();
+        let mut idx0 = 0;
+        let mut idx1 = 1;
+        let mut matched = 0;
+    
+        while lts(idx0, idx1, len) {
+            if idx0 == idx1 {
+                idx1 += 1;
+                continue;
+            }
+
+            let id0 = orders.get(idx0).unwrap();
+            let order0 = storage.orders.get(id0).try_read();
+            if order0.is_none() {
+                // the order already matched/canceled or bad id
+                idx0 += 1;
+                continue;
+            }
+
+            let id1 = orders.get(idx1).unwrap();
+            let order1 = storage.orders.get(id1).try_read();
+            if order1.is_none() {
+                // the order already matched/canceled or bad id
+                idx1 += 1;
+                continue;
+            }
+
+            // try match
+            let match_mask = match_order_internal(order0.unwrap(), order1.unwrap());
+        
+            if match_mask == 0 {
+                // the case when the 1st & 2nd orders play in same direction
+                if idx0 < idx1 {
+                    idx0 += 1;
+                } else {
+                    idx1 += 1;
+                }
+            } else {
+                // the case when the 1st order completed
+                if match_mask & 1 > 0 {
+                    idx0 += 1;
+                    matched += 1;
+                }
+                // the case when the 2nd order completed
+                if match_mask & 2 > 0 {
+                    idx1 += 1;
+                    matched += 1;
+                }
+            }
+
+            require(matched > 0, MatchError::CantBatchMatch);
+        }
+    }
 
     #[storage(write)]
     fn set_fee(amount: u64, user: Option<Identity>) {
@@ -290,7 +354,7 @@ impl Info for Contract {
         } else {
             AssetType::Quote
         };
-        Order::new(amount, asset, asset_type, order_type, owner, price).id()
+        Order::new(amount, asset_type, order_type, owner, price).id()
     }
 }
 
@@ -349,3 +413,10 @@ fn remove_order(user: Identity, order_id: b256) {
             .insert(last_element, index);
     }
 }
+
+#[storage(read, write)]
+fn match_order_internal(order0: Order, order1: Order) -> u64 {
+    0
+}
+
+

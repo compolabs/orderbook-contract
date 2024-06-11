@@ -13,12 +13,12 @@
       "components": [
         {
           "name": "__tuple_element",
-          "type": 29,
+          "type": 31,
           "typeArguments": null
         },
         {
           "name": "__tuple_element",
-          "type": 29,
+          "type": 31,
           "typeArguments": null
         }
       ],
@@ -26,36 +26,16 @@
     },
     {
       "typeId": 2,
-      "type": "(_, _, _, _, _, _)",
+      "type": "(_, _)",
       "components": [
         {
           "name": "__tuple_element",
-          "type": 16,
+          "type": 4,
           "typeArguments": null
         },
         {
           "name": "__tuple_element",
-          "type": 17,
-          "typeArguments": null
-        },
-        {
-          "name": "__tuple_element",
-          "type": 28,
-          "typeArguments": null
-        },
-        {
-          "name": "__tuple_element",
-          "type": 17,
-          "typeArguments": null
-        },
-        {
-          "name": "__tuple_element",
-          "type": 28,
-          "typeArguments": null
-        },
-        {
-          "name": "__tuple_element",
-          "type": 28,
+          "type": 4,
           "typeArguments": null
         }
       ],
@@ -63,12 +43,49 @@
     },
     {
       "typeId": 3,
+      "type": "(_, _, _, _, _, _)",
+      "components": [
+        {
+          "name": "__tuple_element",
+          "type": 18,
+          "typeArguments": null
+        },
+        {
+          "name": "__tuple_element",
+          "type": 19,
+          "typeArguments": null
+        },
+        {
+          "name": "__tuple_element",
+          "type": 30,
+          "typeArguments": null
+        },
+        {
+          "name": "__tuple_element",
+          "type": 19,
+          "typeArguments": null
+        },
+        {
+          "name": "__tuple_element",
+          "type": 30,
+          "typeArguments": null
+        },
+        {
+          "name": "__tuple_element",
+          "type": 30,
+          "typeArguments": null
+        }
+      ],
+      "typeParameters": null
+    },
+    {
+      "typeId": 4,
       "type": "b256",
       "components": null,
       "typeParameters": null
     },
     {
-      "typeId": 4,
+      "typeId": 5,
       "type": "enum AccountError",
       "components": [
         {
@@ -80,7 +97,7 @@
       "typeParameters": null
     },
     {
-      "typeId": 5,
+      "typeId": 6,
       "type": "enum AssetError",
       "components": [
         {
@@ -92,7 +109,7 @@
       "typeParameters": null
     },
     {
-      "typeId": 6,
+      "typeId": 7,
       "type": "enum AssetType",
       "components": [
         {
@@ -109,7 +126,7 @@
       "typeParameters": null
     },
     {
-      "typeId": 7,
+      "typeId": 8,
       "type": "enum AuthError",
       "components": [
         {
@@ -121,24 +138,41 @@
       "typeParameters": null
     },
     {
-      "typeId": 8,
+      "typeId": 9,
       "type": "enum Identity",
       "components": [
         {
           "name": "Address",
-          "type": 16,
+          "type": 18,
           "typeArguments": null
         },
         {
           "name": "ContractId",
-          "type": 20,
+          "type": 22,
           "typeArguments": null
         }
       ],
       "typeParameters": null
     },
     {
-      "typeId": 9,
+      "typeId": 10,
+      "type": "enum MatchError",
+      "components": [
+        {
+          "name": "CantMatch",
+          "type": 2,
+          "typeArguments": null
+        },
+        {
+          "name": "CantBatchMatch",
+          "type": 0,
+          "typeArguments": null
+        }
+      ],
+      "typeParameters": null
+    },
+    {
+      "typeId": 11,
       "type": "enum Option",
       "components": [
         {
@@ -148,21 +182,21 @@
         },
         {
           "name": "Some",
-          "type": 13,
+          "type": 15,
           "typeArguments": null
         }
       ],
       "typeParameters": [
-        13
+        15
       ]
     },
     {
-      "typeId": 10,
+      "typeId": 12,
       "type": "enum OrderError",
       "components": [
         {
-          "name": "NoOrdersFound",
-          "type": 0,
+          "name": "OrderNotFound",
+          "type": 4,
           "typeArguments": null
         },
         {
@@ -189,7 +223,7 @@
       "typeParameters": null
     },
     {
-      "typeId": 11,
+      "typeId": 13,
       "type": "enum OrderType",
       "components": [
         {
@@ -206,11 +240,16 @@
       "typeParameters": null
     },
     {
-      "typeId": 12,
+      "typeId": 14,
       "type": "enum ValueError",
       "components": [
         {
           "name": "InvalidAmount",
+          "type": 0,
+          "typeArguments": null
+        },
+        {
+          "name": "InvalidLength",
           "type": 0,
           "typeArguments": null
         }
@@ -218,53 +257,29 @@
       "typeParameters": null
     },
     {
-      "typeId": 13,
+      "typeId": 15,
       "type": "generic T",
       "components": null,
       "typeParameters": null
     },
     {
-      "typeId": 14,
+      "typeId": 16,
       "type": "raw untyped ptr",
       "components": null,
       "typeParameters": null
     },
     {
-      "typeId": 15,
+      "typeId": 17,
       "type": "struct Account",
       "components": [
         {
           "name": "liquid",
-          "type": 18,
+          "type": 20,
           "typeArguments": null
         },
         {
           "name": "locked",
-          "type": 18,
-          "typeArguments": null
-        }
-      ],
-      "typeParameters": null
-    },
-    {
-      "typeId": 16,
-      "type": "struct Address",
-      "components": [
-        {
-          "name": "bits",
-          "type": 3,
-          "typeArguments": null
-        }
-      ],
-      "typeParameters": null
-    },
-    {
-      "typeId": 17,
-      "type": "struct AssetId",
-      "components": [
-        {
-          "name": "bits",
-          "type": 3,
+          "type": 20,
           "typeArguments": null
         }
       ],
@@ -272,16 +287,11 @@
     },
     {
       "typeId": 18,
-      "type": "struct Balance",
+      "type": "struct Address",
       "components": [
         {
-          "name": "base",
-          "type": 29,
-          "typeArguments": null
-        },
-        {
-          "name": "quote",
-          "type": 29,
+          "name": "bits",
+          "type": 4,
           "typeArguments": null
         }
       ],
@@ -289,11 +299,11 @@
     },
     {
       "typeId": 19,
-      "type": "struct CancelOrderEvent",
+      "type": "struct AssetId",
       "components": [
         {
-          "name": "order_id",
-          "type": 3,
+          "name": "bits",
+          "type": 4,
           "typeArguments": null
         }
       ],
@@ -301,11 +311,16 @@
     },
     {
       "typeId": 20,
-      "type": "struct ContractId",
+      "type": "struct Balance",
       "components": [
         {
-          "name": "bits",
-          "type": 3,
+          "name": "base",
+          "type": 31,
+          "typeArguments": null
+        },
+        {
+          "name": "quote",
+          "type": 31,
           "typeArguments": null
         }
       ],
@@ -313,21 +328,11 @@
     },
     {
       "typeId": 21,
-      "type": "struct DepositEvent",
+      "type": "struct CancelOrderEvent",
       "components": [
         {
-          "name": "amount",
-          "type": 29,
-          "typeArguments": null
-        },
-        {
-          "name": "asset",
-          "type": 17,
-          "typeArguments": null
-        },
-        {
-          "name": "user",
-          "type": 8,
+          "name": "order_id",
+          "type": 4,
           "typeArguments": null
         }
       ],
@@ -335,41 +340,11 @@
     },
     {
       "typeId": 22,
-      "type": "struct OpenOrderEvent",
+      "type": "struct ContractId",
       "components": [
         {
-          "name": "amount",
-          "type": 29,
-          "typeArguments": null
-        },
-        {
-          "name": "asset",
-          "type": 17,
-          "typeArguments": null
-        },
-        {
-          "name": "asset_type",
-          "type": 6,
-          "typeArguments": null
-        },
-        {
-          "name": "order_type",
-          "type": 11,
-          "typeArguments": null
-        },
-        {
-          "name": "order_id",
-          "type": 3,
-          "typeArguments": null
-        },
-        {
-          "name": "price",
-          "type": 29,
-          "typeArguments": null
-        },
-        {
-          "name": "user",
-          "type": 8,
+          "name": "bits",
+          "type": 4,
           "typeArguments": null
         }
       ],
@@ -377,36 +352,21 @@
     },
     {
       "typeId": 23,
-      "type": "struct Order",
+      "type": "struct DepositEvent",
       "components": [
         {
           "name": "amount",
-          "type": 29,
+          "type": 31,
           "typeArguments": null
         },
         {
           "name": "asset",
-          "type": 17,
+          "type": 19,
           "typeArguments": null
         },
         {
-          "name": "asset_type",
-          "type": 6,
-          "typeArguments": null
-        },
-        {
-          "name": "order_type",
-          "type": 11,
-          "typeArguments": null
-        },
-        {
-          "name": "owner",
-          "type": 8,
-          "typeArguments": null
-        },
-        {
-          "name": "price",
-          "type": 29,
+          "name": "user",
+          "type": 9,
           "typeArguments": null
         }
       ],
@@ -414,101 +374,175 @@
     },
     {
       "typeId": 24,
-      "type": "struct RawVec",
-      "components": [
-        {
-          "name": "ptr",
-          "type": 14,
-          "typeArguments": null
-        },
-        {
-          "name": "cap",
-          "type": 29,
-          "typeArguments": null
-        }
-      ],
-      "typeParameters": [
-        13
-      ]
-    },
-    {
-      "typeId": 25,
-      "type": "struct SetFeeEvent",
+      "type": "struct OpenOrderEvent",
       "components": [
         {
           "name": "amount",
-          "type": 29,
+          "type": 31,
+          "typeArguments": null
+        },
+        {
+          "name": "asset",
+          "type": 19,
+          "typeArguments": null
+        },
+        {
+          "name": "asset_type",
+          "type": 7,
+          "typeArguments": null
+        },
+        {
+          "name": "order_type",
+          "type": 13,
+          "typeArguments": null
+        },
+        {
+          "name": "order_id",
+          "type": 4,
+          "typeArguments": null
+        },
+        {
+          "name": "price",
+          "type": 31,
           "typeArguments": null
         },
         {
           "name": "user",
           "type": 9,
-          "typeArguments": [
-            {
-              "name": "",
-              "type": 8,
-              "typeArguments": null
-            }
-          ]
+          "typeArguments": null
+        }
+      ],
+      "typeParameters": null
+    },
+    {
+      "typeId": 25,
+      "type": "struct Order",
+      "components": [
+        {
+          "name": "amount",
+          "type": 31,
+          "typeArguments": null
+        },
+        {
+          "name": "asset_type",
+          "type": 7,
+          "typeArguments": null
+        },
+        {
+          "name": "order_type",
+          "type": 13,
+          "typeArguments": null
+        },
+        {
+          "name": "owner",
+          "type": 9,
+          "typeArguments": null
+        },
+        {
+          "name": "price",
+          "type": 31,
+          "typeArguments": null
         }
       ],
       "typeParameters": null
     },
     {
       "typeId": 26,
-      "type": "struct Vec",
+      "type": "struct RawVec",
       "components": [
         {
-          "name": "buf",
-          "type": 24,
-          "typeArguments": [
-            {
-              "name": "",
-              "type": 13,
-              "typeArguments": null
-            }
-          ]
+          "name": "ptr",
+          "type": 16,
+          "typeArguments": null
         },
         {
-          "name": "len",
-          "type": 29,
+          "name": "cap",
+          "type": 31,
           "typeArguments": null
         }
       ],
       "typeParameters": [
-        13
+        15
       ]
     },
     {
       "typeId": 27,
-      "type": "struct WithdrawEvent",
+      "type": "struct SetFeeEvent",
       "components": [
         {
           "name": "amount",
-          "type": 29,
-          "typeArguments": null
-        },
-        {
-          "name": "asset",
-          "type": 17,
+          "type": 31,
           "typeArguments": null
         },
         {
           "name": "user",
-          "type": 8,
-          "typeArguments": null
+          "type": 11,
+          "typeArguments": [
+            {
+              "name": "",
+              "type": 9,
+              "typeArguments": null
+            }
+          ]
         }
       ],
       "typeParameters": null
     },
     {
       "typeId": 28,
+      "type": "struct Vec",
+      "components": [
+        {
+          "name": "buf",
+          "type": 26,
+          "typeArguments": [
+            {
+              "name": "",
+              "type": 15,
+              "typeArguments": null
+            }
+          ]
+        },
+        {
+          "name": "len",
+          "type": 31,
+          "typeArguments": null
+        }
+      ],
+      "typeParameters": [
+        15
+      ]
+    },
+    {
+      "typeId": 29,
+      "type": "struct WithdrawEvent",
+      "components": [
+        {
+          "name": "amount",
+          "type": 31,
+          "typeArguments": null
+        },
+        {
+          "name": "asset",
+          "type": 19,
+          "typeArguments": null
+        },
+        {
+          "name": "user",
+          "type": 9,
+          "typeArguments": null
+        }
+      ],
+      "typeParameters": null
+    },
+    {
+      "typeId": 30,
       "type": "u32",
       "components": null,
       "typeParameters": null
     },
     {
-      "typeId": 29,
+      "typeId": 31,
       "type": "u64",
       "components": null,
       "typeParameters": null
@@ -519,7 +553,7 @@
       "inputs": [
         {
           "name": "order_id",
-          "type": 3,
+          "type": 4,
           "typeArguments": null
         }
       ],
@@ -564,12 +598,41 @@
     {
       "inputs": [
         {
+          "name": "order0_id",
+          "type": 4,
+          "typeArguments": null
+        },
+        {
+          "name": "order1_id",
+          "type": 4,
+          "typeArguments": null
+        }
+      ],
+      "name": "match_order_pair",
+      "output": {
+        "name": "",
+        "type": 0,
+        "typeArguments": null
+      },
+      "attributes": [
+        {
+          "name": "storage",
+          "arguments": [
+            "read",
+            "write"
+          ]
+        }
+      ]
+    },
+    {
+      "inputs": [
+        {
           "name": "orders",
-          "type": 26,
+          "type": 28,
           "typeArguments": [
             {
               "name": "",
-              "type": 3,
+              "type": 4,
               "typeArguments": null
             }
           ]
@@ -595,29 +658,29 @@
       "inputs": [
         {
           "name": "amount",
-          "type": 29,
+          "type": 31,
           "typeArguments": null
         },
         {
           "name": "asset",
-          "type": 17,
+          "type": 19,
           "typeArguments": null
         },
         {
           "name": "order_type",
-          "type": 11,
+          "type": 13,
           "typeArguments": null
         },
         {
           "name": "price",
-          "type": 29,
+          "type": 31,
           "typeArguments": null
         }
       ],
       "name": "open_order",
       "output": {
         "name": "",
-        "type": 3,
+        "type": 4,
         "typeArguments": null
       },
       "attributes": [
@@ -634,16 +697,16 @@
       "inputs": [
         {
           "name": "amount",
-          "type": 29,
+          "type": 31,
           "typeArguments": null
         },
         {
           "name": "user",
-          "type": 9,
+          "type": 11,
           "typeArguments": [
             {
               "name": "",
-              "type": 8,
+              "type": 9,
               "typeArguments": null
             }
           ]
@@ -668,12 +731,12 @@
       "inputs": [
         {
           "name": "amount",
-          "type": 29,
+          "type": 31,
           "typeArguments": null
         },
         {
           "name": "asset",
-          "type": 17,
+          "type": 19,
           "typeArguments": null
         }
       ],
@@ -697,18 +760,18 @@
       "inputs": [
         {
           "name": "user",
-          "type": 8,
+          "type": 9,
           "typeArguments": null
         }
       ],
       "name": "account",
       "output": {
         "name": "",
-        "type": 9,
+        "type": 11,
         "typeArguments": [
           {
             "name": "",
-            "type": 15,
+            "type": 17,
             "typeArguments": null
           }
         ]
@@ -727,7 +790,7 @@
       "name": "config",
       "output": {
         "name": "",
-        "type": 2,
+        "type": 3,
         "typeArguments": null
       },
       "attributes": null
@@ -736,11 +799,11 @@
       "inputs": [
         {
           "name": "user",
-          "type": 9,
+          "type": 11,
           "typeArguments": [
             {
               "name": "",
-              "type": 8,
+              "type": 9,
               "typeArguments": null
             }
           ]
@@ -749,7 +812,7 @@
       "name": "fee",
       "output": {
         "name": "",
-        "type": 29,
+        "type": 31,
         "typeArguments": null
       },
       "attributes": [
@@ -765,18 +828,18 @@
       "inputs": [
         {
           "name": "order",
-          "type": 3,
+          "type": 4,
           "typeArguments": null
         }
       ],
       "name": "order",
       "output": {
         "name": "",
-        "type": 9,
+        "type": 11,
         "typeArguments": [
           {
             "name": "",
-            "type": 23,
+            "type": 25,
             "typeArguments": null
           }
         ]
@@ -794,34 +857,34 @@
       "inputs": [
         {
           "name": "amount",
-          "type": 29,
+          "type": 31,
           "typeArguments": null
         },
         {
           "name": "asset",
-          "type": 17,
+          "type": 19,
           "typeArguments": null
         },
         {
           "name": "order_type",
-          "type": 11,
+          "type": 13,
           "typeArguments": null
         },
         {
           "name": "owner",
-          "type": 8,
+          "type": 9,
           "typeArguments": null
         },
         {
           "name": "price",
-          "type": 29,
+          "type": 31,
           "typeArguments": null
         }
       ],
       "name": "order_id",
       "output": {
         "name": "",
-        "type": 3,
+        "type": 4,
         "typeArguments": null
       },
       "attributes": null
@@ -830,18 +893,18 @@
       "inputs": [
         {
           "name": "user",
-          "type": 8,
+          "type": 9,
           "typeArguments": null
         }
       ],
       "name": "user_orders",
       "output": {
         "name": "",
-        "type": 26,
+        "type": 28,
         "typeArguments": [
           {
             "name": "",
-            "type": 3,
+            "type": 4,
             "typeArguments": null
           }
         ]
@@ -861,7 +924,7 @@
       "logId": "999626799421532101",
       "loggedType": {
         "name": "",
-        "type": 10,
+        "type": 12,
         "typeArguments": []
       }
     },
@@ -869,7 +932,7 @@
       "logId": "487470194140633944",
       "loggedType": {
         "name": "",
-        "type": 7,
+        "type": 8,
         "typeArguments": []
       }
     },
@@ -877,7 +940,7 @@
       "logId": "15329379498675066312",
       "loggedType": {
         "name": "",
-        "type": 4,
+        "type": 5,
         "typeArguments": []
       }
     },
@@ -885,7 +948,7 @@
       "logId": "14676650066558707344",
       "loggedType": {
         "name": "",
-        "type": 19,
+        "type": 21,
         "typeArguments": []
       }
     },
@@ -893,7 +956,7 @@
       "logId": "4038555509566971562",
       "loggedType": {
         "name": "",
-        "type": 12,
+        "type": 14,
         "typeArguments": []
       }
     },
@@ -901,7 +964,7 @@
       "logId": "16169998749359270814",
       "loggedType": {
         "name": "",
-        "type": 5,
+        "type": 6,
         "typeArguments": []
       }
     },
@@ -909,7 +972,15 @@
       "logId": "12590297951544646752",
       "loggedType": {
         "name": "",
-        "type": 21,
+        "type": 23,
+        "typeArguments": []
+      }
+    },
+    {
+      "logId": "15838754841496526215",
+      "loggedType": {
+        "name": "",
+        "type": 10,
         "typeArguments": []
       }
     },
@@ -917,7 +988,7 @@
       "logId": "7812135309850120461",
       "loggedType": {
         "name": "",
-        "type": 22,
+        "type": 24,
         "typeArguments": []
       }
     },
@@ -925,7 +996,7 @@
       "logId": "14995717719734047951",
       "loggedType": {
         "name": "",
-        "type": 25,
+        "type": 27,
         "typeArguments": []
       }
     },
@@ -933,7 +1004,7 @@
       "logId": "10918704871079408520",
       "loggedType": {
         "name": "",
-        "type": 27,
+        "type": 29,
         "typeArguments": []
       }
     }
@@ -944,55 +1015,55 @@
       "name": "BASE_ASSET",
       "configurableType": {
         "name": "",
-        "type": 17,
+        "type": 19,
         "typeArguments": []
       },
-      "offset": 52552
+      "offset": 56848
     },
     {
       "name": "BASE_ASSET_DECIMALS",
       "configurableType": {
         "name": "",
-        "type": 28,
+        "type": 30,
         "typeArguments": null
       },
-      "offset": 52408
+      "offset": 56704
     },
     {
       "name": "OWNER",
       "configurableType": {
         "name": "",
-        "type": 16,
+        "type": 18,
         "typeArguments": []
       },
-      "offset": 52488
+      "offset": 56784
     },
     {
       "name": "PRICE_DECIMALS",
       "configurableType": {
         "name": "",
-        "type": 28,
+        "type": 30,
         "typeArguments": null
       },
-      "offset": 52424
+      "offset": 56720
     },
     {
       "name": "QUOTE_ASSET",
       "configurableType": {
         "name": "",
-        "type": 17,
+        "type": 19,
         "typeArguments": []
       },
-      "offset": 52584
+      "offset": 56880
     },
     {
       "name": "QUOTE_ASSET_DECIMALS",
       "configurableType": {
         "name": "",
-        "type": 28,
+        "type": 30,
         "typeArguments": null
       },
-      "offset": 52432
+      "offset": 56728
     }
   ]
 }

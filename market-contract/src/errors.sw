@@ -6,18 +6,20 @@ pub enum AssetError {
 
 pub enum ValueError {
     InvalidAmount: (),
+    InvalidLength: (),
 }
 
 pub enum OrderError {
-    NoOrdersFound: (),
+    OrderNotFound: (b256),
     DuplicateOrder: (),
     PriceCannotBeZero: (),
     AmountCannotBeZero: (),
     FailedToRemove: (),
 }
 
-pub enum TradeError {
-    CannotTrade: (),
+pub enum MatchError {
+    CantMatch: (b256, b256),
+    CantBatchMatch: (),
 }
 
 pub enum AuthError {

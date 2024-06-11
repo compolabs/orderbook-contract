@@ -7,7 +7,6 @@ use std::hash::{Hash, sha256};
 
 pub struct Order {
     pub amount: u64,
-    pub asset: AssetId,
     pub asset_type: AssetType,
     pub order_type: OrderType,
     pub owner: Identity,
@@ -17,7 +16,6 @@ pub struct Order {
 impl Order {
     pub fn new(
         amount: u64,
-        asset: AssetId,
         asset_type: AssetType,
         order_type: OrderType,
         owner: Identity,
@@ -28,7 +26,6 @@ impl Order {
 
         Self {
             amount,
-            asset,
             asset_type,
             order_type,
             owner,
@@ -37,8 +34,8 @@ impl Order {
     }
 
     pub fn id(self) -> b256 {
-        // TODO: include asset type in id?
-        sha256((self.amount, self.asset, self.order_type, self.owner, self.price))
+        // TODO: it mignt be need include market contract_id here
+        sha256((self.amount, self.asset_type, self.order_type, self.owner, self.price))
     }
 
     pub fn set_amount(ref mut self, amount: u64) {
@@ -50,29 +47,4 @@ impl Order {
         require(price != 0, OrderError::PriceCannotBeZero);
         self.price = price;
     }
-
-    //     #[storage(read)]
-    //     pub fn calculate_deposit(
-    //         self,
-    //         BASE_ASSET_DECIMALS: u32,
-    //         PRICE_DECIMALS: u32,
-    //         QUOTE_TOKEN_DECIMALS: u32,
-    //         QUOTE_TOKEN: AssetId,
-    // ) -> Asset {
-    //         match self.order_type {
-    //             OrderType::Sell => Asset::new(self.amount, self.asset),
-    //             OrderType::Buy => {
-    //                 Asset::new(
-    //                     quote(
-    //                         self.amount,
-    //                         BASE_ASSET_DECIMALS,
-    //                         self.price,
-    //                         PRICE_DECIMALS,
-    //                         QUOTE_TOKEN_DECIMALS,
-    //                     ),
-    //                     QUOTE_TOKEN,
-    //                 )
-    //             },
-    //         }
-    //     }
 }

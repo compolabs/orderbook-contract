@@ -1,7 +1,6 @@
 library;
 
 use ::data_structures::{asset_type::AssetType, order::Order, order_type::OrderType};
-use ::errors::TradeError;
 
 use std::u128::U128;
 
@@ -31,7 +30,7 @@ fn calc_amount(buy_amount: u64, buy_price: u64, sell_price: u64) -> u64 {
     amount.as_u64().unwrap()
 }
 
-pub fn attempt_trade(
+/*pub fn attempt_trade(
     alice: Order,
     bob: Order,
     base_asset_decimals: u32,
@@ -179,7 +178,7 @@ pub fn quote_to_base_amount(
             .pow(base_asset_decimals + price_decimals - quote_asset_decimals),
         base_price,
     )
-}
+}*/
 
 pub fn convert(
     amount: u64,
@@ -199,3 +198,8 @@ pub fn convert(
         amount.mul_div(op2, op1)
     }
 }
+
+pub fn lts(i: u64, k: u64, len: u64) -> bool {
+    (i < len && k < len)
+}
+
