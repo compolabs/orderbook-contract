@@ -299,7 +299,7 @@ impl Orderbook {
             .with_tx_policies(
                 TxPolicies::default()
                     .with_tip(1)
-                    .with_script_gas_limit(9000000),
+                    .with_script_gas_limit(9_999_000),
             )
             .append_variable_outputs(variable_outputs)
             .call()
