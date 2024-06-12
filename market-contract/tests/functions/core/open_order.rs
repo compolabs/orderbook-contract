@@ -1,5 +1,5 @@
 use crate::setup::{setup, Defaults};
-use spark_market_sdk::OrderType;
+use spark_market_sdk::{AssetType, OrderType};
 
 mod success {
 
@@ -27,7 +27,7 @@ mod success {
         let expected_id = contract
             .order_id(
                 order_amount,
-                asset,
+                AssetType::Base,
                 order_type.clone(),
                 owner.identity(),
                 price,
@@ -55,7 +55,7 @@ mod success {
         let stored_id = contract
             .order_id(
                 order.amount,
-                order.asset,
+                order.asset_type.clone(),
                 order.order_type,
                 order.owner,
                 order.price,
@@ -70,7 +70,7 @@ mod success {
             OpenOrderEvent {
                 amount: order_amount,
                 asset,
-                asset_type: order.asset_type,
+                asset_type: order.asset_type.clone(),
                 order_type,
                 order_id: expected_id,
                 price,
@@ -107,7 +107,7 @@ mod success {
         let expected_id = contract
             .order_id(
                 order_amount,
-                asset,
+                AssetType::Quote,
                 order_type.clone(),
                 owner.identity(),
                 price,
@@ -135,7 +135,7 @@ mod success {
         let stored_id = contract
             .order_id(
                 order.amount,
-                order.asset,
+                order.asset_type.clone(),
                 order.order_type,
                 order.owner,
                 order.price,
@@ -150,7 +150,7 @@ mod success {
             OpenOrderEvent {
                 amount: order_amount,
                 asset,
-                asset_type: order.asset_type,
+                asset_type: order.asset_type.clone(),
                 order_type,
                 order_id: expected_id,
                 price,
@@ -188,7 +188,7 @@ mod success {
         let expected_id = contract
             .order_id(
                 order_amount,
-                asset_to_buy,
+                AssetType::Base,
                 order_type.clone(),
                 owner.identity(),
                 price,
@@ -216,7 +216,7 @@ mod success {
         let stored_id = contract
             .order_id(
                 order.amount,
-                order.asset,
+                order.asset_type.clone(),
                 order.order_type,
                 order.owner,
                 order.price,
@@ -230,8 +230,8 @@ mod success {
             *event,
             OpenOrderEvent {
                 amount: order_amount,
-                asset: order.asset,
-                asset_type: order.asset_type,
+                asset: asset_to_buy,
+                asset_type: order.asset_type.clone(),
                 order_type,
                 order_id: expected_id,
                 price,
@@ -269,7 +269,7 @@ mod success {
         let expected_id = contract
             .order_id(
                 order_amount,
-                asset_to_buy,
+                AssetType::Quote,
                 order_type.clone(),
                 owner.identity(),
                 price,
@@ -297,7 +297,7 @@ mod success {
         let stored_id = contract
             .order_id(
                 order.amount,
-                order.asset,
+                order.asset_type.clone(),
                 order.order_type,
                 order.owner,
                 order.price,
@@ -311,8 +311,8 @@ mod success {
             *event,
             OpenOrderEvent {
                 amount: order_amount,
-                asset: order.asset,
-                asset_type: order.asset_type,
+                asset: asset_to_buy,
+                asset_type: order.asset_type.clone(),
                 order_type,
                 order_id: expected_id,
                 price,

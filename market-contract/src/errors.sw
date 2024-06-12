@@ -10,7 +10,7 @@ pub enum ValueError {
 }
 
 pub enum OrderError {
-    OrderNotFound: (b256),
+    OrderNotFound: b256,
     DuplicateOrder: (),
     PriceCannotBeZero: (),
     AmountCannotBeZero: (),

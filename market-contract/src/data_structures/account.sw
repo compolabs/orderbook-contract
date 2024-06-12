@@ -29,4 +29,9 @@ impl Account {
         self.liquid.credit(amount, asset);
         self.locked.debit(amount, asset);
     }
+
+    pub fn transfer_locked_amount(ref mut self, ref mut to: Account, amount: u64, asset: AssetType) {
+        self.locked.debit(amount, asset);
+        to.liquid.credit(amount, asset);
+    }
 }

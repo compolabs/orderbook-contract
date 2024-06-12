@@ -4,6 +4,7 @@ use ::data_structures::asset_type::AssetType;
 use ::data_structures::order_type::OrderType;
 use ::errors::OrderError;
 use std::hash::{Hash, sha256};
+use std::contract_id::ContractId;
 
 pub struct Order {
     pub amount: u64,
@@ -34,17 +35,6 @@ impl Order {
     }
 
     pub fn id(self) -> b256 {
-        // TODO: it mignt be need include market contract_id here
-        sha256((self.amount, self.asset_type, self.order_type, self.owner, self.price))
-    }
-
-    pub fn set_amount(ref mut self, amount: u64) {
-        require(amount != 0, OrderError::AmountCannotBeZero);
-        self.amount = amount;
-    }
-
-    pub fn set_price(ref mut self, price: u64) {
-        require(price != 0, OrderError::PriceCannotBeZero);
-        self.price = price;
+        sha256((sha256((ContractId::this(), self.owner)), self.amount, self.asset_type, self.order_type, self.price))
     }
 }

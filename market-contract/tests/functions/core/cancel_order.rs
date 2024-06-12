@@ -1,5 +1,5 @@
 use crate::setup::{setup, Defaults};
-use spark_market_sdk::OrderType;
+use spark_market_sdk::{AssetType, OrderType};
 
 mod success {
 
@@ -122,7 +122,7 @@ mod success {
         let expected_id = contract
             .order_id(
                 order_amount,
-                asset_to_buy,
+                AssetType::Base,
                 order_type.clone(),
                 owner.identity(),
                 price,
@@ -190,7 +190,7 @@ mod success {
         let expected_id = contract
             .order_id(
                 order_amount,
-                asset_to_buy,
+                AssetType::Quote,
                 order_type.clone(),
                 owner.identity(),
                 price,
@@ -247,7 +247,7 @@ mod revert {
     use fuels::types::Bits256;
 
     #[tokio::test]
-    #[should_panic(expected = "NoOrdersFound")]
+    #[should_panic(expected = "OrderNotFound")]
     async fn when_order_does_not_exist() {
         let defaults = Defaults::default();
         let (contract, _owner, _user, _assets) = setup(

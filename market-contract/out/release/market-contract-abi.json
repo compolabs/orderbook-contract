@@ -13,12 +13,12 @@
       "components": [
         {
           "name": "__tuple_element",
-          "type": 31,
+          "type": 32,
           "typeArguments": null
         },
         {
           "name": "__tuple_element",
-          "type": 31,
+          "type": 32,
           "typeArguments": null
         }
       ],
@@ -57,7 +57,7 @@
         },
         {
           "name": "__tuple_element",
-          "type": 30,
+          "type": 31,
           "typeArguments": null
         },
         {
@@ -67,12 +67,12 @@
         },
         {
           "name": "__tuple_element",
-          "type": 30,
+          "type": 31,
           "typeArguments": null
         },
         {
           "name": "__tuple_element",
-          "type": 30,
+          "type": 31,
           "typeArguments": null
         }
       ],
@@ -315,12 +315,12 @@
       "components": [
         {
           "name": "base",
-          "type": 31,
+          "type": 32,
           "typeArguments": null
         },
         {
           "name": "quote",
-          "type": 31,
+          "type": 32,
           "typeArguments": null
         }
       ],
@@ -356,7 +356,7 @@
       "components": [
         {
           "name": "amount",
-          "type": 31,
+          "type": 32,
           "typeArguments": null
         },
         {
@@ -374,11 +374,53 @@
     },
     {
       "typeId": 24,
+      "type": "struct MatchOrderEvent",
+      "components": [
+        {
+          "name": "order_id",
+          "type": 4,
+          "typeArguments": null
+        },
+        {
+          "name": "asset",
+          "type": 19,
+          "typeArguments": null
+        },
+        {
+          "name": "order_matcher",
+          "type": 9,
+          "typeArguments": null
+        },
+        {
+          "name": "seller",
+          "type": 9,
+          "typeArguments": null
+        },
+        {
+          "name": "buyer",
+          "type": 9,
+          "typeArguments": null
+        },
+        {
+          "name": "match_size",
+          "type": 32,
+          "typeArguments": null
+        },
+        {
+          "name": "match_price",
+          "type": 32,
+          "typeArguments": null
+        }
+      ],
+      "typeParameters": null
+    },
+    {
+      "typeId": 25,
       "type": "struct OpenOrderEvent",
       "components": [
         {
           "name": "amount",
-          "type": 31,
+          "type": 32,
           "typeArguments": null
         },
         {
@@ -403,7 +445,7 @@
         },
         {
           "name": "price",
-          "type": 31,
+          "type": 32,
           "typeArguments": null
         },
         {
@@ -415,12 +457,12 @@
       "typeParameters": null
     },
     {
-      "typeId": 25,
+      "typeId": 26,
       "type": "struct Order",
       "components": [
         {
           "name": "amount",
-          "type": 31,
+          "type": 32,
           "typeArguments": null
         },
         {
@@ -440,14 +482,14 @@
         },
         {
           "name": "price",
-          "type": 31,
+          "type": 32,
           "typeArguments": null
         }
       ],
       "typeParameters": null
     },
     {
-      "typeId": 26,
+      "typeId": 27,
       "type": "struct RawVec",
       "components": [
         {
@@ -457,7 +499,7 @@
         },
         {
           "name": "cap",
-          "type": 31,
+          "type": 32,
           "typeArguments": null
         }
       ],
@@ -466,12 +508,12 @@
       ]
     },
     {
-      "typeId": 27,
+      "typeId": 28,
       "type": "struct SetFeeEvent",
       "components": [
         {
           "name": "amount",
-          "type": 31,
+          "type": 32,
           "typeArguments": null
         },
         {
@@ -489,12 +531,12 @@
       "typeParameters": null
     },
     {
-      "typeId": 28,
+      "typeId": 29,
       "type": "struct Vec",
       "components": [
         {
           "name": "buf",
-          "type": 26,
+          "type": 27,
           "typeArguments": [
             {
               "name": "",
@@ -505,7 +547,7 @@
         },
         {
           "name": "len",
-          "type": 31,
+          "type": 32,
           "typeArguments": null
         }
       ],
@@ -514,12 +556,12 @@
       ]
     },
     {
-      "typeId": 29,
+      "typeId": 30,
       "type": "struct WithdrawEvent",
       "components": [
         {
           "name": "amount",
-          "type": 31,
+          "type": 32,
           "typeArguments": null
         },
         {
@@ -536,13 +578,13 @@
       "typeParameters": null
     },
     {
-      "typeId": 30,
+      "typeId": 31,
       "type": "u32",
       "components": null,
       "typeParameters": null
     },
     {
-      "typeId": 31,
+      "typeId": 32,
       "type": "u64",
       "components": null,
       "typeParameters": null
@@ -628,7 +670,7 @@
       "inputs": [
         {
           "name": "orders",
-          "type": 28,
+          "type": 29,
           "typeArguments": [
             {
               "name": "",
@@ -658,7 +700,7 @@
       "inputs": [
         {
           "name": "amount",
-          "type": 31,
+          "type": 32,
           "typeArguments": null
         },
         {
@@ -673,7 +715,7 @@
         },
         {
           "name": "price",
-          "type": 31,
+          "type": 32,
           "typeArguments": null
         }
       ],
@@ -697,7 +739,7 @@
       "inputs": [
         {
           "name": "amount",
-          "type": 31,
+          "type": 32,
           "typeArguments": null
         },
         {
@@ -731,7 +773,7 @@
       "inputs": [
         {
           "name": "amount",
-          "type": 31,
+          "type": 32,
           "typeArguments": null
         },
         {
@@ -812,7 +854,7 @@
       "name": "fee",
       "output": {
         "name": "",
-        "type": 31,
+        "type": 32,
         "typeArguments": null
       },
       "attributes": [
@@ -839,7 +881,7 @@
         "typeArguments": [
           {
             "name": "",
-            "type": 25,
+            "type": 26,
             "typeArguments": null
           }
         ]
@@ -857,12 +899,12 @@
       "inputs": [
         {
           "name": "amount",
-          "type": 31,
+          "type": 32,
           "typeArguments": null
         },
         {
-          "name": "asset",
-          "type": 19,
+          "name": "asset_type",
+          "type": 7,
           "typeArguments": null
         },
         {
@@ -877,7 +919,7 @@
         },
         {
           "name": "price",
-          "type": 31,
+          "type": 32,
           "typeArguments": null
         }
       ],
@@ -900,7 +942,7 @@
       "name": "user_orders",
       "output": {
         "name": "",
-        "type": 28,
+        "type": 29,
         "typeArguments": [
           {
             "name": "",
@@ -977,6 +1019,22 @@
       }
     },
     {
+      "logId": "2271581833574730066",
+      "loggedType": {
+        "name": "",
+        "type": 24,
+        "typeArguments": []
+      }
+    },
+    {
+      "logId": "7812135309850120461",
+      "loggedType": {
+        "name": "",
+        "type": 25,
+        "typeArguments": []
+      }
+    },
+    {
       "logId": "15838754841496526215",
       "loggedType": {
         "name": "",
@@ -985,18 +1043,10 @@
       }
     },
     {
-      "logId": "7812135309850120461",
-      "loggedType": {
-        "name": "",
-        "type": 24,
-        "typeArguments": []
-      }
-    },
-    {
       "logId": "14995717719734047951",
       "loggedType": {
         "name": "",
-        "type": 27,
+        "type": 28,
         "typeArguments": []
       }
     },
@@ -1004,7 +1054,7 @@
       "logId": "10918704871079408520",
       "loggedType": {
         "name": "",
-        "type": 29,
+        "type": 30,
         "typeArguments": []
       }
     }
@@ -1018,16 +1068,16 @@
         "type": 19,
         "typeArguments": []
       },
-      "offset": 56848
+      "offset": 63072
     },
     {
       "name": "BASE_ASSET_DECIMALS",
       "configurableType": {
         "name": "",
-        "type": 30,
+        "type": 31,
         "typeArguments": null
       },
-      "offset": 56704
+      "offset": 62928
     },
     {
       "name": "OWNER",
@@ -1036,16 +1086,16 @@
         "type": 18,
         "typeArguments": []
       },
-      "offset": 56784
+      "offset": 63008
     },
     {
       "name": "PRICE_DECIMALS",
       "configurableType": {
         "name": "",
-        "type": 30,
+        "type": 31,
         "typeArguments": null
       },
-      "offset": 56720
+      "offset": 62944
     },
     {
       "name": "QUOTE_ASSET",
@@ -1054,16 +1104,16 @@
         "type": 19,
         "typeArguments": []
       },
-      "offset": 56880
+      "offset": 63104
     },
     {
       "name": "QUOTE_ASSET_DECIMALS",
       "configurableType": {
         "name": "",
-        "type": 30,
+        "type": 31,
         "typeArguments": null
       },
-      "offset": 56728
+      "offset": 62952
     }
   ]
 }

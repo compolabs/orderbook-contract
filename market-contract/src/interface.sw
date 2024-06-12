@@ -1,6 +1,11 @@
 library;
 
-use ::data_structures::{account::Account, order::Order, order_type::OrderType};
+use ::data_structures::{
+    account::Account,
+    asset_type::AssetType,
+    order::Order,
+    order_type::OrderType,
+};
 
 abi Market {
     #[payable]
@@ -48,7 +53,7 @@ abi Info {
 
     fn order_id(
         amount: u64,
-        asset: AssetId,
+        asset_type: AssetType,
         order_type: OrderType,
         owner: Identity,
         price: u64,

@@ -38,7 +38,7 @@ mod success {
         let expected_id = contract
             .order_id(
                 order.amount,
-                order.asset,
+                order.asset_type,
                 order.order_type,
                 order.owner,
                 order.price,

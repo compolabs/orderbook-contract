@@ -27,14 +27,14 @@ pub struct SetFeeEvent {
     pub user: Option<Identity>,
 }
 
-// TODO: trading events
-pub struct TradeEvent {
+pub struct MatchOrderEvent {
+    pub order_id: b256,
     pub asset: AssetId,
-    pub order_matcher: Address,
-    pub seller: Address,
-    pub buyer: Address,
-    pub trade_size: u64,
-    pub trade_price: u64,
+    pub order_matcher: Identity,
+    pub seller: Identity,
+    pub buyer: Identity,
+    pub match_size: u64,
+    pub match_price: u64,
 }
 
 pub struct WithdrawEvent {

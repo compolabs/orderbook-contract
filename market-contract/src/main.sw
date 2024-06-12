@@ -11,6 +11,7 @@ use ::data_structures::{
     account::Account,
     asset_type::AssetType,
     balance::Balance,
+    match_result::MatchResult,
     order::Order,
     order_type::OrderType,
 };
@@ -18,9 +19,9 @@ use ::errors::{AccountError, AssetError, AuthError, MatchError, OrderError, Valu
 use ::events::{
     CancelOrderEvent,
     DepositEvent,
+    MatchOrderEvent,
     OpenOrderEvent,
     SetFeeEvent,
-    TradeEvent,
     WithdrawEvent,
 };
 use ::interface::{Info, Market};
@@ -31,6 +32,7 @@ use std::{
     call_frames::msg_asset_id,
     constants::ZERO_B256,
     context::msg_amount,
+    contract_id::ContractId,
     hash::{
         Hash,
         sha256,
@@ -223,18 +225,22 @@ impl Market for Contract {
         require(order0.is_some(), OrderError::OrderNotFound(order0_id));
         let order1 = storage.orders.get(order1_id).try_read();
         require(order1.is_some(), OrderError::OrderNotFound(order1_id));
-        require(match_order_internal(order0.unwrap(), order1.unwrap()) > 0, MatchError::CantMatch((order0_id, order1_id)));
+        require(
+            match_order_internal(order0.unwrap(), order1.unwrap(), order0_id, order0_id).0 != MatchResult::ZeroMatch,
+            MatchError::CantMatch((order0_id, order1_id)),
+        );
     }
 
     #[storage(read, write)]
     fn match_orders(orders: Vec<b256>) {
         require(orders.len() > 1, ValueError::InvalidLength);
 
+        let mut orders = orders;
         let len = orders.len();
         let mut idx0 = 0;
         let mut idx1 = 1;
         let mut matched = 0;
-    
+
         while lts(idx0, idx1, len) {
             if idx0 == idx1 {
                 idx1 += 1;
@@ -258,30 +264,32 @@ impl Market for Contract {
             }
 
             // try match
-            let match_mask = match_order_internal(order0.unwrap(), order1.unwrap());
-        
-            if match_mask == 0 {
-                // the case when the 1st & 2nd orders play in same direction
-                if idx0 < idx1 {
-                    idx0 += 1;
-                } else {
-                    idx1 += 1;
+            let (match_result, before_id, after_id) = match_order_internal(order0.unwrap(), order1.unwrap(), id0, id1);
+
+            match match_result {
+                MatchResult::ZeroMatch => {
+                    // the case when the 1st & 2nd orders play in same direction
+                    if idx0 < idx1 { idx0 += 1; } else { idx1 += 1; }
                 }
-            } else {
-                // the case when the 1st order completed
-                if match_mask & 1 > 0 {
-                    idx0 += 1;
-                    matched += 1;
+                MatchResult::PartialMatch => {
+                    // the case when the one of the orders is partially completed
+                    if before_id == id0 {
+                        orders.set(idx0, after_id);
+                        idx1 += 1;
+                    } else {
+                        orders.set(idx1, after_id);
+                        idx0 += 1;
+                    }
                 }
-                // the case when the 2nd order completed
-                if match_mask & 2 > 0 {
+                MatchResult::FullMatch => {
+                    // the case when orders are completed
+                    idx0 += 1;
                     idx1 += 1;
-                    matched += 1;
+                    matched += 2;
                 }
             }
-
-            require(matched > 0, MatchError::CantBatchMatch);
         }
+        require(matched > 0, MatchError::CantBatchMatch);
     }
 
     #[storage(write)]
@@ -340,20 +348,15 @@ impl Info for Contract {
 
     fn order_id(
         amount: u64,
-        asset: AssetId,
+        asset_type: AssetType,
         order_type: OrderType,
         owner: Identity,
         price: u64,
     ) -> b256 {
         require(
-            asset == BASE_ASSET || asset == QUOTE_ASSET,
+            asset_type == AssetType::Base || asset_type == AssetType::Quote,
             AssetError::InvalidAsset,
         );
-        let asset_type = if asset == BASE_ASSET {
-            AssetType::Base
-        } else {
-            AssetType::Quote
-        };
         Order::new(amount, asset_type, order_type, owner, price).id()
     }
 }
@@ -366,6 +369,17 @@ fn get_asset_type(asset_id: AssetId) -> AssetType {
     } else {
         require(false, AssetError::InvalidAsset);
         AssetType::Quote
+    }
+}
+
+fn get_asset_id(asset_type: AssetType) -> AssetId {
+    if asset_type == AssetType::Base {
+        BASE_ASSET
+    } else if asset_type == AssetType::Quote {
+        QUOTE_ASSET
+    } else {
+        require(false, AssetError::InvalidAsset);
+        QUOTE_ASSET
     }
 }
 
@@ -415,8 +429,108 @@ fn remove_order(user: Identity, order_id: b256) {
 }
 
 #[storage(read, write)]
-fn match_order_internal(order0: Order, order1: Order) -> u64 {
-    0
+fn replace_order(user: Identity, order_id: b256, replacement: Order) {
+    require(storage.orders.remove(order_id), OrderError::FailedToRemove);
+    let replacement_id = replacement.id();
+    storage.orders.insert(replacement_id, replacement);
+    let index = storage.user_order_indexes.get(user).get(order_id).read();
+    require(
+        storage
+            .user_order_indexes
+            .get(user)
+            .remove(order_id),
+        OrderError::FailedToRemove,
+    );
+    storage
+        .user_order_indexes
+        .get(user)
+        .insert(replacement_id, index);
+    storage.user_orders.get(user).set(index, replacement_id);
+    log(OpenOrderEvent {
+        amount: replacement.amount,
+        asset: get_asset_id(replacement.asset_type),
+        asset_type: replacement.asset_type,
+        order_type: replacement.order_type,
+        order_id: replacement.id(),
+        price: replacement.price,
+        user: replacement.owner,
+    });
 }
 
+#[storage(read, write)]
+fn execute_trade(amount: u64, order0: Order, order1: Order) {}
 
+#[storage(read, write)]
+fn match_order_internal(
+    order0: Order,
+    order1: Order,
+    order0_id: b256,
+    order1_id: b256,
+) -> (MatchResult, b256, b256) {
+    let matcher = msg_sender().unwrap();
+    // the orders should have different directions
+    if order0.order_type == order1.order_type && order0.asset_type != order1.asset_type {
+        // Todo
+        (MatchResult::ZeroMatch, ZERO_B256, ZERO_B256)
+    } else if order0.order_type != order1.order_type && order0.asset_type == order1.asset_type {
+        let (mut s_order, s_id) = if order0.order_type == OrderType::Sell {
+            (order0, order0_id)
+        } else {
+            (order1, order1_id)
+        };
+        let (mut b_order, b_id) = if order0.order_type == OrderType::Buy {
+            (order0, order0_id)
+        } else {
+            (order1, order1_id)
+        };
+        // check if sell price <= buy price
+        if s_order.price > b_order.price {
+            return (MatchResult::ZeroMatch, ZERO_B256, ZERO_B256);
+        }
+        // amount is min of order amounts
+        let amount = min(s_order.amount, b_order.amount);
+        // emit match events
+        log(MatchOrderEvent {
+            order_id: s_id,
+            asset: get_asset_id(s_order.asset_type),
+            order_matcher: matcher,
+            seller: s_order.owner,
+            buyer: b_order.owner,
+            match_size: amount,
+            match_price: s_order.price,
+        });
+        log(MatchOrderEvent {
+            order_id: b_id,
+            asset: get_asset_id(b_order.asset_type),
+            order_matcher: matcher,
+            seller: s_order.owner,
+            buyer: b_order.owner,
+            match_size: amount,
+            match_price: s_order.price,
+        });
+        // update account balances
+        execute_trade(amount, s_order, b_order);
+        // update order storages
+        if amount == s_order.amount {
+            remove_order(s_order.owner, s_id);
+        }
+        if amount == b_order.amount {
+            remove_order(b_order.owner, b_id);
+        }
+        if amount != s_order.amount {
+            s_order.amount -= amount;
+            // generates open order event
+            replace_order(s_order.owner, s_id, s_order);
+            return (MatchResult::PartialMatch, s_id, s_order.id());
+        }
+        if amount != b_order.amount {
+            b_order.amount -= amount;
+            // generates open order event
+            replace_order(b_order.owner, b_id, b_order);
+            return (MatchResult::PartialMatch, b_id, b_order.id());
+        }
+        (MatchResult::FullMatch, ZERO_B256, ZERO_B256)
+    } else {
+        (MatchResult::ZeroMatch, ZERO_B256, ZERO_B256)
+    }
+}
