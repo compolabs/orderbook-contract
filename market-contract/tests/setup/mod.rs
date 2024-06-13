@@ -28,8 +28,8 @@ pub(crate) struct Defaults {
 impl Defaults {
     pub(crate) fn default() -> Self {
         Self {
-            base_decimals: 9,
-            quote_decimals: 9,
+            base_decimals: 8,
+            quote_decimals: 6,
             price_decimals: 9,
         }
     }

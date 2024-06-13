@@ -114,7 +114,7 @@ mod success {
         let deposit_amount = 70000;
         let expected_account = create_account(0, deposit_amount, 0, 0);
 
-        let order_amount = 1;
+        let order_amount = 100;
         let asset_to_buy = assets.base.id;
         let asset_to_pay_wth = assets.quote.id;
         let order_type = OrderType::Buy;
@@ -179,7 +179,7 @@ mod success {
         )
         .await?;
 
-        let deposit_amount = 1;
+        let deposit_amount = 100;
         let expected_account = create_account(deposit_amount, 0, 0, 0);
 
         let order_amount = 70000;
