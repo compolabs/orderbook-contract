@@ -458,7 +458,59 @@ fn replace_order(user: Identity, order_id: b256, replacement: Order) {
 }
 
 #[storage(read, write)]
-fn execute_trade(amount: u64, order0: Order, order1: Order) {}
+fn execute_same_asset_type_trade(s_order: Order, b_order: Order, amount: u64) {
+    let mut s_account = storage.account.get(s_order.owner).try_read().unwrap_or(Account::new());
+    let mut b_account = storage.account.get(b_order.owner).try_read().unwrap_or(Account::new());
+    // pay amount in seller price
+    let s_pay_amount = convert(
+        amount,
+        BASE_ASSET_DECIMALS,
+        s_order
+            .price,
+        PRICE_DECIMALS,
+        QUOTE_ASSET_DECIMALS,
+        s_order
+            .asset_type == AssetType::Base,
+    );
+    // pay amount in buyer price
+    let b_pay_amount = convert(
+        amount,
+        BASE_ASSET_DECIMALS,
+        b_order
+            .price,
+        PRICE_DECIMALS,
+        QUOTE_ASSET_DECIMALS,
+        s_order
+            .asset_type == AssetType::Base,
+    );
+    // calculate diff for buyer unlock amount
+    let b_unlock_amount = b_pay_amount - s_pay_amount;
+    s_account.transfer_locked_amount(b_account, amount, s_order.asset_type);
+    b_account.transfer_locked_amount(s_account, s_pay_amount, !s_order.asset_type);
+    // unlock buyer amount if prices different
+    if b_unlock_amount > 0 {
+        b_account.unlock_amount(b_unlock_amount, !s_order.asset_type);
+    }
+}
+
+#[storage(read, write)]
+fn execute_same_order_type_trade(
+    b_order: Order,
+    q_order: Order,
+    b_order_amount: u64,
+    q_order_amount: u64,
+) {
+    let mut b_account = storage.account.get(b_order.owner).try_read().unwrap_or(Account::new());
+    let mut q_account = storage.account.get(q_order.owner).try_read().unwrap_or(Account::new());
+    if b_order.order_type == OrderType::Sell {
+        b_account.transfer_locked_amount(q_account, b_order_amount, b_order.asset_type);
+        q_account.transfer_locked_amount(b_account, q_order_amount, q_order.asset_type);
+        // todo refund remain due to price difference
+    } else {
+        q_account.transfer_locked_amount(b_account, b_order_amount, b_order.asset_type);
+        b_account.transfer_locked_amount(q_account, q_order_amount, q_order.asset_type);
+    }
+}
 
 #[storage(read, write)]
 fn match_order_internal(
@@ -470,32 +522,98 @@ fn match_order_internal(
     let matcher = msg_sender().unwrap();
     // the orders should have different directions
     if order0.order_type == order1.order_type && order0.asset_type != order1.asset_type {
-        // Todo
+        let (mut b_order, b_id, mut q_order, q_id) = if order0.asset_type == AssetType::Base {
+            (order0, order0_id, order1, order1_id)
+        } else {
+            (order1, order1_id, order0, order0_id)
+        };
+        // check if base sell price <= base buy price
+        if b_order.price > q_order.price {
+            return (MatchResult::ZeroMatch, ZERO_B256, ZERO_B256);
+        }
+        // amount is a minimum of order amounts
+        let mut q_order_amount = convert(
+            q_order
+                .amount,
+            BASE_ASSET_DECIMALS,
+            b_order
+                .price,
+            PRICE_DECIMALS,
+            QUOTE_ASSET_DECIMALS,
+            false,
+        );
+        let b_order_amount = min(b_order.amount, q_order_amount);
+        // emit match events
+        if b_order_amount == b_order.amount {
+            q_order_amount = convert(
+                b_order_amount,
+                BASE_ASSET_DECIMALS,
+                b_order
+                    .price,
+                PRICE_DECIMALS,
+                QUOTE_ASSET_DECIMALS,
+                true,
+            );
+        } else {
+            q_order_amount = q_order.amount;
+        }
+        log(MatchOrderEvent {
+            order_id: b_id,
+            asset: get_asset_id(AssetType::Base),
+            order_matcher: matcher,
+            owner: b_order.owner,
+            counterparty: q_order.owner,
+            match_size: b_order_amount,
+            match_price: b_order.price,
+        });
+        log(MatchOrderEvent {
+            order_id: q_id,
+            asset: get_asset_id(AssetType::Quote),
+            order_matcher: matcher,
+            owner: q_order.owner,
+            counterparty: b_order.owner,
+            match_size: q_order_amount,
+            match_price: b_order.price,
+        });
+        // update account balances
+        execute_same_order_type_trade(b_order, q_order, b_order_amount, q_order_amount);
+        if b_order_amount == b_order.amount {
+            remove_order(b_order.owner, b_id);
+        }
+        if q_order_amount == q_order.amount {
+            remove_order(q_order.owner, q_id);
+        }
+        if b_order_amount != b_order.amount {
+            b_order.amount -= b_order_amount;
+            // generates open order event
+            replace_order(b_order.owner, b_id, b_order);
+            return (MatchResult::PartialMatch, b_id, b_order.id());
+        } else if q_order_amount != q_order.amount {
+            q_order.amount -= q_order_amount;
+            // generates open order event
+            replace_order(q_order.owner, q_id, q_order);
+            return (MatchResult::PartialMatch, q_id, q_order.id());
+        }
         (MatchResult::ZeroMatch, ZERO_B256, ZERO_B256)
     } else if order0.order_type != order1.order_type && order0.asset_type == order1.asset_type {
-        let (mut s_order, s_id) = if order0.order_type == OrderType::Sell {
-            (order0, order0_id)
+        let (mut s_order, s_id, mut b_order, b_id) = if order0.order_type == OrderType::Sell {
+            (order0, order0_id, order1, order1_id)
         } else {
-            (order1, order1_id)
-        };
-        let (mut b_order, b_id) = if order0.order_type == OrderType::Buy {
-            (order0, order0_id)
-        } else {
-            (order1, order1_id)
+            (order1, order1_id, order0, order0_id)
         };
         // check if sell price <= buy price
         if s_order.price > b_order.price {
             return (MatchResult::ZeroMatch, ZERO_B256, ZERO_B256);
         }
-        // amount is min of order amounts
+        // amount is a minimum of order amounts
         let amount = min(s_order.amount, b_order.amount);
         // emit match events
         log(MatchOrderEvent {
             order_id: s_id,
             asset: get_asset_id(s_order.asset_type),
             order_matcher: matcher,
-            seller: s_order.owner,
-            buyer: b_order.owner,
+            owner: s_order.owner,
+            counterparty: b_order.owner,
             match_size: amount,
             match_price: s_order.price,
         });
@@ -503,13 +621,13 @@ fn match_order_internal(
             order_id: b_id,
             asset: get_asset_id(b_order.asset_type),
             order_matcher: matcher,
-            seller: s_order.owner,
-            buyer: b_order.owner,
+            owner: b_order.owner,
+            counterparty: s_order.owner,
             match_size: amount,
             match_price: s_order.price,
         });
         // update account balances
-        execute_trade(amount, s_order, b_order);
+        execute_same_asset_type_trade(s_order, b_order, amount);
         // update order storages
         if amount == s_order.amount {
             remove_order(s_order.owner, s_id);
@@ -522,8 +640,7 @@ fn match_order_internal(
             // generates open order event
             replace_order(s_order.owner, s_id, s_order);
             return (MatchResult::PartialMatch, s_id, s_order.id());
-        }
-        if amount != b_order.amount {
+        } else if amount != b_order.amount {
             b_order.amount -= amount;
             // generates open order event
             replace_order(b_order.owner, b_id, b_order);

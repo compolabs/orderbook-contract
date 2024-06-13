@@ -31,8 +31,8 @@ pub struct MatchOrderEvent {
     pub order_id: b256,
     pub asset: AssetId,
     pub order_matcher: Identity,
-    pub seller: Identity,
-    pub buyer: Identity,
+    pub owner: Identity,
+    pub counterparty: Identity,
     pub match_size: u64,
     pub match_price: u64,
 }

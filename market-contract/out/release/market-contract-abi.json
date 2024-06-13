@@ -392,12 +392,12 @@
           "typeArguments": null
         },
         {
-          "name": "seller",
+          "name": "owner",
           "type": 9,
           "typeArguments": null
         },
         {
-          "name": "buyer",
+          "name": "counterparty",
           "type": 9,
           "typeArguments": null
         },
@@ -1068,7 +1068,7 @@
         "type": 19,
         "typeArguments": []
       },
-      "offset": 63072
+      "offset": 68240
     },
     {
       "name": "BASE_ASSET_DECIMALS",
@@ -1077,7 +1077,7 @@
         "type": 31,
         "typeArguments": null
       },
-      "offset": 62928
+      "offset": 68096
     },
     {
       "name": "OWNER",
@@ -1086,7 +1086,7 @@
         "type": 18,
         "typeArguments": []
       },
-      "offset": 63008
+      "offset": 68176
     },
     {
       "name": "PRICE_DECIMALS",
@@ -1095,7 +1095,7 @@
         "type": 31,
         "typeArguments": null
       },
-      "offset": 62944
+      "offset": 68112
     },
     {
       "name": "QUOTE_ASSET",
@@ -1104,7 +1104,7 @@
         "type": 19,
         "typeArguments": []
       },
-      "offset": 63104
+      "offset": 68272
     },
     {
       "name": "QUOTE_ASSET_DECIMALS",
@@ -1113,7 +1113,7 @@
         "type": 31,
         "typeArguments": null
       },
-      "offset": 62952
+      "offset": 68120
     }
   ]
 }
