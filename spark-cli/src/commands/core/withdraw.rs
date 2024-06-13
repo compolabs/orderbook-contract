@@ -38,6 +38,7 @@ impl WithdrawCommand {
 
         // Initial balance prior to contract call - used to calculate contract interaction cost
         let balance = wallet.get_asset_balance(&AssetId::BASE).await?;
+        let asset_balance = wallet.get_asset_balance(&asset).await?;
 
         // Connect to the deployed contract via the rpc
         let contract = MarketContract::new(contract_id, wallet.clone()).await;
@@ -48,10 +49,11 @@ impl WithdrawCommand {
 
         // Balance post-call
         let new_balance = wallet.get_asset_balance(&AssetId::BASE).await?;
+        let new_asset_balance = wallet.get_asset_balance(&asset).await?;
 
         // TODO: replace println with tracing
         println!("Contract call cost: {}", balance - new_balance);
-        println!("Withdrawn {} amount of {} asset", self.amount, self.asset);
+        println!("Withdrawn {} amount of {} asset", new_asset_balance - asset_balance, self.asset);
 
         Ok(())
     }
