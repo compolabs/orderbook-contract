@@ -72,35 +72,42 @@ impl OrderbookContract {
         asset: AssetId,
         market: ContractId,
     ) -> anyhow::Result<FuelCallResponse<()>> {
+        let tx_policies = TxPolicies::default().with_script_gas_limit(1_000_000);
         Ok(self
             .instance
             .methods()
             .register_market(asset, market)
+            .with_tx_policies(tx_policies)
             .call()
             .await?)
     }
 
     pub async fn unregister_market(&self, asset: AssetId) -> anyhow::Result<FuelCallResponse<()>> {
+        let tx_policies = TxPolicies::default().with_script_gas_limit(1_000_000);
         Ok(self
             .instance
             .methods()
             .unregister_market(asset)
+            .with_tx_policies(tx_policies)
             .call()
             .await?)
     }
 
     pub async fn config(&self) -> anyhow::Result<FuelCallResponse<Address>> {
-        Ok(self.instance.methods().config().simulate().await?)
+        let tx_policies = TxPolicies::default().with_script_gas_limit(1_000_000);
+        Ok(self.instance.methods().config().with_tx_policies(tx_policies).simulate().await?)
     }
 
     pub async fn registered_markets(
         &self,
         asset: Vec<AssetId>,
     ) -> anyhow::Result<FuelCallResponse<Vec<(AssetId, Option<ContractId>)>>> {
+        let tx_policies = TxPolicies::default().with_script_gas_limit(1_000_000);
         Ok(self
             .instance
             .methods()
             .registered_markets(asset)
+            .with_tx_policies(tx_policies)
             .simulate()
             .await?)
     }

@@ -21,7 +21,9 @@ async fn main() -> anyhow::Result<()> {
 
     match cli.command {
         Command::Book(args) => match args.commands {
+            BookCommands::Config(args) => args.run().await,
             BookCommands::Deploy(args) => args.run().await,
+            BookCommands::Markets(args) => args.run().await,
             BookCommands::Register(args) => args.run().await,
             BookCommands::Unregister(args) => args.run().await,
         },

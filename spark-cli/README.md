@@ -94,7 +94,7 @@ These functions return the state of the contract. They simulate calls and theref
 
 ../target/debug/spark-cli info config \
     --rpc "testnet.fuel.network" \
-    --contract-id <contract-id here>
+    --contract-id 0x0d62c0861a51e052566b39540b0b8078cd03b53490d59e28913779ac997c12b5
 
 ## Fee
 
@@ -144,17 +144,37 @@ Fee for entire market contract
 ../target/debug/spark-cli book deploy \
     --rpc "testnet.fuel.network" 
 
+Output:
+Orderbook deployed to: 0xf88a9eea6c45e2a77cf2f684fbb7d175cbf8cf58c079d07f9d24f51329de4418
+Deployment cost: 0
+Owner address: fuel173lqaa6y4jxfjd2suq730uwys3zfg4f6zt9vzx4cc45v3xvlmwlszdvdpz
+               0xf47e0ef744ac8c993550e03d17f1c4844494553a12cac11ab8c568c8999fdbbf
+
 ## Register a market
 
 ../target/debug/spark-cli book register \
-    --asset 0x0000000000000000000000000000000000000000000000000000000000000000 \
-    --market <contract-id here> \
+    --asset 0xccceae45a7c23dcd4024f4083e959a0686a191694e76fa4fb76c449361ca01f7 \
+    --market 0x0d62c0861a51e052566b39540b0b8078cd03b53490d59e28913779ac997c12b5 \
     --rpc "testnet.fuel.network" \
-    --contract-id <contract-id here>
+    --contract-id 0xf88a9eea6c45e2a77cf2f684fbb7d175cbf8cf58c079d07f9d24f51329de4418
 
 ## Unregister a market
 
 ../target/debug/spark-cli book unregister \
-    --asset 0x0000000000000000000000000000000000000000000000000000000000000000 \
+    --asset 0xccceae45a7c23dcd4024f4083e959a0686a191694e76fa4fb76c449361ca01f7 \
     --rpc "testnet.fuel.network" \
-    --contract-id <contract-id here>
+    --contract-id 0xf88a9eea6c45e2a77cf2f684fbb7d175cbf8cf58c079d07f9d24f51329de4418
+
+## Get registered markets by assets
+
+../target/debug/spark-cli book markets \
+    --assets 0xccceae45a7c23dcd4024f4083e959a0686a191694e76fa4fb76c449361ca01f7 \
+    --rpc "testnet.fuel.network" \
+    --contract-id 0xf88a9eea6c45e2a77cf2f684fbb7d175cbf8cf58c079d07f9d24f51329de4418
+
+## Config
+
+../target/debug/spark-cli book config \
+    --rpc "testnet.fuel.network" \
+    --contract-id 0xf88a9eea6c45e2a77cf2f684fbb7d175cbf8cf58c079d07f9d24f51329de4418
+

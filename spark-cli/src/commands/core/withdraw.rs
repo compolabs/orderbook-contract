@@ -53,7 +53,11 @@ impl WithdrawCommand {
 
         // TODO: replace println with tracing
         println!("Contract call cost: {}", balance - new_balance);
-        println!("Withdrawn {} amount of {} asset", new_asset_balance - asset_balance, self.asset);
+        println!(
+            "Withdrawn {} amount of {} asset",
+            new_asset_balance - asset_balance,
+            self.asset
+        );
 
         Ok(())
     }
