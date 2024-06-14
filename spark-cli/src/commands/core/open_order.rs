@@ -1,11 +1,12 @@
-use crate::utils::{setup, validate_contract_id, OrderType};
+use crate::utils::{setup, validate_contract_id, AssetType, OrderType};
 use clap::Args;
 use fuels::{
     accounts::ViewOnlyAccount,
     types::{AssetId, ContractId},
 };
-use spark_market_sdk::{MarketContract, OrderType as ContractOrderType};
-use std::str::FromStr;
+use spark_market_sdk::{
+    AssetType as ContractAssetType, MarketContract, OrderType as ContractOrderType,
+};
 
 #[derive(Args, Clone)]
 #[command(about = "Opens a new order")]
@@ -14,9 +15,9 @@ pub(crate) struct OpenCommand {
     #[clap(long)]
     pub(crate) amount: u64,
 
-    /// The id of the asset
+    /// The asset type of the market
     #[clap(long)]
-    pub(crate) asset: String,
+    pub(crate) asset_type: AssetType,
 
     /// The type of order
     #[clap(long)]
@@ -41,16 +42,14 @@ impl OpenCommand {
         let wallet = setup(&self.rpc).await?;
         let contract_id = validate_contract_id(&self.contract_id)?;
 
-        if self.asset.len() as u64 != 66 {
-            anyhow::bail!("Invalid asset length");
-        }
-
-        let asset = AssetId::from_str(&self.asset).expect("Invalid asset");
-
         // TODO: cli parsing
         let order_type = match self.order_type {
             OrderType::Buy => ContractOrderType::Buy,
             OrderType::Sell => ContractOrderType::Sell,
+        };
+        let asset_type = match self.asset_type {
+            AssetType::Base => ContractAssetType::Base,
+            AssetType::Quote => ContractAssetType::Quote,
         };
 
         // Initial balance prior to contract call - used to calculate contract interaction cost
@@ -60,7 +59,12 @@ impl OpenCommand {
         let contract = MarketContract::new(contract_id, wallet.clone()).await;
 
         let order_id = contract
-            .open_order(self.amount, asset, order_type, self.price)
+            .open_order(
+                self.amount,
+                asset_type.clone(),
+                order_type.clone(),
+                self.price,
+            )
             .await?
             .value;
 

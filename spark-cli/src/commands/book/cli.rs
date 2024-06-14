@@ -1,6 +1,6 @@
 use crate::commands::book::{
-    config::ConfigCommand, deploy::DeployCommand, markets::MarketsCommand, register::RegisterCommand,
-    unregister::UnregisterCommand,
+    config::ConfigCommand, deploy::DeployCommand, markets::MarketsCommand,
+    register::RegisterCommand, unregister::UnregisterCommand,
 };
 use clap::Subcommand;
 
@@ -18,7 +18,7 @@ pub(crate) enum BookCommands {
     #[clap(short_flag = 'M')]
     Markets(MarketsCommand),
 
-   /// Register a new market in orderbook contract
+    /// Register a new market in orderbook contract
     #[clap(short_flag = 'R')]
     Register(RegisterCommand),
 
@@ -26,4 +26,3 @@ pub(crate) enum BookCommands {
     #[clap(short_flag = 'U')]
     Unregister(UnregisterCommand),
 }
- 

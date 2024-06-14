@@ -13,12 +13,12 @@ abi Market {
     fn deposit();
 
     #[storage(read, write)]
-    fn withdraw(amount: u64, asset: AssetId);
+    fn withdraw(amount: u64, asset_type: AssetType);
 
     #[storage(read, write)]
     fn open_order(
         amount: u64,
-        asset: AssetId,
+        asset_type: AssetType,
         order_type: OrderType,
         price: u64,
     ) -> b256;

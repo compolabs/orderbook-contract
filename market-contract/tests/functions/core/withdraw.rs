@@ -4,7 +4,7 @@ mod success {
 
     use super::*;
     use crate::setup::create_account;
-    use spark_market_sdk::WithdrawEvent;
+    use spark_market_sdk::{AssetType, WithdrawEvent};
 
     #[tokio::test]
     async fn base_asset() -> anyhow::Result<()> {
@@ -27,7 +27,7 @@ mod success {
         // Precondition enforces deposited account
         assert_eq!(user_account, expected_account);
 
-        let response = contract.withdraw(deposit_amount, assets.base.id).await?;
+        let response = contract.withdraw(deposit_amount, AssetType::Base).await?;
 
         let log = response.decode_logs_with_type::<WithdrawEvent>().unwrap();
         let event = log.first().unwrap();
@@ -71,7 +71,7 @@ mod success {
         // Precondition enforces deposited account
         assert_eq!(user_account, expected_account);
 
-        let response = contract.withdraw(deposit_amount, assets.quote.id).await?;
+        let response = contract.withdraw(deposit_amount, AssetType::Quote).await?;
 
         let log = response.decode_logs_with_type::<WithdrawEvent>().unwrap();
         let event = log.first().unwrap();
@@ -98,32 +98,7 @@ mod success {
 mod revert {
 
     use super::*;
-
-    #[tokio::test]
-    #[should_panic(expected = "InvalidAsset")]
-    async fn when_invalid_asset() {
-        let defaults = Defaults::default();
-        let (contract, _owner, _user, assets) = setup(
-            defaults.base_decimals,
-            defaults.quote_decimals,
-            defaults.price_decimals,
-        )
-        .await
-        .unwrap();
-
-        let deposit_amount = 100;
-
-        let _ = contract
-            .deposit(deposit_amount, assets.base.id)
-            .await
-            .unwrap();
-
-        // Revert
-        contract
-            .withdraw(deposit_amount, assets.random.id)
-            .await
-            .unwrap();
-    }
+    use spark_market_sdk::AssetType;
 
     #[tokio::test]
     #[should_panic(expected = "InsufficientBalance")]
@@ -141,7 +116,7 @@ mod revert {
 
         // Revert
         contract
-            .withdraw(deposit_amount, assets.base.id)
+            .withdraw(deposit_amount, AssetType::Base)
             .await
             .unwrap();
     }
@@ -167,7 +142,7 @@ mod revert {
 
         // Revert
         contract
-            .withdraw(deposit_amount + 1, assets.base.id)
+            .withdraw(deposit_amount + 1, AssetType::Base)
             .await
             .unwrap();
     }
@@ -193,7 +168,7 @@ mod revert {
 
         // Revert
         contract
-            .withdraw(deposit_amount + 1, assets.quote.id)
+            .withdraw(deposit_amount + 1, AssetType::Quote)
             .await
             .unwrap();
     }

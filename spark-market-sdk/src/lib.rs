@@ -101,13 +101,13 @@ impl MarketContract {
     pub async fn withdraw(
         &self,
         amount: u64,
-        asset: AssetId,
+        asset_type: AssetType,
     ) -> anyhow::Result<FuelCallResponse<()>> {
         let tx_policies = TxPolicies::default().with_script_gas_limit(1_000_000);
         Ok(self
             .instance
             .methods()
-            .withdraw(amount, asset)
+            .withdraw(amount, asset_type)
             .with_tx_policies(tx_policies)
             .append_variable_outputs(1)
             .call()
@@ -117,7 +117,7 @@ impl MarketContract {
     pub async fn open_order(
         &self,
         amount: u64,
-        asset: AssetId,
+        asset_type: AssetType,
         order_type: OrderType,
         price: u64,
     ) -> anyhow::Result<FuelCallResponse<Bits256>> {
@@ -125,7 +125,7 @@ impl MarketContract {
         Ok(self
             .instance
             .methods()
-            .open_order(amount, asset, order_type, price)
+            .open_order(amount, asset_type, order_type, price)
             .with_tx_policies(tx_policies)
             .call()
             .await?)
@@ -148,7 +148,13 @@ impl MarketContract {
         user: Option<Identity>,
     ) -> anyhow::Result<FuelCallResponse<()>> {
         let tx_policies = TxPolicies::default().with_script_gas_limit(1_000_000);
-        Ok(self.instance.methods().set_fee(amount, user).with_tx_policies(tx_policies).call().await?)
+        Ok(self
+            .instance
+            .methods()
+            .set_fee(amount, user)
+            .with_tx_policies(tx_policies)
+            .call()
+            .await?)
     }
 
     pub async fn account(
@@ -156,17 +162,35 @@ impl MarketContract {
         user: Identity,
     ) -> anyhow::Result<FuelCallResponse<Option<Account>>> {
         let tx_policies = TxPolicies::default().with_script_gas_limit(1_000_000);
-        Ok(self.instance.methods().account(user).with_tx_policies(tx_policies).simulate().await?)
+        Ok(self
+            .instance
+            .methods()
+            .account(user)
+            .with_tx_policies(tx_policies)
+            .simulate()
+            .await?)
     }
 
     pub async fn fee(&self, user: Option<Identity>) -> anyhow::Result<FuelCallResponse<u64>> {
         let tx_policies = TxPolicies::default().with_script_gas_limit(1_000_000);
-        Ok(self.instance.methods().fee(user).with_tx_policies(tx_policies).simulate().await?)
+        Ok(self
+            .instance
+            .methods()
+            .fee(user)
+            .with_tx_policies(tx_policies)
+            .simulate()
+            .await?)
     }
 
     pub async fn order(&self, order: Bits256) -> anyhow::Result<FuelCallResponse<Option<Order>>> {
         let tx_policies = TxPolicies::default().with_script_gas_limit(1_000_000);
-        Ok(self.instance.methods().order(order).with_tx_policies(tx_policies).simulate().await?)
+        Ok(self
+            .instance
+            .methods()
+            .order(order)
+            .with_tx_policies(tx_policies)
+            .simulate()
+            .await?)
     }
 
     pub async fn user_orders(
@@ -174,14 +198,26 @@ impl MarketContract {
         user: Identity,
     ) -> anyhow::Result<FuelCallResponse<Vec<Bits256>>> {
         let tx_policies = TxPolicies::default().with_script_gas_limit(1_000_000);
-        Ok(self.instance.methods().user_orders(user).with_tx_policies(tx_policies).simulate().await?)
+        Ok(self
+            .instance
+            .methods()
+            .user_orders(user)
+            .with_tx_policies(tx_policies)
+            .simulate()
+            .await?)
     }
 
     pub async fn config(
         &self,
     ) -> anyhow::Result<FuelCallResponse<(Address, AssetId, u32, AssetId, u32, u32)>> {
         let tx_policies = TxPolicies::default().with_script_gas_limit(1_000_000);
-        Ok(self.instance.methods().config().with_tx_policies(tx_policies).simulate().await?)
+        Ok(self
+            .instance
+            .methods()
+            .config()
+            .with_tx_policies(tx_policies)
+            .simulate()
+            .await?)
     }
 
     pub async fn order_id(

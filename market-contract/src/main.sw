@@ -88,10 +88,9 @@ impl Market for Contract {
     }
 
     #[storage(read, write)]
-    fn withdraw(amount: u64, asset: AssetId) {
+    fn withdraw(amount: u64, asset_type: AssetType) {
         require(amount > 0, ValueError::InvalidAmount);
 
-        let asset_type = get_asset_type(asset);
         let user = msg_sender().unwrap();
 
         let mut account = storage.account.get(user).try_read().unwrap_or(Account::new());
@@ -100,6 +99,7 @@ impl Market for Contract {
 
         storage.account.insert(user, account);
 
+        let asset = get_asset_id(asset_type);
         transfer(user, asset, amount);
 
         log(WithdrawEvent {
@@ -112,13 +112,12 @@ impl Market for Contract {
     #[storage(read, write)]
     fn open_order(
         amount: u64,
-        asset: AssetId,
+        asset_type: AssetType,
         order_type: OrderType,
         price: u64,
     ) -> b256 {
         require(amount > 0, ValueError::InvalidAmount);
 
-        let asset_type = get_asset_type(asset);
         let user = msg_sender().unwrap();
         let mut account = storage.account.get(user).try_read().unwrap_or(Account::new());
 
@@ -165,6 +164,7 @@ impl Market for Contract {
             .get(user)
             .insert(order_id, storage.user_orders.get(user).len() - 1);
 
+        let asset = get_asset_id(asset_type);
         log(OpenOrderEvent {
             amount,
             asset,

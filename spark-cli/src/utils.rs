@@ -27,6 +27,14 @@ pub(crate) enum AccountType {
 }
 
 #[derive(Clone, ValueEnum)]
+pub(crate) enum AssetType {
+    /// Base asset
+    Base,
+    /// Quote asset
+    Quote,
+}
+
+#[derive(Clone, ValueEnum)]
 pub(crate) enum OrderType {
     /// Buy order
     Buy,

@@ -704,8 +704,8 @@
           "typeArguments": null
         },
         {
-          "name": "asset",
-          "type": 19,
+          "name": "asset_type",
+          "type": 7,
           "typeArguments": null
         },
         {
@@ -777,8 +777,8 @@
           "typeArguments": null
         },
         {
-          "name": "asset",
-          "type": 19,
+          "name": "asset_type",
+          "type": 7,
           "typeArguments": null
         }
       ],
@@ -1068,7 +1068,7 @@
         "type": 19,
         "typeArguments": []
       },
-      "offset": 68240
+      "offset": 68168
     },
     {
       "name": "BASE_ASSET_DECIMALS",
@@ -1077,7 +1077,7 @@
         "type": 31,
         "typeArguments": null
       },
-      "offset": 68096
+      "offset": 68024
     },
     {
       "name": "OWNER",
@@ -1086,7 +1086,7 @@
         "type": 18,
         "typeArguments": []
       },
-      "offset": 68176
+      "offset": 68104
     },
     {
       "name": "PRICE_DECIMALS",
@@ -1095,7 +1095,7 @@
         "type": 31,
         "typeArguments": null
       },
-      "offset": 68112
+      "offset": 68040
     },
     {
       "name": "QUOTE_ASSET",
@@ -1104,7 +1104,7 @@
         "type": 19,
         "typeArguments": []
       },
-      "offset": 68272
+      "offset": 68200
     },
     {
       "name": "QUOTE_ASSET_DECIMALS",
@@ -1113,7 +1113,7 @@
         "type": 31,
         "typeArguments": null
       },
-      "offset": 68120
+      "offset": 68048
     }
   ]
 }

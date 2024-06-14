@@ -95,7 +95,13 @@ impl OrderbookContract {
 
     pub async fn config(&self) -> anyhow::Result<FuelCallResponse<Address>> {
         let tx_policies = TxPolicies::default().with_script_gas_limit(1_000_000);
-        Ok(self.instance.methods().config().with_tx_policies(tx_policies).simulate().await?)
+        Ok(self
+            .instance
+            .methods()
+            .config()
+            .with_tx_policies(tx_policies)
+            .simulate()
+            .await?)
     }
 
     pub async fn registered_markets(

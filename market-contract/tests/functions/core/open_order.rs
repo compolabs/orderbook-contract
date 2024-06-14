@@ -44,7 +44,7 @@ mod success {
         assert!(contract.order(expected_id).await?.value.is_none());
 
         let response = contract
-            .open_order(order_amount, asset, order_type.clone(), price)
+            .open_order(order_amount, AssetType::Base, order_type.clone(), price)
             .await?;
         let id = response.value;
 
@@ -124,7 +124,7 @@ mod success {
         assert!(contract.order(expected_id).await?.value.is_none());
 
         let response = contract
-            .open_order(order_amount, asset, order_type.clone(), price)
+            .open_order(order_amount, AssetType::Quote, order_type.clone(), price)
             .await?;
         let id = response.value;
 
@@ -205,7 +205,7 @@ mod success {
         assert!(contract.order(expected_id).await?.value.is_none());
 
         let response = contract
-            .open_order(order_amount, asset_to_buy, order_type.clone(), price)
+            .open_order(order_amount, AssetType::Base, order_type.clone(), price)
             .await?;
         let id = response.value;
 
@@ -286,7 +286,7 @@ mod success {
         assert!(contract.order(expected_id).await?.value.is_none());
 
         let response = contract
-            .open_order(order_amount, asset_to_buy, order_type.clone(), price)
+            .open_order(order_amount, AssetType::Quote, order_type.clone(), price)
             .await?;
         let id = response.value;
 
@@ -335,30 +335,6 @@ mod revert {
     use super::*;
 
     #[tokio::test]
-    #[should_panic(expected = "InvalidAsset")]
-    async fn when_invalid_asset() {
-        let defaults = Defaults::default();
-        let (contract, _owner, _user, assets) = setup(
-            defaults.base_decimals,
-            defaults.quote_decimals,
-            defaults.price_decimals,
-        )
-        .await
-        .unwrap();
-
-        let order_amount = 10;
-        let asset = assets.random.id;
-        let order_type = OrderType::Sell;
-        let price = 70000;
-
-        // Revert
-        contract
-            .open_order(order_amount, asset, order_type, price)
-            .await
-            .unwrap();
-    }
-
-    #[tokio::test]
     #[should_panic(expected = "InsufficientBalance")]
     async fn when_invalid_user() {
         let defaults = Defaults::default();
@@ -380,7 +356,7 @@ mod revert {
             .with_account(&user.wallet)
             .await
             .unwrap()
-            .open_order(order_amount, asset, order_type, price)
+            .open_order(order_amount, AssetType::Base, order_type, price)
             .await
             .unwrap();
     }
@@ -407,7 +383,7 @@ mod revert {
 
         // Revert
         contract
-            .open_order(order_amount, asset, order_type.clone(), price)
+            .open_order(order_amount, AssetType::Base, order_type.clone(), price)
             .await
             .unwrap();
     }
@@ -434,7 +410,7 @@ mod revert {
 
         // Revert
         contract
-            .open_order(order_amount, asset, order_type, price)
+            .open_order(order_amount, AssetType::Quote, order_type, price)
             .await
             .unwrap();
     }
@@ -465,7 +441,7 @@ mod revert {
 
         // Revert
         contract
-            .open_order(order_amount, buy_asset, order_type, price)
+            .open_order(order_amount, AssetType::Quote, order_type, price)
             .await
             .unwrap();
     }
@@ -496,7 +472,7 @@ mod revert {
 
         // Revert
         contract
-            .open_order(order_amount, buy_asset, order_type, price)
+            .open_order(order_amount, AssetType::Base, order_type, price)
             .await
             .unwrap();
     }
@@ -521,13 +497,13 @@ mod revert {
 
         let _ = contract.deposit(deposit_amount, asset).await.unwrap();
         let _ = contract
-            .open_order(order_amount, asset, order_type.clone(), price)
+            .open_order(order_amount, AssetType::Base, order_type.clone(), price)
             .await
             .unwrap();
 
         // Revert
         contract
-            .open_order(order_amount, asset, order_type, price)
+            .open_order(order_amount, AssetType::Base, order_type, price)
             .await
             .unwrap();
     }

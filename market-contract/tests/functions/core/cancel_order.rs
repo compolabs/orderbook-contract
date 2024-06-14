@@ -25,7 +25,7 @@ mod success {
 
         let _ = contract.deposit(deposit_amount, asset).await?;
         let id = contract
-            .open_order(order_amount, asset, order_type, price)
+            .open_order(order_amount, AssetType::Base, order_type, price)
             .await?
             .value;
 
@@ -72,7 +72,7 @@ mod success {
 
         let _ = contract.deposit(deposit_amount, asset).await?;
         let id = contract
-            .open_order(order_amount, asset, order_type, price)
+            .open_order(order_amount, AssetType::Quote, order_type, price)
             .await?
             .value;
 
@@ -139,7 +139,7 @@ mod success {
         assert!(contract.order(expected_id).await?.value.is_none());
 
         let id = contract
-            .open_order(order_amount, asset_to_buy, order_type, price)
+            .open_order(order_amount, AssetType::Base, order_type, price)
             .await?
             .value;
 
@@ -207,7 +207,7 @@ mod success {
         assert!(contract.order(expected_id).await?.value.is_none());
 
         let id = contract
-            .open_order(order_amount, asset_to_buy, order_type, price)
+            .open_order(order_amount, AssetType::Quote, order_type, price)
             .await?
             .value;
 
@@ -282,7 +282,7 @@ mod revert {
 
         let _ = contract.deposit(deposit_amount, asset).await.unwrap();
         let id = contract
-            .open_order(order_amount, asset, order_type, price)
+            .open_order(order_amount, AssetType::Base, order_type, price)
             .await
             .unwrap()
             .value;
