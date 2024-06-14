@@ -501,9 +501,9 @@ mod revert {
             .await
             .unwrap();
 
-        // Revert
+        // Revert same order
         contract
-            .open_order(order_amount, AssetType::Base, order_type, price)
+            .open_order(order_amount, AssetType::Base, order_type.clone(), price)
             .await
             .unwrap();
     }

@@ -216,7 +216,7 @@
         },
         {
           "name": "FailedToRemove",
-          "type": 0,
+          "type": 4,
           "typeArguments": null
         }
       ],
@@ -1068,7 +1068,7 @@
         "type": 19,
         "typeArguments": []
       },
-      "offset": 68168
+      "offset": 68928
     },
     {
       "name": "BASE_ASSET_DECIMALS",
@@ -1077,7 +1077,7 @@
         "type": 31,
         "typeArguments": null
       },
-      "offset": 68024
+      "offset": 68784
     },
     {
       "name": "OWNER",
@@ -1086,7 +1086,7 @@
         "type": 18,
         "typeArguments": []
       },
-      "offset": 68104
+      "offset": 68864
     },
     {
       "name": "PRICE_DECIMALS",
@@ -1095,7 +1095,7 @@
         "type": 31,
         "typeArguments": null
       },
-      "offset": 68040
+      "offset": 68800
     },
     {
       "name": "QUOTE_ASSET",
@@ -1104,7 +1104,7 @@
         "type": 19,
         "typeArguments": []
       },
-      "offset": 68200
+      "offset": 68960
     },
     {
       "name": "QUOTE_ASSET_DECIMALS",
@@ -1113,7 +1113,7 @@
         "type": 31,
         "typeArguments": null
       },
-      "offset": 68048
+      "offset": 68808
     }
   ]
 }

@@ -226,7 +226,7 @@ impl Market for Contract {
         let order1 = storage.orders.get(order1_id).try_read();
         require(order1.is_some(), OrderError::OrderNotFound(order1_id));
         require(
-            match_order_internal(order0.unwrap(), order1.unwrap(), order0_id, order0_id).0 != MatchResult::ZeroMatch,
+            match_order_internal(order0_id, order0.unwrap(), order1_id, order1.unwrap()).0 != MatchResult::ZeroMatch,
             MatchError::CantMatch((order0_id, order1_id)),
         );
     }
@@ -264,7 +264,7 @@ impl Market for Contract {
             }
 
             // try match
-            let (match_result, before_id, after_id) = match_order_internal(order0.unwrap(), order1.unwrap(), id0, id1);
+            let (match_result, before_id, after_id) = match_order_internal(id0, order0.unwrap(), id1, order1.unwrap());
 
             match match_result {
                 MatchResult::ZeroMatch => {
@@ -385,7 +385,12 @@ fn get_asset_id(asset_type: AssetType) -> AssetId {
 
 #[storage(read, write)]
 fn remove_order(user: Identity, order_id: b256) {
-    require(storage.orders.remove(order_id), OrderError::FailedToRemove);
+    require(
+        storage
+            .orders
+            .remove(order_id),
+        OrderError::FailedToRemove(order_id),
+    );
 
     let index = storage.user_order_indexes.get(user).get(order_id).read();
     let order_count = storage.user_orders.get(user).len();
@@ -395,7 +400,7 @@ fn remove_order(user: Identity, order_id: b256) {
             .user_order_indexes
             .get(user)
             .remove(order_id),
-        OrderError::FailedToRemove,
+        OrderError::FailedToRemove(order_id),
     ); // TODO: Different error
     if order_count == 1 {
         // There's only 1 element so no swapping. Pop it from the end
@@ -405,7 +410,7 @@ fn remove_order(user: Identity, order_id: b256) {
                 .get(user)
                 .pop()
                 .unwrap() == order_id,
-            OrderError::FailedToRemove,
+            OrderError::FailedToRemove(order_id),
         );
     } else {
         // The order ID at the end is about to have its index changed via swap_remove()
@@ -417,7 +422,7 @@ fn remove_order(user: Identity, order_id: b256) {
                 .user_orders
                 .get(user)
                 .swap_remove(index) == order_id,
-            OrderError::FailedToRemove,
+            OrderError::FailedToRemove(order_id),
         );
 
         // Last element has been shifted so update its index
@@ -430,7 +435,12 @@ fn remove_order(user: Identity, order_id: b256) {
 
 #[storage(read, write)]
 fn replace_order(user: Identity, order_id: b256, replacement: Order) {
-    require(storage.orders.remove(order_id), OrderError::FailedToRemove);
+    require(
+        storage
+            .orders
+            .remove(order_id),
+        OrderError::FailedToRemove(order_id),
+    );
     let replacement_id = replacement.id();
     storage.orders.insert(replacement_id, replacement);
     let index = storage.user_order_indexes.get(user).get(order_id).read();
@@ -439,7 +449,7 @@ fn replace_order(user: Identity, order_id: b256, replacement: Order) {
             .user_order_indexes
             .get(user)
             .remove(order_id),
-        OrderError::FailedToRemove,
+        OrderError::FailedToRemove(order_id),
     );
     storage
         .user_order_indexes
@@ -461,36 +471,39 @@ fn replace_order(user: Identity, order_id: b256, replacement: Order) {
 fn execute_same_asset_type_trade(s_order: Order, b_order: Order, amount: u64) {
     let mut s_account = storage.account.get(s_order.owner).try_read().unwrap_or(Account::new());
     let mut b_account = storage.account.get(b_order.owner).try_read().unwrap_or(Account::new());
+    let match_price = min(s_order.price, b_order.price);
     // pay amount in seller price
     let s_pay_amount = convert(
         amount,
         BASE_ASSET_DECIMALS,
-        s_order
-            .price,
+        match_price,
         PRICE_DECIMALS,
         QUOTE_ASSET_DECIMALS,
         s_order
             .asset_type == AssetType::Base,
     );
-    // pay amount in buyer price
-    let b_pay_amount = convert(
-        amount,
-        BASE_ASSET_DECIMALS,
-        b_order
-            .price,
-        PRICE_DECIMALS,
-        QUOTE_ASSET_DECIMALS,
-        s_order
-            .asset_type == AssetType::Base,
-    );
-    // calculate diff for buyer unlock amount
-    let b_unlock_amount = b_pay_amount - s_pay_amount;
     s_account.transfer_locked_amount(b_account, amount, s_order.asset_type);
     b_account.transfer_locked_amount(s_account, s_pay_amount, !s_order.asset_type);
-    // unlock buyer amount if prices different
-    if b_unlock_amount > 0 {
-        b_account.unlock_amount(b_unlock_amount, !s_order.asset_type);
+
+    if s_order.asset_type == AssetType::Base {
+        // pay amount in buyer price
+        let b_pay_amount = convert(
+            amount,
+            BASE_ASSET_DECIMALS,
+            b_order
+                .price,
+            PRICE_DECIMALS,
+            QUOTE_ASSET_DECIMALS,
+            true,
+        );
+        let b_unlock_amount = b_pay_amount - s_pay_amount;
+        // unlock buyer amount if prices different
+        if b_unlock_amount > 0 {
+            b_account.unlock_amount(b_unlock_amount, AssetType::Quote);
+        }
     }
+    storage.account.insert(s_order.owner, s_account);
+    storage.account.insert(b_order.owner, b_account);
 }
 
 #[storage(read, write)]
@@ -510,14 +523,16 @@ fn execute_same_order_type_trade(
         q_account.transfer_locked_amount(b_account, b_order_amount, b_order.asset_type);
         b_account.transfer_locked_amount(q_account, q_order_amount, q_order.asset_type);
     }
+    storage.account.insert(b_order.owner, b_account);
+    storage.account.insert(q_order.owner, q_account);
 }
 
 #[storage(read, write)]
 fn match_order_internal(
-    order0: Order,
-    order1: Order,
     order0_id: b256,
+    order0: Order,
     order1_id: b256,
+    order1: Order,
 ) -> (MatchResult, b256, b256) {
     let matcher = msg_sender().unwrap();
     // the orders should have different directions
@@ -602,11 +617,22 @@ fn match_order_internal(
             (order1, order1_id, order0, order0_id)
         };
         // check if sell price <= buy price
-        if s_order.price > b_order.price {
+        if s_order
+                .price > b_order
+                .price
+            && order0
+                .asset_type == AssetType::Base
+                || s_order
+                    .price < b_order
+                    .price
+                && order0
+                    .asset_type == AssetType::Quote
+        {
             return (MatchResult::ZeroMatch, ZERO_B256, ZERO_B256);
         }
         // amount is a minimum of order amounts
         let amount = min(s_order.amount, b_order.amount);
+        let match_price = min(s_order.price, b_order.price);
         // emit match events
         log(MatchOrderEvent {
             order_id: s_id,
@@ -615,7 +641,7 @@ fn match_order_internal(
             owner: s_order.owner,
             counterparty: b_order.owner,
             match_size: amount,
-            match_price: s_order.price,
+            match_price: match_price,
         });
         log(MatchOrderEvent {
             order_id: b_id,
@@ -624,7 +650,7 @@ fn match_order_internal(
             owner: b_order.owner,
             counterparty: s_order.owner,
             match_size: amount,
-            match_price: s_order.price,
+            match_price: match_price,
         });
         // update account balances
         execute_same_asset_type_trade(s_order, b_order, amount);

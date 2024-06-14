@@ -14,7 +14,7 @@ pub enum OrderError {
     DuplicateOrder: (),
     PriceCannotBeZero: (),
     AmountCannotBeZero: (),
-    FailedToRemove: (),
+    FailedToRemove: b256,
 }
 
 pub enum MatchError {

@@ -142,6 +142,21 @@ impl MarketContract {
             .await?)
     }
 
+    pub async fn match_order_pair(
+        &self,
+        order_id0: Bits256,
+        order_id1: Bits256,
+    ) -> anyhow::Result<FuelCallResponse<()>> {
+        let tx_policies = TxPolicies::default().with_script_gas_limit(1_000_000);
+        Ok(self
+            .instance
+            .methods()
+            .match_order_pair(order_id0, order_id1)
+            .with_tx_policies(tx_policies)
+            .call()
+            .await?)
+    }
+
     pub async fn set_fee(
         &self,
         amount: u64,
