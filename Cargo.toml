@@ -64,3 +64,7 @@ path = "scripts/order_by_id.rs"
 [[bin]]
 name = "match_in_pairs"
 path = "scripts/match_in_pairs.rs"
+
+[[bin]]
+name = "match_in_pairs_multicall"
+path = "scripts/match_in_pairs_multicall.rs"

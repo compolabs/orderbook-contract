@@ -6,7 +6,7 @@ use fuels::{
     programs::{
         call_response::FuelCallResponse,
         call_utils::TxDependencyExtension,
-        contract::{CallParameters, Contract, LoadConfiguration},
+        contract::{CallParameters, Contract, LoadConfiguration, MultiContractCallHandler},
     },
     types::{bech32::Bech32Address, transaction::TxPolicies, AssetId, Bits256, ContractId},
 };
@@ -302,6 +302,32 @@ impl Orderbook {
                     .with_script_gas_limit(9_999_000),
             )
             .append_variable_outputs(variable_outputs)
+            .call()
+            .await
+    }
+    pub async fn match_in_pairs_multicall(
+        &self,
+        orders: Vec<(Bits256, Bits256)>,
+    ) -> Result<FuelCallResponse<()>, fuels::types::errors::Error> {
+        let wallet = self.instance.account();
+        let mut multi_call_handler = MultiContractCallHandler::new(wallet.clone());
+
+        for (sell_order_id, buy_order_id) in orders {
+            let call_handler = self
+                .instance
+                .methods()
+                .match_orders(sell_order_id.clone(), buy_order_id.clone())
+                .append_variable_outputs(2)
+                .with_tx_policies(TxPolicies::default().with_script_gas_limit(3500000));
+            multi_call_handler.add_call(call_handler);
+        }
+
+        multi_call_handler
+            .with_tx_policies(
+                TxPolicies::default()
+                    .with_tip(1)
+                    .with_script_gas_limit(9_999_000),
+            )
             .call()
             .await
     }
