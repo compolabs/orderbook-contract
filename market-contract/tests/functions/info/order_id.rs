@@ -16,10 +16,10 @@ mod success {
         .await?;
 
         let id1 = contract
-            .order_id(10, AssetType::Base, OrderType::Buy, owner.identity(), 70000)
+            .order_id(AssetType::Base, OrderType::Buy, owner.identity(), 70000, 2)
             .await?;
         let id2 = contract
-            .order_id(15, AssetType::Base, OrderType::Buy, owner.identity(), 70000)
+            .order_id(AssetType::Base, OrderType::Buy, owner.identity(), 80000, 2)
             .await?;
 
         assert_ne!(id1.value, id2.value);
@@ -39,7 +39,7 @@ mod success {
         .await?;
 
         let _ = contract
-            .order_id(10, AssetType::Base, OrderType::Buy, owner.identity(), 70000)
+            .order_id(AssetType::Base, OrderType::Buy, owner.identity(), 70000, 2)
             .await?;
 
         Ok(())
@@ -57,7 +57,7 @@ mod success {
         .await?;
 
         let _ = contract
-            .order_id(10, AssetType::Base, OrderType::Buy, owner.identity(), 70000)
+            .order_id(AssetType::Base, OrderType::Buy, owner.identity(), 70000, 2)
             .await?;
 
         Ok(())

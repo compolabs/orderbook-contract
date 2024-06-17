@@ -1,4 +1,5 @@
 use crate::setup::{create_account, setup, Defaults};
+use fuels::accounts::ViewOnlyAccount;
 use spark_market_sdk::{AssetType, OrderType};
 
 mod success {
@@ -214,18 +215,10 @@ mod success {
             expected_account1
         );
 
-        let expected_id = contract
-            .order_id(
-                sell_base_amount - buy_base_amount,
-                AssetType::Base,
-                OrderType::Sell,
-                user0.identity(),
-                price,
-            )
-            .await?
-            .value;
-        let order = contract.order(expected_id).await?.value;
+        let order = contract.order(id0).await?.value;
         assert!(order.is_some());
+        let order = contract.order(id1).await?.value;
+        assert!(order.is_none());
 
         Ok(())
     }
@@ -348,6 +341,16 @@ mod success {
             )
             .await?
             .value;
+        let expected_id = contract
+            .order_id(
+                AssetType::Quote,
+                OrderType::Sell,
+                user1.identity(),
+                buy_price,
+                user0.wallet.try_provider()?.latest_block_height().await?,
+            )
+            .await?
+            .value;
 
         let expected_account0 = create_account(0, 0, base_amount, 0);
         let expected_account1 = create_account(0, 0, 0, buy_quote_amount);
@@ -376,16 +379,6 @@ mod success {
             expected_account1
         );
 
-        let expected_id = contract
-            .order_id(
-                buy_quote_amount - sell_quote_amount,
-                AssetType::Quote,
-                OrderType::Sell,
-                user1.identity(),
-                buy_price,
-            )
-            .await?
-            .value;
         let order = contract.order(expected_id).await?.value;
         assert!(order.is_some());
 
@@ -426,6 +419,17 @@ mod success {
             .open_order(sell_quote_amount, AssetType::Quote, OrderType::Buy, price)
             .await?
             .value;
+        let expected_id = contract
+            .order_id(
+                AssetType::Quote,
+                OrderType::Buy,
+                user0.identity(),
+                price,
+                user0.wallet.try_provider()?.latest_block_height().await?,
+            )
+            .await?
+            .value;
+
         let id1 = contract
             .with_account(&user1.wallet)
             .await?
@@ -461,17 +465,6 @@ mod success {
             contract.account(user1.identity()).await?.value.unwrap(),
             expected_account1
         );
-
-        let expected_id = contract
-            .order_id(
-                sell_quote_amount - buy_quote_amount,
-                AssetType::Quote,
-                OrderType::Buy,
-                user0.identity(),
-                price,
-            )
-            .await?
-            .value;
 
         let order = contract.order(expected_id).await?.value;
         assert!(order.is_some());

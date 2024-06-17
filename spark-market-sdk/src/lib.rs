@@ -237,17 +237,17 @@ impl MarketContract {
 
     pub async fn order_id(
         &self,
-        amount: u64,
         asset_type: AssetType,
         order_type: OrderType,
         owner: Identity,
         price: u64,
+        block_height: u32,
     ) -> anyhow::Result<FuelCallResponse<Bits256>> {
         let tx_policies = TxPolicies::default().with_script_gas_limit(1_000_000);
         Ok(self
             .instance
             .methods()
-            .order_id(amount, asset_type, order_type, owner, price)
+            .order_id(asset_type, order_type, owner, price, block_height)
             .with_tx_policies(tx_policies)
             .simulate()
             .await?)

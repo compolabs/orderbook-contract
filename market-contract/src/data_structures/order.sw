@@ -12,6 +12,7 @@ pub struct Order {
     pub order_type: OrderType,
     pub owner: Identity,
     pub price: u64,
+    pub block_height: u32,
 }
 
 impl Order {
@@ -21,20 +22,22 @@ impl Order {
         order_type: OrderType,
         owner: Identity,
         price: u64,
+        block_height: u32,
     ) -> Self {
         require(amount != 0, OrderError::AmountCannotBeZero);
         require(price != 0, OrderError::PriceCannotBeZero);
-
+        
         Self {
             amount,
             asset_type,
             order_type,
             owner,
             price,
+            block_height,
         }
     }
 
     pub fn id(self) -> b256 {
-        sha256((sha256((ContractId::this(), self.owner)), self.amount, self.asset_type, self.order_type, self.price))
+        sha256((sha256((ContractId::this(), self.owner)), self.asset_type, self.order_type, self.price, self.block_height))
     }
 }

@@ -52,10 +52,10 @@ abi Info {
     fn config() -> (Address, AssetId, u32, AssetId, u32, u32);
 
     fn order_id(
-        amount: u64,
         asset_type: AssetType,
         order_type: OrderType,
         owner: Identity,
         price: u64,
+        block_height: u32,
     ) -> b256;
 }

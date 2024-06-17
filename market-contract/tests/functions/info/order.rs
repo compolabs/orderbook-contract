@@ -1,6 +1,7 @@
 mod success {
 
     use crate::setup::{setup, Defaults};
+    use fuels::accounts::ViewOnlyAccount;
     use fuels::types::Bits256;
     use spark_market_sdk::{AssetType, OrderType};
 
@@ -22,7 +23,7 @@ mod success {
     #[tokio::test]
     async fn returns_order() -> anyhow::Result<()> {
         let defaults = Defaults::default();
-        let (contract, _owner, _user, assets) = setup(
+        let (contract, owner, _user, assets) = setup(
             defaults.base_decimals,
             defaults.quote_decimals,
             defaults.price_decimals,
@@ -37,11 +38,11 @@ mod success {
         let order = contract.order(id.value).await?.value.unwrap();
         let expected_id = contract
             .order_id(
-                order.amount,
                 order.asset_type,
                 order.order_type,
                 order.owner,
                 order.price,
+                owner.wallet.try_provider()?.latest_block_height().await?,
             )
             .await?;
 

@@ -200,11 +200,6 @@
           "typeArguments": null
         },
         {
-          "name": "DuplicateOrder",
-          "type": 0,
-          "typeArguments": null
-        },
-        {
           "name": "PriceCannotBeZero",
           "type": 0,
           "typeArguments": null
@@ -483,6 +478,11 @@
         {
           "name": "price",
           "type": 32,
+          "typeArguments": null
+        },
+        {
+          "name": "block_height",
+          "type": 31,
           "typeArguments": null
         }
       ],
@@ -898,11 +898,6 @@
     {
       "inputs": [
         {
-          "name": "amount",
-          "type": 32,
-          "typeArguments": null
-        },
-        {
           "name": "asset_type",
           "type": 7,
           "typeArguments": null
@@ -920,6 +915,11 @@
         {
           "name": "price",
           "type": 32,
+          "typeArguments": null
+        },
+        {
+          "name": "block_height",
+          "type": 31,
           "typeArguments": null
         }
       ],
@@ -1027,18 +1027,18 @@
       }
     },
     {
-      "logId": "7812135309850120461",
-      "loggedType": {
-        "name": "",
-        "type": 25,
-        "typeArguments": []
-      }
-    },
-    {
       "logId": "15838754841496526215",
       "loggedType": {
         "name": "",
         "type": 10,
+        "typeArguments": []
+      }
+    },
+    {
+      "logId": "7812135309850120461",
+      "loggedType": {
+        "name": "",
+        "type": 25,
         "typeArguments": []
       }
     },
@@ -1068,7 +1068,7 @@
         "type": 19,
         "typeArguments": []
       },
-      "offset": 68928
+      "offset": 66888
     },
     {
       "name": "BASE_ASSET_DECIMALS",
@@ -1077,7 +1077,7 @@
         "type": 31,
         "typeArguments": null
       },
-      "offset": 68784
+      "offset": 66744
     },
     {
       "name": "OWNER",
@@ -1086,7 +1086,7 @@
         "type": 18,
         "typeArguments": []
       },
-      "offset": 68864
+      "offset": 66824
     },
     {
       "name": "PRICE_DECIMALS",
@@ -1095,7 +1095,7 @@
         "type": 31,
         "typeArguments": null
       },
-      "offset": 68800
+      "offset": 66760
     },
     {
       "name": "QUOTE_ASSET",
@@ -1104,7 +1104,7 @@
         "type": 19,
         "typeArguments": []
       },
-      "offset": 68960
+      "offset": 66920
     },
     {
       "name": "QUOTE_ASSET_DECIMALS",
@@ -1113,7 +1113,7 @@
         "type": 31,
         "typeArguments": null
       },
-      "offset": 68808
+      "offset": 66768
     }
   ]
 }

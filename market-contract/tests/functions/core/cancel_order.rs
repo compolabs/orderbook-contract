@@ -5,6 +5,7 @@ mod success {
 
     use super::*;
     use crate::setup::create_account;
+    use fuels::accounts::ViewOnlyAccount;
     use spark_market_sdk::CancelOrderEvent;
 
     #[tokio::test]
@@ -110,6 +111,7 @@ mod success {
             defaults.price_decimals,
         )
         .await?;
+        let provider = owner.wallet.try_provider()?;
 
         let deposit_amount = 70000;
         let expected_account = create_account(0, deposit_amount, 0, 0);
@@ -121,11 +123,11 @@ mod success {
         let price = 70000 * 10_u64.pow(defaults.price_decimals);
         let expected_id = contract
             .order_id(
-                order_amount,
                 AssetType::Base,
                 order_type.clone(),
                 owner.identity(),
                 price,
+                provider.latest_block_height().await?,
             )
             .await?
             .value;
@@ -139,7 +141,17 @@ mod success {
         assert!(contract.order(expected_id).await?.value.is_none());
 
         let id = contract
-            .open_order(order_amount, AssetType::Base, order_type, price)
+            .open_order(order_amount, AssetType::Base, order_type.clone(), price)
+            .await?
+            .value;
+        let expected_id = contract
+            .order_id(
+                AssetType::Base,
+                order_type.clone(),
+                owner.identity(),
+                price,
+                provider.latest_block_height().await?,
+            )
             .await?
             .value;
 
@@ -187,16 +199,6 @@ mod success {
         let asset_to_pay_wth = assets.base.id;
         let order_type = OrderType::Buy;
         let price = 70000 * 10_u64.pow(defaults.price_decimals);
-        let expected_id = contract
-            .order_id(
-                order_amount,
-                AssetType::Quote,
-                order_type.clone(),
-                owner.identity(),
-                price,
-            )
-            .await?
-            .value;
 
         let _ = contract.deposit(deposit_amount, asset_to_pay_wth).await?;
 
@@ -204,10 +206,19 @@ mod success {
         let orders = contract.user_orders(owner.identity()).await?.value;
         assert_eq!(user_account, expected_account);
         assert_eq!(orders, vec![]);
-        assert!(contract.order(expected_id).await?.value.is_none());
 
         let id = contract
-            .open_order(order_amount, AssetType::Quote, order_type, price)
+            .open_order(order_amount, AssetType::Quote, order_type.clone(), price)
+            .await?
+            .value;
+        let expected_id = contract
+            .order_id(
+                AssetType::Quote,
+                order_type.clone(),
+                owner.identity(),
+                price,
+                owner.wallet.try_provider()?.latest_block_height().await?,
+            )
             .await?
             .value;
 
@@ -215,8 +226,8 @@ mod success {
         let expected_account = create_account(0, 0, deposit_amount, 0);
         let mut orders = contract.user_orders(owner.identity()).await?.value;
 
-        dbg!(&user_account);
-        dbg!(&expected_account);
+        //dbg!(&user_account);
+        //dbg!(&expected_account);
 
         assert_eq!(user_account, expected_account);
         assert_eq!(orders.len(), 1);

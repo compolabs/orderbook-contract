@@ -1,4 +1,5 @@
 use crate::setup::{setup, Defaults};
+use fuels::accounts::ViewOnlyAccount;
 use spark_market_sdk::{AssetType, OrderType};
 
 mod success {
@@ -24,16 +25,6 @@ mod success {
         let asset = assets.base.id;
         let order_type = OrderType::Sell;
         let price = 70000;
-        let expected_id = contract
-            .order_id(
-                order_amount,
-                AssetType::Base,
-                order_type.clone(),
-                owner.identity(),
-                price,
-            )
-            .await?
-            .value;
 
         let _ = contract.deposit(deposit_amount, asset).await?;
 
@@ -41,12 +32,21 @@ mod success {
         let orders = contract.user_orders(owner.identity()).await?.value;
         assert_eq!(user_account, expected_account);
         assert_eq!(orders, vec![]);
-        assert!(contract.order(expected_id).await?.value.is_none());
 
         let response = contract
             .open_order(order_amount, AssetType::Base, order_type.clone(), price)
             .await?;
         let id = response.value;
+        let expected_id = contract
+            .order_id(
+                AssetType::Base,
+                order_type.clone(),
+                owner.identity(),
+                price,
+                owner.wallet.try_provider()?.latest_block_height().await?,
+            )
+            .await?
+            .value;
 
         let user_account = contract.account(owner.identity()).await?.value.unwrap();
         let expected_account = create_account(deposit_amount - order_amount, 0, order_amount, 0);
@@ -54,11 +54,11 @@ mod success {
         let order = contract.order(expected_id).await?.value.unwrap();
         let stored_id = contract
             .order_id(
-                order.amount,
                 order.asset_type.clone(),
                 order.order_type,
                 order.owner,
                 order.price,
+                owner.wallet.try_provider()?.latest_block_height().await?,
             )
             .await?
             .value;
@@ -104,29 +104,27 @@ mod success {
         let asset = assets.quote.id;
         let order_type = OrderType::Sell;
         let price = 1;
-        let expected_id = contract
-            .order_id(
-                order_amount,
-                AssetType::Quote,
-                order_type.clone(),
-                owner.identity(),
-                price,
-            )
-            .await?
-            .value;
-
         let _ = contract.deposit(deposit_amount, asset).await;
 
         let user_account = contract.account(owner.identity()).await?.value.unwrap();
         let orders = contract.user_orders(owner.identity()).await?.value;
         assert_eq!(user_account, expected_account);
         assert_eq!(orders, vec![]);
-        assert!(contract.order(expected_id).await?.value.is_none());
 
         let response = contract
             .open_order(order_amount, AssetType::Quote, order_type.clone(), price)
             .await?;
         let id = response.value;
+        let expected_id = contract
+            .order_id(
+                AssetType::Quote,
+                order_type.clone(),
+                owner.identity(),
+                price,
+                owner.wallet.try_provider()?.latest_block_height().await?,
+            )
+            .await?
+            .value;
 
         let user_account = contract.account(owner.identity()).await?.value.unwrap();
         let expected_account = create_account(0, deposit_amount - order_amount, 0, order_amount);
@@ -134,11 +132,11 @@ mod success {
         let order = contract.order(expected_id).await?.value.unwrap();
         let stored_id = contract
             .order_id(
-                order.amount,
                 order.asset_type.clone(),
                 order.order_type,
                 order.owner,
                 order.price,
+                owner.wallet.try_provider()?.latest_block_height().await?,
             )
             .await?
             .value;
@@ -185,16 +183,6 @@ mod success {
         let asset_to_pay_wth = assets.quote.id;
         let order_type = OrderType::Buy;
         let price = 70000 * 10_u64.pow(defaults.price_decimals);
-        let expected_id = contract
-            .order_id(
-                order_amount,
-                AssetType::Base,
-                order_type.clone(),
-                owner.identity(),
-                price,
-            )
-            .await?
-            .value;
 
         let _ = contract.deposit(deposit_amount, asset_to_pay_wth).await;
 
@@ -202,12 +190,21 @@ mod success {
         let orders = contract.user_orders(owner.identity()).await?.value;
         assert_eq!(user_account, expected_account);
         assert_eq!(orders, vec![]);
-        assert!(contract.order(expected_id).await?.value.is_none());
 
         let response = contract
             .open_order(order_amount, AssetType::Base, order_type.clone(), price)
             .await?;
         let id = response.value;
+        let expected_id = contract
+            .order_id(
+                AssetType::Base,
+                order_type.clone(),
+                owner.identity(),
+                price,
+                owner.wallet.try_provider()?.latest_block_height().await?,
+            )
+            .await?
+            .value;
 
         let user_account = contract.account(owner.identity()).await?.value.unwrap();
         let expected_account = create_account(0, 0, 0, deposit_amount);
@@ -215,11 +212,11 @@ mod success {
         let order = contract.order(expected_id).await?.value.unwrap();
         let stored_id = contract
             .order_id(
-                order.amount,
                 order.asset_type.clone(),
                 order.order_type,
                 order.owner,
                 order.price,
+                owner.wallet.try_provider()?.latest_block_height().await?,
             )
             .await?
             .value;
@@ -266,16 +263,6 @@ mod success {
         let asset_to_pay_wth = assets.base.id;
         let order_type = OrderType::Buy;
         let price = 70000 * 10_u64.pow(defaults.price_decimals);
-        let expected_id = contract
-            .order_id(
-                order_amount,
-                AssetType::Quote,
-                order_type.clone(),
-                owner.identity(),
-                price,
-            )
-            .await?
-            .value;
 
         let _ = contract.deposit(deposit_amount, asset_to_pay_wth).await?;
 
@@ -283,12 +270,21 @@ mod success {
         let orders = contract.user_orders(owner.identity()).await?.value;
         assert_eq!(user_account, expected_account);
         assert_eq!(orders, vec![]);
-        assert!(contract.order(expected_id).await?.value.is_none());
 
         let response = contract
             .open_order(order_amount, AssetType::Quote, order_type.clone(), price)
             .await?;
         let id = response.value;
+        let expected_id = contract
+            .order_id(
+                AssetType::Quote,
+                order_type.clone(),
+                owner.identity(),
+                price,
+                owner.wallet.try_provider()?.latest_block_height().await?,
+            )
+            .await?
+            .value;
 
         let user_account = contract.account(owner.identity()).await?.value.unwrap();
         let expected_account = create_account(0, 0, deposit_amount, 0);
@@ -296,11 +292,11 @@ mod success {
         let order = contract.order(expected_id).await?.value.unwrap();
         let stored_id = contract
             .order_id(
-                order.amount,
                 order.asset_type.clone(),
                 order.order_type,
                 order.owner,
                 order.price,
+                owner.wallet.try_provider()?.latest_block_height().await?,
             )
             .await?
             .value;
@@ -473,37 +469,6 @@ mod revert {
         // Revert
         contract
             .open_order(order_amount, AssetType::Base, order_type, price)
-            .await
-            .unwrap();
-    }
-
-    #[tokio::test]
-    #[should_panic(expected = "DuplicateOrder")]
-    async fn when_opening_duplicate_order() {
-        let defaults = Defaults::default();
-        let (contract, _owner, _user, assets) = setup(
-            defaults.base_decimals,
-            defaults.quote_decimals,
-            defaults.price_decimals,
-        )
-        .await
-        .unwrap();
-
-        let deposit_amount = 100;
-        let order_amount = 10;
-        let asset = assets.base.id;
-        let order_type = OrderType::Sell;
-        let price = 70000;
-
-        let _ = contract.deposit(deposit_amount, asset).await.unwrap();
-        let _ = contract
-            .open_order(order_amount, AssetType::Base, order_type.clone(), price)
-            .await
-            .unwrap();
-
-        // Revert same order
-        contract
-            .open_order(order_amount, AssetType::Base, order_type.clone(), price)
             .await
             .unwrap();
     }
