@@ -115,12 +115,12 @@ Fee for entire market contract
 ## Order ID
 
 ../target/debug/spark-cli info order-id \
-    --amount 10 \
     --asset-type  base \
     --order-type sell \
     --owner 0xf47e0ef744ac8c993550e03d17f1c4844494553a12cac11ab8c568c8999fdbbf \
     --account-type address \
     --price 70000000000000 \
+    --block-height 10000 \
     --rpc "testnet.fuel.network" \
     --contract-id 0xfd43d9a986af19930b8478f8533376a747e0d050087874d965860cfe549aaf98
 

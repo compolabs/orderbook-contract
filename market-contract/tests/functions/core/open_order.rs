@@ -6,7 +6,7 @@ mod success {
 
     use super::*;
     use crate::setup::create_account;
-    use spark_market_sdk::OpenOrderEvent;
+    use spark_market_sdk::{OpenOrderEvent, OrderChangeType};
 
     #[tokio::test]
     async fn sell_base() -> anyhow::Result<()> {
@@ -52,13 +52,14 @@ mod success {
         let expected_account = create_account(deposit_amount - order_amount, 0, order_amount, 0);
         let mut orders = contract.user_orders(owner.identity()).await?.value;
         let order = contract.order(expected_id).await?.value.unwrap();
+        let block_height = owner.wallet.try_provider()?.latest_block_height().await?;
         let stored_id = contract
             .order_id(
                 order.asset_type.clone(),
                 order.order_type,
                 order.owner,
                 order.price,
-                owner.wallet.try_provider()?.latest_block_height().await?,
+                block_height,
             )
             .await?
             .value;
@@ -83,6 +84,15 @@ mod success {
         assert_eq!(orders.pop().unwrap(), id);
         assert_eq!(id, expected_id);
         assert_eq!(stored_id, expected_id);
+
+        let info = contract.order_change_info(stored_id).await?.value;
+        assert_eq!(info.len(), 1);
+
+        assert_eq!(info[0].change_type, OrderChangeType::OrderOpened);
+        assert_eq!(info[0].block_height, block_height);
+        assert_eq!(info[0].sender, owner.identity());
+        assert_eq!(info[0].amount_before, 0);
+        assert_eq!(info[0].amount_after, order_amount);
 
         Ok(())
     }

@@ -4,6 +4,7 @@ use ::data_structures::{
     account::Account,
     asset_type::AssetType,
     order::Order,
+    order_change::OrderChangeInfo,
     order_type::OrderType,
 };
 
@@ -48,6 +49,9 @@ abi Info {
 
     #[storage(read)]
     fn user_orders(user: Identity) -> Vec<b256>;
+
+    #[storage(read)]
+    fn order_change_info(order_id: b256) -> Vec<OrderChangeInfo>;
 
     fn config() -> (Address, AssetId, u32, AssetId, u32, u32);
 

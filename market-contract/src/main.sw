@@ -13,6 +13,8 @@ use ::data_structures::{
     balance::Balance,
     match_result::MatchResult,
     order::Order,
+    order_change::OrderChangeInfo,
+    order_change::OrderChangeType,
     order_type::OrderType,
 };
 use ::errors::{AccountError, AssetError, AuthError, MatchError, OrderError, ValueError};
@@ -39,6 +41,7 @@ use std::{
         sha256,
     },
     storage::storage_vec::*,
+    tx::tx_id,
 };
 
 configurable {
@@ -64,6 +67,8 @@ storage {
     premium_user: StorageMap<Identity, u64> = StorageMap {},
     // Indexing orders by user
     user_orders: StorageMap<Identity, StorageVec<b256>> = StorageMap {},
+    // Temporary order change log structure for indexer debug
+    order_change_info: StorageMap<b256, StorageVec<OrderChangeInfo>> = StorageMap {},
 }
 
 impl Market for Contract {
@@ -141,17 +146,15 @@ impl Market for Contract {
             }
         }
 
-        let order = Order::new(amount, asset_type, order_type, user, price, block_height());
+        let mut order = Order::new(amount, asset_type, order_type, user, price, block_height());
         let order_id = order.id();
         let clone = storage.orders.get(order_id).try_read();
-        let order = if clone.is_some() {
-            // merge amounts
-            let mut order = clone.unwrap();
-            order.amount += amount;
-            order
+        let amount_before = if clone.is_some() {
+            clone.unwrap().amount
         } else {
-            order
+            0
         };
+        order.amount += amount_before;
 
         // Store the new order and update the state of the user's account
         storage.orders.insert(order_id, order);
@@ -163,6 +166,18 @@ impl Market for Contract {
             .user_order_indexes
             .get(user)
             .insert(order_id, storage.user_orders.get(user).len() - 1);
+
+        log_order_change_info(
+            order_id,
+            OrderChangeInfo::new(
+                OrderChangeType::OrderOpened,
+                block_height(),
+                user,
+                tx_id(),
+                amount_before,
+                order.amount,
+            ),
+        );
 
         let asset = get_asset_id(asset_type);
         log(OpenOrderEvent {
@@ -213,8 +228,19 @@ impl Market for Contract {
         }
 
         remove_order(user, order_id);
-
         storage.account.insert(user, account);
+
+        log_order_change_info(
+            order_id,
+            OrderChangeInfo::new(
+                OrderChangeType::OrderCancelled,
+                block_height(),
+                user,
+                tx_id(),
+                order.amount,
+                0,
+            ),
+        );
 
         log(CancelOrderEvent { order_id });
     }
@@ -332,6 +358,11 @@ impl Info for Contract {
     #[storage(read)]
     fn user_orders(user: Identity) -> Vec<b256> {
         storage.user_orders.get(user).load_vec()
+    }
+
+    #[storage(read)]
+    fn order_change_info(order_id: b256) -> Vec<OrderChangeInfo> {
+        storage.order_change_info.get(order_id).load_vec()
     }
 
     fn config() -> (Address, AssetId, u32, AssetId, u32, u32) {
@@ -537,6 +568,19 @@ fn match_order_internal(
         } else {
             q_order_amount = q_order.amount;
         }
+        log_order_change_info(
+            b_id,
+            OrderChangeInfo::new(
+                OrderChangeType::OrderMatched,
+                block_height(),
+                matcher,
+                tx_id(),
+                b_order
+                    .amount,
+                b_order
+                    .amount - b_order_amount,
+            ),
+        );
         log(MatchOrderEvent {
             order_id: b_id,
             asset: get_asset_id(AssetType::Base),
@@ -546,6 +590,19 @@ fn match_order_internal(
             match_size: b_order_amount,
             match_price: b_order.price,
         });
+        log_order_change_info(
+            q_id,
+            OrderChangeInfo::new(
+                OrderChangeType::OrderMatched,
+                block_height(),
+                matcher,
+                tx_id(),
+                q_order
+                    .amount,
+                q_order
+                    .amount - q_order_amount,
+            ),
+        );
         log(MatchOrderEvent {
             order_id: q_id,
             asset: get_asset_id(AssetType::Quote),
@@ -599,6 +656,19 @@ fn match_order_internal(
         let amount = min(s_order.amount, b_order.amount);
         let match_price = min(s_order.price, b_order.price);
         // emit match events
+        log_order_change_info(
+            s_id,
+            OrderChangeInfo::new(
+                OrderChangeType::OrderMatched,
+                block_height(),
+                matcher,
+                tx_id(),
+                s_order
+                    .amount,
+                s_order
+                    .amount - amount,
+            ),
+        );
         log(MatchOrderEvent {
             order_id: s_id,
             asset: get_asset_id(s_order.asset_type),
@@ -608,6 +678,19 @@ fn match_order_internal(
             match_size: amount,
             match_price: match_price,
         });
+        log_order_change_info(
+            b_id,
+            OrderChangeInfo::new(
+                OrderChangeType::OrderMatched,
+                block_height(),
+                matcher,
+                tx_id(),
+                b_order
+                    .amount,
+                b_order
+                    .amount - amount,
+            ),
+        );
         log(MatchOrderEvent {
             order_id: b_id,
             asset: get_asset_id(b_order.asset_type),
@@ -641,4 +724,9 @@ fn match_order_internal(
     } else {
         (MatchResult::ZeroMatch, ZERO_B256)
     }
+}
+
+#[storage(read, write)]
+fn log_order_change_info(order_id: b256, change_info: OrderChangeInfo) {
+    storage.order_change_info.get(order_id).push(change_info);
 }

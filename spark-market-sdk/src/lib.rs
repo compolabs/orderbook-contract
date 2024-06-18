@@ -1,9 +1,9 @@
 use fuels::{
     prelude::{
         abigen, Address, AssetId, CallParameters, Contract, ContractId, LoadConfiguration,
-        StorageConfiguration, TxPolicies, WalletUnlocked,
+        StorageConfiguration, TxPolicies, VariableOutputPolicy, WalletUnlocked,
     },
-    programs::{call_response::FuelCallResponse, call_utils::TxDependencyExtension},
+    programs::call_response::FuelCallResponse,
     types::{Bits256, Bytes32, Identity},
 };
 use rand::Rng;
@@ -109,7 +109,7 @@ impl MarketContract {
             .methods()
             .withdraw(amount, asset_type)
             .with_tx_policies(tx_policies)
-            .append_variable_outputs(1)
+            .with_variable_output_policy(VariableOutputPolicy::Exactly(1))
             .call()
             .await?)
     }
@@ -217,6 +217,17 @@ impl MarketContract {
             .instance
             .methods()
             .user_orders(user)
+            .with_tx_policies(tx_policies)
+            .simulate()
+            .await?)
+    }
+
+    pub async fn order_change_info(&self, order_id: Bits256) -> anyhow::Result<FuelCallResponse<Vec<OrderChangeInfo>>> {
+        let tx_policies = TxPolicies::default().with_script_gas_limit(1_000_000);
+        Ok(self
+            .instance
+            .methods()
+            .order_change_info(order_id)
             .with_tx_policies(tx_policies)
             .simulate()
             .await?)

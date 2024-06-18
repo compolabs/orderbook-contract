@@ -7,10 +7,6 @@ use std::str::FromStr;
 #[derive(Args, Clone)]
 #[command(about = "Create a sha256 hash (order id) of the provided information")]
 pub(crate) struct OrderIdCommand {
-    /// The amount of asset
-    #[clap(long)]
-    pub(crate) amount: u64,
-
     /// The id of the asset
     #[clap(long)]
     pub(crate) asset_type: String,
