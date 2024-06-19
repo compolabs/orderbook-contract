@@ -32,6 +32,7 @@ async fn main() -> anyhow::Result<()> {
             CoreCommands::Deploy(args) => args.run().await,
             CoreCommands::Deposit(args) => args.run().await,
             CoreCommands::Open(args) => args.run().await,
+            CoreCommands::MatchPair(args) => args.run().await,
             CoreCommands::SetFee(args) => args.run().await,
             CoreCommands::Withdraw(args) => args.run().await,
         },

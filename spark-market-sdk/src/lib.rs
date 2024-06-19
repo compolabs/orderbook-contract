@@ -222,7 +222,10 @@ impl MarketContract {
             .await?)
     }
 
-    pub async fn order_change_info(&self, order_id: Bits256) -> anyhow::Result<FuelCallResponse<Vec<OrderChangeInfo>>> {
+    pub async fn order_change_info(
+        &self,
+        order_id: Bits256,
+    ) -> anyhow::Result<FuelCallResponse<Vec<OrderChangeInfo>>> {
         let tx_policies = TxPolicies::default().with_script_gas_limit(1_000_000);
         Ok(self
             .instance

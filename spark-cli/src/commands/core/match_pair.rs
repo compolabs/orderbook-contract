@@ -7,11 +7,11 @@ use fuels::{
 use spark_market_sdk::MarketContract;
 
 #[derive(Args, Clone)]
-#[command(about = "Cancels an open order")]
-pub(crate) struct CancelCommand {
+#[command(about = "Matches a pair of orders")]
+pub(crate) struct MatchPairCommand {
     /// The b256 id of the order
     #[clap(long)]
-    pub(crate) order_id: String,
+    pub(crate) orders: Vec<String>,
 
     /// The contract id of the market
     #[clap(long)]
@@ -23,14 +23,18 @@ pub(crate) struct CancelCommand {
     pub(crate) rpc: String,
 }
 
-impl CancelCommand {
+impl MatchPairCommand {
     pub(crate) async fn run(&self) -> anyhow::Result<()> {
         let wallet = setup(&self.rpc).await?;
         let contract_id = validate_contract_id(&self.contract_id)?;
-        let order_id = Bits256::from_hex_str(&self.order_id)?;
 
-        if self.order_id.len() as u64 != 64 {
-            anyhow::bail!("Invalid order id length");
+        if self.orders.len() != 2 {
+            anyhow::bail!("Invalid order array length <> 2");
+        }
+
+        let mut order_ids: Vec<Bits256> = Vec::new();
+        for order in self.orders.clone() {
+            order_ids.push(Bits256::from_hex_str(&order).expect("Invalid order_id"));
         }
 
         // Initial balance prior to contract call - used to calculate contract interaction cost
@@ -39,7 +43,9 @@ impl CancelCommand {
         // Connect to the deployed contract via the rpc
         let contract = MarketContract::new(contract_id, wallet.clone()).await;
 
-        let _ = contract.cancel_order(order_id).await?;
+        let _ = contract
+            .match_order_pair(order_ids[0], order_ids[1])
+            .await?;
 
         // Balance post-call
         let new_balance = wallet.get_asset_balance(&AssetId::BASE).await?;

@@ -30,12 +30,15 @@ impl MarketsCommand {
             anyhow::bail!("Invalid asset array length");
         }
 
-        let asset = AssetId::from_str(&self.assets[0]).expect("Invalid asset");
+        let mut asset_ids: Vec<AssetId> = Vec::new();
+        for asset in self.assets.clone() {
+            asset_ids.push(AssetId::from_str(&asset).expect("Invalid asset"));
+        }
 
         // Connect to the deployed contract via the rpc
         let contract = OrderbookContract::new(contract_id, wallet).await;
 
-        let markets = contract.registered_markets(vec![asset]).await?.value;
+        let markets = contract.registered_markets(asset_ids).await?.value;
 
         // TODO: replace println with tracing
         println!("\nMarkets: {:?}", markets);

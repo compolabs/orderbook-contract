@@ -56,3 +56,7 @@ pub fn lts(i: u64, k: u64, len: u64) -> bool {
 pub fn min(a: u64, b: u64) -> u64 {
     if a < b { a } else { b }
 }
+
+pub fn max(a: u64, b: u64) -> u64 {
+    if a > b { a } else { b }
+}

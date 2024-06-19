@@ -1,6 +1,7 @@
 use crate::commands::core::{
     cancel_order::CancelCommand, deploy::DeployCommand, deposit::DepositCommand,
-    open_order::OpenCommand, set_fee::SetFeeCommand, withdraw::WithdrawCommand,
+    match_pair::MatchPairCommand, open_order::OpenCommand, set_fee::SetFeeCommand,
+    withdraw::WithdrawCommand,
 };
 use clap::Subcommand;
 
@@ -21,6 +22,10 @@ pub(crate) enum CoreCommands {
     /// Open an order
     #[clap(short_flag = 'O')]
     Open(OpenCommand),
+
+    /// Match a pair of order
+    #[clap(short_flag = 'A')]
+    MatchPair(MatchPairCommand),
 
     /// Set a fee for a specific user or the market
     #[clap(short_flag = 'S')]
