@@ -37,6 +37,16 @@ pub struct MatchOrderEvent {
     pub match_price: u64,
 }
 
+pub struct TradeOrderEvent {
+    pub base_sell_order_id: b256,
+    pub base_buy_order_id: b256,
+    pub order_matcher: Identity,
+    pub trade_size: u64,
+    pub trade_price: u64,
+    pub block_height: u32,
+    pub tx_id: b256,
+}
+
 pub struct WithdrawEvent {
     pub amount: u64,
     pub asset: AssetId,

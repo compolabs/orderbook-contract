@@ -23,6 +23,7 @@ use ::events::{
     DepositEvent,
     MatchOrderEvent,
     OpenOrderEvent,
+    TradeOrderEvent,
     SetFeeEvent,
     WithdrawEvent,
 };
@@ -612,6 +613,15 @@ fn match_order_internal(
             match_size: q_order_amount,
             match_price: b_order.price,
         });
+        log(TradeOrderEvent {
+            base_sell_order_id: b_id,
+            base_buy_order_id: q_id,
+            order_matcher: matcher,
+            trade_size: b_order_amount,
+            trade_price: b_order.price,
+            block_height: block_height(),
+            tx_id: tx_id(),
+        });
         // update account balances
         execute_same_order_type_trade(b_order, q_order, b_order_amount, q_order_amount);
         if b_order_amount == b_order.amount {
@@ -631,7 +641,7 @@ fn match_order_internal(
             storage.orders.insert(q_id, q_order);
             return (MatchResult::PartialMatch, q_id);
         }
-        (MatchResult::ZeroMatch, ZERO_B256)
+        (MatchResult::FullMatch, ZERO_B256)
     } else if order0.order_type != order1.order_type && order0.asset_type == order1.asset_type {
         let (mut s_order, s_id, mut b_order, b_id) = if order0.order_type == OrderType::Sell {
             (order0, order0_id, order1, order1_id)
@@ -699,6 +709,15 @@ fn match_order_internal(
             counterparty: s_order.owner,
             match_size: amount,
             match_price: match_price,
+        });
+        log(TradeOrderEvent {
+            base_sell_order_id: if s_order.asset_type == AssetType::Base {s_id} else {b_id},
+            base_buy_order_id: if s_order.asset_type == AssetType::Quote {s_id} else {b_id},
+            order_matcher: matcher,
+            trade_size: amount,
+            trade_price: match_price,
+            block_height: block_height(),
+            tx_id: tx_id(),
         });
         // update account balances
         execute_same_asset_type_trade(s_order, b_order, amount);
