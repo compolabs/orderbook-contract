@@ -32,7 +32,7 @@ mod success {
 
         let _ = contract.deposit(100, assets.base.id).await?;
         let id = contract
-            .open_order(1, AssetType::Base, OrderType::Buy, 70000)
+            .open_order(1, AssetType::Base, OrderType::Sell, 70_000_000_000_000_u64)
             .await?;
 
         let order = contract.order(id.value).await?.value.unwrap();

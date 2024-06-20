@@ -29,12 +29,12 @@ mod success {
         )
         .await?;
 
-        let _ = contract.deposit(100, assets.base.id).await?;
+        let _ = contract.deposit(1000, assets.base.id).await?;
         let id1 = contract
-            .open_order(2, AssetType::Base, OrderType::Buy, 70000)
+            .open_order(2, AssetType::Base, OrderType::Sell, 70_000_000_000_000_u64)
             .await?;
         let id2 = contract
-            .open_order(1, AssetType::Base, OrderType::Buy, 75000)
+            .open_order(1, AssetType::Base, OrderType::Sell, 75_000_000_000_000_u64)
             .await?;
 
         let mut orders = contract.user_orders(owner.identity()).await?.value;

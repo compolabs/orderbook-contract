@@ -24,7 +24,7 @@ mod success {
         let order_amount = 2;
         let asset = assets.base.id;
         let order_type = OrderType::Sell;
-        let price = 70000;
+        let price = 70_000_000_000_000_u64;
 
         let _ = contract.deposit(deposit_amount, asset).await?;
 
@@ -113,7 +113,7 @@ mod success {
         let order_amount = 500;
         let asset = assets.quote.id;
         let order_type = OrderType::Sell;
-        let price = 1;
+        let price = 70_000_000_000_000_u64;
         let _ = contract.deposit(deposit_amount, asset).await;
 
         let user_account = contract.account(owner.identity()).await?.value.unwrap();
@@ -344,7 +344,7 @@ mod revert {
     #[should_panic(expected = "InsufficientBalance")]
     async fn when_invalid_user() {
         let defaults = Defaults::default();
-        let (contract, _owner, user, assets) = setup(
+        let (contract, _owner, user, _) = setup(
             defaults.base_decimals,
             defaults.quote_decimals,
             defaults.price_decimals,
@@ -353,9 +353,8 @@ mod revert {
         .unwrap();
 
         let order_amount = 10;
-        let asset = assets.base.id;
         let order_type = OrderType::Sell;
-        let price = 70000;
+        let price = 70_000_000_000_000_u64;
 
         // Revert
         contract
@@ -383,7 +382,7 @@ mod revert {
         let order_amount = 100;
         let asset = assets.base.id;
         let order_type = OrderType::Sell;
-        let price = 70000;
+        let price = 70_000_000_000_000_u64;
 
         let _ = contract.deposit(deposit_amount, asset).await.unwrap();
 
@@ -410,7 +409,7 @@ mod revert {
         let order_amount = 100;
         let asset = assets.quote.id;
         let order_type = OrderType::Sell;
-        let price = 70000;
+        let price = 70_000_000_000_000_u64;
 
         let _ = contract.deposit(deposit_amount, asset).await.unwrap();
 
@@ -433,12 +432,11 @@ mod revert {
         .await
         .unwrap();
 
-        let deposit_amount = 10;
-        let order_amount = 100;
+        let deposit_amount = 1;
+        let order_amount = 1500;
         let deposit_asset = assets.base.id;
-        let buy_asset = assets.quote.id;
         let order_type = OrderType::Buy;
-        let price = 70000;
+        let price = 70_000_000_000_000_u64;
 
         let _ = contract
             .deposit(deposit_amount, deposit_asset)
@@ -467,9 +465,38 @@ mod revert {
         let deposit_amount = 10;
         let order_amount = 100;
         let deposit_asset = assets.quote.id;
-        let buy_asset = assets.base.id;
         let order_type = OrderType::Sell;
-        let price = 70000;
+        let price = 70_000_000_000_000_u64;
+
+        let _ = contract
+            .deposit(deposit_amount, deposit_asset)
+            .await
+            .unwrap();
+
+        // Revert
+        contract
+            .open_order(order_amount, AssetType::Base, order_type, price)
+            .await
+            .unwrap();
+    }
+
+    #[tokio::test]
+    #[should_panic(expected = "PriceTooSmall")]
+    async fn when_price_too_small() {
+        let defaults = Defaults::default();
+        let (contract, _owner, _user, assets) = setup(
+            defaults.base_decimals,
+            defaults.quote_decimals,
+            defaults.price_decimals,
+        )
+        .await
+        .unwrap();
+
+        let deposit_amount = 10;
+        let order_amount = 100;
+        let deposit_asset = assets.quote.id;
+        let order_type = OrderType::Sell;
+        let price = 999999999;
 
         let _ = contract
             .deposit(deposit_amount, deposit_asset)

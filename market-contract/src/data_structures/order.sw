@@ -22,10 +22,11 @@ impl Order {
         order_type: OrderType,
         owner: Identity,
         price: u64,
+        price_decimals: u32,
         block_height: u32,
     ) -> Self {
         require(amount != 0, OrderError::AmountCannotBeZero);
-        require(price != 0, OrderError::PriceCannotBeZero);
+        require(price >= 10_u64.pow(price_decimals), OrderError::PriceTooSmall((price, 10_u64.pow(price_decimals))));
         
         Self {
             amount,

@@ -126,8 +126,18 @@ impl Market for Contract {
         require(amount > 0, ValueError::InvalidAmount);
 
         let user = msg_sender().unwrap();
-        let mut account = storage.account.get(user).try_read().unwrap_or(Account::new());
 
+        let mut order = Order::new(amount, asset_type, order_type, user, price, PRICE_DECIMALS, block_height());
+        let order_id = order.id();
+        let clone = storage.orders.get(order_id).try_read();
+        let amount_before = if clone.is_some() {
+            clone.unwrap().amount
+        } else {
+            0
+        };
+        order.amount += amount_before;
+
+        let mut account = storage.account.get(user).try_read().unwrap_or(Account::new());
         match order_type {
             OrderType::Sell => {
                 account.lock_amount(amount, asset_type);
@@ -146,16 +156,6 @@ impl Market for Contract {
                 );
             }
         }
-
-        let mut order = Order::new(amount, asset_type, order_type, user, price, block_height());
-        let order_id = order.id();
-        let clone = storage.orders.get(order_id).try_read();
-        let amount_before = if clone.is_some() {
-            clone.unwrap().amount
-        } else {
-            0
-        };
-        order.amount += amount_before;
 
         // Store the new order and update the state of the user's account
         storage.orders.insert(order_id, order);
@@ -388,7 +388,7 @@ impl Info for Contract {
             asset_type == AssetType::Base || asset_type == AssetType::Quote,
             AssetError::InvalidAsset,
         );
-        Order::new(1, asset_type, order_type, owner, price, block_height).id()
+        Order::new(1, asset_type, order_type, owner, price, PRICE_DECIMALS, block_height).id()
     }
 }
 

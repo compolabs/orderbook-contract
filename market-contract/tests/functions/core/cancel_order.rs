@@ -22,7 +22,7 @@ mod success {
         let order_amount = 1;
         let asset = assets.base.id;
         let order_type = OrderType::Sell;
-        let price = 70000;
+        let price = 70_000_000_000_000_u64;
 
         let _ = contract.deposit(deposit_amount, asset).await?;
         let id = contract
@@ -69,7 +69,7 @@ mod success {
         let order_amount = 50000;
         let asset = assets.quote.id;
         let order_type = OrderType::Sell;
-        let price = 50000;
+        let price = 70_000_000_000_000_u64;
 
         let _ = contract.deposit(deposit_amount, asset).await?;
         let id = contract
@@ -289,7 +289,7 @@ mod revert {
         let order_amount = 1;
         let asset = assets.base.id;
         let order_type = OrderType::Sell;
-        let price = 70000;
+        let price = 70_000_000_000_000_u64;
 
         let _ = contract.deposit(deposit_amount, asset).await.unwrap();
         let id = contract

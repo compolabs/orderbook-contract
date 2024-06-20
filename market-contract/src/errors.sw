@@ -11,7 +11,7 @@ pub enum ValueError {
 
 pub enum OrderError {
     OrderNotFound: b256,
-    PriceCannotBeZero: (),
+    PriceTooSmall: (u64, u64),
     AmountCannotBeZero: (),
     FailedToRemove: b256,
 }
