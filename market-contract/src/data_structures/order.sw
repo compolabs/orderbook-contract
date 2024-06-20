@@ -26,8 +26,12 @@ impl Order {
         block_height: u32,
     ) -> Self {
         require(amount != 0, OrderError::AmountCannotBeZero);
-        require(price >= 10_u64.pow(price_decimals), OrderError::PriceTooSmall((price, 10_u64.pow(price_decimals))));
-        
+        require(
+            price >= 10_u64
+                .pow(price_decimals),
+            OrderError::PriceTooSmall((price, 10_u64.pow(price_decimals))),
+        );
+
         Self {
             amount,
             asset_type,
@@ -39,6 +43,12 @@ impl Order {
     }
 
     pub fn id(self) -> b256 {
-        sha256((sha256((ContractId::this(), self.owner)), self.asset_type, self.order_type, self.price, self.block_height))
+        sha256((
+            sha256((ContractId::this(), self.owner)),
+            self.asset_type,
+            self.order_type,
+            self.price,
+            self.block_height,
+        ))
     }
 }

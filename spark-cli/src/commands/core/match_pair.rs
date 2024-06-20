@@ -50,8 +50,13 @@ impl MatchPairCommand {
         // Balance post-call
         let new_balance = wallet.get_asset_balance(&AssetId::BASE).await?;
 
+        println!(
+            "Order pair matched: {} : {}",
+            self.orders[0], self.orders[1]
+        );
+
         // TODO: replace println with tracing
-        println!("\nContract call cost: {}", balance - new_balance);
+        println!("Contract call cost: {}", balance - new_balance);
 
         Ok(())
     }

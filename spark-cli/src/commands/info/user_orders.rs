@@ -53,7 +53,7 @@ impl UserOrdersCommand {
         // TODO: replace println with tracing
         for order in orders {
             // TODO: print line-by-line instead of debug?
-            println!("{:?}", order);
+            println!("{:?}", Address::new(order.0));
         }
 
         Ok(())

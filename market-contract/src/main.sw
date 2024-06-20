@@ -127,7 +127,15 @@ impl Market for Contract {
 
         let user = msg_sender().unwrap();
 
-        let mut order = Order::new(amount, asset_type, order_type, user, price, PRICE_DECIMALS, block_height());
+        let mut order = Order::new(
+            amount,
+            asset_type,
+            order_type,
+            user,
+            price,
+            PRICE_DECIMALS,
+            block_height(),
+        );
         let order_id = order.id();
         let clone = storage.orders.get(order_id).try_read();
         let amount_before = if clone.is_some() {
@@ -388,7 +396,15 @@ impl Info for Contract {
             asset_type == AssetType::Base || asset_type == AssetType::Quote,
             AssetError::InvalidAsset,
         );
-        Order::new(1, asset_type, order_type, owner, price, PRICE_DECIMALS, block_height).id()
+        Order::new(
+            1,
+            asset_type,
+            order_type,
+            owner,
+            price,
+            PRICE_DECIMALS,
+            block_height,
+        ).id()
     }
 }
 
@@ -465,12 +481,23 @@ fn remove_order(user: Identity, order_id: b256) {
 }
 
 #[storage(read, write)]
-fn execute_same_asset_type_trade(s_order: Order, b_order: Order, amount: u64, pay_amount: u64, price_delta: u64) {
+fn execute_same_asset_type_trade(
+    s_order: Order,
+    b_order: Order,
+    amount: u64,
+    pay_amount: u64,
+    price_delta: u64,
+) {
     let mut s_account = storage.account.get(s_order.owner).try_read().unwrap_or(Account::new());
     let mut b_account = storage.account.get(b_order.owner).try_read().unwrap_or(Account::new());
 
-    s_account.transfer_locked_amount(b_account, amount, s_order.asset_type);
-    b_account.transfer_locked_amount(s_account, pay_amount, !s_order.asset_type);
+    if s_order.owner == b_order.owner {
+        b_account.unlock_amount(amount, s_order.asset_type);
+        b_account.unlock_amount(pay_amount, !s_order.asset_type);
+    } else {
+        s_account.transfer_locked_amount(b_account, amount, s_order.asset_type);
+        b_account.transfer_locked_amount(s_account, pay_amount, !s_order.asset_type);
+    }
 
     if b_order.asset_type == AssetType::Base {
         // unlock delta if order_type == buy for asset_type == base
@@ -486,8 +513,12 @@ fn execute_same_asset_type_trade(s_order: Order, b_order: Order, amount: u64, pa
             b_account.unlock_amount(q_unlock_amount, AssetType::Quote);
         }
     }
-    storage.account.insert(s_order.owner, s_account);
-    storage.account.insert(b_order.owner, b_account);
+    if s_order.owner == b_order.owner {
+        storage.account.insert(b_order.owner, b_account);
+    } else {
+        storage.account.insert(s_order.owner, s_account);
+        storage.account.insert(b_order.owner, b_account);
+    }
 }
 
 #[storage(read, write)]
@@ -500,12 +531,20 @@ fn execute_same_order_type_trade(
 ) {
     let mut b_account = storage.account.get(b_order.owner).try_read().unwrap_or(Account::new());
     let mut q_account = storage.account.get(q_order.owner).try_read().unwrap_or(Account::new());
+    if b_order.owner == q_order.owner {
+        b_account.unlock_amount(b_amount, AssetType::Base);
+        b_account.unlock_amount(q_amount, AssetType::Quote);
+    }
     if b_order.order_type == OrderType::Sell {
-        b_account.transfer_locked_amount(q_account, b_amount, AssetType::Base);
-        q_account.transfer_locked_amount(b_account, q_amount, AssetType::Quote);
+        if (b_order.owner != q_order.owner) {
+            b_account.transfer_locked_amount(q_account, b_amount, AssetType::Base);
+            q_account.transfer_locked_amount(b_account, q_amount, AssetType::Quote);
+        }
     } else {
-        q_account.transfer_locked_amount(b_account, b_amount, AssetType::Base);
-        b_account.transfer_locked_amount(q_account, q_amount, AssetType::Quote);
+        if b_order.owner != q_order.owner {
+            q_account.transfer_locked_amount(b_account, b_amount, AssetType::Base);
+            b_account.transfer_locked_amount(q_account, q_amount, AssetType::Quote);
+        }
         // unlock delta if order_type == buy for asset_type == base
         if price_delta > 0 {
             let q_unlock_amount = convert(
@@ -521,8 +560,12 @@ fn execute_same_order_type_trade(
             }
         }
     }
-    storage.account.insert(b_order.owner, b_account);
-    storage.account.insert(q_order.owner, q_account);
+    if b_order.owner == q_order.owner {
+        storage.account.insert(b_order.owner, b_account);
+    } else {
+        storage.account.insert(b_order.owner, b_account);
+        storage.account.insert(q_order.owner, q_account);
+    }
 }
 
 #[storage(read, write)]
@@ -568,7 +611,9 @@ fn match_order_internal(
         );
         // amount is a minimum of order amounts
         let b_amount = min(b_order.amount, b_amount);
-        let q_amount = if b_amount != b_order.amount { q_order.amount } else {
+        let q_amount = if b_amount != b_order.amount {
+            q_order.amount
+        } else {
             convert(
                 b_amount,
                 BASE_ASSET_DECIMALS,
