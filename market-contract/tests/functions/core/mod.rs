@@ -1,7 +1,7 @@
 mod cancel_order;
 mod deposit;
 mod match_order_pair;
-mod match_orders;
+mod match_order_many;
 mod open_order;
 mod set_fee;
 mod withdraw;

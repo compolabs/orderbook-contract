@@ -267,7 +267,7 @@ impl Market for Contract {
     }
 
     #[storage(read, write)]
-    fn match_orders(orders: Vec<b256>) {
+    fn match_order_many(orders: Vec<b256>) {
         require(orders.len() > 1, ValueError::InvalidLength);
 
         let mut orders = orders;

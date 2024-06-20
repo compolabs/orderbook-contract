@@ -31,7 +31,7 @@ abi Market {
     fn match_order_pair(order0_id: b256, order1_id: b256);
 
     #[storage(read, write)]
-    fn match_orders(orders: Vec<b256>);
+    fn match_order_many(orders: Vec<b256>);
 
     #[storage(write)]
     fn set_fee(amount: u64, user: Option<Identity>);
