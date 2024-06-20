@@ -48,10 +48,7 @@ impl MatchManyCommand {
         // Balance post-call
         let new_balance = wallet.get_asset_balance(&AssetId::BASE).await?;
 
-        println!(
-            "Order pair matched: {} : {}",
-            self.orders[0], self.orders[1]
-        );
+        println!("Orders matched: {:?}", self.orders,);
 
         // TODO: replace println with tracing
         println!("Contract call cost: {}", balance - new_balance);

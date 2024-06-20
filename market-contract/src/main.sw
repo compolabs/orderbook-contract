@@ -268,13 +268,13 @@ impl Market for Contract {
 
     #[storage(read, write)]
     fn match_order_many(orders: Vec<b256>) {
-        require(orders.len() > 1, ValueError::InvalidLength);
+        require(orders.len() >= 2, ValueError::InvalidArrayLength);
 
         let mut orders = orders;
         let len = orders.len();
         let mut idx0 = 0;
         let mut idx1 = 1;
-        let mut matched = 0;
+        let mut full_matched = 0;
 
         while lts(idx0, idx1, len) {
             if idx0 == idx1 {
@@ -304,7 +304,7 @@ impl Market for Contract {
             match match_result {
                 MatchResult::ZeroMatch => {
                     // the case when the 1st & 2nd orders play in same direction
-                    if idx0 < idx1 { idx0 += 1; } else { idx1 += 1; }
+                    if idx0 < idx1 { idx1 += 1; } else { idx0 += 1; }
                 }
                 MatchResult::PartialMatch => {
                     // the case when the one of the orders is partially completed
@@ -313,17 +313,17 @@ impl Market for Contract {
                     } else {
                         idx0 += 1;
                     }
-                    matched += 1;
+                    full_matched += 1;
                 }
                 MatchResult::FullMatch => {
                     // the case when orders are completed
-                    idx0 += 1;
-                    idx1 += 1;
-                    matched += 2;
+                    idx0 = min(idx0, idx1) + 1;
+                    idx1 = idx0 + 1;
+                    full_matched += 2;
                 }
             }
         }
-        require(matched > 0, MatchError::CantBatchMatch);
+        require(full_matched > 0, MatchError::CantMatchMany);
     }
 
     #[storage(write)]

@@ -22,19 +22,19 @@ impl Account {
     }
 
     pub fn lock_amount(ref mut self, amount: u64, asset: AssetType) {
-        require(amount != 0, OrderError::AmountCannotBeZero);
+        require(amount != 0, OrderError::ZeroLockAmount);
         self.liquid.debit(amount, asset);
         self.locked.credit(amount, asset);
     }
 
     pub fn unlock_amount(ref mut self, amount: u64, asset: AssetType) {
-        require(amount != 0, OrderError::AmountCannotBeZero);
+        require(amount != 0, OrderError::ZeroLockAmount);
         self.liquid.credit(amount, asset);
         self.locked.debit(amount, asset);
     }
 
     pub fn transfer_locked_amount(ref mut self, ref mut to: Account, amount: u64, asset: AssetType) {
-        require(amount != 0, OrderError::AmountCannotBeZero);
+        require(amount != 0, OrderError::ZeroLockAmount);
         self.locked.debit(amount, asset);
         to.liquid.credit(amount, asset);
     }

@@ -25,7 +25,7 @@ impl Order {
         price_decimals: u32,
         block_height: u32,
     ) -> Self {
-        require(amount != 0, OrderError::AmountCannotBeZero);
+        require(amount != 0, OrderError::ZeroOrderAmount);
         require(
             price >= 10_u64
                 .pow(price_decimals),

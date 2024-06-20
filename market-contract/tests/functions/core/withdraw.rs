@@ -104,7 +104,7 @@ mod revert {
     #[should_panic(expected = "InsufficientBalance")]
     async fn when_withdrawing_without_account() {
         let defaults = Defaults::default();
-        let (contract, _owner, _user, assets) = setup(
+        let (contract, _owner, _user, _) = setup(
             defaults.base_decimals,
             defaults.quote_decimals,
             defaults.price_decimals,

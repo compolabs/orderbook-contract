@@ -20,7 +20,7 @@ Run from `spark-cli` folder
     --rpc "testnet.fuel.network"
 
 Sample output:
-Market deployed to: 0xcedfc5cbf4f8e4b15cd7511d90f358aa5858707cdb51c8e20637b4428b017790
+Market deployed to: 0x9e58049c44bc776af9f4e12c69bfa47567ac0d5cf159f8dc034aa91fe94313cf
 Deployment cost: 0
 Owner address: fuel173lqaa6y4jxfjd2suq730uwys3zfg4f6zt9vzx4cc45v3xvlmwlszdvdpz
                0xf47e0ef744ac8c993550e03d17f1c4844494553a12cac11ab8c568c8999fdbbf
@@ -31,21 +31,21 @@ Owner address: fuel173lqaa6y4jxfjd2suq730uwys3zfg4f6zt9vzx4cc45v3xvlmwlszdvdpz
     --asset 0xccceae45a7c23dcd4024f4083e959a0686a191694e76fa4fb76c449361ca01f7 \
     --amount 1 \
     --rpc "testnet.fuel.network" \
-    --contract-id 0xcedfc5cbf4f8e4b15cd7511d90f358aa5858707cdb51c8e20637b4428b017790
+    --contract-id 0x9e58049c44bc776af9f4e12c69bfa47567ac0d5cf159f8dc034aa91fe94313cf
 
 ../target/debug/spark-cli core deposit \
     --asset 0xfed3ee85624c79cb18a3a848092239f2e764ed6b0aa156ad10a18bfdbe74269f \
     --amount 700 \
     --rpc "testnet.fuel.network" \
-    --contract-id 0xcedfc5cbf4f8e4b15cd7511d90f358aa5858707cdb51c8e20637b4428b017790
+    --contract-id 0x9e58049c44bc776af9f4e12c69bfa47567ac0d5cf159f8dc034aa91fe94313cf
 
-## Withdraw (bugged)
+## Withdraw
 
 ../target/debug/spark-cli core withdraw \
     --asset-type base \
     --amount 100 \
     --rpc "testnet.fuel.network" \
-    --contract-id 0xcedfc5cbf4f8e4b15cd7511d90f358aa5858707cdb51c8e20637b4428b017790
+    --contract-id 0x9e58049c44bc776af9f4e12c69bfa47567ac0d5cf159f8dc034aa91fe94313cf
 
 ## Open Order
 
@@ -55,7 +55,7 @@ Owner address: fuel173lqaa6y4jxfjd2suq730uwys3zfg4f6zt9vzx4cc45v3xvlmwlszdvdpz
     --order-type sell \
     --price 70000000000000 \
     --rpc "testnet.fuel.network" \
-    --contract-id 0xcedfc5cbf4f8e4b15cd7511d90f358aa5858707cdb51c8e20637b4428b017790
+    --contract-id 0x9e58049c44bc776af9f4e12c69bfa47567ac0d5cf159f8dc034aa91fe94313cf
 
 ../target/debug/spark-cli core open \
     --asset-type base \
@@ -63,14 +63,14 @@ Owner address: fuel173lqaa6y4jxfjd2suq730uwys3zfg4f6zt9vzx4cc45v3xvlmwlszdvdpz
     --order-type buy \
     --price 70000000000000 \
     --rpc "testnet.fuel.network" \
-    --contract-id 0xcedfc5cbf4f8e4b15cd7511d90f358aa5858707cdb51c8e20637b4428b017790
+    --contract-id 0x9e58049c44bc776af9f4e12c69bfa47567ac0d5cf159f8dc034aa91fe94313cf
 
 ## Cancel Order
 
 ../target/debug/spark-cli core cancel \
-    --order-id e3e990df5aa7f62121d94b5967c0ff78030617ee4dae3e6de1476589648c9dea \
+    --order-id 263e9f354dfc3261dc083412a3e06ff99a7d36d78ac2cfd6382a89162db05d25 \
     --rpc "testnet.fuel.network" \
-    --contract-id 0xcedfc5cbf4f8e4b15cd7511d90f358aa5858707cdb51c8e20637b4428b017790
+    --contract-id 0x9e58049c44bc776af9f4e12c69bfa47567ac0d5cf159f8dc034aa91fe94313cf
 
 ## Match Order Pair
 
@@ -78,15 +78,15 @@ Owner address: fuel173lqaa6y4jxfjd2suq730uwys3zfg4f6zt9vzx4cc45v3xvlmwlszdvdpz
     --orders 91b3e452dc537663d2970017831b7aeea5a77e7c308a6a2c4ab0951c47a11009 \
     --orders 485adfbcdb980899bf460be61c21772e1771c20f310b45210dcd69ddddd26d16 \
     --rpc "testnet.fuel.network" \
-    --contract-id 0xcedfc5cbf4f8e4b15cd7511d90f358aa5858707cdb51c8e20637b4428b017790
+    --contract-id 0x9e58049c44bc776af9f4e12c69bfa47567ac0d5cf159f8dc034aa91fe94313cf
 
 ## Match Order Many
 
 ../target/debug/spark-cli core match-many \
-    --orders ef28963acb9df87a89a890cbcbc4f1f07636dc5596438cf0ca0d86612f68c660 \
-    --orders 56f8b64586476af2f1ea547d595684feea58ee295fed43f7bc363e256a27f201 \
+    --orders 178a812dab4714a07c297cde72ab43266db9a75106da5468f0ec813de3384237 \
+    --orders bd2778ddc257433fd1dbd3dfa87dc628a01da78cf37419f0ae65907aaae3cd92 \
     --rpc "testnet.fuel.network" \
-    --contract-id 0xcedfc5cbf4f8e4b15cd7511d90f358aa5858707cdb51c8e20637b4428b017790
+    --contract-id 0x9e58049c44bc776af9f4e12c69bfa47567ac0d5cf159f8dc034aa91fe94313cf
 
 ## Set Fee
 
@@ -97,7 +97,7 @@ Sets a fee for a user
     --account-type address \
     --account-id 0x4ea14e5787d00813f944c744a52cb40d4b5293315b448a76d16110b8b9da0cba \
     --rpc "testnet.fuel.network" \
-    --contract-id 0xcedfc5cbf4f8e4b15cd7511d90f358aa5858707cdb51c8e20637b4428b017790
+    --contract-id 0x9e58049c44bc776af9f4e12c69bfa47567ac0d5cf159f8dc034aa91fe94313cf
 
 Set fee for entire market
 
@@ -116,13 +116,13 @@ These functions return the state of the contract. They simulate calls and theref
     --account-type address \
     --account-id 0xf47e0ef744ac8c993550e03d17f1c4844494553a12cac11ab8c568c8999fdbbf \
     --rpc "testnet.fuel.network" \
-    --contract-id 0xcedfc5cbf4f8e4b15cd7511d90f358aa5858707cdb51c8e20637b4428b017790
+    --contract-id 0x9e58049c44bc776af9f4e12c69bfa47567ac0d5cf159f8dc034aa91fe94313cf
 
 ## Config
 
 ../target/debug/spark-cli info config \
     --rpc "testnet.fuel.network" \
-    --contract-id 0xcedfc5cbf4f8e4b15cd7511d90f358aa5858707cdb51c8e20637b4428b017790
+    --contract-id 0x9e58049c44bc776af9f4e12c69bfa47567ac0d5cf159f8dc034aa91fe94313cf
 
 ## Fee
 
@@ -132,7 +132,7 @@ Fee for a specific user
     --account-type address \
     --account-id 0x4ea14e5787d00813f944c744a52cb40d4b5293315b448a76d16110b8b9da0cba \
     --rpc "testnet.fuel.network" \
-    --contract-id 0xcedfc5cbf4f8e4b15cd7511d90f358aa5858707cdb51c8e20637b4428b017790
+    --contract-id 0x9e58049c44bc776af9f4e12c69bfa47567ac0d5cf159f8dc034aa91fe94313cf
 
 Fee for entire market contract
 
@@ -150,14 +150,14 @@ Fee for entire market contract
     --price 70000000000000 \
     --block-height 10000 \
     --rpc "testnet.fuel.network" \
-    --contract-id 0xcedfc5cbf4f8e4b15cd7511d90f358aa5858707cdb51c8e20637b4428b017790
+    --contract-id 0x9e58049c44bc776af9f4e12c69bfa47567ac0d5cf159f8dc034aa91fe94313cf
 
 ## Order
 
 ../target/debug/spark-cli info order \
     --order-id e904047b100e38fbcb892a77931ff04fd6adc3bcd66eb17fa7bfd7be20d61dc7 \
     --rpc "testnet.fuel.network" \
-    --contract-id 0xcedfc5cbf4f8e4b15cd7511d90f358aa5858707cdb51c8e20637b4428b017790
+    --contract-id 0x9e58049c44bc776af9f4e12c69bfa47567ac0d5cf159f8dc034aa91fe94313cf
 
 ## User Orders
 
@@ -165,7 +165,7 @@ Fee for entire market contract
     --account-type address \
     --account-id 0xf47e0ef744ac8c993550e03d17f1c4844494553a12cac11ab8c568c8999fdbbf \
     --rpc "testnet.fuel.network" \
-    --contract-id 0xcedfc5cbf4f8e4b15cd7511d90f358aa5858707cdb51c8e20637b4428b017790
+    --contract-id 0x9e58049c44bc776af9f4e12c69bfa47567ac0d5cf159f8dc034aa91fe94313cf
 
 ## Deploy Orderbook
 
@@ -182,7 +182,7 @@ Owner address: fuel173lqaa6y4jxfjd2suq730uwys3zfg4f6zt9vzx4cc45v3xvlmwlszdvdpz
 
 ../target/debug/spark-cli book register \
     --asset 0xf88a9eea6c45e2a77cf2f684fbb7d175cbf8cf58c079d07f9d24f51329de4418 \
-    --market 0xcedfc5cbf4f8e4b15cd7511d90f358aa5858707cdb51c8e20637b4428b017790 \
+    --market 0x9e58049c44bc776af9f4e12c69bfa47567ac0d5cf159f8dc034aa91fe94313cf \
     --rpc "testnet.fuel.network" \
     --contract-id 0xf88a9eea6c45e2a77cf2f684fbb7d175cbf8cf58c079d07f9d24f51329de4418
 
