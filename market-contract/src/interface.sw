@@ -33,6 +33,16 @@ abi Market {
     #[storage(read, write)]
     fn match_order_many(orders: Vec<b256>);
 
+    #[storage(read, write)]
+    fn fulfill_order_many(
+        amount: u64,
+        asset_type: AssetType,
+        order_type: OrderType,
+        price: u64,
+        slippage: u64,
+        orders: Vec<b256>,
+    ) -> b256;
+
     #[storage(write)]
     fn set_fee(amount: u64, user: Option<Identity>);
 }

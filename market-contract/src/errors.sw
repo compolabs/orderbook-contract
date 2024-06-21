@@ -6,6 +6,7 @@ pub enum AssetError {
 
 pub enum ValueError {
     InvalidAmount: (),
+    InvalidSlippage: (),
     InvalidArrayLength: (),
 }
 
@@ -20,6 +21,7 @@ pub enum OrderError {
 pub enum MatchError {
     CantMatch: (b256, b256),
     CantMatchMany: (),
+    CantFulfillMany: (),
 }
 
 pub enum AuthError {

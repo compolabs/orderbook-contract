@@ -171,6 +171,25 @@ impl MarketContract {
             .await?)
     }
 
+    pub async fn fulfill_many(
+        &self,
+        amount: u64,
+        asset_type: AssetType,
+        order_type: OrderType,
+        price: u64,
+        slippage: u64,
+        orders: Vec<Bits256>,
+    ) -> anyhow::Result<FuelCallResponse<Bits256>> {
+        let tx_policies = TxPolicies::default().with_script_gas_limit(1_000_000);
+        Ok(self
+            .instance
+            .methods()
+            .fulfill_order_many(amount, asset_type, order_type, price, slippage, orders)
+            .with_tx_policies(tx_policies)
+            .call()
+            .await?)
+    }
+
     pub async fn set_fee(
         &self,
         amount: u64,

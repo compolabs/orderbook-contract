@@ -72,6 +72,8 @@ storage {
     order_change_info: StorageMap<b256, StorageVec<OrderChangeInfo>> = StorageMap {},
 }
 
+const HUNDRED_PERCENT = 10_000;
+
 impl Market for Contract {
     #[payable]
     #[storage(read, write)]
@@ -123,82 +125,7 @@ impl Market for Contract {
         order_type: OrderType,
         price: u64,
     ) -> b256 {
-        require(amount > 0, ValueError::InvalidAmount);
-
-        let user = msg_sender().unwrap();
-
-        let mut order = Order::new(
-            amount,
-            asset_type,
-            order_type,
-            user,
-            price,
-            PRICE_DECIMALS,
-            block_height(),
-        );
-        let order_id = order.id();
-        let clone = storage.orders.get(order_id).try_read();
-        let amount_before = if clone.is_some() {
-            clone.unwrap().amount
-        } else {
-            0
-        };
-        order.amount += amount_before;
-
-        let mut account = storage.account.get(user).try_read().unwrap_or(Account::new());
-        match order_type {
-            OrderType::Sell => {
-                account.lock_amount(amount, asset_type);
-            }
-            OrderType::Buy => {
-                account.lock_amount(
-                    convert(
-                        amount,
-                        BASE_ASSET_DECIMALS,
-                        price,
-                        PRICE_DECIMALS,
-                        QUOTE_ASSET_DECIMALS,
-                        asset_type == AssetType::Base,
-                    ),
-                    !asset_type,
-                );
-            }
-        }
-
-        // Store the new order and update the state of the user's account
-        storage.orders.insert(order_id, order);
-        storage.account.insert(user, account);
-
-        // Indexing
-        storage.user_orders.get(user).push(order_id);
-        storage
-            .user_order_indexes
-            .get(user)
-            .insert(order_id, storage.user_orders.get(user).len() - 1);
-
-        log_order_change_info(
-            order_id,
-            OrderChangeInfo::new(
-                OrderChangeType::OrderOpened,
-                block_height(),
-                user,
-                tx_id(),
-                amount_before,
-                order.amount,
-            ),
-        );
-
-        let asset = get_asset_id(asset_type);
-        log(OpenOrderEvent {
-            amount,
-            asset,
-            asset_type,
-            order_type,
-            order_id,
-            price,
-            user,
-        });
-        order_id
+        open_order_internal(amount, asset_type, order_type, price)
     }
 
     #[storage(read, write)]
@@ -270,7 +197,6 @@ impl Market for Contract {
     fn match_order_many(orders: Vec<b256>) {
         require(orders.len() >= 2, ValueError::InvalidArrayLength);
 
-        let mut orders = orders;
         let len = orders.len();
         let mut idx0 = 0;
         let mut idx1 = 1;
@@ -285,7 +211,7 @@ impl Market for Contract {
             let id0 = orders.get(idx0).unwrap();
             let order0 = storage.orders.get(id0).try_read();
             if order0.is_none() {
-                // the order already matched/canceled or bad id
+                // the order already matched/cancelled or bad id
                 idx0 += 1;
                 continue;
             }
@@ -293,13 +219,13 @@ impl Market for Contract {
             let id1 = orders.get(idx1).unwrap();
             let order1 = storage.orders.get(id1).try_read();
             if order1.is_none() {
-                // the order already matched/canceled or bad id
+                // the order already matched/cancelled or bad id
                 idx1 += 1;
                 continue;
             }
 
             // try match
-            let (match_result, order_id) = match_order_internal(id0, order0.unwrap(), id1, order1.unwrap());
+            let (match_result, partial_order_id) = match_order_internal(id0, order0.unwrap(), id1, order1.unwrap());
 
             match match_result {
                 MatchResult::ZeroMatch => {
@@ -308,7 +234,7 @@ impl Market for Contract {
                 }
                 MatchResult::PartialMatch => {
                     // the case when the one of the orders is partially completed
-                    if order_id == id0 {
+                    if partial_order_id == id0 {
                         idx1 += 1;
                     } else {
                         idx0 += 1;
@@ -324,6 +250,55 @@ impl Market for Contract {
             }
         }
         require(full_matched > 0, MatchError::CantMatchMany);
+    }
+
+    #[storage(read, write)]
+    fn fulfill_order_many(
+        amount: u64,
+        asset_type: AssetType,
+        order_type: OrderType,
+        price: u64,
+        slippage: u64,
+        orders: Vec<b256>,
+    ) -> b256 {
+        require(orders.len() > 0, ValueError::InvalidArrayLength);
+        require(slippage <= HUNDRED_PERCENT, ValueError::InvalidSlippage);
+
+        let id0 = open_order_internal(amount, asset_type, order_type, price);
+        let order0 = storage.orders.get(id0).read();
+        let len = orders.len();
+        let mut idx1 = 0;
+        let mut full_matched = 0;
+        let slippage = price * slippage / HUNDRED_PERCENT;
+
+        while idx1 < len {
+            let id1 = orders.get(idx1).unwrap();
+            let order1 = storage.orders.get(id1).try_read();
+            if order1.is_some() {
+                let order1 = order1.unwrap();
+                if distance(price, order1.price) <= slippage {
+                    // try match
+                    let (match_result, partial_order_id) = match_order_internal(id0, order0, id1, order1);
+                    match match_result {
+                        MatchResult::ZeroMatch => {}
+                        MatchResult::PartialMatch => {
+                            // the case when the one of the orders is partially completed
+                            full_matched += 1;
+                            if partial_order_id == id1 {
+                                break;
+                            }
+                        }
+                        MatchResult::FullMatch => {
+                            full_matched += 2;
+                            break;
+                        }
+                    }
+                }
+            }
+            idx1 += 1;
+        }
+        require(full_matched > 0, MatchError::CantFulfillMany);
+        id0
     }
 
     #[storage(write)]
@@ -406,6 +381,91 @@ impl Info for Contract {
             block_height,
         ).id()
     }
+}
+
+#[storage(read, write)]
+fn open_order_internal(
+    amount: u64,
+    asset_type: AssetType,
+    order_type: OrderType,
+    price: u64,
+) -> b256 {
+    require(amount > 0, ValueError::InvalidAmount);
+
+    let user = msg_sender().unwrap();
+
+    let mut order = Order::new(
+        amount,
+        asset_type,
+        order_type,
+        user,
+        price,
+        PRICE_DECIMALS,
+        block_height(),
+    );
+    let order_id = order.id();
+    let clone = storage.orders.get(order_id).try_read();
+    let amount_before = if clone.is_some() {
+        clone.unwrap().amount
+    } else {
+        0
+    };
+    order.amount += amount_before;
+
+    let mut account = storage.account.get(user).try_read().unwrap_or(Account::new());
+    match order_type {
+        OrderType::Sell => {
+            account.lock_amount(amount, asset_type);
+        }
+        OrderType::Buy => {
+            account.lock_amount(
+                convert(
+                    amount,
+                    BASE_ASSET_DECIMALS,
+                    price,
+                    PRICE_DECIMALS,
+                    QUOTE_ASSET_DECIMALS,
+                    asset_type == AssetType::Base,
+                ),
+                !asset_type,
+            );
+        }
+    }
+
+    // Store the new order and update the state of the user's account
+    storage.orders.insert(order_id, order);
+    storage.account.insert(user, account);
+
+    // Indexing
+    storage.user_orders.get(user).push(order_id);
+    storage
+        .user_order_indexes
+        .get(user)
+        .insert(order_id, storage.user_orders.get(user).len() - 1);
+
+    log_order_change_info(
+        order_id,
+        OrderChangeInfo::new(
+            OrderChangeType::OrderOpened,
+            block_height(),
+            user,
+            tx_id(),
+            amount_before,
+            order.amount,
+        ),
+    );
+
+    let asset = get_asset_id(asset_type);
+    log(OpenOrderEvent {
+        amount,
+        asset,
+        asset_type,
+        order_type,
+        order_id,
+        price,
+        user,
+    });
+    order_id
 }
 
 fn get_asset_type(asset_id: AssetId) -> AssetType {

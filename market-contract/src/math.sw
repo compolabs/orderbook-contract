@@ -60,3 +60,7 @@ pub fn min(a: u64, b: u64) -> u64 {
 pub fn max(a: u64, b: u64) -> u64 {
     if a > b { a } else { b }
 }
+
+pub fn distance(a: u64, b: u64) -> u64 {
+    if a > b { a - b } else { b - a }
+}
