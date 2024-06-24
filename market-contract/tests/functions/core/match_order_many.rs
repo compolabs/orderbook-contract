@@ -15,7 +15,7 @@ mod success {
     }
 
     #[tokio::test]
-    async fn match_order_same_asset_type_same_user_equal_orders() -> anyhow::Result<()> {
+    async fn match_order_many_same_asset_type_same_user_equal_orders() -> anyhow::Result<()> {
         let defaults = Defaults::default();
         let (contract, user0, _, assets) = setup(
             defaults.base_decimals,
@@ -110,7 +110,7 @@ mod success {
     }
 
     #[tokio::test]
-    async fn match_order_same_asset_type_same_user_partial_match() -> anyhow::Result<()> {
+    async fn match_order_many_same_asset_type_same_user_partial_match() -> anyhow::Result<()> {
         let defaults = Defaults::default();
         let (contract, user0, _, assets) = setup(
             defaults.base_decimals,
@@ -220,7 +220,7 @@ mod revert {
 
     #[tokio::test]
     #[should_panic(expected = "CantMatchMany")]
-    async fn match_order_same_asset_type_same_direction() {
+    async fn match_order_many_same_asset_type_same_direction() {
         let defaults = Defaults::default();
         let (contract, user0, _, assets) = setup(
             defaults.base_decimals,

@@ -272,6 +272,7 @@ impl Market for Contract {
         let slippage = price * slippage / HUNDRED_PERCENT;
 
         while idx1 < len {
+            let order0 = storage.orders.get(id0).read();
             let id1 = orders.get(idx1).unwrap();
             let order1 = storage.orders.get(id1).try_read();
             if order1.is_some() {
@@ -861,12 +862,13 @@ fn match_order_internal(
         if amount == b_order.amount {
             remove_order(b_order.owner, b_id);
         }
-        if amount != s_order.amount {
+        if amount < s_order.amount {
             s_order.amount -= amount;
             // update amount
             storage.orders.insert(s_id, s_order);
             return (MatchResult::PartialMatch, s_id);
-        } else if amount != b_order.amount {
+        }
+        if amount < b_order.amount {
             b_order.amount -= amount;
             // update amount
             storage.orders.insert(b_id, b_order);
