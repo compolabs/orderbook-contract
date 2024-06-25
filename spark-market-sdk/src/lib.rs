@@ -162,12 +162,12 @@ impl MarketContract {
         &self,
         orders: Vec<Bits256>,
     ) -> anyhow::Result<FuelCallResponse<()>> {
-        let tx_policies = TxPolicies::default().with_script_gas_limit(1_000_000);
+        // let tx_policies = TxPolicies::default().with_script_gas_limit(1_000_000);
         Ok(self
             .instance
             .methods()
             .match_order_many(orders)
-            .with_tx_policies(tx_policies)
+            // .with_tx_policies(tx_policies)
             .call()
             .await?)
     }
