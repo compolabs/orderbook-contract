@@ -9,4 +9,5 @@ note.txt
 log.txt
 dependencies
 */out
+!market-contract/out
 description.md

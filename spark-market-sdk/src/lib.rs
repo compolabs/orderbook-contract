@@ -10,7 +10,8 @@ use rand::Rng;
 
 abigen!(Contract(
     name = "Market",
-    abi = "./market-contract/out/release/market-contract-abi.json"
+    //fixme при локальной разарботке чтоб тесты проходили надо удалить из путя к аби "../", но не стоит это пушать, а то отвалится матчер
+    abi = "../market-contract/out/release/market-contract-abi.json" 
 ));
 
 const MARKET_CONTRACT_BINARY_PATH: &str = "../market-contract/out/release/market-contract.bin";
