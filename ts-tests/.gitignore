@@ -1,9 +1,0 @@
-/node_modules
-/coverage
-.idea
-.DS_Store
-.env
-*target/
-.vscode
-note.txt
-log.txt

@@ -1,8 +1,0 @@
-[project]
-authors = ["Alexey"]
-entry = "main.sw"
-license = "Apache-2.0"
-name = "fulfill-script"
-
-[dependencies]
-i64 = { git = "https://github.com/compolabs/i64", branch = "testnet" }
