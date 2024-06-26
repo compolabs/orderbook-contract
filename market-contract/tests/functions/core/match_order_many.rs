@@ -203,6 +203,94 @@ mod success {
 
         Ok(())
     }
+
+    #[tokio::test]
+    async fn match_order_many_big_match() -> anyhow::Result<()> {
+        let defaults = Defaults::default();
+        let (contract, user0, _, assets) = setup(
+            defaults.base_decimals,
+            defaults.quote_decimals,
+            defaults.price_decimals,
+        )
+        .await?;
+
+        let order_configs: Vec<OrderConfig> = vec![
+            OrderConfig {
+                amount: 287573,
+                asset_type: AssetType::Base,
+                order_type: OrderType::Buy,
+                price: 61348523016940,
+            },
+            OrderConfig {
+                amount: 1124659,
+                asset_type: AssetType::Base,
+                order_type: OrderType::Buy,
+                price: 61348575050000,
+            },
+            OrderConfig {
+                amount: 489073,
+                asset_type: AssetType::Base,
+                order_type: OrderType::Buy,
+                price: 61348523016940,
+            },
+            OrderConfig {
+                amount: 342334,
+                asset_type: AssetType::Base,
+                order_type: OrderType::Buy,
+                price: 61348523016940,
+            },
+            OrderConfig {
+                amount: 1749096,
+                asset_type: AssetType::Base,
+                order_type: OrderType::Buy,
+                price: 61348538733430,
+            },
+            OrderConfig {
+                amount: 440000,
+                asset_type: AssetType::Base,
+                order_type: OrderType::Sell,
+                price: 61169061298050,
+            },
+        ];
+
+        let base_deposit = 440_000_u64;
+        let quote_deposit = 100_000_000_000_u64;
+
+        contract
+            .with_account(&user0.wallet)
+            .await?
+            .deposit(base_deposit, assets.base.id)
+            .await?;
+        contract
+            .with_account(&user0.wallet)
+            .await?
+            .deposit(quote_deposit, assets.quote.id)
+            .await?;
+
+        let mut order_ids: Vec<Bits256> = Vec::new();
+        for config in order_configs {
+            order_ids.push(
+                contract
+                    .with_account(&user0.wallet)
+                    .await?
+                    .open_order(
+                        config.amount,
+                        config.asset_type,
+                        config.order_type,
+                        config.price,
+                    )
+                    .await?
+                    .value,
+            );
+        }
+
+        contract.match_order_many(order_ids).await?;
+
+        let orders = contract.user_orders(user0.identity()).await?.value;
+        assert_eq!(orders.len(), 4);
+
+        Ok(())
+    }
 }
 
 mod revert {

@@ -78,7 +78,7 @@ pub(crate) async fn setup(
 ) -> anyhow::Result<(MarketContract, User, User, Assets)> {
     let number_of_wallets = 2;
     let coins_per_wallet = 1;
-    let amount_per_coin = 100_000_000;
+    let amount_per_coin = 1_000_000_000_000;
 
     let base_asset_id = AssetId::new([0; 32]);
     let quote_asset_id = AssetId::new([1; 32]);
