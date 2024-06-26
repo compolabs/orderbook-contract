@@ -22,12 +22,15 @@ impl u64 {
         };
         div_result.as_u64().unwrap() + add
     }
-}
-
-fn calc_amount(buy_amount: u64, buy_price: u64, sell_price: u64) -> u64 {
-    let price_ratio = U128::from((0, buy_price)) / U128::from((0, sell_price));
-    let amount = price_ratio * U128::from((0, buy_amount));
-    amount.as_u64().unwrap()
+    pub fn try_as_u32(self) -> Option<u32> {
+        if self <= u32::max().as_u64() {
+            Some(asm(input: self) {
+                input: u32
+            })
+        } else {
+            None
+        }
+    }
 }
 
 pub fn convert(

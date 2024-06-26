@@ -4,7 +4,7 @@ mod success {
 
     #[tokio::test]
     async fn succeeds_for_admin() -> anyhow::Result<()> {
-        let (contract, admin, user) = setup().await.unwrap();
+        let (contract, admin, _) = setup().await.unwrap();
         let asset_id = random_asset_id();
         let contract_id = random_contract_id();
         contract

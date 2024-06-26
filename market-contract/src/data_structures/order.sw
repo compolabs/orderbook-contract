@@ -13,6 +13,7 @@ pub struct Order {
     pub owner: Identity,
     pub price: u64,
     pub block_height: u32,
+    pub matcher_fee: u32,
 }
 
 impl Order {
@@ -24,6 +25,7 @@ impl Order {
         price: u64,
         price_decimals: u32,
         block_height: u32,
+        matcher_fee: u32,
     ) -> Self {
         require(amount != 0, OrderError::ZeroOrderAmount);
         require(
@@ -39,6 +41,7 @@ impl Order {
             owner,
             price,
             block_height,
+            matcher_fee,
         }
     }
 

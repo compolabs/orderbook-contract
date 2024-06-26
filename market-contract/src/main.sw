@@ -24,6 +24,7 @@ use ::events::{
     MatchOrderEvent,
     OpenOrderEvent,
     SetFeeEvent,
+    SetMatcherRewardEvent,
     TradeOrderEvent,
     WithdrawEvent,
 };
@@ -70,6 +71,8 @@ storage {
     user_orders: StorageMap<Identity, StorageVec<b256>> = StorageMap {},
     // Temporary order change log structure for indexer debug
     order_change_info: StorageMap<b256, StorageVec<OrderChangeInfo>> = StorageMap {},
+    // The reward to the matcher for single order match
+    matcher_fee: u32 = 0,
 }
 
 const HUNDRED_PERCENT = 10_000;
@@ -118,6 +121,7 @@ impl Market for Contract {
         });
     }
 
+    #[payable]
     #[storage(read, write)]
     fn open_order(
         amount: u64,
@@ -165,6 +169,11 @@ impl Market for Contract {
 
         remove_order(user, order_id);
         storage.account.insert(user, account);
+
+        // Refund matcher_fee
+        if order.matcher_fee > 0 {
+            transfer(user, AssetId::from(ZERO_B256), order.matcher_fee.as_u64());
+        }
 
         log_order_change_info(
             order_id,
@@ -252,6 +261,7 @@ impl Market for Contract {
         require(full_matched > 0, MatchError::CantMatchMany);
     }
 
+    #[payable]
     #[storage(read, write)]
     fn fulfill_order_many(
         amount: u64,
@@ -265,7 +275,6 @@ impl Market for Contract {
         require(slippage <= HUNDRED_PERCENT, ValueError::InvalidSlippage);
 
         let id0 = open_order_internal(amount, asset_type, order_type, price);
-        let order0 = storage.orders.get(id0).read();
         let len = orders.len();
         let mut idx1 = 0;
         let mut full_matched = 0;
@@ -319,6 +328,21 @@ impl Market for Contract {
 
         log(SetFeeEvent { amount, user });
     }
+
+    #[storage(write)]
+    fn set_matcher_fee(amount: u32) {
+        require(
+            msg_sender()
+                .unwrap()
+                .as_address()
+                .unwrap() == OWNER,
+            AuthError::Unauthorized,
+        );
+
+        storage.matcher_fee.write(amount);
+
+        log(SetMatcherRewardEvent { amount });
+    }
 }
 
 impl Info for Contract {
@@ -333,6 +357,11 @@ impl Info for Contract {
             Some(identity) => storage.premium_user.get(identity).try_read().unwrap_or(storage.fee.read()),
             None => storage.fee.read(),
         }
+    }
+
+    #[storage(read)]
+    fn matcher_fee() -> u32 {
+        storage.matcher_fee.read()
     }
 
     #[storage(read)]
@@ -380,10 +409,12 @@ impl Info for Contract {
             price,
             PRICE_DECIMALS,
             block_height,
+            0,
         ).id()
     }
 }
 
+#[payable]
 #[storage(read, write)]
 fn open_order_internal(
     amount: u64,
@@ -395,6 +426,10 @@ fn open_order_internal(
 
     let user = msg_sender().unwrap();
 
+    require(msg_asset_id() == AssetId::from(ZERO_B256), AssetError::InvalidFeeAsset);
+
+    let matcher_fee = storage.matcher_fee.read();
+    let mut fee = msg_amount().try_as_u32().unwrap();
     let mut order = Order::new(
         amount,
         asset_type,
@@ -403,16 +438,38 @@ fn open_order_internal(
         price,
         PRICE_DECIMALS,
         block_height(),
+        matcher_fee,
     );
+    
     let order_id = order.id();
-    let clone = storage.orders.get(order_id).try_read();
-    let amount_before = if clone.is_some() {
-        clone.unwrap().amount
-    } else {
-        0
+    let amount_before = match storage.orders.get(order_id).try_read() {
+        Some(o) => o.amount,
+        _ => 0,
     };
-    order.amount += amount_before;
+    if amount_before > 0 {
+        // The order already exists in the same transaction
+        order.amount += amount_before;
+    } else {
+        // Require income fee
+        require(fee >= matcher_fee, ValueError::InvalidFeeAmount((fee, matcher_fee)));
+        fee -= matcher_fee;
+        // Indexing
+        storage.user_orders.get(user).push(order_id);
+        storage
+            .user_order_indexes
+            .get(user)
+            .insert(order_id, storage.user_orders.get(user).len() - 1);
+    }
 
+    // Refund extra income fee if any
+    if fee > 0 {
+        transfer(user, AssetId::from(ZERO_B256), fee.as_u64());
+    }
+
+    // Store the new or updated order
+    storage.orders.insert(order_id, order);
+
+    // Update user account balance
     let mut account = storage.account.get(user).try_read().unwrap_or(Account::new());
     match order_type {
         OrderType::Sell => {
@@ -433,18 +490,8 @@ fn open_order_internal(
         }
     }
 
-    // Store the new order and update the state of the user's account
-    storage.orders.insert(order_id, order);
+    // Update the state of the user's account
     storage.account.insert(user, account);
-
-    if clone.is_none() {
-        // Indexing
-        storage.user_orders.get(user).push(order_id);
-        storage
-            .user_order_indexes
-            .get(user)
-            .insert(order_id, storage.user_orders.get(user).len() - 1);
-    }
 
     log_order_change_info(
         order_id,
@@ -742,22 +789,36 @@ fn match_order_internal(
         });
         // update account balances
         execute_same_order_type_trade(b_order, q_order, b_amount, q_amount, price_delta);
+        // update order storages
+        let mut matcher_reward = 0_u64;
         if b_amount == b_order.amount {
+            matcher_reward += b_order.matcher_fee.as_u64();
             remove_order(b_order.owner, b_id);
         }
         if q_amount == q_order.amount {
+            matcher_reward += q_order.matcher_fee.as_u64();
             remove_order(q_order.owner, q_id);
         }
         if b_amount != b_order.amount {
+            let order_matcher_reward = b_order.matcher_fee.as_u64() * b_amount / b_order.amount;
+            matcher_reward += order_matcher_reward;
+            b_order.matcher_fee -= order_matcher_reward.try_as_u32().unwrap();
             b_order.amount -= b_amount;
             // update amount
             storage.orders.insert(b_id, b_order);
             return (MatchResult::PartialMatch, b_id);
         } else if q_amount != q_order.amount {
+            let order_matcher_reward = q_order.matcher_fee.as_u64() * q_amount / q_order.amount;
+            matcher_reward += order_matcher_reward;
+            q_order.matcher_fee -= order_matcher_reward.try_as_u32().unwrap();
             q_order.amount -= q_amount;
             // update amount
             storage.orders.insert(q_id, q_order);
             return (MatchResult::PartialMatch, q_id);
+        }
+        // reward order matcher
+        if matcher_reward > 0 {
+            transfer(matcher, AssetId::from(ZERO_B256), matcher_reward);
         }
         (MatchResult::FullMatch, ZERO_B256)
     } else if order0.order_type != order1.order_type && order0.asset_type == order1.asset_type {
@@ -858,23 +919,36 @@ fn match_order_internal(
         // update account balances
         execute_same_asset_type_trade(s_order, b_order, amount, pay_amount, price_delta);
         // update order storages
+        let mut matcher_reward = 0_u64;
         if amount == s_order.amount {
+            matcher_reward += s_order.matcher_fee.as_u64();
             remove_order(s_order.owner, s_id);
         }
         if amount == b_order.amount {
+            matcher_reward += b_order.matcher_fee.as_u64();
             remove_order(b_order.owner, b_id);
         }
         if amount < s_order.amount {
+            let order_matcher_reward = s_order.matcher_fee.as_u64() * amount / s_order.amount;
+            matcher_reward += order_matcher_reward;
+            s_order.matcher_fee -= order_matcher_reward.try_as_u32().unwrap();
             s_order.amount -= amount;
             // update amount
             storage.orders.insert(s_id, s_order);
             return (MatchResult::PartialMatch, s_id);
         }
         if amount < b_order.amount {
+            let order_matcher_reward = b_order.matcher_fee.as_u64() * amount / b_order.amount;
+            matcher_reward += order_matcher_reward;
+            b_order.matcher_fee -= order_matcher_reward.try_as_u32().unwrap();
             b_order.amount -= amount;
             // update amount
             storage.orders.insert(b_id, b_order);
             return (MatchResult::PartialMatch, b_id);
+        }
+        // reward order matcher
+        if matcher_reward > 0 {
+            transfer(matcher, AssetId::from(ZERO_B256), matcher_reward);
         }
         (MatchResult::FullMatch, ZERO_B256)
     } else {

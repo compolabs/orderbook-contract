@@ -20,7 +20,7 @@ abi Orderbook {
     #[storage(read, write)]
     fn register_market(asset_id: AssetId, market: ContractId);
 
-    #[storage(read, write)]
+    #[storage(write)]
     fn unregister_market(asset_id: AssetId);
 
     #[storage(read)]
@@ -54,7 +54,7 @@ impl Orderbook for Contract {
         });
     }
 
-    #[storage(read, write)]
+    #[storage(write)]
     fn unregister_market(asset_id: AssetId) {
         require(
             msg_sender()

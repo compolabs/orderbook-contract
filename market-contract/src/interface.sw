@@ -16,6 +16,7 @@ abi Market {
     #[storage(read, write)]
     fn withdraw(amount: u64, asset_type: AssetType);
 
+    #[payable]
     #[storage(read, write)]
     fn open_order(
         amount: u64,
@@ -33,6 +34,7 @@ abi Market {
     #[storage(read, write)]
     fn match_order_many(orders: Vec<b256>);
 
+    #[payable]
     #[storage(read, write)]
     fn fulfill_order_many(
         amount: u64,
@@ -45,6 +47,9 @@ abi Market {
 
     #[storage(write)]
     fn set_fee(amount: u64, user: Option<Identity>);
+
+    #[storage(write)]
+    fn set_matcher_fee(amount: u32);
 }
 
 abi Info {
@@ -53,6 +58,9 @@ abi Info {
 
     #[storage(read)]
     fn fee(user: Option<Identity>) -> u64;
+
+    #[storage(read)]
+    fn matcher_fee() -> u32;
 
     #[storage(read)]
     fn order(order: b256) -> Option<Order>;

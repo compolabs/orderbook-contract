@@ -2,12 +2,14 @@ library;
 
 pub enum AssetError {
     InvalidAsset: (),
+    InvalidFeeAsset: (),
 }
 
 pub enum ValueError {
     InvalidAmount: (),
     InvalidSlippage: (),
     InvalidArrayLength: (),
+    InvalidFeeAmount: (u32, u32),
 }
 
 pub enum OrderError {

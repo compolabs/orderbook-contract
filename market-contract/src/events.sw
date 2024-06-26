@@ -27,6 +27,10 @@ pub struct SetFeeEvent {
     pub user: Option<Identity>,
 }
 
+pub struct SetMatcherRewardEvent {
+    pub amount: u32,
+}
+
 pub struct MatchOrderEvent {
     pub order_id: b256,
     pub asset: AssetId,
