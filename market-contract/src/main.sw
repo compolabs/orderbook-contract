@@ -437,12 +437,14 @@ fn open_order_internal(
     storage.orders.insert(order_id, order);
     storage.account.insert(user, account);
 
-    // Indexing
-    storage.user_orders.get(user).push(order_id);
-    storage
-        .user_order_indexes
-        .get(user)
-        .insert(order_id, storage.user_orders.get(user).len() - 1);
+    if clone.is_none() {
+        // Indexing
+        storage.user_orders.get(user).push(order_id);
+        storage
+            .user_order_indexes
+            .get(user)
+            .insert(order_id, storage.user_orders.get(user).len() - 1);
+    }
 
     log_order_change_info(
         order_id,
