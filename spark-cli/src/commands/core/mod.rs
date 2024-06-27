@@ -7,4 +7,5 @@ pub(crate) mod match_many;
 pub(crate) mod match_pair;
 pub(crate) mod open_order;
 pub(crate) mod set_fee;
+pub(crate) mod set_matcher_fee;
 pub(crate) mod withdraw;

@@ -205,6 +205,17 @@ impl MarketContract {
             .await?)
     }
 
+    pub async fn set_matcher_fee(&self, amount: u32) -> anyhow::Result<FuelCallResponse<()>> {
+        let tx_policies = TxPolicies::default().with_script_gas_limit(1_000_000);
+        Ok(self
+            .instance
+            .methods()
+            .set_matcher_fee(amount)
+            .with_tx_policies(tx_policies)
+            .call()
+            .await?)
+    }
+
     pub async fn account(
         &self,
         user: Identity,
@@ -225,6 +236,17 @@ impl MarketContract {
             .instance
             .methods()
             .fee(user)
+            .with_tx_policies(tx_policies)
+            .simulate()
+            .await?)
+    }
+
+    pub async fn matcher_fee(&self) -> anyhow::Result<FuelCallResponse<u32>> {
+        let tx_policies = TxPolicies::default().with_script_gas_limit(1_000_000);
+        Ok(self
+            .instance
+            .methods()
+            .matcher_fee()
             .with_tx_policies(tx_policies)
             .simulate()
             .await?)
