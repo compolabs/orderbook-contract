@@ -1,8 +1,5 @@
 [workspace]
 members = [
-    "contract",
-    "match-script",
-    "match-many-script",
-    "match-in-pairs-script",
-    "fulfill-script",
+  "market-contract",
+  "orderbook-contract",
 ]
