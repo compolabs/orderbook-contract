@@ -7,6 +7,7 @@ use fuels::{
     types::{Bits256, Bytes32, Identity},
 };
 use rand::Rng;
+use std::path::PathBuf;
 
 abigen!(Contract(
     name = "Market",
@@ -33,8 +34,9 @@ impl MarketContract {
         let mut rng = rand::thread_rng();
         let salt = rng.gen::<[u8; 32]>();
 
+        let root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         let storage_configuration = StorageConfiguration::default()
-            .add_slot_overrides_from_file(MARKET_CONTRACT_STORAGE_PATH);
+            .add_slot_overrides_from_file(root.join(MARKET_CONTRACT_STORAGE_PATH));
 
         let configurables = MarketConfigurables::default()
             .with_BASE_ASSET(base_asset)
@@ -54,10 +56,13 @@ impl MarketContract {
             .with_storage_configuration(storage_configuration?)
             .with_configurables(configurables);
 
-        let contract_id = Contract::load_from(MARKET_CONTRACT_BINARY_PATH, contract_configuration)?
-            .with_salt(salt)
-            .deploy(&owner, TxPolicies::default())
-            .await?;
+        let contract_id = Contract::load_from(
+            root.join(MARKET_CONTRACT_BINARY_PATH),
+            contract_configuration,
+        )?
+        .with_salt(salt)
+        .deploy(&owner, TxPolicies::default())
+        .await?;
 
         let market = Market::new(contract_id.clone(), owner.clone());
 

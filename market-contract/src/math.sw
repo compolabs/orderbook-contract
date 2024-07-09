@@ -22,15 +22,6 @@ impl u64 {
         };
         div_result.as_u64().unwrap() + add
     }
-    pub fn try_as_u32(self) -> Option<u32> {
-        if self <= u32::max().as_u64() {
-            Some(asm(input: self) {
-                input: u32
-            })
-        } else {
-            None
-        }
-    }
 }
 
 pub fn convert(
