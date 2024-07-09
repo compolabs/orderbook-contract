@@ -426,7 +426,10 @@ fn open_order_internal(
 
     let user = msg_sender().unwrap();
 
-    require(msg_asset_id() == AssetId::from(ZERO_B256), AssetError::InvalidFeeAsset);
+    require(
+        msg_asset_id() == AssetId::from(ZERO_B256),
+        AssetError::InvalidFeeAsset,
+    );
 
     let matcher_fee = storage.matcher_fee.read();
     let mut fee = msg_amount().try_as_u32().unwrap();
@@ -440,7 +443,7 @@ fn open_order_internal(
         block_height(),
         matcher_fee,
     );
-    
+
     let order_id = order.id();
     let amount_before = match storage.orders.get(order_id).try_read() {
         Some(o) => o.amount,
@@ -451,7 +454,10 @@ fn open_order_internal(
         order.amount += amount_before;
     } else {
         // Require income fee
-        require(fee >= matcher_fee, ValueError::InvalidFeeAmount((fee, matcher_fee)));
+        require(
+            fee >= matcher_fee,
+            ValueError::InvalidFeeAmount((fee, matcher_fee)),
+        );
         fee -= matcher_fee;
         // Indexing
         storage.user_orders.get(user).push(order_id);
