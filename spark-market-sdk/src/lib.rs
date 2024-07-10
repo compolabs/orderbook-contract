@@ -7,6 +7,7 @@ use fuels::{
     types::{Bits256, Bytes32, Identity},
 };
 use rand::Rng;
+use std::path::PathBuf;
 
 abigen!(Contract(
     name = "Market",
@@ -33,8 +34,9 @@ impl MarketContract {
         let mut rng = rand::thread_rng();
         let salt = rng.gen::<[u8; 32]>();
 
+        let root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         let storage_configuration = StorageConfiguration::default()
-            .add_slot_overrides_from_file(MARKET_CONTRACT_STORAGE_PATH);
+            .add_slot_overrides_from_file(root.join(MARKET_CONTRACT_STORAGE_PATH));
 
         let configurables = MarketConfigurables::default()
             .with_BASE_ASSET(base_asset)
@@ -54,10 +56,13 @@ impl MarketContract {
             .with_storage_configuration(storage_configuration?)
             .with_configurables(configurables);
 
-        let contract_id = Contract::load_from(MARKET_CONTRACT_BINARY_PATH, contract_configuration)?
-            .with_salt(salt)
-            .deploy(&owner, TxPolicies::default())
-            .await?;
+        let contract_id = Contract::load_from(
+            root.join(MARKET_CONTRACT_BINARY_PATH),
+            contract_configuration,
+        )?
+        .with_salt(salt)
+        .deploy(&owner, TxPolicies::default())
+        .await?;
 
         let market = Market::new(contract_id.clone(), owner.clone());
 
@@ -121,12 +126,15 @@ impl MarketContract {
         order_type: OrderType,
         price: u64,
     ) -> anyhow::Result<FuelCallResponse<Bits256>> {
+        let matcher_fee = self.matcher_fee().await?.value;
+        let call_params = CallParameters::default().with_amount(matcher_fee.into());
         let tx_policies = TxPolicies::default().with_script_gas_limit(1_000_000);
         Ok(self
             .instance
             .methods()
             .open_order(amount, asset_type, order_type, price)
             .with_tx_policies(tx_policies)
+            .call_params(call_params)?
             .call()
             .await?)
     }
@@ -138,6 +146,7 @@ impl MarketContract {
             .methods()
             .cancel_order(order_id)
             .with_tx_policies(tx_policies)
+            .with_variable_output_policy(VariableOutputPolicy::Exactly(1))
             .call()
             .await?)
     }
@@ -153,6 +162,7 @@ impl MarketContract {
             .methods()
             .match_order_pair(order_id0, order_id1)
             .with_tx_policies(tx_policies)
+            .with_variable_output_policy(VariableOutputPolicy::Exactly(1))
             .call()
             .await?)
     }
@@ -167,6 +177,7 @@ impl MarketContract {
             .methods()
             .match_order_many(orders)
             .with_tx_policies(tx_policies)
+            .with_variable_output_policy(VariableOutputPolicy::Exactly(1))
             .call()
             .await?)
     }

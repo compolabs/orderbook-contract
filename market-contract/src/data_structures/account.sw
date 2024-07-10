@@ -1,10 +1,7 @@
 library;
 
 use ::errors::OrderError;
-use ::data_structures::{
-    asset_type::AssetType,
-    balance::Balance,
-};
+use ::data_structures::{asset_type::AssetType, balance::Balance,};
 
 pub struct Account {
     // Available funds
@@ -33,7 +30,12 @@ impl Account {
         self.locked.debit(amount, asset);
     }
 
-    pub fn transfer_locked_amount(ref mut self, ref mut to: Account, amount: u64, asset: AssetType) {
+    pub fn transfer_locked_amount(
+        ref mut self,
+        ref mut to: Account,
+        amount: u64,
+        asset: AssetType,
+) {
         require(amount != 0, OrderError::ZeroLockAmount);
         self.locked.debit(amount, asset);
         to.liquid.credit(amount, asset);
