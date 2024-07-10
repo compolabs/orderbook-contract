@@ -1,8 +1,7 @@
-use crate::utils::{setup, validate_contract_id};
+use crate::utils::{setup, validate_contract_id, AssetType};
 use clap::Args;
 use fuels::{accounts::ViewOnlyAccount, types::AssetId};
-use spark_market_sdk::MarketContract;
-use std::str::FromStr;
+use spark_market_sdk::{AssetType as ContractAssetType, MarketContract};
 
 #[derive(Args, Clone)]
 #[command(about = "Deposits an asset from the wallet to the market")]
@@ -11,9 +10,9 @@ pub(crate) struct DepositCommand {
     #[clap(long)]
     pub(crate) amount: u64,
 
-    /// The asset id for the asset of the market
+    /// The asset type of the market
     #[clap(long)]
-    pub(crate) asset: String,
+    pub(crate) asset_type: AssetType,
 
     /// The contract id of the market
     #[clap(long)]
@@ -30,11 +29,10 @@ impl DepositCommand {
         let wallet = setup(&self.rpc).await?;
         let contract_id = validate_contract_id(&self.contract_id)?;
 
-        if self.asset.len() as u64 != 66 {
-            anyhow::bail!("Invalid asset length");
-        }
-
-        let asset = AssetId::from_str(&self.asset).expect("Invalid asset");
+        let asset_type = match self.asset_type {
+            AssetType::Base => ContractAssetType::Base,
+            AssetType::Quote => ContractAssetType::Quote,
+        };
 
         // Initial balance prior to contract call - used to calculate contract interaction cost
         let balance = wallet.get_asset_balance(&AssetId::BASE).await?;
@@ -42,14 +40,27 @@ impl DepositCommand {
         // Connect to the deployed contract via the rpc
         let contract = MarketContract::new(contract_id, wallet.clone()).await;
 
+        let config = contract.config().await?.value;
+        let asset = if asset_type == ContractAssetType::Base {
+            config.1
+        } else {
+            config.3
+        };
+        let asset_balance = wallet.get_asset_balance(&asset).await?;
+
         let _ = contract.deposit(self.amount, asset).await?;
 
         // Balance post-call
         let new_balance = wallet.get_asset_balance(&AssetId::BASE).await?;
+        let new_asset_balance = wallet.get_asset_balance(&asset).await?;
 
         // TODO: replace println with tracing
         println!("\nContract call cost: {}", balance - new_balance);
-        println!("Deposited {} amount of asset {}", self.amount, self.asset);
+        println!(
+            "Deposited {} amount of asset {}",
+            self.amount,
+            asset_balance - new_asset_balance
+        );
 
         Ok(())
     }
