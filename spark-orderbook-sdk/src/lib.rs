@@ -3,7 +3,7 @@ use fuels::{
         abigen, AssetId, Contract, ContractId, LoadConfiguration, StorageConfiguration, TxPolicies,
         WalletUnlocked,
     },
-    programs::call_response::FuelCallResponse,
+    programs::responses::CallResponse,
     types::{Address, Bytes32},
 };
 use rand::Rng;
@@ -71,7 +71,7 @@ impl OrderbookContract {
         &self,
         asset: AssetId,
         market: ContractId,
-    ) -> anyhow::Result<FuelCallResponse<()>> {
+    ) -> anyhow::Result<CallResponse<()>> {
         let tx_policies = TxPolicies::default().with_script_gas_limit(1_000_000);
         Ok(self
             .instance
@@ -82,7 +82,7 @@ impl OrderbookContract {
             .await?)
     }
 
-    pub async fn unregister_market(&self, asset: AssetId) -> anyhow::Result<FuelCallResponse<()>> {
+    pub async fn unregister_market(&self, asset: AssetId) -> anyhow::Result<CallResponse<()>> {
         let tx_policies = TxPolicies::default().with_script_gas_limit(1_000_000);
         Ok(self
             .instance
@@ -93,7 +93,7 @@ impl OrderbookContract {
             .await?)
     }
 
-    pub async fn config(&self) -> anyhow::Result<FuelCallResponse<Address>> {
+    pub async fn config(&self) -> anyhow::Result<CallResponse<Address>> {
         let tx_policies = TxPolicies::default().with_script_gas_limit(1_000_000);
         Ok(self
             .instance
@@ -107,7 +107,7 @@ impl OrderbookContract {
     pub async fn registered_markets(
         &self,
         asset: Vec<AssetId>,
-    ) -> anyhow::Result<FuelCallResponse<Vec<(AssetId, Option<ContractId>)>>> {
+    ) -> anyhow::Result<CallResponse<Vec<(AssetId, Option<ContractId>)>>> {
         let tx_policies = TxPolicies::default().with_script_gas_limit(1_000_000);
         Ok(self
             .instance

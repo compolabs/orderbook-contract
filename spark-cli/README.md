@@ -1,5 +1,5 @@
 Note: Work in progress, incomplete, use as guide only, only tested in testnet
-Note: Fuels SDK version 0.56.0 does not currently work with testnet so the repo is using 0.64.0
+Note: Fuels SDK version 0.56.0 does not currently work with testnet so the repo is using 0.65.0
 
 Inside the spark project (CLI) run the following commands
 
@@ -7,11 +7,11 @@ Inside the spark project (CLI) run the following commands
 
 These contract calls change the state of the market contract so they require the wallet to have enough funds to make a call
 
-Run from `spark-cli` folder
+Run from project root folder
 
 ## Deploy
 
-../target/release/spark-cli core deploy \
+./target/release/spark-cli core deploy \
     --base-asset 0xccceae45a7c23dcd4024f4083e959a0686a191694e76fa4fb76c449361ca01f7 \
     --base-decimals 8 \
     --quote-asset 0xfed3ee85624c79cb18a3a848092239f2e764ed6b0aa156ad10a18bfdbe74269f \
@@ -27,13 +27,13 @@ Owner address: fuel173lqaa6y4jxfjd2suq730uwys3zfg4f6zt9vzx4cc45v3xvlmwlszdvdpz
 
 ## Deposit
 
-../target/release/spark-cli core deposit \
+./target/release/spark-cli core deposit \
     --asset 0xccceae45a7c23dcd4024f4083e959a0686a191694e76fa4fb76c449361ca01f7 \
     --amount 1 \
     --rpc "testnet.fuel.network" \
     --contract-id 0x0ee9e8ec6ec2f1707ebbfc9f471f6f0991bf392c682321f74864eb612848bcbe
 
-../target/release/spark-cli core deposit \
+./target/release/spark-cli core deposit \
     --asset 0xfed3ee85624c79cb18a3a848092239f2e764ed6b0aa156ad10a18bfdbe74269f \
     --amount 700 \
     --rpc "testnet.fuel.network" \
@@ -41,7 +41,7 @@ Owner address: fuel173lqaa6y4jxfjd2suq730uwys3zfg4f6zt9vzx4cc45v3xvlmwlszdvdpz
 
 ## Withdraw
 
-../target/release/spark-cli core withdraw \
+./target/release/spark-cli core withdraw \
     --asset-type base \
     --amount 100 \
     --rpc "testnet.fuel.network" \
@@ -49,7 +49,7 @@ Owner address: fuel173lqaa6y4jxfjd2suq730uwys3zfg4f6zt9vzx4cc45v3xvlmwlszdvdpz
 
 ## Open Order
 
-../target/release/spark-cli core open \
+./target/release/spark-cli core open \
     --asset-type base \
     --amount 1 \
     --order-type buy \
@@ -57,7 +57,7 @@ Owner address: fuel173lqaa6y4jxfjd2suq730uwys3zfg4f6zt9vzx4cc45v3xvlmwlszdvdpz
     --rpc "testnet.fuel.network" \
     --contract-id 0x0ee9e8ec6ec2f1707ebbfc9f471f6f0991bf392c682321f74864eb612848bcbe
 
-../target/release/spark-cli core open \
+./target/release/spark-cli core open \
     --asset-type base \
     --amount 1 \
     --order-type sell \
@@ -67,14 +67,14 @@ Owner address: fuel173lqaa6y4jxfjd2suq730uwys3zfg4f6zt9vzx4cc45v3xvlmwlszdvdpz
 
 ## Cancel Order
 
-../target/release/spark-cli core cancel \
+./target/release/spark-cli core cancel \
     --order-id 3c9cd1539a2e1ee85f10c0faff25cab648af51a779d1236cbb8ee2d2ec27cd1f \
     --rpc "testnet.fuel.network" \
     --contract-id 0x0ee9e8ec6ec2f1707ebbfc9f471f6f0991bf392c682321f74864eb612848bcbe
 
 ## Match Order Pair
 
-../target/release/spark-cli core match-pair \
+./target/release/spark-cli core match-pair \
     --orders 91b3e452dc537663d2970017831b7aeea5a77e7c308a6a2c4ab0951c47a11009 \
     --orders 485adfbcdb980899bf460be61c21772e1771c20f310b45210dcd69ddddd26d16 \
     --rpc "testnet.fuel.network" \
@@ -82,7 +82,7 @@ Owner address: fuel173lqaa6y4jxfjd2suq730uwys3zfg4f6zt9vzx4cc45v3xvlmwlszdvdpz
 
 ## Match Order Many
 
-../target/release/spark-cli core match-many \
+./target/release/spark-cli core match-many \
     --orders 0c7f88c342c5b8d566374697764d560a199671bd4686a8596e0c3d0dcc373269 \
     --orders 1ddfc2ec92601ce1002e64b0109dd92b82815cd792ee232671d6277b364e8f52 \
     --rpc "testnet.fuel.network" \
@@ -90,7 +90,7 @@ Owner address: fuel173lqaa6y4jxfjd2suq730uwys3zfg4f6zt9vzx4cc45v3xvlmwlszdvdpz
 
 ## Fulfill Order Many
 
-../target/release/spark-cli core fulfill-many \
+./target/release/spark-cli core fulfill-many \
     --asset-type base \
     --amount 1 \
     --order-type sell \
@@ -105,7 +105,7 @@ Owner address: fuel173lqaa6y4jxfjd2suq730uwys3zfg4f6zt9vzx4cc45v3xvlmwlszdvdpz
 
 Sets a fee for a user
 
-../target/release/spark-cli core set-fee \
+./target/release/spark-cli core set-fee \
     --amount 2 \
     --account-type address \
     --account-id 0x4ea14e5787d00813f944c744a52cb40d4b5293315b448a76d16110b8b9da0cba \
@@ -114,7 +114,7 @@ Sets a fee for a user
 
 Set fee for entire market
 
-../target/release/spark-cli core set-fee \
+./target/release/spark-cli core set-fee \
     --amount 2 \
     --rpc "testnet.fuel.network" \
     --contract-id 0x0ee9e8ec6ec2f1707ebbfc9f471f6f0991bf392c682321f74864eb612848bcbe
@@ -123,7 +123,7 @@ Set fee for entire market
 
 Sets a matcher fee for the market
 
-../target/release/spark-cli core set-matcher-fee \
+./target/release/spark-cli core set-matcher-fee \
     --amount 1000 \
     --rpc "testnet.fuel.network" \
     --contract-id 0x0ee9e8ec6ec2f1707ebbfc9f471f6f0991bf392c682321f74864eb612848bcbe
@@ -134,7 +134,7 @@ These functions return the state of the contract. They simulate calls and theref
 
 ## Account
 
-../target/release/spark-cli info account \
+./target/release/spark-cli info account \
     --account-type address \
     --account-id 0xf47e0ef744ac8c993550e03d17f1c4844494553a12cac11ab8c568c8999fdbbf \
     --rpc "testnet.fuel.network" \
@@ -142,7 +142,7 @@ These functions return the state of the contract. They simulate calls and theref
 
 ## Config
 
-../target/release/spark-cli info config \
+./target/release/spark-cli info config \
     --rpc "testnet.fuel.network" \
     --contract-id 0x0ee9e8ec6ec2f1707ebbfc9f471f6f0991bf392c682321f74864eb612848bcbe
 
@@ -150,7 +150,7 @@ These functions return the state of the contract. They simulate calls and theref
 
 Fee for a specific user
 
-../target/release/spark-cli info fee \
+./target/release/spark-cli info fee \
     --account-type address \
     --account-id 0x4ea14e5787d00813f944c744a52cb40d4b5293315b448a76d16110b8b9da0cba \
     --rpc "testnet.fuel.network" \
@@ -158,7 +158,7 @@ Fee for a specific user
 
 Fee for entire market contract
 
-../target/release/spark-cli info fee \
+./target/release/spark-cli info fee \
     --rpc "testnet.fuel.network" \
     --contract-id 0x0ee9e8ec6ec2f1707ebbfc9f471f6f0991bf392c682321f74864eb612848bcbe
 
@@ -166,13 +166,13 @@ Fee for entire market contract
 
 Matcher Fee for the market
 
-../target/release/spark-cli info matcher-fee \
+./target/release/spark-cli info matcher-fee \
     --rpc "testnet.fuel.network" \
     --contract-id 0x0ee9e8ec6ec2f1707ebbfc9f471f6f0991bf392c682321f74864eb612848bcbe
 
 ## Order ID
 
-../target/release/spark-cli info order-id \
+./target/release/spark-cli info order-id \
     --asset-type  base \
     --order-type sell \
     --owner 0xf47e0ef744ac8c993550e03d17f1c4844494553a12cac11ab8c568c8999fdbbf \
@@ -184,14 +184,14 @@ Matcher Fee for the market
 
 ## Order
 
-../target/release/spark-cli info order \
+./target/release/spark-cli info order \
     --order-id 3c9cd1539a2e1ee85f10c0faff25cab648af51a779d1236cbb8ee2d2ec27cd1f \
     --rpc "testnet.fuel.network" \
     --contract-id 0x0ee9e8ec6ec2f1707ebbfc9f471f6f0991bf392c682321f74864eb612848bcbe
 
 ## User Orders
 
-../target/release/spark-cli info user-orders \
+./target/release/spark-cli info user-orders \
     --account-type address \
     --account-id 0xf47e0ef744ac8c993550e03d17f1c4844494553a12cac11ab8c568c8999fdbbf \
     --rpc "testnet.fuel.network" \
@@ -199,7 +199,7 @@ Matcher Fee for the market
 
 ## Deploy Orderbook
 
-../target/release/spark-cli book deploy \
+./target/release/spark-cli book deploy \
     --rpc "testnet.fuel.network" 
 
 Output:
@@ -210,7 +210,7 @@ Owner address: fuel173lqaa6y4jxfjd2suq730uwys3zfg4f6zt9vzx4cc45v3xvlmwlszdvdpz
 
 ## Register a market
 
-../target/release/spark-cli book register \
+./target/release/spark-cli book register \
     --asset 0xf88a9eea6c45e2a77cf2f684fbb7d175cbf8cf58c079d07f9d24f51329de4418 \
     --market 0x0ee9e8ec6ec2f1707ebbfc9f471f6f0991bf392c682321f74864eb612848bcbe \
     --rpc "testnet.fuel.network" \
@@ -218,14 +218,14 @@ Owner address: fuel173lqaa6y4jxfjd2suq730uwys3zfg4f6zt9vzx4cc45v3xvlmwlszdvdpz
 
 ## Unregister a market
 
-../target/release/spark-cli book unregister \
+./target/release/spark-cli book unregister \
     --asset 0xccceae45a7c23dcd4024f4083e959a0686a191694e76fa4fb76c449361ca01f7 \
     --rpc "testnet.fuel.network" \
     --contract-id 0xf88a9eea6c45e2a77cf2f684fbb7d175cbf8cf58c079d07f9d24f51329de4418
 
 ## Get registered markets by assets
 
-../target/release/spark-cli book markets \
+./target/release/spark-cli book markets \
     --assets 0xccceae45a7c23dcd4024f4083e959a0686a191694e76fa4fb76c449361ca01f7 \
     --assets 0xf88a9eea6c45e2a77cf2f684fbb7d175cbf8cf58c079d07f9d24f51329de4418 \
     --rpc "testnet.fuel.network" \
@@ -233,7 +233,7 @@ Owner address: fuel173lqaa6y4jxfjd2suq730uwys3zfg4f6zt9vzx4cc45v3xvlmwlszdvdpz
 
 ## Config
 
-../target/release/spark-cli book config \
+./target/release/spark-cli book config \
     --rpc "testnet.fuel.network" \
     --contract-id 0xf88a9eea6c45e2a77cf2f684fbb7d175cbf8cf58c079d07f9d24f51329de4418
 
