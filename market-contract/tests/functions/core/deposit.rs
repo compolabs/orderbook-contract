@@ -22,7 +22,11 @@ mod success {
         // Precondition enforces empty account
         assert!(contract.account(owner.identity()).await?.value.is_none());
 
+        let user_balance = owner.balance(&assets.base.id).await;
         let response = contract.deposit(deposit_amount, assets.base.id).await?;
+        let new_balance = owner.balance(&assets.base.id).await;
+        assert_eq!(new_balance, user_balance - deposit_amount);
+
         let log = response.decode_logs_with_type::<DepositEvent>().unwrap();
         let event = log.first().unwrap();
         assert_eq!(
@@ -57,7 +61,11 @@ mod success {
         // Precondition enforces empty account
         assert!(contract.account(owner.identity()).await?.value.is_none());
 
+        let user_balance = owner.balance(&assets.quote.id).await;
         let response = contract.deposit(deposit_amount, assets.quote.id).await?;
+        let new_balance = owner.balance(&assets.quote.id).await;
+        assert_eq!(new_balance, user_balance - deposit_amount);
+
         let log = response.decode_logs_with_type::<DepositEvent>().unwrap();
         let event = log.first().unwrap();
         assert_eq!(
