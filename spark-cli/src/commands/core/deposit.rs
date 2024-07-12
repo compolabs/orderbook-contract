@@ -1,6 +1,6 @@
 use crate::utils::{setup, validate_contract_id, AssetType};
 use clap::Args;
-use fuels::{accounts::ViewOnlyAccount, types::AssetId};
+use fuels::accounts::ViewOnlyAccount;
 use spark_market_sdk::{AssetType as ContractAssetType, MarketContract};
 
 #[derive(Args, Clone)]
@@ -35,7 +35,9 @@ impl DepositCommand {
         };
 
         // Initial balance prior to contract call - used to calculate contract interaction cost
-        let balance = wallet.get_asset_balance(&AssetId::BASE).await?;
+        let balance = wallet
+            .get_asset_balance(&wallet.provider().unwrap().base_asset_id())
+            .await?;
 
         // Connect to the deployed contract via the rpc
         let contract = MarketContract::new(contract_id, wallet.clone()).await;
@@ -51,7 +53,9 @@ impl DepositCommand {
         let _ = contract.deposit(self.amount, asset).await?;
 
         // Balance post-call
-        let new_balance = wallet.get_asset_balance(&AssetId::BASE).await?;
+        let new_balance = wallet
+            .get_asset_balance(&wallet.provider().unwrap().base_asset_id())
+            .await?;
         let new_asset_balance = wallet.get_asset_balance(&asset).await?;
 
         // TODO: replace println with tracing

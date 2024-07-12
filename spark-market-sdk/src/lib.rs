@@ -88,9 +88,7 @@ impl MarketContract {
 
     pub async fn deposit(&self, amount: u64, asset: AssetId) -> anyhow::Result<CallResponse<()>> {
         let call_params = CallParameters::new(amount, asset, 1_000_000);
-        let tx_policies = TxPolicies::default()
-            .with_script_gas_limit(1_000_000)
-            .with_tip(1);
+        let tx_policies = TxPolicies::default().with_max_fee(29000);
 
         Ok(self
             .instance
