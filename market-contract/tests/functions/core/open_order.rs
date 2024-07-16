@@ -334,6 +334,216 @@ mod success {
 
         Ok(())
     }
+
+    #[tokio::test]
+    async fn sell_base_with_matcher_fee() -> anyhow::Result<()> {
+        let defaults = Defaults::default();
+        let (contract, owner, _user, assets) = setup(
+            defaults.base_decimals,
+            defaults.quote_decimals,
+            defaults.price_decimals,
+        )
+        .await?;
+
+        let matcher_fee = 100_000_u32;
+        let _ = contract.set_matcher_fee(matcher_fee).await?;
+
+        let deposit_amount = 5;
+        let expected_account = create_account(deposit_amount, 0, 0, 0);
+
+        let order_amount = 2;
+        let asset = assets.base.id;
+        let order_type = OrderType::Sell;
+        let price = 70_000_000_000_000_u64;
+
+        let _ = contract.deposit(deposit_amount, asset).await?;
+
+        let user_account = contract.account(owner.identity()).await?.value.unwrap();
+        let orders = contract.user_orders(owner.identity()).await?.value;
+        assert_eq!(user_account, expected_account);
+        assert_eq!(orders, vec![]);
+
+        let balance = owner
+            .wallet
+            .get_asset_balance(&owner.wallet.provider().unwrap().base_asset_id())
+            .await?;
+        let response = contract
+            .open_order(order_amount, AssetType::Base, order_type.clone(), price)
+            .await?;
+        let new_balance = owner
+            .wallet
+            .get_asset_balance(&owner.wallet.provider().unwrap().base_asset_id())
+            .await?;
+        assert_eq!(balance - new_balance, matcher_fee as u64);
+
+        let id = response.value;
+        let expected_id = contract
+            .order_id(
+                AssetType::Base,
+                order_type.clone(),
+                owner.identity(),
+                price,
+                owner.wallet.try_provider()?.latest_block_height().await?,
+            )
+            .await?
+            .value;
+
+        let user_account = contract.account(owner.identity()).await?.value.unwrap();
+        let expected_account = create_account(deposit_amount - order_amount, 0, order_amount, 0);
+        let mut orders = contract.user_orders(owner.identity()).await?.value;
+        let order = contract.order(expected_id).await?.value.unwrap();
+        let block_height = owner.wallet.try_provider()?.latest_block_height().await?;
+        let stored_id = contract
+            .order_id(
+                order.asset_type.clone(),
+                order.order_type,
+                order.owner,
+                order.price,
+                block_height,
+            )
+            .await?
+            .value;
+
+        let log = response.decode_logs_with_type::<OpenOrderEvent>().unwrap();
+        let event = log.first().unwrap();
+        assert_eq!(
+            *event,
+            OpenOrderEvent {
+                amount: order_amount,
+                asset,
+                asset_type: order.asset_type.clone(),
+                order_type,
+                order_id: expected_id,
+                price,
+                user: owner.identity(),
+            }
+        );
+
+        assert_eq!(user_account, expected_account);
+        assert_eq!(orders.len(), 1);
+        assert_eq!(orders.pop().unwrap(), id);
+        assert_eq!(id, expected_id);
+        assert_eq!(stored_id, expected_id);
+
+        let info = contract.order_change_info(stored_id).await?.value;
+        assert_eq!(info.len(), 1);
+
+        assert_eq!(info[0].change_type, OrderChangeType::OrderOpened);
+        assert_eq!(info[0].block_height, block_height);
+        assert_eq!(info[0].sender, owner.identity());
+        assert_eq!(info[0].amount_before, 0);
+        assert_eq!(info[0].amount_after, order_amount);
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn sell_base_with_matcher_fee_refund() -> anyhow::Result<()> {
+        let defaults = Defaults::default();
+        let (contract, owner, _user, assets) = setup(
+            defaults.base_decimals,
+            defaults.quote_decimals,
+            defaults.price_decimals,
+        )
+        .await?;
+
+        let matcher_fee = 100_000_u32;
+        let _ = contract.set_matcher_fee(matcher_fee).await?;
+
+        let deposit_amount = 5;
+        let expected_account = create_account(deposit_amount, 0, 0, 0);
+
+        let order_amount = 2;
+        let asset = assets.base.id;
+        let order_type = OrderType::Sell;
+        let price = 70_000_000_000_000_u64;
+
+        let _ = contract.deposit(deposit_amount, asset).await?;
+
+        let user_account = contract.account(owner.identity()).await?.value.unwrap();
+        let orders = contract.user_orders(owner.identity()).await?.value;
+        assert_eq!(user_account, expected_account);
+        assert_eq!(orders, vec![]);
+
+        let balance = owner
+            .wallet
+            .get_asset_balance(&owner.wallet.provider().unwrap().base_asset_id())
+            .await?;
+        let response = contract
+            .open_order_with_matcher_fee(
+                order_amount,
+                AssetType::Base,
+                order_type.clone(),
+                price,
+                matcher_fee + 1,
+            )
+            .await?;
+        let new_balance = owner
+            .wallet
+            .get_asset_balance(&owner.wallet.provider().unwrap().base_asset_id())
+            .await?;
+        assert_eq!(balance - new_balance, matcher_fee as u64);
+
+        let id = response.value;
+        let expected_id = contract
+            .order_id(
+                AssetType::Base,
+                order_type.clone(),
+                owner.identity(),
+                price,
+                owner.wallet.try_provider()?.latest_block_height().await?,
+            )
+            .await?
+            .value;
+
+        let user_account = contract.account(owner.identity()).await?.value.unwrap();
+        let expected_account = create_account(deposit_amount - order_amount, 0, order_amount, 0);
+        let mut orders = contract.user_orders(owner.identity()).await?.value;
+        let order = contract.order(expected_id).await?.value.unwrap();
+        let block_height = owner.wallet.try_provider()?.latest_block_height().await?;
+        let stored_id = contract
+            .order_id(
+                order.asset_type.clone(),
+                order.order_type,
+                order.owner,
+                order.price,
+                block_height,
+            )
+            .await?
+            .value;
+
+        let log = response.decode_logs_with_type::<OpenOrderEvent>().unwrap();
+        let event = log.first().unwrap();
+        assert_eq!(
+            *event,
+            OpenOrderEvent {
+                amount: order_amount,
+                asset,
+                asset_type: order.asset_type.clone(),
+                order_type,
+                order_id: expected_id,
+                price,
+                user: owner.identity(),
+            }
+        );
+
+        assert_eq!(user_account, expected_account);
+        assert_eq!(orders.len(), 1);
+        assert_eq!(orders.pop().unwrap(), id);
+        assert_eq!(id, expected_id);
+        assert_eq!(stored_id, expected_id);
+
+        let info = contract.order_change_info(stored_id).await?.value;
+        assert_eq!(info.len(), 1);
+
+        assert_eq!(info[0].change_type, OrderChangeType::OrderOpened);
+        assert_eq!(info[0].block_height, block_height);
+        assert_eq!(info[0].sender, owner.identity());
+        assert_eq!(info[0].amount_before, 0);
+        assert_eq!(info[0].amount_after, order_amount);
+
+        Ok(())
+    }
 }
 
 mod revert {
@@ -506,6 +716,45 @@ mod revert {
         // Revert
         contract
             .open_order(order_amount, AssetType::Base, order_type, price)
+            .await
+            .unwrap();
+    }
+
+    #[tokio::test]
+    #[should_panic(expected = "InvalidFeeAmount")]
+    async fn when_insufficient_matcher_fee() {
+        let defaults = Defaults::default();
+        let (contract, _owner, _user, assets) = setup(
+            defaults.base_decimals,
+            defaults.quote_decimals,
+            defaults.price_decimals,
+        )
+        .await
+        .unwrap();
+
+        let matcher_fee = 100_000_u32;
+        let _ = contract.set_matcher_fee(matcher_fee).await.unwrap();
+
+        let deposit_amount = 10;
+        let order_amount = 100;
+        let deposit_asset = assets.quote.id;
+        let order_type = OrderType::Sell;
+        let price = 70_000_000_000_000_u64;
+
+        let _ = contract
+            .deposit(deposit_amount, deposit_asset)
+            .await
+            .unwrap();
+
+        // Revert
+        contract
+            .open_order_with_matcher_fee(
+                order_amount,
+                AssetType::Base,
+                order_type,
+                price,
+                matcher_fee - 1,
+            )
             .await
             .unwrap();
     }

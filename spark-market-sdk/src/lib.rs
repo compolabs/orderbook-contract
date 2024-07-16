@@ -130,6 +130,25 @@ impl MarketContract {
             .await?)
     }
 
+    pub async fn open_order_with_matcher_fee(
+        &self,
+        amount: u64,
+        asset_type: AssetType,
+        order_type: OrderType,
+        price: u64,
+        matcher_fee: u32,
+    ) -> anyhow::Result<CallResponse<Bits256>> {
+        let call_params = CallParameters::default().with_amount(matcher_fee.into());
+        Ok(self
+            .instance
+            .methods()
+            .open_order(amount, asset_type, order_type, price)
+            .with_variable_output_policy(VariableOutputPolicy::Exactly(1))
+            .call_params(call_params)?
+            .call()
+            .await?)
+    }
+
     pub async fn cancel_order(&self, order_id: Bits256) -> anyhow::Result<CallResponse<()>> {
         Ok(self
             .instance
@@ -177,6 +196,7 @@ impl MarketContract {
             .instance
             .methods()
             .fulfill_order_many(amount, asset_type, order_type, price, slippage, orders)
+            .with_variable_output_policy(VariableOutputPolicy::Exactly(1))
             .call()
             .await?)
     }

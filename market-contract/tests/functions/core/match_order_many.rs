@@ -1,4 +1,5 @@
 use crate::setup::{create_account, setup, Defaults};
+use fuels::accounts::ViewOnlyAccount;
 use spark_market_sdk::{AssetType, OrderType};
 
 mod success {
@@ -288,6 +289,124 @@ mod success {
 
         let orders = contract.user_orders(user0.identity()).await?.value;
         assert_eq!(orders.len(), 4);
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn match_order_many_same_asset_type_same_user_equal_orders_with_matcher_fee(
+    ) -> anyhow::Result<()> {
+        let defaults = Defaults::default();
+        let (contract, user0, user1, assets) = setup(
+            defaults.base_decimals,
+            defaults.quote_decimals,
+            defaults.price_decimals,
+        )
+        .await?;
+
+        let matcher_fee = 100_000_u32;
+        let _ = contract.set_matcher_fee(matcher_fee).await?;
+
+        let to_quote_scale =
+            10_u64.pow(defaults.price_decimals + defaults.base_decimals - defaults.quote_decimals);
+
+        let base_amount = 1_000_u64; // 0.00001 BTC
+        let price1 = 70_000_000_000_000_u64; // 70,000$ price
+        let price2 = 75_000_000_000_000_u64; // 70,000$ price
+
+        let order_configs: Vec<OrderConfig> = vec![
+            OrderConfig {
+                amount: base_amount,
+                asset_type: AssetType::Base,
+                order_type: OrderType::Buy,
+                price: price1,
+            },
+            OrderConfig {
+                amount: base_amount,
+                asset_type: AssetType::Base,
+                order_type: OrderType::Buy,
+                price: price2,
+            },
+            OrderConfig {
+                amount: base_amount,
+                asset_type: AssetType::Base,
+                order_type: OrderType::Sell,
+                price: price2,
+            },
+            OrderConfig {
+                amount: base_amount,
+                asset_type: AssetType::Base,
+                order_type: OrderType::Sell,
+                price: price1,
+            },
+        ];
+
+        let base_deposit = base_amount * 2;
+        let quote_deposit =
+            price1 / to_quote_scale * base_amount + price2 / to_quote_scale * base_amount;
+
+        contract
+            .with_account(&user0.wallet)
+            .await?
+            .deposit(base_deposit, assets.base.id)
+            .await?;
+        contract
+            .with_account(&user0.wallet)
+            .await?
+            .deposit(quote_deposit, assets.quote.id)
+            .await?;
+
+        let mut order_ids: Vec<Bits256> = Vec::new();
+        for config in order_configs {
+            order_ids.push(
+                contract
+                    .with_account(&user0.wallet)
+                    .await?
+                    .open_order(
+                        config.amount,
+                        config.asset_type,
+                        config.order_type,
+                        config.price,
+                    )
+                    .await?
+                    .value,
+            );
+        }
+
+        let expected_account0 = create_account(0, 0, base_deposit, quote_deposit);
+
+        assert_eq!(
+            contract.account(user0.identity()).await?.value.unwrap(),
+            expected_account0
+        );
+
+        let balance = user1
+            .wallet
+            .get_asset_balance(&user1.wallet.provider().unwrap().base_asset_id())
+            .await?;
+
+        contract
+            .with_account(&user1.wallet)
+            .await?
+            .match_order_many(order_ids.clone())
+            .await?;
+
+        let new_balance = user1
+            .wallet
+            .get_asset_balance(&user1.wallet.provider().unwrap().base_asset_id())
+            .await?;
+
+        assert_eq!(
+            new_balance - balance,
+            (matcher_fee * order_ids.len() as u32) as u64
+        );
+
+        let expected_account0 = create_account(base_deposit, quote_deposit, 0, 0);
+
+        assert_eq!(
+            contract.account(user0.identity()).await?.value.unwrap(),
+            expected_account0
+        );
 
         Ok(())
     }
