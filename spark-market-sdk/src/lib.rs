@@ -88,13 +88,11 @@ impl MarketContract {
 
     pub async fn deposit(&self, amount: u64, asset: AssetId) -> anyhow::Result<CallResponse<()>> {
         let call_params = CallParameters::new(amount, asset, 1_000_000);
-        let tx_policies = TxPolicies::default().with_max_fee(29000);
 
         Ok(self
             .instance
             .methods()
             .deposit()
-            .with_tx_policies(tx_policies)
             .call_params(call_params)?
             .call()
             .await?)
@@ -105,14 +103,10 @@ impl MarketContract {
         amount: u64,
         asset_type: AssetType,
     ) -> anyhow::Result<CallResponse<()>> {
-        let tx_policies = TxPolicies::default()
-            .with_script_gas_limit(1_000_000)
-            .with_tip(1);
         Ok(self
             .instance
             .methods()
             .withdraw(amount, asset_type)
-            .with_tx_policies(tx_policies)
             .with_variable_output_policy(VariableOutputPolicy::Exactly(1))
             .call()
             .await?)
@@ -127,28 +121,20 @@ impl MarketContract {
     ) -> anyhow::Result<CallResponse<Bits256>> {
         let matcher_fee = self.matcher_fee().await?.value;
         let call_params = CallParameters::default().with_amount(matcher_fee.into());
-        let tx_policies = TxPolicies::default()
-            .with_script_gas_limit(1_000_000)
-            .with_tip(1);
         Ok(self
             .instance
             .methods()
             .open_order(amount, asset_type, order_type, price)
-            .with_tx_policies(tx_policies)
             .call_params(call_params)?
             .call()
             .await?)
     }
 
     pub async fn cancel_order(&self, order_id: Bits256) -> anyhow::Result<CallResponse<()>> {
-        let tx_policies = TxPolicies::default()
-            .with_script_gas_limit(1_000_000)
-            .with_tip(1);
         Ok(self
             .instance
             .methods()
             .cancel_order(order_id)
-            .with_tx_policies(tx_policies)
             .with_variable_output_policy(VariableOutputPolicy::Exactly(1))
             .call()
             .await?)
@@ -159,28 +145,20 @@ impl MarketContract {
         order_id0: Bits256,
         order_id1: Bits256,
     ) -> anyhow::Result<CallResponse<()>> {
-        let tx_policies = TxPolicies::default()
-            .with_script_gas_limit(1_000_000)
-            .with_tip(1);
         Ok(self
             .instance
             .methods()
             .match_order_pair(order_id0, order_id1)
-            .with_tx_policies(tx_policies)
             .with_variable_output_policy(VariableOutputPolicy::Exactly(1))
             .call()
             .await?)
     }
 
     pub async fn match_order_many(&self, orders: Vec<Bits256>) -> anyhow::Result<CallResponse<()>> {
-        let tx_policies = TxPolicies::default()
-            .with_script_gas_limit(1_000_000)
-            .with_tip(1);
         Ok(self
             .instance
             .methods()
             .match_order_many(orders)
-            .with_tx_policies(tx_policies)
             .with_variable_output_policy(VariableOutputPolicy::Exactly(1))
             .call()
             .await?)
@@ -195,14 +173,10 @@ impl MarketContract {
         slippage: u64,
         orders: Vec<Bits256>,
     ) -> anyhow::Result<CallResponse<Bits256>> {
-        let tx_policies = TxPolicies::default()
-            .with_script_gas_limit(1_000_000)
-            .with_tip(1);
         Ok(self
             .instance
             .methods()
             .fulfill_order_many(amount, asset_type, order_type, price, slippage, orders)
-            .with_tx_policies(tx_policies)
             .call()
             .await?)
     }
@@ -212,108 +186,46 @@ impl MarketContract {
         amount: u64,
         user: Option<Identity>,
     ) -> anyhow::Result<CallResponse<()>> {
-        let tx_policies = TxPolicies::default()
-            .with_script_gas_limit(1_000_000)
-            .with_tip(1);
-        Ok(self
-            .instance
-            .methods()
-            .set_fee(amount, user)
-            .with_tx_policies(tx_policies)
-            .call()
-            .await?)
+        Ok(self.instance.methods().set_fee(amount, user).call().await?)
     }
 
     pub async fn set_matcher_fee(&self, amount: u32) -> anyhow::Result<CallResponse<()>> {
-        let tx_policies = TxPolicies::default()
-            .with_script_gas_limit(1_000_000)
-            .with_tip(1);
         Ok(self
             .instance
             .methods()
             .set_matcher_fee(amount)
-            .with_tx_policies(tx_policies)
             .call()
             .await?)
     }
 
     pub async fn account(&self, user: Identity) -> anyhow::Result<CallResponse<Option<Account>>> {
-        let tx_policies = TxPolicies::default()
-            .with_script_gas_limit(1_000_000)
-            .with_tip(1);
-        Ok(self
-            .instance
-            .methods()
-            .account(user)
-            .with_tx_policies(tx_policies)
-            .simulate()
-            .await?)
+        Ok(self.instance.methods().account(user).simulate().await?)
     }
 
     pub async fn fee(&self, user: Option<Identity>) -> anyhow::Result<CallResponse<u64>> {
-        let tx_policies = TxPolicies::default()
-            .with_script_gas_limit(1_000_000)
-            .with_tip(1);
-        Ok(self
-            .instance
-            .methods()
-            .fee(user)
-            .with_tx_policies(tx_policies)
-            .simulate()
-            .await?)
+        Ok(self.instance.methods().fee(user).simulate().await?)
     }
 
     pub async fn matcher_fee(&self) -> anyhow::Result<CallResponse<u32>> {
-        let tx_policies = TxPolicies::default()
-            .with_script_gas_limit(1_000_000)
-            .with_tip(1);
-        Ok(self
-            .instance
-            .methods()
-            .matcher_fee()
-            .with_tx_policies(tx_policies)
-            .simulate()
-            .await?)
+        Ok(self.instance.methods().matcher_fee().simulate().await?)
     }
 
     pub async fn order(&self, order: Bits256) -> anyhow::Result<CallResponse<Option<Order>>> {
-        let tx_policies = TxPolicies::default()
-            .with_script_gas_limit(1_000_000)
-            .with_tip(1);
-        Ok(self
-            .instance
-            .methods()
-            .order(order)
-            .with_tx_policies(tx_policies)
-            .simulate()
-            .await?)
+        Ok(self.instance.methods().order(order).simulate().await?)
     }
 
     pub async fn user_orders(&self, user: Identity) -> anyhow::Result<CallResponse<Vec<Bits256>>> {
-        let tx_policies = TxPolicies::default()
-            .with_script_gas_limit(1_000_000)
-            .with_tip(1);
-        Ok(self
-            .instance
-            .methods()
-            .user_orders(user)
-            .with_tx_policies(tx_policies)
-            .simulate()
-            .await?)
+        Ok(self.instance.methods().user_orders(user).simulate().await?)
     }
 
     pub async fn order_change_info(
         &self,
         order_id: Bits256,
     ) -> anyhow::Result<CallResponse<Vec<OrderChangeInfo>>> {
-        let tx_policies = TxPolicies::default()
-            .with_script_gas_limit(1_000_000)
-            .with_tip(1);
         Ok(self
             .instance
             .methods()
             .order_change_info(order_id)
-            .with_tx_policies(tx_policies)
             .simulate()
             .await?)
     }
@@ -321,16 +233,7 @@ impl MarketContract {
     pub async fn config(
         &self,
     ) -> anyhow::Result<CallResponse<(Address, AssetId, u32, AssetId, u32, u32)>> {
-        let tx_policies = TxPolicies::default()
-            .with_script_gas_limit(1_000_000)
-            .with_tip(1);
-        Ok(self
-            .instance
-            .methods()
-            .config()
-            .with_tx_policies(tx_policies)
-            .simulate()
-            .await?)
+        Ok(self.instance.methods().config().simulate().await?)
     }
 
     pub async fn order_id(
@@ -341,14 +244,10 @@ impl MarketContract {
         price: u64,
         block_height: u32,
     ) -> anyhow::Result<CallResponse<Bits256>> {
-        let tx_policies = TxPolicies::default()
-            .with_script_gas_limit(1_000_000)
-            .with_tip(1);
         Ok(self
             .instance
             .methods()
             .order_id(asset_type, order_type, owner, price, block_height)
-            .with_tx_policies(tx_policies)
             .simulate()
             .await?)
     }
