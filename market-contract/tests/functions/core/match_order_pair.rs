@@ -601,6 +601,93 @@ mod success_same_asset_type {
 
         Ok(())
     }
+
+    #[tokio::test]
+    async fn match_same_base_asset_type_orders_same_price_with_matcher_fee() -> anyhow::Result<()> {
+        let defaults = Defaults::default();
+        let (contract, user0, user1, assets) = setup(
+            defaults.base_decimals,
+            defaults.quote_decimals,
+            defaults.price_decimals,
+        )
+        .await?;
+
+        let matcher_fee = 100_000_u32;
+        let _ = contract.set_matcher_fee(matcher_fee).await?;
+
+        let to_quote_scale =
+            10_u64.pow(defaults.price_decimals + defaults.base_decimals - defaults.quote_decimals);
+        let price = 70_000_000_000_000_u64; // 70,000$ price
+        let base_amount = 100_000_u64; // 0.001 BTC
+        let quote_amount = price / to_quote_scale * base_amount;
+        contract
+            .with_account(&user0.wallet)
+            .await?
+            .deposit(base_amount, assets.base.id)
+            .await?;
+        contract
+            .with_account(&user1.wallet)
+            .await?
+            .deposit(quote_amount, assets.quote.id)
+            .await?;
+
+        let id0 = contract
+            .with_account(&user0.wallet)
+            .await?
+            .open_order(base_amount, AssetType::Base, OrderType::Sell, price)
+            .await?
+            .value;
+        let id1 = contract
+            .with_account(&user1.wallet)
+            .await?
+            .open_order(base_amount, AssetType::Base, OrderType::Buy, price)
+            .await?
+            .value;
+
+        let expected_account0 = create_account(0, 0, base_amount, 0);
+        let expected_account1 = create_account(0, 0, 0, quote_amount);
+
+        assert_eq!(
+            contract.account(user0.identity()).await?.value.unwrap(),
+            expected_account0
+        );
+        assert_eq!(
+            contract.account(user1.identity()).await?.value.unwrap(),
+            expected_account1
+        );
+
+        let expected_account0 = create_account(0, quote_amount, 0, 0);
+        let expected_account1 = create_account(base_amount, 0, 0, 0);
+
+        let balance = user1
+            .wallet
+            .get_asset_balance(&user1.wallet.provider().unwrap().base_asset_id())
+            .await?;
+
+        contract
+            .with_account(&user1.wallet)
+            .await?
+            .match_order_pair(id0, id1)
+            .await?;
+
+        let new_balance = user1
+            .wallet
+            .get_asset_balance(&user1.wallet.provider().unwrap().base_asset_id())
+            .await?;
+
+        assert_eq!(new_balance - balance, (matcher_fee * 2) as u64);
+
+        assert_eq!(
+            contract.account(user0.identity()).await?.value.unwrap(),
+            expected_account0
+        );
+        assert_eq!(
+            contract.account(user1.identity()).await?.value.unwrap(),
+            expected_account1
+        );
+
+        Ok(())
+    }
 }
 
 mod success_same_order_type {
