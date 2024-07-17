@@ -49,7 +49,9 @@ impl DeployCommand {
         let quote_asset = AssetId::from_str(&self.quote_asset).expect("Invalid quote asset");
 
         // Initial balance prior to contract call - used to calculate contract interaction cost
-        let balance = wallet.get_asset_balance(&AssetId::BASE).await?;
+        let balance = wallet
+            .get_asset_balance(&wallet.provider().unwrap().base_asset_id())
+            .await?;
 
         // Deploy the contract
         let contract = MarketContract::deploy(
@@ -63,7 +65,9 @@ impl DeployCommand {
         .await?;
 
         // Balance post-deployment
-        let new_balance = wallet.get_asset_balance(&AssetId::BASE).await?;
+        let new_balance = wallet
+            .get_asset_balance(&wallet.provider().unwrap().base_asset_id())
+            .await?;
 
         // TODO: replace println with tracing
         println!("\nMarket deployed to: 0x{}", contract.id());

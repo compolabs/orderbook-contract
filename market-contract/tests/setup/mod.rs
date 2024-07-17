@@ -80,11 +80,17 @@ pub(crate) async fn setup(
     let coins_per_wallet = 1;
     let amount_per_coin = 1_000_000_000_000;
 
-    let base_asset_id = AssetId::new([0; 32]);
-    let quote_asset_id = AssetId::new([1; 32]);
-    let random_asset_id = AssetId::new([2; 32]);
+    let fuel_asset_id = AssetId::new([0; 32]);
+    let base_asset_id = AssetId::new([1; 32]);
+    let quote_asset_id = AssetId::new([2; 32]);
+    let random_asset_id = AssetId::new([3; 32]);
 
-    let ids = vec![base_asset_id, quote_asset_id, random_asset_id];
+    let ids = vec![
+        fuel_asset_id,
+        base_asset_id,
+        quote_asset_id,
+        random_asset_id,
+    ];
     let mut assets: Vec<AssetConfig> = Vec::with_capacity(3);
 
     for id in ids {

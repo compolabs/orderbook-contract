@@ -1,6 +1,6 @@
 use crate::utils::{setup, validate_contract_id};
 use clap::Args;
-use fuels::{accounts::ViewOnlyAccount, types::AssetId};
+use fuels::accounts::ViewOnlyAccount;
 use spark_market_sdk::MarketContract;
 
 #[derive(Args, Clone)]
@@ -26,7 +26,9 @@ impl SetMatcherFeeCommand {
         let contract_id = validate_contract_id(&self.contract_id)?;
 
         // Initial balance prior to contract call - used to calculate contract interaction cost
-        let balance = wallet.get_asset_balance(&AssetId::BASE).await?;
+        let balance = wallet
+            .get_asset_balance(&wallet.provider().unwrap().base_asset_id())
+            .await?;
 
         // Connect to the deployed contract via the rpc
         let contract = MarketContract::new(contract_id, wallet.clone()).await;
@@ -34,7 +36,9 @@ impl SetMatcherFeeCommand {
         let _ = contract.set_matcher_fee(self.amount).await?;
 
         // Balance post-deployment
-        let new_balance = wallet.get_asset_balance(&AssetId::BASE).await?;
+        let new_balance = wallet
+            .get_asset_balance(&wallet.provider().unwrap().base_asset_id())
+            .await?;
 
         // TODO: replace println with tracing
         println!("\nThe matcher fee has been set to: {}", self.amount);

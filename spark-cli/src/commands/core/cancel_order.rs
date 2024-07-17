@@ -1,9 +1,6 @@
 use crate::utils::{setup, validate_contract_id};
 use clap::Args;
-use fuels::{
-    accounts::ViewOnlyAccount,
-    types::{AssetId, Bits256},
-};
+use fuels::{accounts::ViewOnlyAccount, types::Bits256};
 use spark_market_sdk::MarketContract;
 
 #[derive(Args, Clone)]
@@ -34,7 +31,9 @@ impl CancelCommand {
         }
 
         // Initial balance prior to contract call - used to calculate contract interaction cost
-        let balance = wallet.get_asset_balance(&AssetId::BASE).await?;
+        let balance = wallet
+            .get_asset_balance(&wallet.provider().unwrap().base_asset_id())
+            .await?;
 
         // Connect to the deployed contract via the rpc
         let contract = MarketContract::new(contract_id, wallet.clone()).await;
@@ -42,7 +41,9 @@ impl CancelCommand {
         let _ = contract.cancel_order(order_id).await?;
 
         // Balance post-call
-        let new_balance = wallet.get_asset_balance(&AssetId::BASE).await?;
+        let new_balance = wallet
+            .get_asset_balance(&wallet.provider().unwrap().base_asset_id())
+            .await?;
 
         // TODO: replace println with tracing
         println!("\nContract call cost: {}", balance - new_balance);

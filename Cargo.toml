@@ -16,8 +16,6 @@ rust-version = "1.75.0"
 
 [workspace.dependencies]
 anyhow = "1.0.86"
-fuels = { version = "0.64.0", features = ["fuel-core-lib"] }
+fuels = { version = "0.65.1", features = ["fuel-core-lib"] }
 tokio = { version = "1.38", features = ["rt", "macros"] }
-# TODO: remove src20_sdk from repo entirely
-src20_sdk = { git = "https://github.com/compolabs/src-20.git", branch = "master" }
 

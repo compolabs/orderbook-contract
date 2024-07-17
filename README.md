@@ -68,8 +68,7 @@ To integrate the SDK, add the following to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-orderbook = { git = "https://github.com/compolabs/orderbook-contract.git", branch = "testnet" }
-src20_sdk = { git = "https://github.com/compolabs/src-20.git", branch = "testnet" }
+orderbook = { git = "https://github.com/compolabs/orderbook-contract.git", branch = "master" }
 ```
 
 ## Order Fields
@@ -183,7 +182,7 @@ pub async fn open_order(
     base_token: AssetId,
     base_size: i64,
     base_price: u64,
-) -> Result<FuelCallResponse<Bits256>, fuels::types::errors::Error>
+) -> Result<CallResponse<Bits256>, fuels::types::errors::Error>
 ```
 
 - `base_token: AssetId` - The asset identifier for the base token.
@@ -198,7 +197,7 @@ This method opens a new order in the order book.
 pub async fn cancel_order(
     &self,
     order_id: &Bits256,
-) -> Result<FuelCallResponse<()>, fuels::types::errors::Error>
+) -> Result<CallResponse<()>, fuels::types::errors::Error>
 ```
 
 - `order_id: &Bits256` - The identifier of the order to be canceled.
