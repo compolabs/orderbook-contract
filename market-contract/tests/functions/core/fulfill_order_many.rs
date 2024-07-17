@@ -466,9 +466,16 @@ mod success {
             .get_asset_balance(&user1.wallet.provider().unwrap().base_asset_id())
             .await?;
 
+        let gas_price = user1
+            .wallet
+            .provider()
+            .unwrap()
+            .latest_gas_price()
+            .await?
+            .gas_price;
         assert_eq!(
             new_balance - balance,
-            (matcher_fee * order_ids.len() as u32) as u64
+            (matcher_fee * order_ids.len() as u32) as u64 - gas_price
         );
 
         let expected_account0 = create_account(base_deposit, quote_delta, 0, 0);

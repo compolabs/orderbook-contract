@@ -374,7 +374,14 @@ mod success {
             .wallet
             .get_asset_balance(&owner.wallet.provider().unwrap().base_asset_id())
             .await?;
-        assert_eq!(balance - new_balance, matcher_fee as u64);
+        let gas_price = owner
+            .wallet
+            .provider()
+            .unwrap()
+            .latest_gas_price()
+            .await?
+            .gas_price;
+        assert_eq!(balance - new_balance, matcher_fee as u64 + gas_price);
 
         let id = response.value;
         let expected_id = contract
@@ -482,7 +489,14 @@ mod success {
             .wallet
             .get_asset_balance(&owner.wallet.provider().unwrap().base_asset_id())
             .await?;
-        assert_eq!(balance - new_balance, matcher_fee as u64);
+        let gas_price = owner
+            .wallet
+            .provider()
+            .unwrap()
+            .latest_gas_price()
+            .await?
+            .gas_price;
+        assert_eq!(balance - new_balance, matcher_fee as u64 + gas_price);
 
         let id = response.value;
         let expected_id = contract
