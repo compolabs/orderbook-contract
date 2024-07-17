@@ -201,12 +201,13 @@ impl MarketContract {
             .await?)
     }
 
-    pub async fn set_fee(
-        &self,
-        amount: u64,
-        user: Option<Identity>,
-    ) -> anyhow::Result<CallResponse<()>> {
-        Ok(self.instance.methods().set_fee(amount, user).call().await?)
+    pub async fn set_protocol_fee(&self, amount: u32) -> anyhow::Result<CallResponse<()>> {
+        Ok(self
+            .instance
+            .methods()
+            .set_protocol_fee(amount)
+            .call()
+            .await?)
     }
 
     pub async fn set_matcher_fee(&self, amount: u32) -> anyhow::Result<CallResponse<()>> {
@@ -222,8 +223,8 @@ impl MarketContract {
         Ok(self.instance.methods().account(user).simulate().await?)
     }
 
-    pub async fn fee(&self, user: Option<Identity>) -> anyhow::Result<CallResponse<u64>> {
-        Ok(self.instance.methods().fee(user).simulate().await?)
+    pub async fn protocol_fee(&self) -> anyhow::Result<CallResponse<u32>> {
+        Ok(self.instance.methods().protocol_fee().simulate().await?)
     }
 
     pub async fn matcher_fee(&self) -> anyhow::Result<CallResponse<u32>> {

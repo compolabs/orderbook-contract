@@ -1,6 +1,6 @@
 use crate::commands::info::{
-    account::AccountCommand, config::ConfigCommand, fee::FeeCommand,
-    matcher_fee::MatcherFeeCommand, order::OrderCommand, order_id::OrderIdCommand,
+    account::AccountCommand, config::ConfigCommand, matcher_fee::MatcherFeeCommand,
+    order::OrderCommand, order_id::OrderIdCommand, protocol_fee::ProtocolFeeCommand,
     user_orders::UserOrdersCommand,
 };
 use clap::Subcommand;
@@ -17,7 +17,7 @@ pub(crate) enum InfoCommands {
 
     /// Query fee information for a specific user or the market contract
     #[clap(short_flag = 'F')]
-    Fee(FeeCommand),
+    ProtocolFee(ProtocolFeeCommand),
 
     /// Query matcher fee information of the market contract
     #[clap(short_flag = 'M')]

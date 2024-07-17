@@ -107,21 +107,12 @@ Owner address: fuel173lqaa6y4jxfjd2suq730uwys3zfg4f6zt9vzx4cc45v3xvlmwlszdvdpz
     --rpc "testnet.fuel.network" \
     --contract-id 0x0c6349382b522631538143029c95903d7b63dbf6063aebab6a819fc1d2164833
 
-## Set Fee
+## Set Protocol Fee
 
-Sets a fee for a user
+Sets protocol fee
 
-./target/release/spark-cli core set-fee \
-    --amount 2 \
-    --account-type address \
-    --account-id 0x4ea14e5787d00813f944c744a52cb40d4b5293315b448a76d16110b8b9da0cba \
-    --rpc "testnet.fuel.network" \
-    --contract-id 0x0c6349382b522631538143029c95903d7b63dbf6063aebab6a819fc1d2164833
-
-Set fee for entire market
-
-./target/release/spark-cli core set-fee \
-    --amount 2 \
+./target/release/spark-cli core set-protocol-fee \
+    --amount 200 \
     --rpc "testnet.fuel.network" \
     --contract-id 0x0c6349382b522631538143029c95903d7b63dbf6063aebab6a819fc1d2164833
 

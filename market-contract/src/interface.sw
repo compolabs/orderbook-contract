@@ -46,7 +46,7 @@ abi Market {
     ) -> b256;
 
     #[storage(write)]
-    fn set_fee(amount: u64, user: Option<Identity>);
+    fn set_protocol_fee(amount: u32);
 
     #[storage(write)]
     fn set_matcher_fee(amount: u32);
@@ -57,7 +57,7 @@ abi Info {
     fn account(user: Identity) -> Option<Account>;
 
     #[storage(read)]
-    fn fee(user: Option<Identity>) -> u64;
+    fn protocol_fee() -> u32;
 
     #[storage(read)]
     fn matcher_fee() -> u32;

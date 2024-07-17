@@ -23,8 +23,8 @@ use ::events::{
     DepositEvent,
     MatchOrderEvent,
     OpenOrderEvent,
-    SetFeeEvent,
     SetMatcherRewardEvent,
+    SetProtocolFeeEvent,
     TradeOrderEvent,
     WithdrawEvent,
 };
@@ -58,19 +58,16 @@ configurable {
 storage {
     // Balance of each user
     account: StorageMap<Identity, Account> = StorageMap {},
-    // Global fee for regular users
-    fee: u64 = 0,
     // All of the currently open orders
     orders: StorageMap<b256, Order> = StorageMap {},
     // Internal handling of indexes for user_orders
     user_order_indexes: StorageMap<Identity, StorageMap<b256, u64>> = StorageMap {},
-    // Fee for premium users which ought to be smaller than the global fee
-    // Map(user => fee)
-    premium_user: StorageMap<Identity, u64> = StorageMap {},
     // Indexing orders by user
     user_orders: StorageMap<Identity, StorageVec<b256>> = StorageMap {},
     // Temporary order change log structure for indexer debug
     order_change_info: StorageMap<b256, StorageVec<OrderChangeInfo>> = StorageMap {},
+    // Protocol fee
+    protocol_fee: u32 = 0,
     // The reward to the matcher for single order match
     matcher_fee: u32 = 0,
 }
@@ -129,7 +126,15 @@ impl Market for Contract {
         order_type: OrderType,
         price: u64,
     ) -> b256 {
-        open_order_internal(amount, asset_type, order_type, price, storage.matcher_fee.read())
+        open_order_internal(
+            amount,
+            asset_type,
+            order_type,
+            price,
+            storage
+                .matcher_fee
+                .read(),
+        )
     }
 
     #[storage(read, write)]
@@ -332,7 +337,7 @@ impl Market for Contract {
     }
 
     #[storage(write)]
-    fn set_fee(amount: u64, user: Option<Identity>) {
+    fn set_protocol_fee(amount: u32) {
         require(
             msg_sender()
                 .unwrap()
@@ -341,12 +346,9 @@ impl Market for Contract {
             AuthError::Unauthorized,
         );
 
-        match user {
-            Some(identity) => storage.premium_user.insert(identity, amount),
-            None => storage.fee.write(amount),
-        };
+        storage.protocol_fee.write(amount);
 
-        log(SetFeeEvent { amount, user });
+        log(SetProtocolFeeEvent { amount });
     }
 
     #[storage(write)]
@@ -372,11 +374,8 @@ impl Info for Contract {
     }
 
     #[storage(read)]
-    fn fee(user: Option<Identity>) -> u64 {
-        match user {
-            Some(identity) => storage.premium_user.get(identity).try_read().unwrap_or(storage.fee.read()),
-            None => storage.fee.read(),
-        }
+    fn protocol_fee() -> u32 {
+        storage.protocol_fee.read()
     }
 
     #[storage(read)]

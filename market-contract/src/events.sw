@@ -22,9 +22,8 @@ pub struct OpenOrderEvent {
     pub user: Identity,
 }
 
-pub struct SetFeeEvent {
-    pub amount: u64,
-    pub user: Option<Identity>,
+pub struct SetProtocolFeeEvent {
+    pub amount: u32,
 }
 
 pub struct SetMatcherRewardEvent {
