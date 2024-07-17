@@ -675,7 +675,14 @@ mod success_same_asset_type {
             .get_asset_balance(&user1.wallet.provider().unwrap().base_asset_id())
             .await?;
 
-        assert_eq!(new_balance - balance, (matcher_fee * 2) as u64);
+        let gas_price = user1
+            .wallet
+            .provider()
+            .unwrap()
+            .latest_gas_price()
+            .await?
+            .gas_price;
+        assert_eq!(new_balance - balance, (matcher_fee * 2) as u64 - gas_price);
 
         assert_eq!(
             contract.account(user0.identity()).await?.value.unwrap(),
