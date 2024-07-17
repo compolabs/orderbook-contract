@@ -280,6 +280,12 @@ async fn main() {
 
 This SDK documentation provides a detailed guide on integrating and using the SDK for trading purposes, including setup instructions, field descriptions, GraphQL queries, and example usage.
 
+## Running Tests
+
+```
+forc build --release & cargo test --release
+```
+
 ## Contribution
 
 The liquidation mechanism, error codes, and all contract methods are open for the community to contribute to and improve upon. Your contributions are welcome to make the Spark Contract Orderbook a more robust and feature-rich platform.
