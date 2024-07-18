@@ -1,12 +1,11 @@
 use crate::setup::{setup, Defaults};
 use fuels::accounts::ViewOnlyAccount;
-use spark_market_sdk::{AssetType, OrderType};
+use spark_market_sdk::{AssetType, OpenOrderEvent, OrderChangeType, OrderType};
 
 mod success {
 
     use super::*;
     use crate::setup::create_account;
-    use spark_market_sdk::{OpenOrderEvent, OrderChangeType};
 
     #[tokio::test]
     async fn sell_base() -> anyhow::Result<()> {
@@ -555,6 +554,55 @@ mod success {
         assert_eq!(info[0].sender, owner.identity());
         assert_eq!(info[0].amount_before, 0);
         assert_eq!(info[0].amount_after, order_amount);
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn sell_base_with_protocol_fee() -> anyhow::Result<()> {
+        let defaults = Defaults::default();
+        let (contract, owner, _user, assets) = setup(
+            defaults.base_decimals,
+            defaults.quote_decimals,
+            defaults.price_decimals,
+        )
+        .await?;
+
+        let deposit_amount = 10;
+        let expected_account = create_account(deposit_amount, 0, 0, 0);
+
+        let order_amount = 10;
+        let asset = assets.base.id;
+        let order_type = OrderType::Sell;
+        let price = 70_000_000_000_000_u64;
+
+        let _ = contract.deposit(deposit_amount, asset).await?;
+
+        let user_account = contract.account(owner.identity()).await?.value.unwrap();
+        let orders = contract.user_orders(owner.identity()).await?.value;
+        assert_eq!(user_account, expected_account);
+        assert_eq!(orders, vec![]);
+
+        let balance = owner
+            .wallet
+            .provider()
+            .unwrap()
+            .get_contract_asset_balance(contract.contract_id(), assets.fuel.id)
+            .await?;
+        let _ = contract
+            .open_order(order_amount, AssetType::Base, order_type.clone(), price)
+            .await?;
+        let new_balance = owner
+            .wallet
+            .provider()
+            .unwrap()
+            .get_contract_asset_balance(contract.contract_id(), assets.fuel.id)
+            .await?;
+        let protocol_fee_amount = contract
+            .protocol_fee_amount(order_amount, AssetType::Base)
+            .await?
+            .value;
+        assert_eq!(new_balance - balance, protocol_fee_amount);
 
         Ok(())
     }

@@ -4,7 +4,7 @@ use fuels::{
         StorageConfiguration, TxPolicies, VariableOutputPolicy, WalletUnlocked,
     },
     programs::responses::CallResponse,
-    types::{Bits256, Bytes32, Identity},
+    types::{bech32::Bech32ContractId, Bits256, Bytes32, Identity},
 };
 
 use rand::Rng;
@@ -87,6 +87,10 @@ impl MarketContract {
 
     pub fn id(&self) -> Bytes32 {
         self.instance.contract_id().hash
+    }
+
+    pub fn contract_id(&self) -> &Bech32ContractId {
+        self.instance.contract_id()
     }
 
     pub async fn deposit(&self, amount: u64, asset: AssetId) -> anyhow::Result<CallResponse<()>> {

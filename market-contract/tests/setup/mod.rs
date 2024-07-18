@@ -7,7 +7,6 @@ use fuels::{
     types::Identity,
 };
 use spark_market_sdk::{Account, Balance, MarketContract};
-use std::str::FromStr;
 
 pub(crate) struct Assets {
     pub(crate) base: Asset,

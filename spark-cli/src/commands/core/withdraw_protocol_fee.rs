@@ -1,7 +1,6 @@
 use crate::utils::{setup, validate_contract_id, AccountType};
 use clap::Args;
-use fuels::accounts::ViewOnlyAccount;
-use fuels::types::{Address, ContractId, Identity};
+use fuels::types::{bech32::Bech32Address, Address, ContractId, Identity};
 use spark_market_sdk::MarketContract;
 use std::str::FromStr;
 
@@ -38,7 +37,12 @@ impl WithdrawProtocolFeeCommand {
         let base_asset_id = wallet.provider().unwrap().base_asset_id();
         println!("\nBase asset id: {}", base_asset_id);
 
-        let balance = wallet.get_asset_balance(&base_asset_id).await?;
+        let address = Bech32Address::from_str(&self.account_to_id)?;
+        let balance = wallet
+            .provider()
+            .unwrap()
+            .get_asset_balance(&address, *base_asset_id)
+            .await?;
 
         let _ = match self.account_to_type {
             AccountType::Address => {
@@ -58,7 +62,9 @@ impl WithdrawProtocolFeeCommand {
 
         // Balance post-call
         let new_balance = wallet
-            .get_asset_balance(&wallet.provider().unwrap().base_asset_id())
+            .provider()
+            .unwrap()
+            .get_asset_balance(&address, *base_asset_id)
             .await?;
 
         // TODO: replace println with tracing
