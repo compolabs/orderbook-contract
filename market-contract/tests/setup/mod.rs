@@ -7,11 +7,13 @@ use fuels::{
     types::Identity,
 };
 use spark_market_sdk::{Account, Balance, MarketContract};
+use std::str::FromStr;
 
 pub(crate) struct Assets {
     pub(crate) base: Asset,
     pub(crate) quote: Asset,
     pub(crate) random: Asset,
+    pub(crate) fuel: Asset,
 }
 
 pub(crate) struct Asset {
@@ -119,6 +121,10 @@ pub(crate) async fn setup(
             id: random_asset_id,
             decimals: 10,
         },
+        fuel: Asset {
+            id: fuel_asset_id,
+            decimals: 9,
+        },
     };
 
     let contract = MarketContract::deploy(
@@ -128,6 +134,7 @@ pub(crate) async fn setup(
         assets.quote.decimals,
         price_decimals,
         owner.clone(),
+        *owner.provider().unwrap().base_asset_id(),
     )
     .await?;
 

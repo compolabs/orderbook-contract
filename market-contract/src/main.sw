@@ -54,6 +54,7 @@ configurable {
     PRICE_DECIMALS: u32 = 9,
     QUOTE_ASSET: AssetId = AssetId::from(ZERO_B256),
     QUOTE_ASSET_DECIMALS: u32 = 9,
+    FUEL_ASSET: AssetId = AssetId::from(ZERO_B256),
     ETH_BASE_PRICE: u64 = 189200000000,
     ETH_QUOTE_PRICE: u64 = 292300000,
 }
@@ -183,7 +184,7 @@ impl Market for Contract {
 
         // Refund matcher_fee
         if order.matcher_fee > 0 {
-            transfer(user, AssetId::from(ZERO_B256), order.matcher_fee.as_u64());
+            transfer(user, FUEL_ASSET, order.matcher_fee.as_u64());
         }
 
         log_order_change_info(
@@ -215,7 +216,7 @@ impl Market for Contract {
         let matcher = msg_sender().unwrap();
         // reward order matcher
         if matcher_reward > 0 {
-            transfer(matcher, AssetId::from(ZERO_B256), matcher_reward);
+            transfer(matcher, FUEL_ASSET, matcher_reward);
         }
     }
 
@@ -281,7 +282,7 @@ impl Market for Contract {
         // reward order matcher
         let matcher = msg_sender().unwrap();
         if matcher_reward > 0 {
-            transfer(matcher, AssetId::from(ZERO_B256), matcher_reward);
+            transfer(matcher, FUEL_ASSET, matcher_reward);
         }
     }
 
@@ -337,7 +338,7 @@ impl Market for Contract {
         // reward order matcher
         let matcher = msg_sender().unwrap();
         if matcher_reward > 0 {
-            transfer(matcher, AssetId::from(ZERO_B256), matcher_reward);
+            transfer(matcher, FUEL_ASSET, matcher_reward);
         }
         id0
     }
@@ -385,7 +386,7 @@ impl Market for Contract {
         let amount = storage.total_protocol_fee.read();
         require(amount > 0, AccountError::InsufficientBalance((0, 0)));
         storage.total_protocol_fee.write(0);
-        transfer(to, AssetId::from(ZERO_B256), amount);
+        transfer(to, FUEL_ASSET, amount);
         log(WithdrawProtocolFeeEvent {
             amount,
             to,
@@ -435,7 +436,7 @@ impl Info for Contract {
         storage.order_change_info.get(order_id).load_vec()
     }
 
-    fn config() -> (Address, AssetId, u32, AssetId, u32, u32) {
+    fn config() -> (Address, AssetId, u32, AssetId, u32, u32, AssetId) {
         (
             OWNER,
             BASE_ASSET,
@@ -443,6 +444,7 @@ impl Info for Contract {
             QUOTE_ASSET,
             QUOTE_ASSET_DECIMALS,
             PRICE_DECIMALS,
+            FUEL_ASSET,
         )
     }
 
@@ -494,7 +496,7 @@ fn open_order_internal(
     let user = msg_sender().unwrap();
 
     require(
-        matcher_fee == 0 || msg_asset_id() == AssetId::from(ZERO_B256),
+        matcher_fee == 0 || msg_asset_id() == FUEL_ASSET,
         AssetError::InvalidFeeAsset,
     );
 

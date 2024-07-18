@@ -22,11 +22,11 @@ mod success {
 
         let _ = contract.deposit(deposit_amount, asset).await?;
 
-        let user_account = contract.account(owner.identity()).await?.value.unwrap();
+        let _ = contract.account(owner.identity()).await?.value.unwrap();
         let orders = contract.user_orders(owner.identity()).await?.value;
         assert_eq!(orders, vec![]);
 
-        let response = contract
+        let _ = contract
             .open_order(order_amount, AssetType::Base, order_type.clone(), price)
             .await?;
 

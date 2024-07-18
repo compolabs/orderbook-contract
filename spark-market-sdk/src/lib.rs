@@ -31,6 +31,7 @@ impl MarketContract {
         quote_decimals: u32,
         price_decimals: u32,
         owner: WalletUnlocked,
+        fuel_asset: AssetId,
     ) -> anyhow::Result<Self> {
         let mut rng = rand::thread_rng();
         let salt = rng.gen::<[u8; 32]>();
@@ -51,6 +52,8 @@ impl MarketContract {
             .with_PRICE_DECIMALS(price_decimals)
             .unwrap()
             .with_OWNER(owner.address().into())
+            .unwrap()
+            .with_FUEL_ASSET(fuel_asset)
             .unwrap();
 
         let contract_configuration = LoadConfiguration::default()
@@ -299,7 +302,7 @@ impl MarketContract {
 
     pub async fn config(
         &self,
-    ) -> anyhow::Result<CallResponse<(Address, AssetId, u32, AssetId, u32, u32)>> {
+    ) -> anyhow::Result<CallResponse<(Address, AssetId, u32, AssetId, u32, u32, AssetId)>> {
         Ok(self.instance.methods().config().simulate().await?)
     }
 

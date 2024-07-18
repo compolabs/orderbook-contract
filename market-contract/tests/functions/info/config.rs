@@ -20,7 +20,8 @@ mod success {
                 assets.base.decimals,
                 assets.quote.id,
                 assets.quote.decimals,
-                defaults.price_decimals
+                defaults.price_decimals,
+                assets.fuel.id,
             )
         );
 

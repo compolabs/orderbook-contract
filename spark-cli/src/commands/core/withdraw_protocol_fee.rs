@@ -35,9 +35,10 @@ impl WithdrawProtocolFeeCommand {
         let contract = MarketContract::new(contract_id, wallet.clone()).await;
 
         // Initial balance prior to contract call - used to calculate contract interaction cost
-        let balance = wallet
-            .get_asset_balance(&wallet.provider().unwrap().base_asset_id())
-            .await?;
+        let base_asset_id = wallet.provider().unwrap().base_asset_id();
+        println!("\nBase asset id: {}", base_asset_id);
+
+        let balance = wallet.get_asset_balance(&base_asset_id).await?;
 
         let _ = match self.account_to_type {
             AccountType::Address => {

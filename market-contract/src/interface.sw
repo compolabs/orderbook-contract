@@ -80,7 +80,7 @@ abi Info {
     #[storage(read)]
     fn order_change_info(order_id: b256) -> Vec<OrderChangeInfo>;
 
-    fn config() -> (Address, AssetId, u32, AssetId, u32, u32);
+    fn config() -> (Address, AssetId, u32, AssetId, u32, u32, AssetId);
 
     fn order_id(
         asset_type: AssetType,
