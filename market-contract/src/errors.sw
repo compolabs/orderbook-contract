@@ -9,7 +9,7 @@ pub enum ValueError {
     InvalidAmount: (),
     InvalidSlippage: (),
     InvalidArrayLength: (),
-    InvalidFeeAmount: (u32, u32),
+    InvalidFeeAmount: (u64, u64),
 }
 
 pub enum OrderError {

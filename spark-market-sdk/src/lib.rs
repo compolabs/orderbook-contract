@@ -119,8 +119,12 @@ impl MarketContract {
         order_type: OrderType,
         price: u64,
     ) -> anyhow::Result<CallResponse<Bits256>> {
+        let protocol_fee = self
+            .protocol_fee_amount(amount, asset_type.clone())
+            .await?
+            .value;
         let matcher_fee = self.matcher_fee().await?.value;
-        let call_params = CallParameters::default().with_amount(matcher_fee.into());
+        let call_params = CallParameters::default().with_amount(matcher_fee as u64 + protocol_fee);
         Ok(self
             .instance
             .methods()
@@ -138,7 +142,11 @@ impl MarketContract {
         price: u64,
         matcher_fee: u32,
     ) -> anyhow::Result<CallResponse<Bits256>> {
-        let call_params = CallParameters::default().with_amount(matcher_fee.into());
+        let protocol_fee = self
+            .protocol_fee_amount(amount, asset_type.clone())
+            .await?
+            .value;
+        let call_params = CallParameters::default().with_amount(matcher_fee as u64 + protocol_fee);
         Ok(self
             .instance
             .methods()
@@ -192,11 +200,17 @@ impl MarketContract {
         slippage: u64,
         orders: Vec<Bits256>,
     ) -> anyhow::Result<CallResponse<Bits256>> {
+        let protocol_fee = self
+            .protocol_fee_amount(amount, asset_type.clone())
+            .await?
+            .value;
+        let call_params = CallParameters::default().with_amount(protocol_fee);
         Ok(self
             .instance
             .methods()
             .fulfill_order_many(amount, asset_type, order_type, price, slippage, orders)
             .with_variable_output_policy(VariableOutputPolicy::Exactly(1))
+            .call_params(call_params)?
             .call()
             .await?)
     }
@@ -219,12 +233,44 @@ impl MarketContract {
             .await?)
     }
 
+    pub async fn withdraw_protocol_fee(&self, to: Identity) -> anyhow::Result<CallResponse<()>> {
+        Ok(self
+            .instance
+            .methods()
+            .withdraw_protocol_fee(to)
+            .with_variable_output_policy(VariableOutputPolicy::Exactly(1))
+            .call()
+            .await?)
+    }
+
     pub async fn account(&self, user: Identity) -> anyhow::Result<CallResponse<Option<Account>>> {
         Ok(self.instance.methods().account(user).simulate().await?)
     }
 
     pub async fn protocol_fee(&self) -> anyhow::Result<CallResponse<u32>> {
         Ok(self.instance.methods().protocol_fee().simulate().await?)
+    }
+
+    pub async fn total_protocol_fee(&self) -> anyhow::Result<CallResponse<u64>> {
+        Ok(self
+            .instance
+            .methods()
+            .total_protocol_fee()
+            .simulate()
+            .await?)
+    }
+
+    pub async fn protocol_fee_amount(
+        &self,
+        amount: u64,
+        asset_type: AssetType,
+    ) -> anyhow::Result<CallResponse<u64>> {
+        Ok(self
+            .instance
+            .methods()
+            .protocol_fee_amount(amount, asset_type)
+            .simulate()
+            .await?)
     }
 
     pub async fn matcher_fee(&self) -> anyhow::Result<CallResponse<u32>> {

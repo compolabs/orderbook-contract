@@ -50,6 +50,9 @@ abi Market {
 
     #[storage(write)]
     fn set_matcher_fee(amount: u32);
+
+    #[storage(read, write)]
+    fn withdraw_protocol_fee(to: Identity);
 }
 
 abi Info {
@@ -60,7 +63,13 @@ abi Info {
     fn protocol_fee() -> u32;
 
     #[storage(read)]
+    fn total_protocol_fee() -> u64;
+
+    #[storage(read)]
     fn matcher_fee() -> u32;
+
+    #[storage(read)]
+    fn protocol_fee_amount(amount: u64, asset_type: AssetType) -> u64;
 
     #[storage(read)]
     fn order(order: b256) -> Option<Order>;

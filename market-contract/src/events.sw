@@ -55,3 +55,9 @@ pub struct WithdrawEvent {
     pub asset: AssetId,
     pub user: Identity,
 }
+
+pub struct WithdrawProtocolFeeEvent {
+    pub amount: u64,
+    pub to: Identity,
+    pub owner: Identity,
+}
