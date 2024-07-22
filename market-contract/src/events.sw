@@ -22,9 +22,8 @@ pub struct OpenOrderEvent {
     pub user: Identity,
 }
 
-pub struct SetFeeEvent {
-    pub amount: u64,
-    pub user: Option<Identity>,
+pub struct SetProtocolFeeEvent {
+    pub amount: u32,
 }
 
 pub struct SetMatcherRewardEvent {
@@ -55,4 +54,10 @@ pub struct WithdrawEvent {
     pub amount: u64,
     pub asset: AssetId,
     pub user: Identity,
+}
+
+pub struct WithdrawProtocolFeeEvent {
+    pub amount: u64,
+    pub to: Identity,
+    pub owner: Identity,
 }

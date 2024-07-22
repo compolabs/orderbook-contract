@@ -46,10 +46,13 @@ abi Market {
     ) -> b256;
 
     #[storage(write)]
-    fn set_fee(amount: u64, user: Option<Identity>);
+    fn set_protocol_fee(amount: u32);
 
     #[storage(write)]
     fn set_matcher_fee(amount: u32);
+
+    #[storage(read, write)]
+    fn withdraw_protocol_fee(to: Identity);
 }
 
 abi Info {
@@ -57,10 +60,16 @@ abi Info {
     fn account(user: Identity) -> Option<Account>;
 
     #[storage(read)]
-    fn fee(user: Option<Identity>) -> u64;
+    fn protocol_fee() -> u32;
+
+    #[storage(read)]
+    fn total_protocol_fee() -> u64;
 
     #[storage(read)]
     fn matcher_fee() -> u32;
+
+    #[storage(read)]
+    fn protocol_fee_amount(amount: u64, asset_type: AssetType) -> u64;
 
     #[storage(read)]
     fn order(order: b256) -> Option<Order>;
@@ -71,7 +80,7 @@ abi Info {
     #[storage(read)]
     fn order_change_info(order_id: b256) -> Vec<OrderChangeInfo>;
 
-    fn config() -> (Address, AssetId, u32, AssetId, u32, u32);
+    fn config() -> (Address, AssetId, u32, AssetId, u32, u32, AssetId);
 
     fn order_id(
         asset_type: AssetType,

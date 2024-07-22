@@ -1,5 +1,6 @@
 use crate::utils::{setup, validate_contract_id, AccountType};
 use clap::Args;
+use fuels::accounts::ViewOnlyAccount;
 use fuels::types::{Address, ContractId, Identity};
 use spark_market_sdk::MarketContract;
 use std::str::FromStr;
@@ -31,7 +32,7 @@ impl AccountCommand {
         let contract_id = validate_contract_id(&self.contract_id)?;
 
         // Connect to the deployed contract via the rpc
-        let contract = MarketContract::new(contract_id, wallet).await;
+        let contract = MarketContract::new(contract_id, wallet.clone()).await;
 
         let account = match self.account_type {
             AccountType::Address => {
@@ -43,6 +44,11 @@ impl AccountCommand {
                 contract.account(Identity::ContractId(address)).await?.value
             }
         };
+
+        let balance = wallet
+            .get_asset_balance(&wallet.provider().unwrap().base_asset_id())
+            .await?;
+        println!("\nContract base asset balance: {}", balance);
 
         // TODO: replace println with tracing
         match account {

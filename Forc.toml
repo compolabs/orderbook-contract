@@ -1,5 +1,2 @@
 [workspace]
-members = [
-  "market-contract",
-  "orderbook-contract",
-]
+members = ["market-contract", "orderbook-contract"]

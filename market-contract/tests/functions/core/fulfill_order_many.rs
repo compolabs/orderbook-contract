@@ -366,6 +366,7 @@ mod success {
 
         let matcher_fee = 100_000_u32;
         let _ = contract.set_matcher_fee(matcher_fee).await?;
+        let _ = contract.set_protocol_fee(0).await?;
 
         let to_quote_scale =
             10_u64.pow(defaults.price_decimals + defaults.base_decimals - defaults.quote_decimals);

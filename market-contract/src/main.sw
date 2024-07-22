@@ -23,10 +23,11 @@ use ::events::{
     DepositEvent,
     MatchOrderEvent,
     OpenOrderEvent,
-    SetFeeEvent,
     SetMatcherRewardEvent,
+    SetProtocolFeeEvent,
     TradeOrderEvent,
     WithdrawEvent,
+    WithdrawProtocolFeeEvent,
 };
 use ::interface::{Info, Market};
 use ::math::*;
@@ -53,26 +54,28 @@ configurable {
     PRICE_DECIMALS: u32 = 9,
     QUOTE_ASSET: AssetId = AssetId::from(ZERO_B256),
     QUOTE_ASSET_DECIMALS: u32 = 9,
+    FUEL_ASSET: AssetId = AssetId::from(ZERO_B256),
+    ETH_BASE_PRICE: u64 = 189200000000,
+    ETH_QUOTE_PRICE: u64 = 292300000,
 }
 
 storage {
     // Balance of each user
     account: StorageMap<Identity, Account> = StorageMap {},
-    // Global fee for regular users
-    fee: u64 = 0,
     // All of the currently open orders
     orders: StorageMap<b256, Order> = StorageMap {},
     // Internal handling of indexes for user_orders
     user_order_indexes: StorageMap<Identity, StorageMap<b256, u64>> = StorageMap {},
-    // Fee for premium users which ought to be smaller than the global fee
-    // Map(user => fee)
-    premium_user: StorageMap<Identity, u64> = StorageMap {},
     // Indexing orders by user
     user_orders: StorageMap<Identity, StorageVec<b256>> = StorageMap {},
     // Temporary order change log structure for indexer debug
     order_change_info: StorageMap<b256, StorageVec<OrderChangeInfo>> = StorageMap {},
+    // Protocol fee
+    protocol_fee: u32 = 15, // 0.15%
     // The reward to the matcher for single order match
     matcher_fee: u32 = 0,
+    // Total protocol fee to withdraw
+    total_protocol_fee: u64 = 0,
 }
 
 const HUNDRED_PERCENT = 10_000;
@@ -129,7 +132,16 @@ impl Market for Contract {
         order_type: OrderType,
         price: u64,
     ) -> b256 {
-        open_order_internal(amount, asset_type, order_type, price, storage.matcher_fee.read())
+        open_order_internal(
+            amount,
+            asset_type,
+            order_type,
+            price,
+            storage
+                .matcher_fee
+                .read()
+                .as_u64(),
+        )
     }
 
     #[storage(read, write)]
@@ -172,7 +184,7 @@ impl Market for Contract {
 
         // Refund matcher_fee
         if order.matcher_fee > 0 {
-            transfer(user, AssetId::from(ZERO_B256), order.matcher_fee.as_u64());
+            transfer(user, FUEL_ASSET, order.matcher_fee.as_u64());
         }
 
         log_order_change_info(
@@ -204,7 +216,7 @@ impl Market for Contract {
         let matcher = msg_sender().unwrap();
         // reward order matcher
         if matcher_reward > 0 {
-            transfer(matcher, AssetId::from(ZERO_B256), matcher_reward);
+            transfer(matcher, FUEL_ASSET, matcher_reward);
         }
     }
 
@@ -270,7 +282,7 @@ impl Market for Contract {
         // reward order matcher
         let matcher = msg_sender().unwrap();
         if matcher_reward > 0 {
-            transfer(matcher, AssetId::from(ZERO_B256), matcher_reward);
+            transfer(matcher, FUEL_ASSET, matcher_reward);
         }
     }
 
@@ -326,13 +338,13 @@ impl Market for Contract {
         // reward order matcher
         let matcher = msg_sender().unwrap();
         if matcher_reward > 0 {
-            transfer(matcher, AssetId::from(ZERO_B256), matcher_reward);
+            transfer(matcher, FUEL_ASSET, matcher_reward);
         }
         id0
     }
 
     #[storage(write)]
-    fn set_fee(amount: u64, user: Option<Identity>) {
+    fn set_protocol_fee(amount: u32) {
         require(
             msg_sender()
                 .unwrap()
@@ -341,12 +353,9 @@ impl Market for Contract {
             AuthError::Unauthorized,
         );
 
-        match user {
-            Some(identity) => storage.premium_user.insert(identity, amount),
-            None => storage.fee.write(amount),
-        };
+        storage.protocol_fee.write(amount);
 
-        log(SetFeeEvent { amount, user });
+        log(SetProtocolFeeEvent { amount });
     }
 
     #[storage(write)]
@@ -363,6 +372,27 @@ impl Market for Contract {
 
         log(SetMatcherRewardEvent { amount });
     }
+
+    #[storage(read, write)]
+    fn withdraw_protocol_fee(to: Identity) {
+        let owner = msg_sender().unwrap();
+        require(
+            owner
+                .as_address()
+                .unwrap() == OWNER,
+            AuthError::Unauthorized,
+        );
+
+        let amount = storage.total_protocol_fee.read();
+        require(amount > 0, AccountError::InsufficientBalance((0, 0)));
+        storage.total_protocol_fee.write(0);
+        transfer(to, FUEL_ASSET, amount);
+        log(WithdrawProtocolFeeEvent {
+            amount,
+            to,
+            owner,
+        });
+    }
 }
 
 impl Info for Contract {
@@ -372,11 +402,18 @@ impl Info for Contract {
     }
 
     #[storage(read)]
-    fn fee(user: Option<Identity>) -> u64 {
-        match user {
-            Some(identity) => storage.premium_user.get(identity).try_read().unwrap_or(storage.fee.read()),
-            None => storage.fee.read(),
-        }
+    fn protocol_fee() -> u32 {
+        storage.protocol_fee.read()
+    }
+
+    #[storage(read)]
+    fn protocol_fee_amount(amount: u64, asset_type: AssetType) -> u64 {
+        protocol_fee_amount(amount, asset_type)
+    }
+
+    #[storage(read)]
+    fn total_protocol_fee() -> u64 {
+        storage.total_protocol_fee.read()
     }
 
     #[storage(read)]
@@ -399,7 +436,7 @@ impl Info for Contract {
         storage.order_change_info.get(order_id).load_vec()
     }
 
-    fn config() -> (Address, AssetId, u32, AssetId, u32, u32) {
+    fn config() -> (Address, AssetId, u32, AssetId, u32, u32, AssetId) {
         (
             OWNER,
             BASE_ASSET,
@@ -407,6 +444,7 @@ impl Info for Contract {
             QUOTE_ASSET,
             QUOTE_ASSET_DECIMALS,
             PRICE_DECIMALS,
+            FUEL_ASSET,
         )
     }
 
@@ -430,8 +468,18 @@ impl Info for Contract {
             PRICE_DECIMALS,
             block_height,
             0,
+            0,
         ).id()
     }
+}
+
+#[storage(read)]
+fn protocol_fee_amount(amount: u64, asset_type: AssetType) -> u64 {
+    (if asset_type == AssetType::Base {
+        ETH_BASE_PRICE
+    } else {
+        ETH_QUOTE_PRICE
+    }) / HUNDRED_PERCENT * amount * storage.protocol_fee.read().as_u64() / 10_u64.pow(PRICE_DECIMALS)
 }
 
 #[payable]
@@ -441,18 +489,24 @@ fn open_order_internal(
     asset_type: AssetType,
     order_type: OrderType,
     price: u64,
-    matcher_fee: u32,
+    matcher_fee: u64,
 ) -> b256 {
     require(amount > 0, ValueError::InvalidAmount);
 
     let user = msg_sender().unwrap();
 
     require(
-        matcher_fee == 0 || msg_asset_id() == AssetId::from(ZERO_B256),
+        matcher_fee == 0 || msg_asset_id() == FUEL_ASSET,
         AssetError::InvalidFeeAsset,
     );
 
-    let mut fee = msg_amount().try_as_u32().unwrap();
+    let mut fee = msg_amount();
+    let protocol_fee = protocol_fee_amount(amount, asset_type);
+    // Require income fee
+    require(
+        fee >= matcher_fee + protocol_fee,
+        ValueError::InvalidFeeAmount((fee, matcher_fee + protocol_fee)),
+    );
     let mut order = Order::new(
         amount,
         asset_type,
@@ -461,7 +515,10 @@ fn open_order_internal(
         price,
         PRICE_DECIMALS,
         block_height(),
-        matcher_fee,
+        matcher_fee
+            .try_as_u32()
+            .unwrap(),
+        protocol_fee,
     );
 
     let order_id = order.id();
@@ -469,16 +526,11 @@ fn open_order_internal(
         Some(o) => o.amount,
         _ => 0,
     };
+    fee -= matcher_fee + protocol_fee;
     if amount_before > 0 {
         // The order already exists in the same transaction
         order.amount += amount_before;
     } else {
-        // Require income fee
-        require(
-            fee >= matcher_fee,
-            ValueError::InvalidFeeAmount((fee, matcher_fee)),
-        );
-        fee -= matcher_fee;
         // Indexing
         storage.user_orders.get(user).push(order_id);
         storage
@@ -489,7 +541,7 @@ fn open_order_internal(
 
     // Refund extra income fee if any
     if fee > 0 {
-        transfer(user, msg_asset_id(), fee.as_u64());
+        transfer(user, msg_asset_id(), fee);
     }
 
     // Store the new or updated order
@@ -530,6 +582,10 @@ fn open_order_internal(
             order.amount,
         ),
     );
+    // Add protocol fee to total
+    storage
+        .total_protocol_fee
+        .write(storage.total_protocol_fee.read() + protocol_fee);
 
     let asset = get_asset_id(asset_type);
     log(OpenOrderEvent {
