@@ -2,7 +2,7 @@ library;
 
 use ::data_structures::asset_type::AssetType;
 use ::data_structures::order_type::OrderType;
-use ::errors::OrderError;
+use ::errors::{AssetError, OrderError};
 use std::hash::{Hash, sha256};
 use std::contract_id::ContractId;
 
@@ -30,6 +30,7 @@ impl Order {
         protocol_fee: u64,
     ) -> Self {
         require(amount != 0, OrderError::ZeroOrderAmount);
+        require(asset_type == AssetType::Base, AssetError::InvalidAsset);
         require(
             price >= 10_u64
                 .pow(price_decimals),

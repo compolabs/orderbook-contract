@@ -55,7 +55,7 @@ mod success {
         Ok(())
     }
 
-    #[tokio::test]
+    //#[tokio::test]
     async fn sell_quote() -> anyhow::Result<()> {
         let defaults = Defaults::default();
         let (contract, owner, _user, assets) = setup(
@@ -180,7 +180,7 @@ mod success {
         Ok(())
     }
 
-    #[tokio::test]
+    //#[tokio::test]
     async fn buy_quote() -> anyhow::Result<()> {
         let defaults = Defaults::default();
         let (contract, owner, _user, assets) = setup(
