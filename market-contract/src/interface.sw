@@ -3,6 +3,7 @@ library;
 use ::data_structures::{
     account::Account,
     asset_type::AssetType,
+    limit_type::LimitType,
     order::Order,
     order_change::OrderChangeInfo,
     order_type::OrderType,
@@ -40,6 +41,7 @@ abi Market {
         amount: u64,
         asset_type: AssetType,
         order_type: OrderType,
+        limit_type: LimitType,
         price: u64,
         slippage: u64,
         orders: Vec<b256>,

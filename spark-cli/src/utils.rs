@@ -35,6 +35,14 @@ pub(crate) enum AssetType {
 }
 
 #[derive(Clone, ValueEnum)]
+pub(crate) enum LimitType {
+    /// Immediatelly or Cancel
+    IOC,
+    /// Fill or Kill
+    FOK,
+}
+
+#[derive(Clone, ValueEnum)]
 pub(crate) enum OrderType {
     /// Buy order
     Buy,
