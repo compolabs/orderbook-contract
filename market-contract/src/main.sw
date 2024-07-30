@@ -11,6 +11,7 @@ use ::data_structures::{
     account::Account,
     asset_type::AssetType,
     balance::Balance,
+    limit_type::LimitType,
     match_result::MatchResult,
     order::Order,
     order_change::OrderChangeInfo,
@@ -146,60 +147,7 @@ impl Market for Contract {
 
     #[storage(read, write)]
     fn cancel_order(order_id: b256) {
-        // Order must exist to be cancelled
-        let order = storage.orders.get(order_id).try_read();
-        require(order.is_some(), OrderError::OrderNotFound(order_id));
-
-        let order = order.unwrap();
-        let user = msg_sender().unwrap();
-
-        // Only the owner of the order may cancel their order
-        require(user == order.owner, AuthError::Unauthorized);
-
-        // Safe to read() because user is the owner of the order
-        let mut account = storage.account.get(user).read();
-
-        // Order is about to be cancelled, unlock illiquid funds
-        match order.order_type {
-            OrderType::Sell => {
-                account.unlock_amount(order.amount, order.asset_type);
-            }
-            OrderType::Buy => {
-                account.unlock_amount(
-                    convert(
-                        order.amount,
-                        BASE_ASSET_DECIMALS,
-                        order.price,
-                        PRICE_DECIMALS,
-                        QUOTE_ASSET_DECIMALS,
-                        order.asset_type == AssetType::Base,
-                    ),
-                    !order.asset_type,
-                );
-            }
-        }
-
-        remove_order(user, order_id);
-        storage.account.insert(user, account);
-
-        // Refund matcher_fee
-        if order.matcher_fee > 0 {
-            transfer(user, FUEL_ASSET, order.matcher_fee.as_u64());
-        }
-
-        log_order_change_info(
-            order_id,
-            OrderChangeInfo::new(
-                OrderChangeType::OrderCancelled,
-                block_height(),
-                user,
-                tx_id(),
-                order.amount,
-                0,
-            ),
-        );
-
-        log(CancelOrderEvent { order_id });
+        cancel_order_internal(order_id);
     }
 
     #[storage(read, write)]
@@ -292,6 +240,7 @@ impl Market for Contract {
         amount: u64,
         asset_type: AssetType,
         order_type: OrderType,
+        limit_type: LimitType,
         price: u64,
         slippage: u64,
         orders: Vec<b256>,
@@ -302,7 +251,7 @@ impl Market for Contract {
         let id0 = open_order_internal(amount, asset_type, order_type, price, 0);
         let len = orders.len();
         let mut idx1 = 0;
-        let mut full_matched = 0;
+        let mut matched = MatchResult::ZeroMatch;
         let mut matcher_reward = 0;
         let slippage = price * slippage / HUNDRED_PERCENT;
 
@@ -312,33 +261,39 @@ impl Market for Contract {
             let order1 = storage.orders.get(id1).try_read();
             if order1.is_some() {
                 let order1 = order1.unwrap();
-                if distance(price, order1.price) <= slippage {
-                    // try match
+                if asset_type == AssetType::Base
+                    && order_type == OrderType::Sell
+                        || asset_type == AssetType::Quote
+                        && order_type == OrderType::Buy
+                    || distance(price, order1.price) <= slippage
+                {
                     let (match_result, partial_order_id, match_reward_single) = match_order_internal(id0, order0, id1, order1);
                     matcher_reward += match_reward_single;
                     match match_result {
                         MatchResult::ZeroMatch => {}
                         MatchResult::PartialMatch => {
-                            // the case when the one of the orders is partially completed
-                            full_matched += 1;
-                            if partial_order_id == id1 {
-                                break;
-                            }
+                            matched = if partial_order_id == id1 {MatchResult::FullMatch} else {MatchResult::PartialMatch};
                         }
                         MatchResult::FullMatch => {
-                            full_matched += 2;
-                            break;
+                            matched = MatchResult::FullMatch;
                         }
                     }
+                    if matched == MatchResult::FullMatch { break; }
                 }
             }
             idx1 += 1;
         }
-        require(full_matched > 0, MatchError::CantFulfillMany);
+        require(
+            !(matched == MatchResult::ZeroMatch) && !(matched == MatchResult::PartialMatch && limit_type == LimitType::FOK),
+            MatchError::CantFulfillMany,
+        );
         // reward order matcher
         let matcher = msg_sender().unwrap();
         if matcher_reward > 0 {
             transfer(matcher, FUEL_ASSET, matcher_reward);
+        }
+        if matched == MatchResult::PartialMatch {
+            cancel_order_internal(id0);
         }
         id0
     }
@@ -598,6 +553,64 @@ fn open_order_internal(
         user,
     });
     order_id
+}
+
+#[storage(read, write)]
+fn cancel_order_internal(order_id: b256) {
+    // Order must exist to be cancelled
+    let order = storage.orders.get(order_id).try_read();
+    require(order.is_some(), OrderError::OrderNotFound(order_id));
+
+    let order = order.unwrap();
+    let user = msg_sender().unwrap();
+
+    // Only the owner of the order may cancel their order
+    require(user == order.owner, AuthError::Unauthorized);
+
+    // Safe to read() because user is the owner of the order
+    let mut account = storage.account.get(user).read();
+
+    // Order is about to be cancelled, unlock illiquid funds
+    match order.order_type {
+        OrderType::Sell => {
+            account.unlock_amount(order.amount, order.asset_type);
+        }
+        OrderType::Buy => {
+            account.unlock_amount(
+                convert(
+                    order.amount,
+                    BASE_ASSET_DECIMALS,
+                    order.price,
+                    PRICE_DECIMALS,
+                    QUOTE_ASSET_DECIMALS,
+                    order.asset_type == AssetType::Base,
+                ),
+                !order.asset_type,
+            );
+        }
+    }
+
+    remove_order(user, order_id);
+    storage.account.insert(user, account);
+
+    // Refund matcher_fee
+    if order.matcher_fee > 0 {
+        transfer(user, FUEL_ASSET, order.matcher_fee.as_u64());
+    }
+
+    log_order_change_info(
+        order_id,
+        OrderChangeInfo::new(
+            OrderChangeType::OrderCancelled,
+            block_height(),
+            user,
+            tx_id(),
+            order.amount,
+            0,
+        ),
+    );
+
+    log(CancelOrderEvent { order_id });
 }
 
 fn get_asset_type(asset_id: AssetId) -> AssetType {

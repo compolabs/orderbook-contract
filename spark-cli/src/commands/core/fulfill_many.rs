@@ -1,11 +1,12 @@
-use crate::utils::{setup, validate_contract_id, AssetType, OrderType};
+use crate::utils::{setup, validate_contract_id, AssetType, LimitType, OrderType};
 use clap::Args;
 use fuels::{
     accounts::ViewOnlyAccount,
     types::{Bits256, ContractId},
 };
 use spark_market_sdk::{
-    AssetType as ContractAssetType, MarketContract, OrderType as ContractOrderType,
+    AssetType as ContractAssetType, LimitType as ContractLimitType, MarketContract,
+    OrderType as ContractOrderType,
 };
 
 #[derive(Args, Clone)]
@@ -22,6 +23,10 @@ pub(crate) struct FulfillManyCommand {
     /// The type of order
     #[clap(long)]
     pub(crate) order_type: OrderType,
+
+    /// The type of order
+    #[clap(long)]
+    pub(crate) limit_type: LimitType,
 
     /// The price of the order
     #[clap(long)]
@@ -60,13 +65,17 @@ impl FulfillManyCommand {
         }
 
         // TODO: cli parsing
-        let order_type = match self.order_type {
-            OrderType::Buy => ContractOrderType::Buy,
-            OrderType::Sell => ContractOrderType::Sell,
-        };
         let asset_type = match self.asset_type {
             AssetType::Base => ContractAssetType::Base,
             AssetType::Quote => ContractAssetType::Quote,
+        };
+        let limit_type = match self.limit_type {
+            LimitType::IOC => ContractLimitType::IOC,
+            LimitType::FOK => ContractLimitType::FOK,
+        };
+        let order_type = match self.order_type {
+            OrderType::Buy => ContractOrderType::Buy,
+            OrderType::Sell => ContractOrderType::Sell,
         };
 
         // Initial balance prior to contract call - used to calculate contract interaction cost
@@ -82,6 +91,7 @@ impl FulfillManyCommand {
                 self.amount,
                 asset_type.clone(),
                 order_type.clone(),
+                limit_type.clone(),
                 self.price,
                 self.slippage,
                 order_ids,

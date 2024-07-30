@@ -203,6 +203,7 @@ impl MarketContract {
         amount: u64,
         asset_type: AssetType,
         order_type: OrderType,
+        limit_type: LimitType,
         price: u64,
         slippage: u64,
         orders: Vec<Bits256>,
@@ -215,7 +216,9 @@ impl MarketContract {
         Ok(self
             .instance
             .methods()
-            .fulfill_order_many(amount, asset_type, order_type, price, slippage, orders)
+            .fulfill_order_many(
+                amount, asset_type, order_type, limit_type, price, slippage, orders,
+            )
             .with_variable_output_policy(VariableOutputPolicy::Exactly(1))
             .call_params(call_params)?
             .call()
