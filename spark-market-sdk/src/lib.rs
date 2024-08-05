@@ -12,7 +12,7 @@ use std::path::PathBuf;
 
 abigen!(Contract(
     name = "Market",
-    abi = "./market-contract/out/release/market-contract-abi.json"
+    abi = "market-contract/out/release/market-contract-abi.json"
 ));
 
 const MARKET_CONTRACT_BINARY_PATH: &str = "../market-contract/out/release/market-contract.bin";

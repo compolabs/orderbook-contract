@@ -10,7 +10,7 @@ use rand::Rng;
 
 abigen!(Contract(
     name = "Orderbook",
-    abi = "./orderbook-contract/out/release/orderbook-contract-abi.json"
+    abi = "orderbook-contract/out/release/orderbook-contract-abi.json"
 ));
 
 const ORDERBOOK_CONTRACT_BINARY_PATH: &str =
