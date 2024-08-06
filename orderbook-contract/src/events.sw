@@ -1,10 +1,13 @@
 library;
 
 pub struct MarketRegisterEvent {
-    pub asset_id: AssetId,
+    pub base: AssetId,
+    pub quote: AssetId,
     pub market: ContractId,
 }
 
 pub struct MarketUnregisterEvent {
-    pub asset_id: AssetId,
+    pub base: AssetId,
+    pub quote: AssetId,
+    pub market: ContractId,
 }
