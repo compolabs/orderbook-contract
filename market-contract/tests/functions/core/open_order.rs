@@ -33,7 +33,11 @@ mod success {
         assert_eq!(orders, vec![]);
 
         let response = contract
-            .open_order(order_amount, /*AssetType::Base,*/ order_type.clone(), price)
+            .open_order(
+                order_amount,
+                /*AssetType::Base,*/ order_type.clone(),
+                price,
+            )
             .await?;
         let id = response.value;
         let expected_id = contract
@@ -120,7 +124,11 @@ mod success {
         assert_eq!(orders, vec![]);
 
         let response = contract
-            .open_order(order_amount, /*AssetType::Quote,*/ order_type.clone(), price)
+            .open_order(
+                order_amount,
+                /*AssetType::Quote,*/ order_type.clone(),
+                price,
+            )
             .await?;
         let id = response.value;
         let expected_id = contract
@@ -199,7 +207,11 @@ mod success {
         assert_eq!(orders, vec![]);
 
         let response = contract
-            .open_order(order_amount, /*AssetType::Base,*/ order_type.clone(), price)
+            .open_order(
+                order_amount,
+                /*AssetType::Base,*/ order_type.clone(),
+                price,
+            )
             .await?;
         let id = response.value;
         let expected_id = contract
@@ -278,7 +290,11 @@ mod success {
         assert_eq!(orders, vec![]);
 
         let response = contract
-            .open_order(order_amount, /*AssetType::Quote,*/ order_type.clone(), price)
+            .open_order(
+                order_amount,
+                /*AssetType::Quote,*/ order_type.clone(),
+                price,
+            )
             .await?;
         let id = response.value;
         let expected_id = contract
@@ -363,7 +379,11 @@ mod success {
             .get_asset_balance(&owner.wallet.provider().unwrap().base_asset_id())
             .await?;
         let response = contract
-            .open_order(order_amount, /*AssetType::Base,*/ order_type.clone(), price)
+            .open_order(
+                order_amount,
+                /*AssetType::Base,*/ order_type.clone(),
+                price,
+            )
             .await?;
         let new_balance = owner
             .wallet
@@ -584,7 +604,11 @@ mod success {
             .get_contract_asset_balance(contract.contract_id(), assets.fuel.id)
             .await?;
         let _ = contract
-            .open_order(order_amount, /*AssetType::Base,*/ order_type.clone(), price)
+            .open_order(
+                order_amount,
+                /*AssetType::Base,*/ order_type.clone(),
+                price,
+            )
             .await?;
         let new_balance = owner
             .wallet
@@ -593,7 +617,7 @@ mod success {
             .get_contract_asset_balance(contract.contract_id(), assets.fuel.id)
             .await?;
         let protocol_fee_amount = contract
-            .protocol_fee_amount(order_amount/*, AssetType::Base*/)
+            .protocol_fee_amount(order_amount /*, AssetType::Base*/)
             .await?
             .value;
         assert_eq!(new_balance - balance, protocol_fee_amount);
@@ -654,7 +678,11 @@ mod revert {
 
         // Revert
         contract
-            .open_order(order_amount, /*AssetType::Base,*/ order_type.clone(), price)
+            .open_order(
+                order_amount,
+                /*AssetType::Base,*/ order_type.clone(),
+                price,
+            )
             .await
             .unwrap();
     }

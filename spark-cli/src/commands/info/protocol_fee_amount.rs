@@ -1,4 +1,4 @@
-use crate::utils::{setup, validate_contract_id/*, AssetType*/};
+use crate::utils::{setup, validate_contract_id /*, AssetType*/};
 use clap::Args;
 use spark_market_sdk::{/*AssetType as ContractAssetType,*/ MarketContract};
 
@@ -36,7 +36,7 @@ impl ProtocolFeeAmountCommand {
         };*/
 
         let protocol_fee_amount = contract
-            .protocol_fee_amount(self.amount/*, asset_type*/)
+            .protocol_fee_amount(self.amount /*, asset_type*/)
             .await?
             .value;
 

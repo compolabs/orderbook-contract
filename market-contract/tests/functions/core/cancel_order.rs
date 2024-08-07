@@ -140,7 +140,11 @@ mod success {
         assert!(contract.order(expected_id).await?.value.is_none());
 
         let id = contract
-            .open_order(order_amount, /*AssetType::Base,*/ order_type.clone(), price)
+            .open_order(
+                order_amount,
+                /*AssetType::Base,*/ order_type.clone(),
+                price,
+            )
             .await?
             .value;
         let expected_id = contract
@@ -206,7 +210,11 @@ mod success {
         assert_eq!(orders, vec![]);
 
         let id = contract
-            .open_order(order_amount, /*AssetType::Quote,*/ order_type.clone(), price)
+            .open_order(
+                order_amount,
+                /*AssetType::Quote,*/ order_type.clone(),
+                price,
+            )
             .await?
             .value;
         let expected_id = contract

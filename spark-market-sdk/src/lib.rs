@@ -125,10 +125,7 @@ impl MarketContract {
         order_type: OrderType,
         price: u64,
     ) -> anyhow::Result<CallResponse<Bits256>> {
-        let protocol_fee = self
-            .protocol_fee_amount(amount)
-            .await?
-            .value;
+        let protocol_fee = self.protocol_fee_amount(amount).await?.value;
         let matcher_fee = self.matcher_fee().await?.value;
         let call_params = CallParameters::default().with_amount(matcher_fee as u64 + protocol_fee);
         Ok(self
@@ -147,10 +144,7 @@ impl MarketContract {
         price: u64,
         matcher_fee: u32,
     ) -> anyhow::Result<CallResponse<Bits256>> {
-        let protocol_fee = self
-            .protocol_fee_amount(amount)
-            .await?
-            .value;
+        let protocol_fee = self.protocol_fee_amount(amount).await?.value;
         let call_params = CallParameters::default().with_amount(matcher_fee as u64 + protocol_fee);
         Ok(self
             .instance
@@ -205,17 +199,12 @@ impl MarketContract {
         slippage: u64,
         orders: Vec<Bits256>,
     ) -> anyhow::Result<CallResponse<Bits256>> {
-        let protocol_fee = self
-            .protocol_fee_amount(amount)
-            .await?
-            .value;
+        let protocol_fee = self.protocol_fee_amount(amount).await?.value;
         let call_params = CallParameters::default().with_amount(protocol_fee);
         Ok(self
             .instance
             .methods()
-            .fulfill_order_many(
-                amount, order_type, limit_type, price, slippage, orders,
-            )
+            .fulfill_order_many(amount, order_type, limit_type, price, slippage, orders)
             .with_variable_output_policy(VariableOutputPolicy::Exactly(1))
             .call_params(call_params)?
             .call()
@@ -267,10 +256,7 @@ impl MarketContract {
             .await?)
     }
 
-    pub async fn protocol_fee_amount(
-        &self,
-        amount: u64,
-    ) -> anyhow::Result<CallResponse<u64>> {
+    pub async fn protocol_fee_amount(&self, amount: u64) -> anyhow::Result<CallResponse<u64>> {
         Ok(self
             .instance
             .methods()
