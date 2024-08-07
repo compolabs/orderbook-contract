@@ -129,10 +129,10 @@ impl Market for Contract {
     #[storage(read, write)]
     fn open_order(
         amount: u64,
-        asset_type: AssetType,
         order_type: OrderType,
         price: u64,
     ) -> b256 {
+        let asset_type = AssetType::Base;
         open_order_internal(
             amount,
             asset_type,
@@ -238,7 +238,6 @@ impl Market for Contract {
     #[storage(read, write)]
     fn fulfill_order_many(
         amount: u64,
-        asset_type: AssetType,
         order_type: OrderType,
         limit_type: LimitType,
         price: u64,
@@ -248,6 +247,7 @@ impl Market for Contract {
         require(orders.len() > 0, ValueError::InvalidArrayLength);
         require(slippage <= HUNDRED_PERCENT, ValueError::InvalidSlippage);
 
+        let asset_type = AssetType::Base;
         let id0 = open_order_internal(amount, asset_type, order_type, price, 0);
         let len = orders.len();
         let mut idx1 = 0;
@@ -362,8 +362,8 @@ impl Info for Contract {
     }
 
     #[storage(read)]
-    fn protocol_fee_amount(amount: u64, asset_type: AssetType) -> u64 {
-        protocol_fee_amount(amount, asset_type)
+    fn protocol_fee_amount(amount: u64) -> u64 {
+        protocol_fee_amount(amount, AssetType::Base)
     }
 
     #[storage(read)]
@@ -404,12 +404,12 @@ impl Info for Contract {
     }
 
     fn order_id(
-        asset_type: AssetType,
         order_type: OrderType,
         owner: Identity,
         price: u64,
         block_height: u32,
     ) -> b256 {
+        let asset_type = AssetType::Base;
         require(
             asset_type == AssetType::Base || asset_type == AssetType::Quote,
             AssetError::InvalidAsset,
@@ -546,7 +546,6 @@ fn open_order_internal(
     log(OpenOrderEvent {
         amount,
         asset,
-        asset_type,
         order_type,
         order_id,
         price,

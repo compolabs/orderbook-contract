@@ -57,7 +57,6 @@ Owner address: fuel173lqaa6y4jxfjd2suq730uwys3zfg4f6zt9vzx4cc45v3xvlmwlszdvdpz
 ## Open Order
 
 ./target/release/spark-cli core open \
-    --asset-type base \
     --amount 10 \
     --order-type buy \
     --price 70000000000000 \
@@ -65,7 +64,6 @@ Owner address: fuel173lqaa6y4jxfjd2suq730uwys3zfg4f6zt9vzx4cc45v3xvlmwlszdvdpz
     --contract-id 0x7278edd30be6b982d3196ffb2790321d8546814226e51e82c8136c8f6d3c0c97
 
 ./target/release/spark-cli core open \
-    --asset-type base \
     --amount 10 \
     --order-type sell \
     --price 70000000000000 \
@@ -98,7 +96,6 @@ Owner address: fuel173lqaa6y4jxfjd2suq730uwys3zfg4f6zt9vzx4cc45v3xvlmwlszdvdpz
 ## Fulfill Order Many
 
 ./target/release/spark-cli core fulfill-many \
-    --asset-type base \
     --amount 2 \
     --order-type sell \
     --limit-type ioc \
@@ -176,7 +173,6 @@ Total Protocol fee collected
 Calculates Protocol fee for a order amount
 
 ./target/release/spark-cli info protocol-fee-amount \
-    --asset-type base \
     --amount 10 \
     --rpc "testnet.fuel.network" \
     --contract-id 0x7278edd30be6b982d3196ffb2790321d8546814226e51e82c8136c8f6d3c0c97
@@ -192,7 +188,6 @@ Matcher Fee for the market
 ## Order ID
 
 ./target/release/spark-cli info order-id \
-    --asset-type  base \
     --order-type sell \
     --owner 0xf47e0ef744ac8c993550e03d17f1c4844494553a12cac11ab8c568c8999fdbbf \
     --account-type address \

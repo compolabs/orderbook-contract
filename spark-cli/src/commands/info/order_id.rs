@@ -1,15 +1,15 @@
 use crate::utils::{setup, validate_contract_id, AccountType, OrderType};
 use clap::Args;
 use fuels::types::{Address, ContractId, Identity};
-use spark_market_sdk::{AssetType, MarketContract, OrderType as ContractOrderType};
+use spark_market_sdk::{/*AssetType,*/ MarketContract, OrderType as ContractOrderType};
 use std::str::FromStr;
 
 #[derive(Args, Clone)]
 #[command(about = "Create a sha256 hash (order id) of the provided information")]
 pub(crate) struct OrderIdCommand {
     /// The id of the asset
-    #[clap(long)]
-    pub(crate) asset_type: String,
+    /*#[clap(long)]
+    pub(crate) asset_type: String,*/
 
     /// The type of order
     #[clap(long)]
@@ -46,11 +46,11 @@ impl OrderIdCommand {
         let wallet = setup(&self.rpc).await?;
         let contract_id = validate_contract_id(&self.contract_id)?;
 
-        let asset_type = match self.asset_type.as_str() {
+        /*let asset_type = match self.asset_type.as_str() {
             "base" => AssetType::Base,
             "quote" => AssetType::Quote,
             _ => anyhow::bail!("Invalid asset type [base|quote]"),
-        };
+        };*/
 
         // TODO: cli parsing
         let order_type = match self.order_type {
@@ -74,7 +74,7 @@ impl OrderIdCommand {
 
         let hash = contract
             .order_id(
-                asset_type,
+                /*asset_type,*/
                 order_type,
                 account,
                 self.price,

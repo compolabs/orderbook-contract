@@ -1,7 +1,7 @@
 mod success {
 
     use crate::setup::{setup, Defaults};
-    use spark_market_sdk::{AssetType, OrderType};
+    use spark_market_sdk::{/*AssetType,*/ OrderType};
 
     #[tokio::test]
     async fn returns_total_protocol_fee() -> anyhow::Result<()> {
@@ -27,7 +27,7 @@ mod success {
         assert_eq!(orders, vec![]);
 
         let _ = contract
-            .open_order(order_amount, AssetType::Base, order_type.clone(), price)
+            .open_order(order_amount, /*AssetType::Base,*/ order_type.clone(), price)
             .await?;
 
         assert_eq!(contract.total_protocol_fee().await?.value, 2);

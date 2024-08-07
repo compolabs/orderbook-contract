@@ -1,6 +1,6 @@
 use crate::setup::{create_account, setup, Defaults};
 use fuels::accounts::ViewOnlyAccount;
-use spark_market_sdk::{AssetType, LimitType, OrderType};
+use spark_market_sdk::{/*AssetType,*/ LimitType, OrderType};
 
 mod success_ioc {
 
@@ -84,7 +84,7 @@ mod success_ioc {
                     .await?
                     .open_order(
                         config.amount,
-                        config.asset_type,
+                        /*config.asset_type,*/
                         config.order_type,
                         config.price,
                     )
@@ -105,7 +105,7 @@ mod success_ioc {
             .await?
             .fulfill_many(
                 fulfill_order_config.amount,
-                fulfill_order_config.asset_type,
+                /*fulfill_order_config.asset_type,*/
                 fulfill_order_config.order_type,
                 LimitType::IOC,
                 fulfill_order_config.price,
@@ -194,7 +194,7 @@ mod success_ioc {
                     .await?
                     .open_order(
                         config.amount,
-                        config.asset_type,
+                        /*config.asset_type,*/
                         config.order_type,
                         config.price,
                     )
@@ -215,7 +215,7 @@ mod success_ioc {
             .await?
             .fulfill_many(
                 fulfill_order_config.amount,
-                fulfill_order_config.asset_type,
+                /*fulfill_order_config.asset_type,*/
                 fulfill_order_config.order_type,
                 LimitType::IOC,
                 fulfill_order_config.price,
@@ -310,7 +310,7 @@ mod success_ioc {
                     .await?
                     .open_order(
                         config.amount,
-                        config.asset_type,
+                        /*config.asset_type,*/
                         config.order_type,
                         config.price,
                     )
@@ -331,7 +331,7 @@ mod success_ioc {
             .await?
             .fulfill_many(
                 fulfill_order_config.amount,
-                fulfill_order_config.asset_type,
+                /*fulfill_order_config.asset_type,*/
                 fulfill_order_config.order_type,
                 LimitType::IOC,
                 fulfill_order_config.price,
@@ -430,7 +430,7 @@ mod success_ioc {
                     .await?
                     .open_order(
                         config.amount,
-                        config.asset_type,
+                        /*config.asset_type,*/
                         config.order_type,
                         config.price,
                     )
@@ -456,7 +456,7 @@ mod success_ioc {
             .await?
             .fulfill_many(
                 fulfill_order_config.amount,
-                fulfill_order_config.asset_type,
+                /*fulfill_order_config.asset_type,*/
                 fulfill_order_config.order_type,
                 LimitType::IOC,
                 fulfill_order_config.price,
@@ -581,7 +581,7 @@ mod success_fok {
                     .await?
                     .open_order(
                         config.amount,
-                        config.asset_type,
+                        /*config.asset_type,*/
                         config.order_type,
                         config.price,
                     )
@@ -602,7 +602,7 @@ mod success_fok {
             .await?
             .fulfill_many(
                 fulfill_order_config.amount,
-                fulfill_order_config.asset_type,
+                /*fulfill_order_config.asset_type,*/
                 fulfill_order_config.order_type,
                 LimitType::FOK,
                 fulfill_order_config.price,
@@ -691,7 +691,7 @@ mod success_fok {
                     .await?
                     .open_order(
                         config.amount,
-                        config.asset_type,
+                        /*config.asset_type,*/
                         config.order_type,
                         config.price,
                     )
@@ -712,7 +712,7 @@ mod success_fok {
             .await?
             .fulfill_many(
                 fulfill_order_config.amount,
-                fulfill_order_config.asset_type,
+                /*fulfill_order_config.asset_type,*/
                 fulfill_order_config.order_type,
                 LimitType::FOK,
                 fulfill_order_config.price,
@@ -807,7 +807,7 @@ mod success_fok {
                     .await?
                     .open_order(
                         config.amount,
-                        config.asset_type,
+                        /*config.asset_type,*/
                         config.order_type,
                         config.price,
                     )
@@ -828,7 +828,7 @@ mod success_fok {
             .await?
             .fulfill_many(
                 fulfill_order_config.amount,
-                fulfill_order_config.asset_type,
+                /*fulfill_order_config.asset_type,*/
                 fulfill_order_config.order_type,
                 LimitType::FOK,
                 fulfill_order_config.price,
@@ -927,7 +927,7 @@ mod success_fok {
                     .await?
                     .open_order(
                         config.amount,
-                        config.asset_type,
+                        /*config.asset_type,*/
                         config.order_type,
                         config.price,
                     )
@@ -953,7 +953,7 @@ mod success_fok {
             .await?
             .fulfill_many(
                 fulfill_order_config.amount,
-                fulfill_order_config.asset_type,
+                /*fulfill_order_config.asset_type,*/
                 fulfill_order_config.order_type,
                 LimitType::FOK,
                 fulfill_order_config.price,
@@ -1077,7 +1077,7 @@ mod revert {
                     .unwrap()
                     .open_order(
                         config.amount,
-                        config.asset_type,
+                        /*config.asset_type,*/
                         config.order_type,
                         config.price,
                     )
@@ -1105,7 +1105,7 @@ mod revert {
             .unwrap()
             .fulfill_many(
                 fulfill_order_config.amount,
-                fulfill_order_config.asset_type,
+                /*fulfill_order_config.asset_type,*/
                 fulfill_order_config.order_type,
                 LimitType::IOC,
                 fulfill_order_config.price,
@@ -1176,7 +1176,7 @@ mod revert {
                     .unwrap()
                     .open_order(
                         config.amount,
-                        config.asset_type,
+                        /*config.asset_type,*/
                         config.order_type,
                         config.price,
                     )
@@ -1204,7 +1204,7 @@ mod revert {
             .unwrap()
             .fulfill_many(
                 fulfill_order_config.amount,
-                fulfill_order_config.asset_type,
+                /*fulfill_order_config.asset_type,*/
                 fulfill_order_config.order_type,
                 LimitType::IOC,
                 fulfill_order_config.price,
@@ -1290,7 +1290,7 @@ mod revert {
                     .unwrap()
                     .open_order(
                         config.amount,
-                        config.asset_type,
+                        /*config.asset_type,*/
                         config.order_type,
                         config.price,
                     )
@@ -1318,7 +1318,7 @@ mod revert {
             .unwrap()
             .fulfill_many(
                 fulfill_order_config.amount,
-                fulfill_order_config.asset_type,
+                /*fulfill_order_config.asset_type,*/
                 fulfill_order_config.order_type,
                 LimitType::FOK,
                 fulfill_order_config.price,

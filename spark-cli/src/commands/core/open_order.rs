@@ -1,8 +1,8 @@
-use crate::utils::{setup, validate_contract_id, AssetType, OrderType};
+use crate::utils::{setup, validate_contract_id, /*AssetType,*/ OrderType};
 use clap::Args;
 use fuels::{accounts::ViewOnlyAccount, types::ContractId};
 use spark_market_sdk::{
-    AssetType as ContractAssetType, MarketContract, OrderType as ContractOrderType,
+    /*AssetType as ContractAssetType,*/ MarketContract, OrderType as ContractOrderType,
 };
 
 #[derive(Args, Clone)]
@@ -13,8 +13,8 @@ pub(crate) struct OpenCommand {
     pub(crate) amount: u64,
 
     /// The asset type of the market
-    #[clap(long)]
-    pub(crate) asset_type: AssetType,
+    /*#[clap(long)]
+    pub(crate) asset_type: AssetType,*/
 
     /// The type of order
     #[clap(long)]
@@ -44,10 +44,10 @@ impl OpenCommand {
             OrderType::Buy => ContractOrderType::Buy,
             OrderType::Sell => ContractOrderType::Sell,
         };
-        let asset_type = match self.asset_type {
+        /*let asset_type = match self.asset_type {
             AssetType::Base => ContractAssetType::Base,
             AssetType::Quote => ContractAssetType::Quote,
-        };
+        };*/
 
         // Initial balance prior to contract call - used to calculate contract interaction cost
         let balance = wallet
@@ -60,7 +60,7 @@ impl OpenCommand {
         let order_id = contract
             .open_order(
                 self.amount,
-                asset_type.clone(),
+                /*asset_type.clone(),*/
                 order_type.clone(),
                 self.price,
             )

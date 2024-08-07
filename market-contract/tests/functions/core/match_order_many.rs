@@ -1,6 +1,6 @@
 use crate::setup::{create_account, setup, Defaults};
 use fuels::accounts::ViewOnlyAccount;
-use spark_market_sdk::{AssetType, OrderType};
+use spark_market_sdk::{/*AssetType,*/ OrderType};
 
 mod success {
 
@@ -82,7 +82,7 @@ mod success {
                     .await?
                     .open_order(
                         config.amount,
-                        config.asset_type,
+                        /*config.asset_type,*/
                         config.order_type,
                         config.price,
                     )
@@ -177,7 +177,7 @@ mod success {
                     .await?
                     .open_order(
                         config.amount,
-                        config.asset_type,
+                        /*config.asset_type,*/
                         config.order_type,
                         config.price,
                     )
@@ -276,7 +276,7 @@ mod success {
                     .await?
                     .open_order(
                         config.amount,
-                        config.asset_type,
+                        /*config.asset_type,*/
                         config.order_type,
                         config.price,
                     )
@@ -364,7 +364,7 @@ mod success {
                     .await?
                     .open_order(
                         config.amount,
-                        config.asset_type,
+                        /*config.asset_type,*/
                         config.order_type,
                         config.price,
                     )
@@ -494,7 +494,7 @@ mod revert {
                     .unwrap()
                     .open_order(
                         config.amount,
-                        config.asset_type,
+                        /*config.asset_type,*/
                         config.order_type,
                         config.price,
                     )

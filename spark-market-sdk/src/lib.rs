@@ -122,12 +122,11 @@ impl MarketContract {
     pub async fn open_order(
         &self,
         amount: u64,
-        asset_type: AssetType,
         order_type: OrderType,
         price: u64,
     ) -> anyhow::Result<CallResponse<Bits256>> {
         let protocol_fee = self
-            .protocol_fee_amount(amount, asset_type.clone())
+            .protocol_fee_amount(amount)
             .await?
             .value;
         let matcher_fee = self.matcher_fee().await?.value;
@@ -135,7 +134,7 @@ impl MarketContract {
         Ok(self
             .instance
             .methods()
-            .open_order(amount, asset_type, order_type, price)
+            .open_order(amount, order_type, price)
             .call_params(call_params)?
             .call()
             .await?)
@@ -144,20 +143,19 @@ impl MarketContract {
     pub async fn open_order_with_matcher_fee(
         &self,
         amount: u64,
-        asset_type: AssetType,
         order_type: OrderType,
         price: u64,
         matcher_fee: u32,
     ) -> anyhow::Result<CallResponse<Bits256>> {
         let protocol_fee = self
-            .protocol_fee_amount(amount, asset_type.clone())
+            .protocol_fee_amount(amount)
             .await?
             .value;
         let call_params = CallParameters::default().with_amount(matcher_fee as u64 + protocol_fee);
         Ok(self
             .instance
             .methods()
-            .open_order(amount, asset_type, order_type, price)
+            .open_order(amount, order_type, price)
             .with_variable_output_policy(VariableOutputPolicy::Exactly(1))
             .call_params(call_params)?
             .call()
@@ -201,7 +199,6 @@ impl MarketContract {
     pub async fn fulfill_many(
         &self,
         amount: u64,
-        asset_type: AssetType,
         order_type: OrderType,
         limit_type: LimitType,
         price: u64,
@@ -209,7 +206,7 @@ impl MarketContract {
         orders: Vec<Bits256>,
     ) -> anyhow::Result<CallResponse<Bits256>> {
         let protocol_fee = self
-            .protocol_fee_amount(amount, asset_type.clone())
+            .protocol_fee_amount(amount)
             .await?
             .value;
         let call_params = CallParameters::default().with_amount(protocol_fee);
@@ -217,7 +214,7 @@ impl MarketContract {
             .instance
             .methods()
             .fulfill_order_many(
-                amount, asset_type, order_type, limit_type, price, slippage, orders,
+                amount, order_type, limit_type, price, slippage, orders,
             )
             .with_variable_output_policy(VariableOutputPolicy::Exactly(1))
             .call_params(call_params)?
@@ -273,12 +270,11 @@ impl MarketContract {
     pub async fn protocol_fee_amount(
         &self,
         amount: u64,
-        asset_type: AssetType,
     ) -> anyhow::Result<CallResponse<u64>> {
         Ok(self
             .instance
             .methods()
-            .protocol_fee_amount(amount, asset_type)
+            .protocol_fee_amount(amount)
             .simulate()
             .await?)
     }
@@ -315,7 +311,6 @@ impl MarketContract {
 
     pub async fn order_id(
         &self,
-        asset_type: AssetType,
         order_type: OrderType,
         owner: Identity,
         price: u64,
@@ -324,7 +319,7 @@ impl MarketContract {
         Ok(self
             .instance
             .methods()
-            .order_id(asset_type, order_type, owner, price, block_height)
+            .order_id(order_type, owner, price, block_height)
             .simulate()
             .await?)
     }

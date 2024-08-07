@@ -1,11 +1,11 @@
-use crate::utils::{setup, validate_contract_id, AssetType, LimitType, OrderType};
+use crate::utils::{setup, validate_contract_id, /*AssetType,*/ LimitType, OrderType};
 use clap::Args;
 use fuels::{
     accounts::ViewOnlyAccount,
     types::{Bits256, ContractId},
 };
 use spark_market_sdk::{
-    AssetType as ContractAssetType, LimitType as ContractLimitType, MarketContract,
+    /*AssetType as ContractAssetType,*/ LimitType as ContractLimitType, MarketContract,
     OrderType as ContractOrderType,
 };
 
@@ -17,8 +17,8 @@ pub(crate) struct FulfillManyCommand {
     pub(crate) amount: u64,
 
     /// The asset type of the market
-    #[clap(long)]
-    pub(crate) asset_type: AssetType,
+    /*#[clap(long)]
+    pub(crate) asset_type: AssetType,*/
 
     /// The type of order
     #[clap(long)]
@@ -65,10 +65,10 @@ impl FulfillManyCommand {
         }
 
         // TODO: cli parsing
-        let asset_type = match self.asset_type {
+        /*let asset_type = match self.asset_type {
             AssetType::Base => ContractAssetType::Base,
             AssetType::Quote => ContractAssetType::Quote,
-        };
+        };*/
         let limit_type = match self.limit_type {
             LimitType::IOC => ContractLimitType::IOC,
             LimitType::FOK => ContractLimitType::FOK,
@@ -89,7 +89,7 @@ impl FulfillManyCommand {
         let order_id = contract
             .fulfill_many(
                 self.amount,
-                asset_type.clone(),
+                /*asset_type.clone(),*/
                 order_type.clone(),
                 limit_type.clone(),
                 self.price,
