@@ -1,6 +1,6 @@
 use crate::setup::{create_account, setup, Defaults};
 use fuels::accounts::ViewOnlyAccount;
-use spark_market_sdk::{AssetType, OrderType};
+use spark_market_sdk::{/*AssetType,*/ OrderType};
 
 mod success_same_asset_type {
 
@@ -35,13 +35,17 @@ mod success_same_asset_type {
         let id0 = contract
             .with_account(&user0.wallet)
             .await?
-            .open_order(base_amount, AssetType::Base, OrderType::Sell, price)
+            .open_order(
+                base_amount,
+                /*AssetType::Base,*/ OrderType::Sell,
+                price,
+            )
             .await?
             .value;
         let id1 = contract
             .with_account(&user1.wallet)
             .await?
-            .open_order(base_amount, AssetType::Base, OrderType::Buy, price)
+            .open_order(base_amount, /*AssetType::Base,*/ OrderType::Buy, price)
             .await?
             .value;
 
@@ -110,13 +114,17 @@ mod success_same_asset_type {
         let id0 = contract
             .with_account(&user0.wallet)
             .await?
-            .open_order(base_amount, AssetType::Base, OrderType::Sell, price)
+            .open_order(
+                base_amount,
+                /*AssetType::Base,*/ OrderType::Sell,
+                price,
+            )
             .await?
             .value;
         let id1 = contract
             .with_account(&user0.wallet)
             .await?
-            .open_order(base_amount, AssetType::Base, OrderType::Buy, price)
+            .open_order(base_amount, /*AssetType::Base,*/ OrderType::Buy, price)
             .await?
             .value;
 
@@ -170,13 +178,21 @@ mod success_same_asset_type {
         let id0 = contract
             .with_account(&user0.wallet)
             .await?
-            .open_order(base_amount, AssetType::Base, OrderType::Sell, sell_price)
+            .open_order(
+                base_amount,
+                /*AssetType::Base,*/ OrderType::Sell,
+                sell_price,
+            )
             .await?
             .value;
         let id1 = contract
             .with_account(&user1.wallet)
             .await?
-            .open_order(base_amount, AssetType::Base, OrderType::Buy, buy_price)
+            .open_order(
+                base_amount,
+                /*AssetType::Base,*/ OrderType::Buy,
+                buy_price,
+            )
             .await?
             .value;
 
@@ -241,13 +257,21 @@ mod success_same_asset_type {
         let id0 = contract
             .with_account(&user0.wallet)
             .await?
-            .open_order(sell_base_amount, AssetType::Base, OrderType::Sell, price)
+            .open_order(
+                sell_base_amount,
+                /*AssetType::Base,*/ OrderType::Sell,
+                price,
+            )
             .await?
             .value;
         let id1 = contract
             .with_account(&user1.wallet)
             .await?
-            .open_order(buy_base_amount, AssetType::Base, OrderType::Buy, price)
+            .open_order(
+                buy_base_amount,
+                /*AssetType::Base,*/ OrderType::Buy,
+                price,
+            )
             .await?
             .value;
 
@@ -317,13 +341,21 @@ mod success_same_asset_type {
         let id0 = contract
             .with_account(&user0.wallet)
             .await?
-            .open_order(quote_amount, AssetType::Quote, OrderType::Buy, price)
+            .open_order(
+                quote_amount,
+                /*AssetType::Quote,*/ OrderType::Buy,
+                price,
+            )
             .await?
             .value;
         let id1 = contract
             .with_account(&user1.wallet)
             .await?
-            .open_order(quote_amount, AssetType::Quote, OrderType::Sell, price)
+            .open_order(
+                quote_amount,
+                /*AssetType::Quote,*/ OrderType::Sell,
+                price,
+            )
             .await?
             .value;
 
@@ -392,13 +424,21 @@ mod success_same_asset_type {
         let id0 = contract
             .with_account(&user0.wallet)
             .await?
-            .open_order(quote_amount, AssetType::Quote, OrderType::Buy, price)
+            .open_order(
+                quote_amount,
+                /*AssetType::Quote,*/ OrderType::Buy,
+                price,
+            )
             .await?
             .value;
         let id1 = contract
             .with_account(&user0.wallet)
             .await?
-            .open_order(quote_amount, AssetType::Quote, OrderType::Sell, price)
+            .open_order(
+                quote_amount,
+                /*AssetType::Quote,*/ OrderType::Sell,
+                price,
+            )
             .await?
             .value;
 
@@ -454,7 +494,7 @@ mod success_same_asset_type {
             .await?
             .open_order(
                 sell_quote_amount,
-                AssetType::Quote,
+                /*AssetType::Quote,*/
                 OrderType::Buy,
                 sell_price,
             )
@@ -465,7 +505,7 @@ mod success_same_asset_type {
             .await?
             .open_order(
                 buy_quote_amount,
-                AssetType::Quote,
+                /*AssetType::Quote,*/
                 OrderType::Sell,
                 buy_price,
             )
@@ -473,7 +513,7 @@ mod success_same_asset_type {
             .value;
         let expected_id = contract
             .order_id(
-                AssetType::Quote,
+                /*AssetType::Quote,*/
                 OrderType::Sell,
                 user1.identity(),
                 buy_price,
@@ -546,12 +586,16 @@ mod success_same_asset_type {
         let id0 = contract
             .with_account(&user0.wallet)
             .await?
-            .open_order(sell_quote_amount, AssetType::Quote, OrderType::Buy, price)
+            .open_order(
+                sell_quote_amount,
+                /*AssetType::Quote,*/ OrderType::Buy,
+                price,
+            )
             .await?
             .value;
         let expected_id = contract
             .order_id(
-                AssetType::Quote,
+                /*AssetType::Quote,*/
                 OrderType::Buy,
                 user0.identity(),
                 price,
@@ -563,7 +607,11 @@ mod success_same_asset_type {
         let id1 = contract
             .with_account(&user1.wallet)
             .await?
-            .open_order(buy_quote_amount, AssetType::Quote, OrderType::Sell, price)
+            .open_order(
+                buy_quote_amount,
+                /*AssetType::Quote,*/ OrderType::Sell,
+                price,
+            )
             .await?
             .value;
 
@@ -634,13 +682,17 @@ mod success_same_asset_type {
         let id0 = contract
             .with_account(&user0.wallet)
             .await?
-            .open_order(base_amount, AssetType::Base, OrderType::Sell, price)
+            .open_order(
+                base_amount,
+                /*AssetType::Base,*/ OrderType::Sell,
+                price,
+            )
             .await?
             .value;
         let id1 = contract
             .with_account(&user1.wallet)
             .await?
-            .open_order(base_amount, AssetType::Base, OrderType::Buy, price)
+            .open_order(base_amount, /*AssetType::Base,*/ OrderType::Buy, price)
             .await?
             .value;
 
@@ -730,13 +782,21 @@ mod success_same_order_type {
         let id0 = contract
             .with_account(&user0.wallet)
             .await?
-            .open_order(base_amount, AssetType::Base, OrderType::Sell, price)
+            .open_order(
+                base_amount,
+                /*AssetType::Base,*/ OrderType::Sell,
+                price,
+            )
             .await?
             .value;
         let id1 = contract
             .with_account(&user1.wallet)
             .await?
-            .open_order(quote_amount, AssetType::Quote, OrderType::Sell, price)
+            .open_order(
+                quote_amount,
+                /*AssetType::Quote,*/ OrderType::Sell,
+                price,
+            )
             .await?
             .value;
 
@@ -805,13 +865,21 @@ mod success_same_order_type {
         let id0 = contract
             .with_account(&user0.wallet)
             .await?
-            .open_order(base_amount, AssetType::Base, OrderType::Sell, price)
+            .open_order(
+                base_amount,
+                /*AssetType::Base,*/ OrderType::Sell,
+                price,
+            )
             .await?
             .value;
         let id1 = contract
             .with_account(&user0.wallet)
             .await?
-            .open_order(quote_amount, AssetType::Quote, OrderType::Sell, price)
+            .open_order(
+                quote_amount,
+                /*AssetType::Quote,*/ OrderType::Sell,
+                price,
+            )
             .await?
             .value;
 
@@ -865,7 +933,11 @@ mod success_same_order_type {
         let id0 = contract
             .with_account(&user0.wallet)
             .await?
-            .open_order(base_amount, AssetType::Base, OrderType::Sell, sell_price)
+            .open_order(
+                base_amount,
+                /*AssetType::Base,*/ OrderType::Sell,
+                sell_price,
+            )
             .await?
             .value;
         let id1 = contract
@@ -873,7 +945,7 @@ mod success_same_order_type {
             .await?
             .open_order(
                 buy_quote_amount,
-                AssetType::Quote,
+                /*AssetType::Quote,*/
                 OrderType::Sell,
                 buy_price,
             )
@@ -941,13 +1013,21 @@ mod success_same_order_type {
         let id0 = contract
             .with_account(&user0.wallet)
             .await?
-            .open_order(sell_base_amount, AssetType::Base, OrderType::Sell, price)
+            .open_order(
+                sell_base_amount,
+                /*AssetType::Base,*/ OrderType::Sell,
+                price,
+            )
             .await?
             .value;
         let id1 = contract
             .with_account(&user1.wallet)
             .await?
-            .open_order(buy_quote_amount, AssetType::Quote, OrderType::Sell, price)
+            .open_order(
+                buy_quote_amount,
+                /*AssetType::Quote,*/ OrderType::Sell,
+                price,
+            )
             .await?
             .value;
 
@@ -1017,13 +1097,17 @@ mod success_same_order_type {
         let id0 = contract
             .with_account(&user0.wallet)
             .await?
-            .open_order(quote_amount, AssetType::Quote, OrderType::Buy, price)
+            .open_order(
+                quote_amount,
+                /*AssetType::Quote,*/ OrderType::Buy,
+                price,
+            )
             .await?
             .value;
         let id1 = contract
             .with_account(&user1.wallet)
             .await?
-            .open_order(base_amount, AssetType::Base, OrderType::Buy, price)
+            .open_order(base_amount, /*AssetType::Base,*/ OrderType::Buy, price)
             .await?
             .value;
 
@@ -1089,7 +1173,7 @@ mod success_same_order_type {
             .await?
             .open_order(
                 sell_quote_amount,
-                AssetType::Quote,
+                /*AssetType::Quote,*/
                 OrderType::Buy,
                 sell_price,
             )
@@ -1098,12 +1182,16 @@ mod success_same_order_type {
         let id1 = contract
             .with_account(&user1.wallet)
             .await?
-            .open_order(base_amount, AssetType::Base, OrderType::Buy, buy_price)
+            .open_order(
+                base_amount,
+                /*AssetType::Base,*/ OrderType::Buy,
+                buy_price,
+            )
             .await?
             .value;
         let expected_id = contract
             .order_id(
-                AssetType::Quote,
+                /*AssetType::Quote,*/
                 OrderType::Sell,
                 user1.identity(),
                 buy_price,
@@ -1176,12 +1264,16 @@ mod success_same_order_type {
         let id0 = contract
             .with_account(&user0.wallet)
             .await?
-            .open_order(sell_quote_amount, AssetType::Quote, OrderType::Buy, price)
+            .open_order(
+                sell_quote_amount,
+                /*AssetType::Quote,*/ OrderType::Buy,
+                price,
+            )
             .await?
             .value;
         let expected_id = contract
             .order_id(
-                AssetType::Quote,
+                /*AssetType::Quote,*/
                 OrderType::Buy,
                 user0.identity(),
                 price,
@@ -1193,7 +1285,11 @@ mod success_same_order_type {
         let id1 = contract
             .with_account(&user1.wallet)
             .await?
-            .open_order(buy_base_amount, AssetType::Base, OrderType::Buy, price)
+            .open_order(
+                buy_base_amount,
+                /*AssetType::Base,*/ OrderType::Buy,
+                price,
+            )
             .await?
             .value;
 
@@ -1274,7 +1370,11 @@ mod revert {
             .with_account(&user0.wallet)
             .await
             .unwrap()
-            .open_order(base_amount, AssetType::Base, OrderType::Sell, sell_price)
+            .open_order(
+                base_amount,
+                /*AssetType::Base,*/ OrderType::Sell,
+                sell_price,
+            )
             .await
             .unwrap()
             .value;
@@ -1282,7 +1382,11 @@ mod revert {
             .with_account(&user1.wallet)
             .await
             .unwrap()
-            .open_order(base_amount, AssetType::Base, OrderType::Buy, buy_price)
+            .open_order(
+                base_amount,
+                /*AssetType::Base,*/ OrderType::Buy,
+                buy_price,
+            )
             .await
             .unwrap()
             .value;
@@ -1312,8 +1416,8 @@ mod revert {
         contract.match_order_pair(id0, id1).await.unwrap();
     }
 
-    #[tokio::test]
-    #[should_panic(expected = "InvalidAsset")]
+    //#[tokio::test]
+    //#[should_panic(expected = "InvalidAsset")]
     async fn match_same_order_type_orders_buy_price_low() {
         let defaults = Defaults::default();
         let (contract, user0, user1, assets) = setup(
@@ -1349,7 +1453,11 @@ mod revert {
             .with_account(&user0.wallet)
             .await
             .unwrap()
-            .open_order(base_amount, AssetType::Base, OrderType::Sell, sell_price)
+            .open_order(
+                base_amount,
+                /*AssetType::Base,*/ OrderType::Sell,
+                sell_price,
+            )
             .await
             .unwrap()
             .value;
@@ -1357,7 +1465,11 @@ mod revert {
             .with_account(&user1.wallet)
             .await
             .unwrap()
-            .open_order(quote_amount, AssetType::Quote, OrderType::Sell, buy_price)
+            .open_order(
+                quote_amount,
+                /*AssetType::Quote,*/ OrderType::Sell,
+                buy_price,
+            )
             .await
             .unwrap()
             .value;

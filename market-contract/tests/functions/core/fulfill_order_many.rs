@@ -1,6 +1,6 @@
 use crate::setup::{create_account, setup, Defaults};
 use fuels::accounts::ViewOnlyAccount;
-use spark_market_sdk::{AssetType, LimitType, OrderType};
+use spark_market_sdk::{/*AssetType,*/ LimitType, OrderType};
 
 mod success_ioc {
 
@@ -10,7 +10,7 @@ mod success_ioc {
 
     struct OrderConfig {
         pub amount: u64,
-        pub asset_type: AssetType,
+        /*pub asset_type: AssetType,*/
         pub order_type: OrderType,
         pub price: u64,
     }
@@ -35,19 +35,19 @@ mod success_ioc {
         let order_configs: Vec<OrderConfig> = vec![
             OrderConfig {
                 amount: 2 * base_amount,
-                asset_type: AssetType::Base,
+                /*/*asset_type: AssetType::Base,*/*/
                 order_type: OrderType::Buy,
                 price: price1,
             },
             OrderConfig {
                 amount: base_amount,
-                asset_type: AssetType::Base,
+                /*/*asset_type: AssetType::Base,*/*/
                 order_type: OrderType::Buy,
                 price: price2,
             },
             OrderConfig {
                 amount: 2 * base_amount,
-                asset_type: AssetType::Base,
+                /*/*asset_type: AssetType::Base,*/*/
                 order_type: OrderType::Buy,
                 price: price2,
             },
@@ -55,7 +55,7 @@ mod success_ioc {
 
         let fulfill_order_config = OrderConfig {
             amount: 5 * base_amount,
-            asset_type: AssetType::Base,
+            /*/*asset_type: AssetType::Base,*/*/
             order_type: OrderType::Sell,
             price: price1,
         };
@@ -84,7 +84,7 @@ mod success_ioc {
                     .await?
                     .open_order(
                         config.amount,
-                        config.asset_type,
+                        /*config.asset_type,*/
                         config.order_type,
                         config.price,
                     )
@@ -105,7 +105,7 @@ mod success_ioc {
             .await?
             .fulfill_many(
                 fulfill_order_config.amount,
-                fulfill_order_config.asset_type,
+                /*fulfill_order_config.asset_type,*/
                 fulfill_order_config.order_type,
                 LimitType::IOC,
                 fulfill_order_config.price,
@@ -150,13 +150,13 @@ mod success_ioc {
         let order_configs: Vec<OrderConfig> = vec![
             OrderConfig {
                 amount: 2 * base_amount,
-                asset_type: AssetType::Base,
+                /*/*asset_type: AssetType::Base,*/*/
                 order_type: OrderType::Buy,
                 price: price1,
             },
             OrderConfig {
                 amount: 4 * base_amount,
-                asset_type: AssetType::Base,
+                /*/*asset_type: AssetType::Base,*/*/
                 order_type: OrderType::Buy,
                 price: price2,
             },
@@ -164,7 +164,7 @@ mod success_ioc {
 
         let fulfill_order_config = OrderConfig {
             amount: base_amount * 5,
-            asset_type: AssetType::Base,
+            /*/*asset_type: AssetType::Base,*/*/
             order_type: OrderType::Sell,
             price: price1,
         };
@@ -194,7 +194,7 @@ mod success_ioc {
                     .await?
                     .open_order(
                         config.amount,
-                        config.asset_type,
+                        /*config.asset_type,*/
                         config.order_type,
                         config.price,
                     )
@@ -215,7 +215,7 @@ mod success_ioc {
             .await?
             .fulfill_many(
                 fulfill_order_config.amount,
-                fulfill_order_config.asset_type,
+                /*fulfill_order_config.asset_type,*/
                 fulfill_order_config.order_type,
                 LimitType::IOC,
                 fulfill_order_config.price,
@@ -260,19 +260,19 @@ mod success_ioc {
         let order_configs: Vec<OrderConfig> = vec![
             OrderConfig {
                 amount: 2 * base_amount,
-                asset_type: AssetType::Base,
+                /*/*asset_type: AssetType::Base,*/*/
                 order_type: OrderType::Buy,
                 price: price1,
             },
             OrderConfig {
                 amount: base_amount,
-                asset_type: AssetType::Base,
+                /*/*asset_type: AssetType::Base,*/*/
                 order_type: OrderType::Buy,
                 price: price2,
             },
             OrderConfig {
                 amount: 2 * base_amount,
-                asset_type: AssetType::Base,
+                /*/*asset_type: AssetType::Base,*/*/
                 order_type: OrderType::Buy,
                 price: price2,
             },
@@ -280,7 +280,7 @@ mod success_ioc {
 
         let fulfill_order_config = OrderConfig {
             amount: 4 * base_amount,
-            asset_type: AssetType::Base,
+            /*/*asset_type: AssetType::Base,*/*/
             order_type: OrderType::Sell,
             price: price1,
         };
@@ -310,7 +310,7 @@ mod success_ioc {
                     .await?
                     .open_order(
                         config.amount,
-                        config.asset_type,
+                        /*config.asset_type,*/
                         config.order_type,
                         config.price,
                     )
@@ -331,7 +331,7 @@ mod success_ioc {
             .await?
             .fulfill_many(
                 fulfill_order_config.amount,
-                fulfill_order_config.asset_type,
+                /*fulfill_order_config.asset_type,*/
                 fulfill_order_config.order_type,
                 LimitType::IOC,
                 fulfill_order_config.price,
@@ -381,19 +381,19 @@ mod success_ioc {
         let order_configs: Vec<OrderConfig> = vec![
             OrderConfig {
                 amount: 2 * base_amount,
-                asset_type: AssetType::Base,
+                /*/*asset_type: AssetType::Base,*/*/
                 order_type: OrderType::Buy,
                 price: price1,
             },
             OrderConfig {
                 amount: base_amount,
-                asset_type: AssetType::Base,
+                /*/*asset_type: AssetType::Base,*/*/
                 order_type: OrderType::Buy,
                 price: price2,
             },
             OrderConfig {
                 amount: 2 * base_amount,
-                asset_type: AssetType::Base,
+                /*/*asset_type: AssetType::Base,*/*/
                 order_type: OrderType::Buy,
                 price: price2,
             },
@@ -401,7 +401,7 @@ mod success_ioc {
 
         let fulfill_order_config = OrderConfig {
             amount: 5 * base_amount,
-            asset_type: AssetType::Base,
+            /*/*asset_type: AssetType::Base,*/*/
             order_type: OrderType::Sell,
             price: price1,
         };
@@ -430,7 +430,7 @@ mod success_ioc {
                     .await?
                     .open_order(
                         config.amount,
-                        config.asset_type,
+                        /*config.asset_type,*/
                         config.order_type,
                         config.price,
                     )
@@ -456,7 +456,7 @@ mod success_ioc {
             .await?
             .fulfill_many(
                 fulfill_order_config.amount,
-                fulfill_order_config.asset_type,
+                /*fulfill_order_config.asset_type,*/
                 fulfill_order_config.order_type,
                 LimitType::IOC,
                 fulfill_order_config.price,
@@ -507,7 +507,7 @@ mod success_fok {
 
     struct OrderConfig {
         pub amount: u64,
-        pub asset_type: AssetType,
+        /*pub asset_type: AssetType,*/
         pub order_type: OrderType,
         pub price: u64,
     }
@@ -532,19 +532,19 @@ mod success_fok {
         let order_configs: Vec<OrderConfig> = vec![
             OrderConfig {
                 amount: 2 * base_amount,
-                asset_type: AssetType::Base,
+                /*asset_type: AssetType::Base,*/
                 order_type: OrderType::Buy,
                 price: price1,
             },
             OrderConfig {
                 amount: base_amount,
-                asset_type: AssetType::Base,
+                /*asset_type: AssetType::Base,*/
                 order_type: OrderType::Buy,
                 price: price2,
             },
             OrderConfig {
                 amount: 2 * base_amount,
-                asset_type: AssetType::Base,
+                /*asset_type: AssetType::Base,*/
                 order_type: OrderType::Buy,
                 price: price2,
             },
@@ -552,7 +552,7 @@ mod success_fok {
 
         let fulfill_order_config = OrderConfig {
             amount: 5 * base_amount,
-            asset_type: AssetType::Base,
+            /*asset_type: AssetType::Base,*/
             order_type: OrderType::Sell,
             price: price1,
         };
@@ -581,7 +581,7 @@ mod success_fok {
                     .await?
                     .open_order(
                         config.amount,
-                        config.asset_type,
+                        /*config.asset_type,*/
                         config.order_type,
                         config.price,
                     )
@@ -602,7 +602,7 @@ mod success_fok {
             .await?
             .fulfill_many(
                 fulfill_order_config.amount,
-                fulfill_order_config.asset_type,
+                /*fulfill_order_config.asset_type,*/
                 fulfill_order_config.order_type,
                 LimitType::FOK,
                 fulfill_order_config.price,
@@ -647,13 +647,13 @@ mod success_fok {
         let order_configs: Vec<OrderConfig> = vec![
             OrderConfig {
                 amount: 2 * base_amount,
-                asset_type: AssetType::Base,
+                /*asset_type: AssetType::Base,*/
                 order_type: OrderType::Buy,
                 price: price1,
             },
             OrderConfig {
                 amount: 4 * base_amount,
-                asset_type: AssetType::Base,
+                /*asset_type: AssetType::Base,*/
                 order_type: OrderType::Buy,
                 price: price2,
             },
@@ -661,7 +661,7 @@ mod success_fok {
 
         let fulfill_order_config = OrderConfig {
             amount: base_amount * 5,
-            asset_type: AssetType::Base,
+            /*asset_type: AssetType::Base,*/
             order_type: OrderType::Sell,
             price: price1,
         };
@@ -691,7 +691,7 @@ mod success_fok {
                     .await?
                     .open_order(
                         config.amount,
-                        config.asset_type,
+                        /*config.asset_type,*/
                         config.order_type,
                         config.price,
                     )
@@ -712,7 +712,7 @@ mod success_fok {
             .await?
             .fulfill_many(
                 fulfill_order_config.amount,
-                fulfill_order_config.asset_type,
+                /*fulfill_order_config.asset_type,*/
                 fulfill_order_config.order_type,
                 LimitType::FOK,
                 fulfill_order_config.price,
@@ -757,19 +757,19 @@ mod success_fok {
         let order_configs: Vec<OrderConfig> = vec![
             OrderConfig {
                 amount: 2 * base_amount,
-                asset_type: AssetType::Base,
+                /*asset_type: AssetType::Base,*/
                 order_type: OrderType::Buy,
                 price: price1,
             },
             OrderConfig {
                 amount: base_amount,
-                asset_type: AssetType::Base,
+                /*asset_type: AssetType::Base,*/
                 order_type: OrderType::Buy,
                 price: price2,
             },
             OrderConfig {
                 amount: 2 * base_amount,
-                asset_type: AssetType::Base,
+                /*asset_type: AssetType::Base,*/
                 order_type: OrderType::Buy,
                 price: price2,
             },
@@ -777,7 +777,7 @@ mod success_fok {
 
         let fulfill_order_config = OrderConfig {
             amount: 4 * base_amount,
-            asset_type: AssetType::Base,
+            /*asset_type: AssetType::Base,*/
             order_type: OrderType::Sell,
             price: price1,
         };
@@ -807,7 +807,7 @@ mod success_fok {
                     .await?
                     .open_order(
                         config.amount,
-                        config.asset_type,
+                        /*config.asset_type,*/
                         config.order_type,
                         config.price,
                     )
@@ -828,7 +828,7 @@ mod success_fok {
             .await?
             .fulfill_many(
                 fulfill_order_config.amount,
-                fulfill_order_config.asset_type,
+                /*fulfill_order_config.asset_type,*/
                 fulfill_order_config.order_type,
                 LimitType::FOK,
                 fulfill_order_config.price,
@@ -878,19 +878,19 @@ mod success_fok {
         let order_configs: Vec<OrderConfig> = vec![
             OrderConfig {
                 amount: 2 * base_amount,
-                asset_type: AssetType::Base,
+                /*asset_type: AssetType::Base,*/
                 order_type: OrderType::Buy,
                 price: price1,
             },
             OrderConfig {
                 amount: base_amount,
-                asset_type: AssetType::Base,
+                /*asset_type: AssetType::Base,*/
                 order_type: OrderType::Buy,
                 price: price2,
             },
             OrderConfig {
                 amount: 2 * base_amount,
-                asset_type: AssetType::Base,
+                /*asset_type: AssetType::Base,*/
                 order_type: OrderType::Buy,
                 price: price2,
             },
@@ -898,7 +898,7 @@ mod success_fok {
 
         let fulfill_order_config = OrderConfig {
             amount: 5 * base_amount,
-            asset_type: AssetType::Base,
+            /*asset_type: AssetType::Base,*/
             order_type: OrderType::Sell,
             price: price1,
         };
@@ -927,7 +927,7 @@ mod success_fok {
                     .await?
                     .open_order(
                         config.amount,
-                        config.asset_type,
+                        /*config.asset_type,*/
                         config.order_type,
                         config.price,
                     )
@@ -953,7 +953,7 @@ mod success_fok {
             .await?
             .fulfill_many(
                 fulfill_order_config.amount,
-                fulfill_order_config.asset_type,
+                /*fulfill_order_config.asset_type,*/
                 fulfill_order_config.order_type,
                 LimitType::FOK,
                 fulfill_order_config.price,
@@ -1004,7 +1004,7 @@ mod revert {
 
     struct OrderConfig {
         pub amount: u64,
-        pub asset_type: AssetType,
+        /*pub asset_type: AssetType,*/
         pub order_type: OrderType,
         pub price: u64,
     }
@@ -1031,13 +1031,13 @@ mod revert {
         let order_configs: Vec<OrderConfig> = vec![
             OrderConfig {
                 amount: 2 * base_amount,
-                asset_type: AssetType::Base,
+                /*asset_type: AssetType::Base,*/
                 order_type: OrderType::Buy,
                 price: price1,
             },
             OrderConfig {
                 amount: 4 * base_amount,
-                asset_type: AssetType::Base,
+                /*asset_type: AssetType::Base,*/
                 order_type: OrderType::Buy,
                 price: price2,
             },
@@ -1045,7 +1045,7 @@ mod revert {
 
         let fulfill_order_config = OrderConfig {
             amount: base_amount * 5,
-            asset_type: AssetType::Base,
+            /*asset_type: AssetType::Base,*/
             order_type: OrderType::Buy,
             price: price1,
         };
@@ -1077,7 +1077,7 @@ mod revert {
                     .unwrap()
                     .open_order(
                         config.amount,
-                        config.asset_type,
+                        /*config.asset_type,*/
                         config.order_type,
                         config.price,
                     )
@@ -1105,7 +1105,7 @@ mod revert {
             .unwrap()
             .fulfill_many(
                 fulfill_order_config.amount,
-                fulfill_order_config.asset_type,
+                /*fulfill_order_config.asset_type,*/
                 fulfill_order_config.order_type,
                 LimitType::IOC,
                 fulfill_order_config.price,
@@ -1137,14 +1137,14 @@ mod revert {
 
         let order_configs: Vec<OrderConfig> = vec![OrderConfig {
             amount: base_amount * 2,
-            asset_type: AssetType::Base,
+            /*asset_type: AssetType::Base,*/
             order_type: OrderType::Sell,
             price: price1,
         }];
 
         let fulfill_order_config = OrderConfig {
             amount: base_amount * 2,
-            asset_type: AssetType::Base,
+            /*asset_type: AssetType::Base,*/
             order_type: OrderType::Buy,
             price: price2,
         };
@@ -1176,7 +1176,7 @@ mod revert {
                     .unwrap()
                     .open_order(
                         config.amount,
-                        config.asset_type,
+                        /*config.asset_type,*/
                         config.order_type,
                         config.price,
                     )
@@ -1204,7 +1204,7 @@ mod revert {
             .unwrap()
             .fulfill_many(
                 fulfill_order_config.amount,
-                fulfill_order_config.asset_type,
+                /*fulfill_order_config.asset_type,*/
                 fulfill_order_config.order_type,
                 LimitType::IOC,
                 fulfill_order_config.price,
@@ -1237,19 +1237,19 @@ mod revert {
         let order_configs: Vec<OrderConfig> = vec![
             OrderConfig {
                 amount: 2 * base_amount,
-                asset_type: AssetType::Base,
+                /*asset_type: AssetType::Base,*/
                 order_type: OrderType::Buy,
                 price: price1,
             },
             OrderConfig {
                 amount: base_amount,
-                asset_type: AssetType::Base,
+                /*asset_type: AssetType::Base,*/
                 order_type: OrderType::Buy,
                 price: price2,
             },
             OrderConfig {
                 amount: 2 * base_amount,
-                asset_type: AssetType::Base,
+                /*asset_type: AssetType::Base,*/
                 order_type: OrderType::Buy,
                 price: price2,
             },
@@ -1257,7 +1257,7 @@ mod revert {
 
         let fulfill_order_config = OrderConfig {
             amount: 6 * base_amount,
-            asset_type: AssetType::Base,
+            /*asset_type: AssetType::Base,*/
             order_type: OrderType::Sell,
             price: price1,
         };
@@ -1290,7 +1290,7 @@ mod revert {
                     .unwrap()
                     .open_order(
                         config.amount,
-                        config.asset_type,
+                        /*config.asset_type,*/
                         config.order_type,
                         config.price,
                     )
@@ -1318,7 +1318,7 @@ mod revert {
             .unwrap()
             .fulfill_many(
                 fulfill_order_config.amount,
-                fulfill_order_config.asset_type,
+                /*fulfill_order_config.asset_type,*/
                 fulfill_order_config.order_type,
                 LimitType::FOK,
                 fulfill_order_config.price,

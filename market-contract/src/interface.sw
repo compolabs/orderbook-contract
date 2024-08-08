@@ -21,7 +21,6 @@ abi Market {
     #[storage(read, write)]
     fn open_order(
         amount: u64,
-        asset_type: AssetType,
         order_type: OrderType,
         price: u64,
     ) -> b256;
@@ -39,7 +38,6 @@ abi Market {
     #[storage(read, write)]
     fn fulfill_order_many(
         amount: u64,
-        asset_type: AssetType,
         order_type: OrderType,
         limit_type: LimitType,
         price: u64,
@@ -71,7 +69,7 @@ abi Info {
     fn matcher_fee() -> u32;
 
     #[storage(read)]
-    fn protocol_fee_amount(amount: u64, asset_type: AssetType) -> u64;
+    fn protocol_fee_amount(amount: u64) -> u64;
 
     #[storage(read)]
     fn order(order: b256) -> Option<Order>;
@@ -85,7 +83,6 @@ abi Info {
     fn config() -> (Address, AssetId, u32, AssetId, u32, u32, AssetId);
 
     fn order_id(
-        asset_type: AssetType,
         order_type: OrderType,
         owner: Identity,
         price: u64,

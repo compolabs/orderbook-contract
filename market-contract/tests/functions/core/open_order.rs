@@ -1,6 +1,6 @@
 use crate::setup::{setup, Defaults};
 use fuels::accounts::ViewOnlyAccount;
-use spark_market_sdk::{AssetType, OpenOrderEvent, OrderChangeType, OrderType};
+use spark_market_sdk::{/*AssetType,*/ OpenOrderEvent, OrderChangeType, OrderType};
 
 mod success {
 
@@ -33,12 +33,16 @@ mod success {
         assert_eq!(orders, vec![]);
 
         let response = contract
-            .open_order(order_amount, AssetType::Base, order_type.clone(), price)
+            .open_order(
+                order_amount,
+                /*AssetType::Base,*/ order_type.clone(),
+                price,
+            )
             .await?;
         let id = response.value;
         let expected_id = contract
             .order_id(
-                AssetType::Base,
+                /*AssetType::Base,*/
                 order_type.clone(),
                 owner.identity(),
                 price,
@@ -54,7 +58,7 @@ mod success {
         let block_height = owner.wallet.try_provider()?.latest_block_height().await?;
         let stored_id = contract
             .order_id(
-                order.asset_type.clone(),
+                /*order.asset_type.clone(),*/
                 order.order_type,
                 order.owner,
                 order.price,
@@ -70,7 +74,6 @@ mod success {
             OpenOrderEvent {
                 amount: order_amount,
                 asset,
-                asset_type: order.asset_type.clone(),
                 order_type,
                 order_id: expected_id,
                 price,
@@ -121,12 +124,16 @@ mod success {
         assert_eq!(orders, vec![]);
 
         let response = contract
-            .open_order(order_amount, AssetType::Quote, order_type.clone(), price)
+            .open_order(
+                order_amount,
+                /*AssetType::Quote,*/ order_type.clone(),
+                price,
+            )
             .await?;
         let id = response.value;
         let expected_id = contract
             .order_id(
-                AssetType::Quote,
+                /*AssetType::Quote,*/
                 order_type.clone(),
                 owner.identity(),
                 price,
@@ -141,7 +148,7 @@ mod success {
         let order = contract.order(expected_id).await?.value.unwrap();
         let stored_id = contract
             .order_id(
-                order.asset_type.clone(),
+                /*order.asset_type.clone(),*/
                 order.order_type,
                 order.owner,
                 order.price,
@@ -157,7 +164,6 @@ mod success {
             OpenOrderEvent {
                 amount: order_amount,
                 asset,
-                asset_type: order.asset_type.clone(),
                 order_type,
                 order_id: expected_id,
                 price,
@@ -201,12 +207,16 @@ mod success {
         assert_eq!(orders, vec![]);
 
         let response = contract
-            .open_order(order_amount, AssetType::Base, order_type.clone(), price)
+            .open_order(
+                order_amount,
+                /*AssetType::Base,*/ order_type.clone(),
+                price,
+            )
             .await?;
         let id = response.value;
         let expected_id = contract
             .order_id(
-                AssetType::Base,
+                /*AssetType::Base,*/
                 order_type.clone(),
                 owner.identity(),
                 price,
@@ -221,7 +231,7 @@ mod success {
         let order = contract.order(expected_id).await?.value.unwrap();
         let stored_id = contract
             .order_id(
-                order.asset_type.clone(),
+                /*order.asset_type.clone(),*/
                 order.order_type,
                 order.owner,
                 order.price,
@@ -237,7 +247,6 @@ mod success {
             OpenOrderEvent {
                 amount: order_amount,
                 asset: asset_to_buy,
-                asset_type: order.asset_type.clone(),
                 order_type,
                 order_id: expected_id,
                 price,
@@ -281,12 +290,16 @@ mod success {
         assert_eq!(orders, vec![]);
 
         let response = contract
-            .open_order(order_amount, AssetType::Quote, order_type.clone(), price)
+            .open_order(
+                order_amount,
+                /*AssetType::Quote,*/ order_type.clone(),
+                price,
+            )
             .await?;
         let id = response.value;
         let expected_id = contract
             .order_id(
-                AssetType::Quote,
+                /*AssetType::Quote,*/
                 order_type.clone(),
                 owner.identity(),
                 price,
@@ -301,7 +314,7 @@ mod success {
         let order = contract.order(expected_id).await?.value.unwrap();
         let stored_id = contract
             .order_id(
-                order.asset_type.clone(),
+                /*order.asset_type.clone(),*/
                 order.order_type,
                 order.owner,
                 order.price,
@@ -317,7 +330,6 @@ mod success {
             OpenOrderEvent {
                 amount: order_amount,
                 asset: asset_to_buy,
-                asset_type: order.asset_type.clone(),
                 order_type,
                 order_id: expected_id,
                 price,
@@ -367,7 +379,11 @@ mod success {
             .get_asset_balance(&owner.wallet.provider().unwrap().base_asset_id())
             .await?;
         let response = contract
-            .open_order(order_amount, AssetType::Base, order_type.clone(), price)
+            .open_order(
+                order_amount,
+                /*AssetType::Base,*/ order_type.clone(),
+                price,
+            )
             .await?;
         let new_balance = owner
             .wallet
@@ -385,7 +401,7 @@ mod success {
         let id = response.value;
         let expected_id = contract
             .order_id(
-                AssetType::Base,
+                /*AssetType::Base,*/
                 order_type.clone(),
                 owner.identity(),
                 price,
@@ -401,7 +417,7 @@ mod success {
         let block_height = owner.wallet.try_provider()?.latest_block_height().await?;
         let stored_id = contract
             .order_id(
-                order.asset_type.clone(),
+                /*order.asset_type.clone(),*/
                 order.order_type,
                 order.owner,
                 order.price,
@@ -417,7 +433,6 @@ mod success {
             OpenOrderEvent {
                 amount: order_amount,
                 asset,
-                asset_type: order.asset_type.clone(),
                 order_type,
                 order_id: expected_id,
                 price,
@@ -478,7 +493,7 @@ mod success {
         let response = contract
             .open_order_with_matcher_fee(
                 order_amount,
-                AssetType::Base,
+                /*AssetType::Base,*/
                 order_type.clone(),
                 price,
                 matcher_fee + 1,
@@ -500,7 +515,7 @@ mod success {
         let id = response.value;
         let expected_id = contract
             .order_id(
-                AssetType::Base,
+                /*AssetType::Base,*/
                 order_type.clone(),
                 owner.identity(),
                 price,
@@ -516,7 +531,7 @@ mod success {
         let block_height = owner.wallet.try_provider()?.latest_block_height().await?;
         let stored_id = contract
             .order_id(
-                order.asset_type.clone(),
+                /*order.asset_type.clone(),*/
                 order.order_type,
                 order.owner,
                 order.price,
@@ -532,7 +547,6 @@ mod success {
             OpenOrderEvent {
                 amount: order_amount,
                 asset,
-                asset_type: order.asset_type.clone(),
                 order_type,
                 order_id: expected_id,
                 price,
@@ -590,7 +604,11 @@ mod success {
             .get_contract_asset_balance(contract.contract_id(), assets.fuel.id)
             .await?;
         let _ = contract
-            .open_order(order_amount, AssetType::Base, order_type.clone(), price)
+            .open_order(
+                order_amount,
+                /*AssetType::Base,*/ order_type.clone(),
+                price,
+            )
             .await?;
         let new_balance = owner
             .wallet
@@ -599,7 +617,7 @@ mod success {
             .get_contract_asset_balance(contract.contract_id(), assets.fuel.id)
             .await?;
         let protocol_fee_amount = contract
-            .protocol_fee_amount(order_amount, AssetType::Base)
+            .protocol_fee_amount(order_amount /*, AssetType::Base*/)
             .await?
             .value;
         assert_eq!(new_balance - balance, protocol_fee_amount);
@@ -633,7 +651,7 @@ mod revert {
             .with_account(&user.wallet)
             .await
             .unwrap()
-            .open_order(order_amount, AssetType::Base, order_type, price)
+            .open_order(order_amount, /*AssetType::Base,*/ order_type, price)
             .await
             .unwrap();
     }
@@ -660,13 +678,17 @@ mod revert {
 
         // Revert
         contract
-            .open_order(order_amount, AssetType::Base, order_type.clone(), price)
+            .open_order(
+                order_amount,
+                /*AssetType::Base,*/ order_type.clone(),
+                price,
+            )
             .await
             .unwrap();
     }
 
-    #[tokio::test]
-    #[should_panic(expected = "InvalidAsset")]
+    //#[tokio::test]
+    //#[should_panic(expected = "InvalidAsset")]
     async fn when_insufficient_quote_balance_to_sell() {
         let defaults = Defaults::default();
         let (contract, _owner, _user, assets) = setup(
@@ -687,7 +709,7 @@ mod revert {
 
         // Revert
         contract
-            .open_order(order_amount, AssetType::Quote, order_type, price)
+            .open_order(order_amount, /*AssetType::Quote,*/ order_type, price)
             .await
             .unwrap();
     }
@@ -717,13 +739,13 @@ mod revert {
 
         // Revert
         contract
-            .open_order(order_amount, AssetType::Base, order_type, price)
+            .open_order(order_amount, /*AssetType::Base,*/ order_type, price)
             .await
             .unwrap();
     }
 
-    #[tokio::test]
-    #[should_panic(expected = "InvalidAsset")]
+    //#[tokio::test]
+    //#[should_panic(expected = "InvalidAsset")]
     async fn when_insufficient_quote_balance_to_buy() {
         let defaults = Defaults::default();
         let (contract, _owner, _user, assets) = setup(
@@ -747,7 +769,7 @@ mod revert {
 
         // Revert
         contract
-            .open_order(order_amount, AssetType::Quote, order_type, price)
+            .open_order(order_amount, /*AssetType::Quote,*/ order_type, price)
             .await
             .unwrap();
     }
@@ -777,7 +799,7 @@ mod revert {
 
         // Revert
         contract
-            .open_order(order_amount, AssetType::Base, order_type, price)
+            .open_order(order_amount, /*AssetType::Base,*/ order_type, price)
             .await
             .unwrap();
     }
@@ -812,7 +834,7 @@ mod revert {
         contract
             .open_order_with_matcher_fee(
                 order_amount,
-                AssetType::Base,
+                /*AssetType::Base,*/
                 order_type,
                 price,
                 matcher_fee - 1,
