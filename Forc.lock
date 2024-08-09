@@ -5,7 +5,10 @@ source = "path+from-root-609CB3F8B1AC6FA4"
 [[package]]
 name = "market-contract"
 source = "member"
-dependencies = ["std"]
+dependencies = [
+    "std",
+    "sway_libs",
+]
 
 [[package]]
 name = "orderbook-contract"
@@ -13,6 +16,19 @@ source = "member"
 dependencies = ["std"]
 
 [[package]]
+name = "standards"
+source = "git+https://github.com/FuelLabs/sway-standards?tag=v0.5.2#270350e69bd7455b7e99f0aae2e29a94d42324bd"
+dependencies = ["std"]
+
+[[package]]
 name = "std"
 source = "git+https://github.com/fuellabs/sway?tag=v0.61.1#d86bb863697550b76f9209894e7a4ed84d1a8f39"
 dependencies = ["core"]
+
+[[package]]
+name = "sway_libs"
+source = "git+https://github.com/FuelLabs/sway-libs?branch=master#50be622109e3c584efc29edac5390c96f1ccc43a"
+dependencies = [
+    "standards",
+    "std",
+]

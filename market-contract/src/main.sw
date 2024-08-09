@@ -48,6 +48,8 @@ use std::{
     tx::tx_id,
 };
 
+use sway_libs::reentrancy::*;
+
 configurable {
     BASE_ASSET: AssetId = AssetId::from(ZERO_B256),
     BASE_ASSET_DECIMALS: u32 = 9,
@@ -85,6 +87,8 @@ impl Market for Contract {
     #[payable]
     #[storage(read, write)]
     fn deposit() {
+        reentrancy_guard();
+
         let amount = msg_amount();
         require(amount > 0, ValueError::InvalidAmount);
 
@@ -105,17 +109,18 @@ impl Market for Contract {
 
     #[storage(read, write)]
     fn withdraw(amount: u64, asset_type: AssetType) {
+        reentrancy_guard();
+
         require(amount > 0, ValueError::InvalidAmount);
 
         let user = msg_sender().unwrap();
-
         let mut account = storage.account.get(user).try_read().unwrap_or(Account::new());
 
         account.liquid.debit(amount, asset_type);
-
         storage.account.insert(user, account);
 
         let asset = get_asset_id(asset_type);
+
         transfer(user, asset, amount);
 
         log(WithdrawEvent {
@@ -127,11 +132,9 @@ impl Market for Contract {
 
     #[payable]
     #[storage(read, write)]
-    fn open_order(
-        amount: u64,
-        order_type: OrderType,
-        price: u64,
-    ) -> b256 {
+    fn open_order(amount: u64, order_type: OrderType, price: u64) -> b256 {
+        reentrancy_guard();
+
         let asset_type = AssetType::Base;
         open_order_internal(
             amount,
@@ -147,11 +150,15 @@ impl Market for Contract {
 
     #[storage(read, write)]
     fn cancel_order(order_id: b256) {
+        reentrancy_guard();
+
         cancel_order_internal(order_id);
     }
 
     #[storage(read, write)]
     fn match_order_pair(order0_id: b256, order1_id: b256) {
+        reentrancy_guard();
+
         let order0 = storage.orders.get(order0_id).try_read();
         require(order0.is_some(), OrderError::OrderNotFound(order0_id));
         let order1 = storage.orders.get(order1_id).try_read();
@@ -161,8 +168,9 @@ impl Market for Contract {
             match_result != MatchResult::ZeroMatch,
             MatchError::CantMatch((order0_id, order1_id)),
         );
-        let matcher = msg_sender().unwrap();
+
         // reward order matcher
+        let matcher = msg_sender().unwrap();
         if matcher_reward > 0 {
             transfer(matcher, FUEL_ASSET, matcher_reward);
         }
@@ -170,6 +178,8 @@ impl Market for Contract {
 
     #[storage(read, write)]
     fn match_order_many(orders: Vec<b256>) {
+        reentrancy_guard();
+
         require(orders.len() >= 2, ValueError::InvalidArrayLength);
 
         let len = orders.len();
@@ -227,6 +237,7 @@ impl Market for Contract {
             }
         }
         require(full_matched > 0, MatchError::CantMatchMany);
+
         // reward order matcher
         let matcher = msg_sender().unwrap();
         if matcher_reward > 0 {
@@ -244,6 +255,8 @@ impl Market for Contract {
         slippage: u64,
         orders: Vec<b256>,
     ) -> b256 {
+        reentrancy_guard();
+
         require(orders.len() > 0, ValueError::InvalidArrayLength);
         require(slippage <= HUNDRED_PERCENT, ValueError::InvalidSlippage);
 
@@ -272,13 +285,19 @@ impl Market for Contract {
                     match match_result {
                         MatchResult::ZeroMatch => {}
                         MatchResult::PartialMatch => {
-                            matched = if partial_order_id == id1 {MatchResult::FullMatch} else {MatchResult::PartialMatch};
+                            matched = if partial_order_id == id1 {
+                                MatchResult::FullMatch
+                            } else {
+                                MatchResult::PartialMatch
+                            };
                         }
                         MatchResult::FullMatch => {
                             matched = MatchResult::FullMatch;
                         }
                     }
-                    if matched == MatchResult::FullMatch { break; }
+                    if matched == MatchResult::FullMatch {
+                        break;
+                    }
                 }
             }
             idx1 += 1;
@@ -287,14 +306,17 @@ impl Market for Contract {
             !(matched == MatchResult::ZeroMatch) && !(matched == MatchResult::PartialMatch && limit_type == LimitType::FOK),
             MatchError::CantFulfillMany,
         );
+
+        if matched == MatchResult::PartialMatch {
+            cancel_order_internal(id0);
+        }
+
         // reward order matcher
         let matcher = msg_sender().unwrap();
         if matcher_reward > 0 {
             transfer(matcher, FUEL_ASSET, matcher_reward);
         }
-        if matched == MatchResult::PartialMatch {
-            cancel_order_internal(id0);
-        }
+
         id0
     }
 
@@ -340,8 +362,11 @@ impl Market for Contract {
 
         let amount = storage.total_protocol_fee.read();
         require(amount > 0, AccountError::InsufficientBalance((0, 0)));
+
         storage.total_protocol_fee.write(0);
+
         transfer(to, FUEL_ASSET, amount);
+
         log(WithdrawProtocolFeeEvent {
             amount,
             to,
@@ -494,11 +519,6 @@ fn open_order_internal(
             .insert(order_id, storage.user_orders.get(user).len() - 1);
     }
 
-    // Refund extra income fee if any
-    if fee > 0 {
-        transfer(user, msg_asset_id(), fee);
-    }
-
     // Store the new or updated order
     storage.orders.insert(order_id, order);
 
@@ -526,6 +546,18 @@ fn open_order_internal(
     // Update the state of the user's account
     storage.account.insert(user, account);
 
+    // Add protocol fee to total
+    storage
+        .total_protocol_fee
+        .write(storage.total_protocol_fee.read() + protocol_fee);
+
+    let asset = get_asset_id(asset_type);
+
+    // Refund extra income fee if any
+    if fee > 0 {
+        transfer(user, msg_asset_id(), fee);
+    }
+
     log_order_change_info(
         order_id,
         OrderChangeInfo::new(
@@ -537,12 +569,7 @@ fn open_order_internal(
             order.amount,
         ),
     );
-    // Add protocol fee to total
-    storage
-        .total_protocol_fee
-        .write(storage.total_protocol_fee.read() + protocol_fee);
 
-    let asset = get_asset_id(asset_type);
     log(OpenOrderEvent {
         amount,
         asset,
