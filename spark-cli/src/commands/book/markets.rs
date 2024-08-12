@@ -7,9 +7,13 @@ use std::str::FromStr;
 #[derive(Args, Clone)]
 #[command(about = "Gets market contract ids")]
 pub(crate) struct MarketsCommand {
-    /// The ids of the assets
+    /// The base asset id
     #[clap(long)]
-    pub(crate) assets: Vec<String>,
+    pub(crate) base: String,
+
+    /// The quote asset id
+    #[clap(long)]
+    pub(crate) quote: String,
 
     /// The contract id of the market
     #[clap(long)]
@@ -26,19 +30,16 @@ impl MarketsCommand {
         let wallet = setup(&self.rpc).await?;
         let contract_id = validate_contract_id(&self.contract_id)?;
 
-        if self.assets.len() == 0 {
-            anyhow::bail!("Invalid asset array length");
-        }
-
-        let mut asset_ids: Vec<AssetId> = Vec::new();
-        for asset in self.assets.clone() {
-            asset_ids.push(AssetId::from_str(&asset).expect("Invalid asset"));
-        }
+        let mut asset_ids: Vec<(AssetId, AssetId)> = Vec::new();
+        asset_ids.push((
+            AssetId::from_str(&self.base).expect("Invalid asset"),
+            AssetId::from_str(&self.quote).expect("Invalid asset"),
+        ));
 
         // Connect to the deployed contract via the rpc
         let contract = OrderbookContract::new(contract_id, wallet).await;
 
-        let markets = contract.registered_markets(asset_ids).await?.value;
+        let markets = contract.markets(asset_ids).await?.value;
 
         // TODO: replace println with tracing
         println!("\nMarkets: {:?}", markets);
