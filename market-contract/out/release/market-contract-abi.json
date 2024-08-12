@@ -493,11 +493,6 @@
           "typeArguments": null
         },
         {
-          "name": "asset_type",
-          "type": 7,
-          "typeArguments": null
-        },
-        {
           "name": "order_type",
           "type": 15,
           "typeArguments": null
@@ -826,11 +821,6 @@
           "typeArguments": null
         },
         {
-          "name": "asset_type",
-          "type": 7,
-          "typeArguments": null
-        },
-        {
           "name": "order_type",
           "type": 15,
           "typeArguments": null
@@ -946,11 +936,6 @@
         {
           "name": "amount",
           "type": 38,
-          "typeArguments": null
-        },
-        {
-          "name": "asset_type",
-          "type": 7,
           "typeArguments": null
         },
         {
@@ -1200,11 +1185,6 @@
     {
       "inputs": [
         {
-          "name": "asset_type",
-          "type": 7,
-          "typeArguments": null
-        },
-        {
           "name": "order_type",
           "type": 15,
           "typeArguments": null
@@ -1255,11 +1235,6 @@
         {
           "name": "amount",
           "type": 38,
-          "typeArguments": null
-        },
-        {
-          "name": "asset_type",
-          "type": 7,
           "typeArguments": null
         }
       ],
@@ -1456,7 +1431,7 @@
         "type": 21,
         "typeArguments": []
       },
-      "offset": 72184
+      "offset": 71552
     },
     {
       "name": "BASE_ASSET_DECIMALS",
@@ -1465,7 +1440,7 @@
         "type": 37,
         "typeArguments": null
       },
-      "offset": 72216
+      "offset": 71584
     },
     {
       "name": "OWNER",
@@ -1474,7 +1449,7 @@
         "type": 20,
         "typeArguments": []
       },
-      "offset": 72272
+      "offset": 71640
     },
     {
       "name": "PRICE_DECIMALS",
@@ -1483,7 +1458,7 @@
         "type": 37,
         "typeArguments": null
       },
-      "offset": 72304
+      "offset": 71672
     },
     {
       "name": "QUOTE_ASSET",
@@ -1492,7 +1467,7 @@
         "type": 21,
         "typeArguments": []
       },
-      "offset": 72312
+      "offset": 71680
     },
     {
       "name": "QUOTE_ASSET_DECIMALS",
@@ -1501,7 +1476,7 @@
         "type": 37,
         "typeArguments": null
       },
-      "offset": 72344
+      "offset": 71712
     },
     {
       "name": "FUEL_ASSET",
@@ -1510,7 +1485,7 @@
         "type": 21,
         "typeArguments": []
       },
-      "offset": 72240
+      "offset": 71608
     },
     {
       "name": "ETH_BASE_PRICE",
@@ -1519,7 +1494,7 @@
         "type": 38,
         "typeArguments": null
       },
-      "offset": 72224
+      "offset": 71592
     },
     {
       "name": "ETH_QUOTE_PRICE",
@@ -1528,7 +1503,7 @@
         "type": 38,
         "typeArguments": null
       },
-      "offset": 72232
+      "offset": 71600
     }
   ]
 }

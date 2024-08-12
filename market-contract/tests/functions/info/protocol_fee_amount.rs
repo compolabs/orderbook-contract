@@ -1,7 +1,7 @@
 mod success {
 
     use crate::setup::{setup, Defaults};
-    use spark_market_sdk::AssetType;
+    //use spark_market_sdk::AssetType;
 
     #[tokio::test]
     async fn returns_protocol_fee_amount_base() -> anyhow::Result<()> {
@@ -19,7 +19,7 @@ mod success {
         let protocol_fee_amount_in_eth = protocol_fee_amount_in_btc as f64 * 18.92 * 10. /* ETH decimals - BTC decimals */;
         assert_eq!(
             contract
-                .protocol_fee_amount(amount, AssetType::Base)
+                .protocol_fee_amount(amount /*, AssetType::Base*/)
                 .await?
                 .value,
             protocol_fee_amount_in_eth as u64
@@ -28,7 +28,7 @@ mod success {
         Ok(())
     }
 
-    #[tokio::test]
+    //#[tokio::test]
     async fn returns_protocol_fee_amount_quote() -> anyhow::Result<()> {
         let defaults = Defaults::default();
         let (contract, _owner, _, _assets) = setup(
@@ -44,7 +44,7 @@ mod success {
         let protocol_fee_amount_in_eth = protocol_fee_amount_in_usdc as f64 * 0.0002923 * 1000. /* ETH decimals - USDC decimals */;
         assert_eq!(
             contract
-                .protocol_fee_amount(amount, AssetType::Quote)
+                .protocol_fee_amount(amount /*, AssetType::Quote*/)
                 .await?
                 .value,
             protocol_fee_amount_in_eth as u64

@@ -1,5 +1,5 @@
 use crate::setup::{setup, Defaults};
-use spark_market_sdk::{AssetType, OrderType};
+use spark_market_sdk::{/*AssetType,*/ OrderType};
 
 mod success {
 
@@ -26,7 +26,7 @@ mod success {
 
         let _ = contract.deposit(deposit_amount, asset).await?;
         let id = contract
-            .open_order(order_amount, AssetType::Base, order_type, price)
+            .open_order(order_amount, /*AssetType::Base,*/ order_type, price)
             .await?
             .value;
 
@@ -73,7 +73,7 @@ mod success {
 
         let _ = contract.deposit(deposit_amount, asset).await?;
         let id = contract
-            .open_order(order_amount, AssetType::Quote, order_type, price)
+            .open_order(order_amount, /*AssetType::Quote,*/ order_type, price)
             .await?
             .value;
 
@@ -122,7 +122,7 @@ mod success {
         let price = 70000 * 10_u64.pow(defaults.price_decimals);
         let expected_id = contract
             .order_id(
-                AssetType::Base,
+                /*AssetType::Base,*/
                 order_type.clone(),
                 owner.identity(),
                 price,
@@ -140,12 +140,16 @@ mod success {
         assert!(contract.order(expected_id).await?.value.is_none());
 
         let id = contract
-            .open_order(order_amount, AssetType::Base, order_type.clone(), price)
+            .open_order(
+                order_amount,
+                /*AssetType::Base,*/ order_type.clone(),
+                price,
+            )
             .await?
             .value;
         let expected_id = contract
             .order_id(
-                AssetType::Base,
+                /*AssetType::Base,*/
                 order_type.clone(),
                 owner.identity(),
                 price,
@@ -206,12 +210,16 @@ mod success {
         assert_eq!(orders, vec![]);
 
         let id = contract
-            .open_order(order_amount, AssetType::Quote, order_type.clone(), price)
+            .open_order(
+                order_amount,
+                /*AssetType::Quote,*/ order_type.clone(),
+                price,
+            )
             .await?
             .value;
         let expected_id = contract
             .order_id(
-                AssetType::Quote,
+                /*AssetType::Quote,*/
                 order_type.clone(),
                 owner.identity(),
                 price,
@@ -291,7 +299,7 @@ mod revert {
 
         let _ = contract.deposit(deposit_amount, asset).await.unwrap();
         let id = contract
-            .open_order(order_amount, AssetType::Base, order_type, price)
+            .open_order(order_amount, /*AssetType::Base,*/ order_type, price)
             .await
             .unwrap()
             .value;

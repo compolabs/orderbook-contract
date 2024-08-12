@@ -15,7 +15,6 @@ pub struct DepositEvent {
 pub struct OpenOrderEvent {
     pub amount: u64,
     pub asset: AssetId,
-    pub asset_type: AssetType,
     pub order_type: OrderType,
     pub order_id: b256,
     pub price: u64,

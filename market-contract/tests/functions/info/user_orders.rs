@@ -1,7 +1,7 @@
 mod success {
 
     use crate::setup::{setup, Defaults};
-    use spark_market_sdk::{AssetType, OrderType};
+    use spark_market_sdk::{/*AssetType,*/ OrderType};
 
     #[tokio::test]
     async fn returns_zero_orders() -> anyhow::Result<()> {
@@ -31,10 +31,18 @@ mod success {
 
         let _ = contract.deposit(1000, assets.base.id).await?;
         let id1 = contract
-            .open_order(2, AssetType::Base, OrderType::Sell, 70_000_000_000_000_u64)
+            .open_order(
+                2,
+                /*AssetType::Base,*/ OrderType::Sell,
+                70_000_000_000_000_u64,
+            )
             .await?;
         let id2 = contract
-            .open_order(1, AssetType::Base, OrderType::Sell, 75_000_000_000_000_u64)
+            .open_order(
+                1,
+                /*AssetType::Base,*/ OrderType::Sell,
+                75_000_000_000_000_u64,
+            )
             .await?;
 
         let mut orders = contract.user_orders(owner.identity()).await?.value;

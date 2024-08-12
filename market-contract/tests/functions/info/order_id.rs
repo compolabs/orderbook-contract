@@ -1,5 +1,5 @@
 use crate::setup::{setup, Defaults};
-use spark_market_sdk::{AssetType, OrderType};
+use spark_market_sdk::{/*AssetType,*/ OrderType};
 
 mod success {
 
@@ -17,7 +17,7 @@ mod success {
 
         let id1 = contract
             .order_id(
-                AssetType::Base,
+                /*AssetType::Base,*/
                 OrderType::Buy,
                 owner.identity(),
                 70_000_000_000_000_u64,
@@ -26,7 +26,7 @@ mod success {
             .await?;
         let id2 = contract
             .order_id(
-                AssetType::Base,
+                /*AssetType::Base,*/
                 OrderType::Buy,
                 owner.identity(),
                 80_000_000_000_000_u64,
@@ -52,7 +52,7 @@ mod success {
 
         let _ = contract
             .order_id(
-                AssetType::Base,
+                /*AssetType::Base,*/
                 OrderType::Buy,
                 owner.identity(),
                 70_000_000_000_000_u64,
@@ -76,7 +76,7 @@ mod success {
 
         let _ = contract
             .order_id(
-                AssetType::Base,
+                /*AssetType::Base,*/
                 OrderType::Buy,
                 owner.identity(),
                 70_000_000_000_000_u64,
