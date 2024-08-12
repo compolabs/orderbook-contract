@@ -7,6 +7,7 @@ use fuels::{
     types::{Address, Bytes32},
 };
 use rand::Rng;
+use std::path::PathBuf;
 
 abigen!(Contract(
     name = "Orderbook",
@@ -27,8 +28,9 @@ impl OrderbookContract {
         let mut rng = rand::thread_rng();
         let salt = rng.gen::<[u8; 32]>();
 
+        let root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         let storage_configuration = StorageConfiguration::default()
-            .add_slot_overrides_from_file(ORDERBOOK_CONTRACT_STORAGE_PATH);
+            .add_slot_overrides_from_file(root.join(ORDERBOOK_CONTRACT_STORAGE_PATH));
 
         let configurables = OrderbookConfigurables::default()
             .with_OWNER(owner.address().into())
@@ -38,11 +40,13 @@ impl OrderbookContract {
             .with_storage_configuration(storage_configuration?)
             .with_configurables(configurables);
 
-        let contract_id =
-            Contract::load_from(ORDERBOOK_CONTRACT_BINARY_PATH, contract_configuration)?
-                .with_salt(salt)
-                .deploy(&owner, TxPolicies::default())
-                .await?;
+        let contract_id = Contract::load_from(
+            root.join(ORDERBOOK_CONTRACT_BINARY_PATH),
+            contract_configuration,
+        )?
+        .with_salt(salt)
+        .deploy(&owner, TxPolicies::default())
+        .await?;
 
         let orderbook = Orderbook::new(contract_id.clone(), owner.clone());
 
@@ -67,54 +71,34 @@ impl OrderbookContract {
         self.instance.contract_id().hash
     }
 
-    pub async fn register_market(
-        &self,
-        asset: AssetId,
-        market: ContractId,
-    ) -> anyhow::Result<CallResponse<()>> {
-        let tx_policies = TxPolicies::default().with_script_gas_limit(1_000_000);
+    pub async fn register_market(&self, market: ContractId) -> anyhow::Result<CallResponse<()>> {
         Ok(self
             .instance
             .methods()
-            .register_market(asset, market)
-            .with_tx_policies(tx_policies)
+            .register_market(market)
+            .with_contract_ids(&[market.into()])
             .call()
             .await?)
     }
 
-    pub async fn unregister_market(&self, asset: AssetId) -> anyhow::Result<CallResponse<()>> {
-        let tx_policies = TxPolicies::default().with_script_gas_limit(1_000_000);
+    pub async fn unregister_market(&self, market: ContractId) -> anyhow::Result<CallResponse<()>> {
         Ok(self
             .instance
             .methods()
-            .unregister_market(asset)
-            .with_tx_policies(tx_policies)
+            .unregister_market(market)
+            .with_contract_ids(&[market.into()])
             .call()
             .await?)
     }
 
     pub async fn config(&self) -> anyhow::Result<CallResponse<Address>> {
-        let tx_policies = TxPolicies::default().with_script_gas_limit(1_000_000);
-        Ok(self
-            .instance
-            .methods()
-            .config()
-            .with_tx_policies(tx_policies)
-            .simulate()
-            .await?)
+        Ok(self.instance.methods().config().simulate().await?)
     }
 
-    pub async fn registered_markets(
+    pub async fn markets(
         &self,
-        asset: Vec<AssetId>,
-    ) -> anyhow::Result<CallResponse<Vec<(AssetId, Option<ContractId>)>>> {
-        let tx_policies = TxPolicies::default().with_script_gas_limit(1_000_000);
-        Ok(self
-            .instance
-            .methods()
-            .registered_markets(asset)
-            .with_tx_policies(tx_policies)
-            .simulate()
-            .await?)
+        assets: Vec<(AssetId, AssetId)>,
+    ) -> anyhow::Result<CallResponse<Vec<(AssetId, AssetId, Option<ContractId>)>>> {
+        Ok(self.instance.methods().markets(assets).simulate().await?)
     }
 }

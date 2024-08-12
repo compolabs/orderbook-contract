@@ -30,7 +30,7 @@ use ::events::{
     WithdrawEvent,
     WithdrawProtocolFeeEvent,
 };
-use ::interface::{Info, Market};
+use ::interface::{Market, MarketInfo};
 use ::math::*;
 
 use std::{
@@ -272,13 +272,19 @@ impl Market for Contract {
                     match match_result {
                         MatchResult::ZeroMatch => {}
                         MatchResult::PartialMatch => {
-                            matched = if partial_order_id == id1 {MatchResult::FullMatch} else {MatchResult::PartialMatch};
+                            matched = if partial_order_id == id1 {
+                                MatchResult::FullMatch
+                            } else {
+                                MatchResult::PartialMatch
+                            };
                         }
                         MatchResult::FullMatch => {
                             matched = MatchResult::FullMatch;
                         }
                     }
-                    if matched == MatchResult::FullMatch { break; }
+                    if matched == MatchResult::FullMatch {
+                        break;
+                    }
                 }
             }
             idx1 += 1;
@@ -350,7 +356,7 @@ impl Market for Contract {
     }
 }
 
-impl Info for Contract {
+impl MarketInfo for Contract {
     #[storage(read)]
     fn account(user: Identity) -> Option<Account> {
         storage.account.get(user).try_read()

@@ -26,8 +26,8 @@ impl User {
     }
 }
 
-pub(crate) fn random_asset_id() -> AssetId {
-    AssetId::new([20; 32])
+pub(crate) fn random_asset_id(random: u8) -> AssetId {
+    AssetId::new([random; 32])
 }
 
 pub(crate) fn random_contract_id() -> ContractId {

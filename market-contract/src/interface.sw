@@ -55,7 +55,7 @@ abi Market {
     fn withdraw_protocol_fee(to: Identity);
 }
 
-abi Info {
+abi MarketInfo {
     #[storage(read)]
     fn account(user: Identity) -> Option<Account>;
 

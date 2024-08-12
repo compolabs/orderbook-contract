@@ -1,2 +1,2 @@
 mod config;
-mod registered_markets;
+mod markets;

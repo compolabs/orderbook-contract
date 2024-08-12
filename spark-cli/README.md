@@ -217,7 +217,7 @@ Matcher Fee for the market
     --rpc "testnet.fuel.network" 
 
 Output:
-Orderbook deployed to: 0xf88a9eea6c45e2a77cf2f684fbb7d175cbf8cf58c079d07f9d24f51329de4418
+Orderbook deployed to: 0x164eae2ba74d71f3efb2a9adea4be8803cd464b17be841d2355f9a60301e0ff1
 Deployment cost: 0
 Owner address: fuel173lqaa6y4jxfjd2suq730uwys3zfg4f6zt9vzx4cc45v3xvlmwlszdvdpz
                0xf47e0ef744ac8c993550e03d17f1c4844494553a12cac11ab8c568c8999fdbbf
@@ -225,29 +225,28 @@ Owner address: fuel173lqaa6y4jxfjd2suq730uwys3zfg4f6zt9vzx4cc45v3xvlmwlszdvdpz
 ## Register a market
 
 ./target/release/spark-cli book register \
-    --asset 0xf88a9eea6c45e2a77cf2f684fbb7d175cbf8cf58c079d07f9d24f51329de4418 \
     --market 0x8fa518228af2d06fc495faa51fea2f670c793fee747b50c9637220e35e8ddca0 \
     --rpc "testnet.fuel.network" \
-    --contract-id 0xf88a9eea6c45e2a77cf2f684fbb7d175cbf8cf58c079d07f9d24f51329de4418
+    --contract-id 0x164eae2ba74d71f3efb2a9adea4be8803cd464b17be841d2355f9a60301e0ff1
 
 ## Unregister a market
 
 ./target/release/spark-cli book unregister \
-    --asset 0xccceae45a7c23dcd4024f4083e959a0686a191694e76fa4fb76c449361ca01f7 \
+    --market 0x8fa518228af2d06fc495faa51fea2f670c793fee747b50c9637220e35e8ddca0 \
     --rpc "testnet.fuel.network" \
-    --contract-id 0xf88a9eea6c45e2a77cf2f684fbb7d175cbf8cf58c079d07f9d24f51329de4418
+    --contract-id 0x164eae2ba74d71f3efb2a9adea4be8803cd464b17be841d2355f9a60301e0ff1
 
 ## Get registered markets by assets
 
 ./target/release/spark-cli book markets \
-    --assets 0xccceae45a7c23dcd4024f4083e959a0686a191694e76fa4fb76c449361ca01f7 \
-    --assets 0xf88a9eea6c45e2a77cf2f684fbb7d175cbf8cf58c079d07f9d24f51329de4418 \
+    --base 0xccceae45a7c23dcd4024f4083e959a0686a191694e76fa4fb76c449361ca01f7 \
+    --quote 0xfed3ee85624c79cb18a3a848092239f2e764ed6b0aa156ad10a18bfdbe74269f \
     --rpc "testnet.fuel.network" \
-    --contract-id 0xf88a9eea6c45e2a77cf2f684fbb7d175cbf8cf58c079d07f9d24f51329de4418
+    --contract-id 0x164eae2ba74d71f3efb2a9adea4be8803cd464b17be841d2355f9a60301e0ff1
 
 ## Config
 
 ./target/release/spark-cli book config \
     --rpc "testnet.fuel.network" \
-    --contract-id 0xf88a9eea6c45e2a77cf2f684fbb7d175cbf8cf58c079d07f9d24f51329de4418
+    --contract-id 0x164eae2ba74d71f3efb2a9adea4be8803cd464b17be841d2355f9a60301e0ff1
 
