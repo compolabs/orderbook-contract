@@ -34,7 +34,8 @@ mod success {
             )
             .await?;
 
-        assert_eq!(contract.total_protocol_fee().await?.value, 2);
+        // protocol fee should be zero since no orders were matched
+        assert_eq!(contract.total_protocol_fee().await?.value, 0);
 
         Ok(())
     }
