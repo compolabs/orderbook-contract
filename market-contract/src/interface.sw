@@ -19,11 +19,7 @@ abi Market {
 
     #[payable]
     #[storage(read, write)]
-    fn open_order(
-        amount: u64,
-        order_type: OrderType,
-        price: u64,
-    ) -> b256;
+    fn open_order(amount: u64, order_type: OrderType, price: u64) -> b256;
 
     #[storage(read, write)]
     fn cancel_order(order_id: b256);
