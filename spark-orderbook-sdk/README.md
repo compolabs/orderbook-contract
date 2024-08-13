@@ -5,22 +5,18 @@ There are a set of transactional methods such as `deploy`, register/unregister o
 
 ## OrderbookContract Type
 
-```
-
+```rust
 pub struct OrderbookContract {
     instance: Orderbook<WalletUnlocked>,
 }
-
 ```
 
 ## Transactional MarketContract Owner Methods
 
 ### Contract Deployment
 
-```
-
+```rust
 pub async fn deploy(owner: WalletUnlocked) -> anyhow::Result<Self>
-
 ```
 
 Deploys a new orderbook contract with given owner.
@@ -32,10 +28,8 @@ Returns a new instance of OrderbookContract type.
 
 ### Register Market
 
-```
-
+```rust
 pub async fn register_market(&self, market: ContractId) -> anyhow::Result<CallResponse<()>>
-
 ```
 
 Registers a new market by owner.
@@ -48,10 +42,8 @@ Returns a call result
 
 ### Unregister Market
 
-```
-
+```rust
 pub async fn unregister_market(&self, market: ContractId) -> anyhow::Result<CallResponse<()>>
-
 ```
 
 Unregisters a market by owner.
@@ -66,8 +58,7 @@ Returns a call result
 
 ### Markets Info
 
-```
-
+```rust
 pub async fn markets(
         &self,
         assets: Vec<(AssetId, AssetId)>,
