@@ -79,6 +79,10 @@ impl MarketContract {
         }
     }
 
+    pub fn get_instance(&self) -> &Market<WalletUnlocked> {
+        &self.instance
+    }
+
     pub async fn with_account(&self, account: &WalletUnlocked) -> anyhow::Result<Self> {
         Ok(Self {
             instance: self.instance.clone().with_account(account.clone()),
