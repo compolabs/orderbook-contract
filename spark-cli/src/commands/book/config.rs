@@ -23,10 +23,15 @@ impl ConfigCommand {
         // Connect to the deployed contract via the rpc
         let contract = OrderbookContract::new(contract_id, wallet).await;
 
-        let owner = contract.config().await?.value;
+        let (owner, version) = contract.config().await?.value;
 
         // TODO: replace println with tracing
         println!("\nOwner: 0x{}", owner);
+        println!(
+            "Version: {} ({})",
+            contract.contract_str_version().await?,
+            version
+        );
 
         Ok(())
     }

@@ -10,6 +10,7 @@ use std::{constants::ZERO_B256, hash::{Hash, sha256},};
 
 configurable {
     OWNER: Address = Address::from(ZERO_B256),
+    VERSION: u32 = 0,
 }
 
 storage {
@@ -17,7 +18,7 @@ storage {
 }
 
 abi MarketInfo {
-    fn config() -> (Address, AssetId, u32, AssetId, u32, u32, AssetId);
+    fn config() -> (Address, AssetId, u32, AssetId, u32, u32, AssetId, u32);
 }
 
 abi Orderbook {
@@ -30,7 +31,7 @@ abi Orderbook {
     #[storage(read)]
     fn markets(market_assets: Vec<(AssetId, AssetId)>) -> Vec<(AssetId, AssetId, Option<ContractId>)>;
 
-    fn config() -> Address;
+    fn config() -> (Address, u32);
 }
 
 impl Orderbook for Contract {
@@ -97,13 +98,13 @@ impl Orderbook for Contract {
         markets
     }
 
-    fn config() -> Address {
-        OWNER
+    fn config() -> (Address, u32) {
+        (OWNER, VERSION)
     }
 }
 
 fn market_assets(market: ContractId) -> (AssetId, AssetId) {
-    let (_, base, _, quote, _, _, _) = abi(MarketInfo, market.into()).config();
+    let (_, base, _, quote, _, _, _, _) = abi(MarketInfo, market.into()).config();
     (base, quote)
 }
 

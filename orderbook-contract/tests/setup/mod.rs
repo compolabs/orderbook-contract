@@ -59,7 +59,7 @@ pub(crate) async fn setup() -> anyhow::Result<(OrderbookContract, User, User)> {
     let owner = wallets.pop().unwrap();
     let user = wallets.pop().unwrap();
 
-    let contract = OrderbookContract::deploy(owner.clone()).await?;
+    let contract = OrderbookContract::deploy(owner.clone(), 0xFAFBFC).await?;
 
     let owner = User { wallet: owner };
     let non_owner = User { wallet: user };

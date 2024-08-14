@@ -18,6 +18,7 @@ mod success {
             9,
             admin.wallet.clone(),
             *admin.wallet.provider().unwrap().base_asset_id(),
+            0xFAFBFC,
         )
         .await?;
 
@@ -69,6 +70,7 @@ mod revert {
             9,
             admin.wallet.clone(),
             *admin.wallet.provider().unwrap().base_asset_id(),
+            0xFAFBFC,
         )
         .await
         .unwrap();
@@ -106,6 +108,7 @@ mod revert {
             9,
             admin.wallet.clone(),
             *admin.wallet.provider().unwrap().base_asset_id(),
+            0xFAFBFC,
         )
         .await
         .unwrap();
