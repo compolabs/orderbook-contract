@@ -62,7 +62,7 @@ impl OrderbookContract {
             instance: Orderbook::new(contract_id, wallet),
         };
         assert!(
-            _self.contract_version().await.unwrap() & 0xFFFF00 == Self::sdk_version() & 0xFFFF00,
+            _self.contract_version().await.unwrap() & 0xFF0000 == Self::sdk_version() & 0xFF0000,
             "Orderbook contract version mismatch with SDK version"
         );
         _self
