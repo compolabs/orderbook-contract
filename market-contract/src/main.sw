@@ -60,6 +60,7 @@ configurable {
     FUEL_ASSET: AssetId = AssetId::from(ZERO_B256),
     ETH_BASE_PRICE: u64 = 189200000000,
     ETH_QUOTE_PRICE: u64 = 292300000,
+    VERSION: u32 = 0,
 }
 
 storage {
@@ -416,7 +417,7 @@ impl MarketInfo for Contract {
         storage.order_change_info.get(order_id).load_vec()
     }
 
-    fn config() -> (Address, AssetId, u32, AssetId, u32, u32, AssetId) {
+    fn config() -> (Address, AssetId, u32, AssetId, u32, u32, AssetId, u32) {
         (
             OWNER,
             BASE_ASSET,
@@ -425,6 +426,7 @@ impl MarketInfo for Contract {
             QUOTE_ASSET_DECIMALS,
             PRICE_DECIMALS,
             FUEL_ASSET,
+            VERSION,
         )
     }
 

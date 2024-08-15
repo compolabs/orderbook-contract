@@ -5,7 +5,7 @@ mod success {
     #[tokio::test]
     async fn returns_config() -> anyhow::Result<()> {
         let (contract, owner, _) = setup().await.unwrap();
-        assert_eq!(contract.config().await?.value, owner.address(),);
+        assert_eq!(contract.config().await?.value, (owner.address(), 0xFAFBFC),);
         Ok(())
     }
 }

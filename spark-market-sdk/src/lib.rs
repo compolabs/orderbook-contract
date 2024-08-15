@@ -32,6 +32,7 @@ impl MarketContract {
         price_decimals: u32,
         owner: WalletUnlocked,
         fuel_asset: AssetId,
+        version: u32,
     ) -> anyhow::Result<Self> {
         let mut rng = rand::thread_rng();
         let salt = rng.gen::<[u8; 32]>();
@@ -54,6 +55,8 @@ impl MarketContract {
             .with_OWNER(owner.address().into())
             .unwrap()
             .with_FUEL_ASSET(fuel_asset)
+            .unwrap()
+            .with_VERSION(version)
             .unwrap();
 
         let contract_configuration = LoadConfiguration::default()
@@ -74,9 +77,14 @@ impl MarketContract {
     }
 
     pub async fn new(contract_id: ContractId, wallet: WalletUnlocked) -> Self {
-        Self {
+        let _self = Self {
             instance: Market::new(contract_id, wallet),
-        }
+        };
+        assert!(
+            _self.contract_version().await.unwrap() & 0xFF0000 == Self::sdk_version() & 0xFF0000,
+            "Market contract version mismatch with SDK version"
+        );
+        _self
     }
 
     pub fn get_instance(&self) -> &Market<WalletUnlocked> {
@@ -95,6 +103,39 @@ impl MarketContract {
 
     pub fn contract_id(&self) -> &Bech32ContractId {
         self.instance.contract_id()
+    }
+
+    pub async fn contract_version(&self) -> anyhow::Result<u32> {
+        let (_, _, _, _, _, _, _, version) = self.config().await?.value;
+        Ok(version)
+    }
+
+    pub async fn contract_str_version(&self) -> anyhow::Result<String> {
+        let version = self.contract_version().await?;
+        Ok(format!(
+            "{}.{}.{}",
+            (version & 0xFF0000) >> 16,
+            (version & 0xFF00) >> 8,
+            version & 0xFF
+        ))
+    }
+
+    pub fn sdk_version() -> u32 {
+        let s_version = Self::sdk_str_version();
+        // Converts "0.1.1" string version to 257u32 (0x000101)
+        let version = s_version.split('.').collect::<Vec<&str>>();
+        let len = version.len();
+        version
+            .iter()
+            .enumerate()
+            .map(|(i, &x)| x.parse::<u32>().unwrap() << (8 * (len - i - 1)))
+            .collect::<Vec<u32>>()
+            .iter()
+            .sum()
+    }
+
+    pub fn sdk_str_version() -> String {
+        env!("CARGO_PKG_VERSION").into()
     }
 
     pub async fn deposit(&self, amount: u64, asset: AssetId) -> anyhow::Result<CallResponse<()>> {
@@ -295,7 +336,8 @@ impl MarketContract {
 
     pub async fn config(
         &self,
-    ) -> anyhow::Result<CallResponse<(Address, AssetId, u32, AssetId, u32, u32, AssetId)>> {
+    ) -> anyhow::Result<CallResponse<(Address, AssetId, u32, AssetId, u32, u32, AssetId, u32)>>
+    {
         Ok(self.instance.methods().config().simulate().await?)
     }
 

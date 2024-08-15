@@ -31,6 +31,7 @@ impl ConfigCommand {
             quote_asset_decimals,
             price_decimals,
             fuel_asset,
+            version,
         ) = contract.config().await?.value;
 
         // TODO: replace println with tracing
@@ -41,6 +42,12 @@ impl ConfigCommand {
         println!("Quote Asset Decimals: {}", quote_asset_decimals);
         println!("Price Decimals: {}", price_decimals);
         println!("Fuel Asset: 0x{}", fuel_asset);
+        println!(
+            "Version: {}.{}.{}",
+            (version & 0xFF0000) >> 16,
+            (version & 0xFF00) >> 8,
+            version & 0xFF
+        );
 
         Ok(())
     }

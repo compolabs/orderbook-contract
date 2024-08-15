@@ -18,6 +18,7 @@ mod success {
             9,
             admin.wallet.clone(),
             *admin.wallet.provider().unwrap().base_asset_id(),
+            0xFAFBFC,
         )
         .await?;
 
@@ -42,7 +43,7 @@ mod success {
 
 mod revert {
 
-    use crate::setup::{random_asset_id, random_contract_id, setup};
+    use crate::setup::{random_asset_id, setup};
     use fuels::types::ContractId;
     use spark_market_sdk::MarketContract;
 
@@ -61,6 +62,7 @@ mod revert {
             9,
             user.wallet.clone(),
             *user.wallet.provider().unwrap().base_asset_id(),
+            0xFAFBFC,
         )
         .await
         .unwrap();
@@ -93,6 +95,7 @@ mod revert {
             9,
             admin.wallet.clone(),
             *admin.wallet.provider().unwrap().base_asset_id(),
+            0xFAFBFC,
         )
         .await
         .unwrap();

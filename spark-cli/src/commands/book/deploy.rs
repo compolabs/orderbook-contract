@@ -21,8 +21,10 @@ impl DeployCommand {
             .get_asset_balance(&wallet.provider().unwrap().base_asset_id())
             .await?;
 
+        let version = OrderbookContract::sdk_version();
+
         // Deploy the contract
-        let contract = OrderbookContract::deploy(wallet.clone()).await?;
+        let contract = OrderbookContract::deploy(wallet.clone(), version).await?;
 
         // Balance post-deployment
         let new_balance = wallet
@@ -30,7 +32,12 @@ impl DeployCommand {
             .await?;
 
         // TODO: replace println with tracing
-        println!("\nOrderbook deployed to: 0x{}", contract.id());
+        println!(
+            "\nOrderbook version {} ({}) deployed to: 0x{}",
+            contract.contract_str_version().await?,
+            version,
+            contract.id()
+        );
         println!("Deployment cost: {}", balance - new_balance);
         println!("Owner address: {}", wallet.address());
         println!("               0x{}", wallet.address().hash());

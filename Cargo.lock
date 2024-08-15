@@ -3504,7 +3504,7 @@ dependencies = [
 
 [[package]]
 name = "market-contract"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "anyhow",
  "fuels",
@@ -3879,7 +3879,7 @@ checksum = "ff011a302c396a5197692431fc1948019154afc178baf7d8e37367442a4601cf"
 
 [[package]]
 name = "orderbook-contract"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "anyhow",
  "fuels",
@@ -5024,7 +5024,7 @@ dependencies = [
 
 [[package]]
 name = "spark-cli"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "anyhow",
  "clap",
@@ -5037,7 +5037,7 @@ dependencies = [
 
 [[package]]
 name = "spark-market-sdk"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "anyhow",
  "fuels",
