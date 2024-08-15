@@ -409,7 +409,7 @@
         "type": 10,
         "typeArguments": []
       },
-      "offset": 15960
+      "offset": 16264
     },
     {
       "name": "VERSION",
@@ -418,7 +418,7 @@
         "type": 17,
         "typeArguments": null
       },
-      "offset": 15992
+      "offset": 16296
     }
   ]
 }
