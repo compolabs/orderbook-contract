@@ -1,4 +1,4 @@
-use crate::setup::{create_account, setup, Defaults};
+use crate::setup::{setup, Defaults};
 use fuels::prelude::*;
 use spark_market_sdk::OrderType;
 
@@ -131,6 +131,8 @@ mod success {
         let accumulated_protocol_fee = contract.total_protocol_fee().await.unwrap().value;
         assert!(accumulated_protocol_fee != 0);
 
+        let balance_before = user0.balance(&assets.fuel.id).await;
+
         let withdraw_tx = contract.withdraw_protocol_fee(user0.identity()).await;
         assert!(withdraw_tx.is_ok());
 
@@ -143,6 +145,12 @@ mod success {
             }
         }
 
+        let balance_after = user0.balance(&assets.fuel.id).await;
+
+        // plus 1 due to gas fee
+        let balance_diff = balance_after - balance_before + 1;
+
+        assert_eq!(accumulated_protocol_fee, balance_diff);
         assert_eq!(accumulated_protocol_fee, withdraw_tx_transfer_out_amount);
 
         // after withdraw protocol fees are 0
