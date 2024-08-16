@@ -955,7 +955,7 @@ fn update_order_storage_and_reward(
     ref mut order1: Order,
     id1: b256,
     matcher_reward: &mut u64,
-) -> (MatchResult, b256, u64) {
+) -> (MatchResult, b256) {
     // Case where the first order is completely filled
     if amount0 == order0.amount {
         update_protocol_fee(order0.protocol_fee);
@@ -981,7 +981,7 @@ fn update_order_storage_and_reward(
         order0.matcher_fee -= order_matcher_reward.try_as_u32().unwrap();
         order0.amount -= amount0;
         storage.orders.insert(id0, order0);
-        return (MatchResult::PartialMatch, id0, *matcher_reward);
+        return (MatchResult::PartialMatch, id0);
         // Case where the second order is partially filled
     } else if amount1 != order1.amount {
         let fee = order1.protocol_fee * amount1 / order1.amount;
@@ -996,7 +996,7 @@ fn update_order_storage_and_reward(
         return (MatchResult::PartialMatch, id1, *matcher_reward);
     }
     // Case where both orders are fully matched
-    (MatchResult::FullMatch, ZERO_B256, *matcher_reward)
+    (MatchResult::FullMatch, ZERO_B256)
 }
 
 #[storage(read, write)]
