@@ -43,7 +43,7 @@
     },
     {
       "typeId": 3,
-      "type": "(_, _, _, _, _, _, _)",
+      "type": "(_, _, _, _, _, _, _, _)",
       "components": [
         {
           "name": "__tuple_element",
@@ -78,6 +78,11 @@
         {
           "name": "__tuple_element",
           "type": 22,
+          "typeArguments": null
+        },
+        {
+          "name": "__tuple_element",
+          "type": 38,
           "typeArguments": null
         }
       ],
@@ -1451,7 +1456,7 @@
         "type": 22,
         "typeArguments": []
       },
-      "offset": 71200
+      "offset": 73024
     },
     {
       "name": "BASE_ASSET_DECIMALS",
@@ -1460,7 +1465,7 @@
         "type": 38,
         "typeArguments": null
       },
-      "offset": 71232
+      "offset": 73056
     },
     {
       "name": "OWNER",
@@ -1469,7 +1474,7 @@
         "type": 21,
         "typeArguments": []
       },
-      "offset": 71288
+      "offset": 73112
     },
     {
       "name": "PRICE_DECIMALS",
@@ -1478,7 +1483,7 @@
         "type": 38,
         "typeArguments": null
       },
-      "offset": 71320
+      "offset": 73144
     },
     {
       "name": "QUOTE_ASSET",
@@ -1487,7 +1492,7 @@
         "type": 22,
         "typeArguments": []
       },
-      "offset": 71328
+      "offset": 73152
     },
     {
       "name": "QUOTE_ASSET_DECIMALS",
@@ -1496,7 +1501,7 @@
         "type": 38,
         "typeArguments": null
       },
-      "offset": 71360
+      "offset": 73184
     },
     {
       "name": "FUEL_ASSET",
@@ -1505,7 +1510,7 @@
         "type": 22,
         "typeArguments": []
       },
-      "offset": 71256
+      "offset": 73080
     },
     {
       "name": "ETH_BASE_PRICE",
@@ -1514,7 +1519,7 @@
         "type": 39,
         "typeArguments": null
       },
-      "offset": 71240
+      "offset": 73064
     },
     {
       "name": "ETH_QUOTE_PRICE",
@@ -1523,7 +1528,16 @@
         "type": 39,
         "typeArguments": null
       },
-      "offset": 71248
+      "offset": 73072
+    },
+    {
+      "name": "VERSION",
+      "configurableType": {
+        "name": "",
+        "type": 38,
+        "typeArguments": null
+      },
+      "offset": 73192
     }
   ]
 }

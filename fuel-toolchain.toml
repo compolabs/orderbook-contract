@@ -1,6 +1,6 @@
 [toolchain]
-channel = "nightly-2024-07-09"
+channel = "latest-x86_64-apple-darwin"
 
 [components]
-forc="0.61.1"
+forc="0.62.0"
 fuel-core = "0.31.0"

@@ -22,6 +22,7 @@ mod success {
                 assets.quote.decimals,
                 defaults.price_decimals,
                 assets.fuel.id,
+                0xFAFBFC,
             )
         );
 

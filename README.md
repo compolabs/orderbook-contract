@@ -1,6 +1,6 @@
-# Spark Contract Orderbook
+# Spark Orderbook Contract
 
-The Spark Contract Orderbook is a decentralized order book implementation on the Fuel blockchain, designed to facilitate trading in a secure and transparent manner.
+The Spark Orderbook Contract is a decentralized order book implementation on the Fuel blockchain, designed to facilitate trading in a secure and transparent manner.
 
 
 ## Getting Started
