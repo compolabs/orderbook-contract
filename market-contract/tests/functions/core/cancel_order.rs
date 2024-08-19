@@ -1,4 +1,5 @@
 use crate::setup::{setup, Defaults};
+use rand::Rng;
 use spark_market_sdk::{/*AssetType,*/ OrderType};
 
 mod success {
@@ -51,6 +52,63 @@ mod success {
         assert_eq!(user_account, expected_account);
         assert_eq!(orders.len(), 0);
         assert!(contract.order(id).await?.value.is_none());
+
+        Ok(())
+    }
+
+    #[tokio::test(flavor = "multi_thread")]
+    #[ignore]
+    async fn fuzz_sell_base() -> anyhow::Result<()> {
+        let defaults = Defaults::default();
+
+        // Fuzz test: run multiple iterations with random deposit and order amounts
+        for _ in 0..100 {
+            let (contract, owner, _user, assets) = setup(
+                defaults.base_decimals,
+                defaults.quote_decimals,
+                defaults.price_decimals,
+            )
+            .await?;
+
+            // Generate random deposit and order amounts
+            let deposit_amount = rand::thread_rng().gen_range(1..100_000_000);
+            let order_amount = rand::thread_rng().gen_range(1..deposit_amount);
+            let asset = assets.base.id;
+            let order_type = OrderType::Sell;
+            let price =
+                rand::thread_rng().gen_range(1_000_000_000_u64..100_000_000_000_000_000_u64); // 1 to 100 million
+
+            // Deposit assets and open order
+            let _ = contract.deposit(deposit_amount, asset).await?;
+            let id = contract
+                .open_order(order_amount, order_type, price)
+                .await?
+                .value;
+
+            let user_account = contract.account(owner.identity()).await?.value.unwrap();
+            let expected_account =
+                create_account(deposit_amount - order_amount, 0, order_amount, 0);
+            let mut orders = contract.user_orders(owner.identity()).await?.value;
+            assert_eq!(user_account, expected_account);
+            assert_eq!(orders.len(), 1);
+            assert_eq!(orders.pop().unwrap(), id);
+            assert!(contract.order(id).await?.value.is_some());
+
+            // Cancel order
+            let response = contract.cancel_order(id).await?;
+            let log = response
+                .decode_logs_with_type::<CancelOrderEvent>()
+                .unwrap();
+            let event = log.first().unwrap();
+            assert_eq!(*event, CancelOrderEvent { order_id: id });
+
+            let user_account = contract.account(owner.identity()).await?.value.unwrap();
+            let expected_account = create_account(deposit_amount, 0, 0, 0);
+            let orders = contract.user_orders(owner.identity()).await?.value;
+            assert_eq!(user_account, expected_account);
+            assert_eq!(orders.len(), 0);
+            assert!(contract.order(id).await?.value.is_none());
+        }
 
         Ok(())
     }
@@ -183,6 +241,84 @@ mod success {
 
         Ok(())
     }
+
+    /*     #[tokio::test(flavor = "multi_thread")]
+    async fn fuzz_buy_base() -> anyhow::Result<()> {
+        let defaults = Defaults::default();
+
+        // Fuzz test: run multiple iterations with random deposit and order amounts
+        for _ in 0..100 {
+            let (contract, owner, _user, assets) = setup(
+                defaults.base_decimals,
+                defaults.quote_decimals,
+                defaults.price_decimals,
+            )
+            .await?;
+            let provider = owner.wallet.try_provider()?;
+
+            // Generate random deposit and order amounts
+            let deposit_amount = rand::thread_rng().gen_range(1..100_000_000);
+            let order_amount = 1;
+            let asset_to_pay_with = assets.quote.id;
+            let order_type = OrderType::Buy;
+            let price =
+                rand::thread_rng().gen_range(1_000_000_000_u64..100_000_000_000_000_000_u64); // 1 to 100 million
+            let expected_id = contract
+                .order_id(
+                    /*AssetType::Base,*/
+                    order_type.clone(),
+                    owner.identity(),
+                    price,
+                    provider.latest_block_height().await?,
+                )
+                .await?
+                .value;
+
+            // Deposit assets and verify initial account state
+            let _ = contract.deposit(deposit_amount, asset_to_pay_with).await?;
+            let user_account = contract.account(owner.identity()).await?.value.unwrap();
+            let expected_account = create_account(0, deposit_amount, 0, 0);
+            let orders = contract.user_orders(owner.identity()).await?.value;
+            assert_eq!(user_account, expected_account);
+            assert_eq!(orders, vec![]);
+            assert!(contract.order(expected_id).await?.value.is_none());
+
+            println!("deposit_amount: {}", deposit_amount);
+            println!("order_amount: {}", order_amount);
+
+            // Open order
+            let id = contract
+                .open_order(order_amount, order_type.clone(), price)
+                .await?
+                .value;
+
+            let user_account = contract.account(owner.identity()).await?.value.unwrap();
+            let expected_account = create_account(0, 0, 0, deposit_amount);
+            let mut orders = contract.user_orders(owner.identity()).await?.value;
+
+            assert_eq!(user_account, expected_account);
+            assert_eq!(orders.len(), 1);
+            assert_eq!(orders.pop().unwrap(), id);
+            assert_eq!(id, expected_id);
+
+            // Cancel order
+            let response = contract.cancel_order(id).await?;
+            let log = response
+                .decode_logs_with_type::<CancelOrderEvent>()
+                .unwrap();
+            let event = log.first().unwrap();
+            assert_eq!(*event, CancelOrderEvent { order_id: id });
+
+            let user_account = contract.account(owner.identity()).await?.value.unwrap();
+            let expected_account = create_account(0, deposit_amount, 0, 0);
+            let orders = contract.user_orders(owner.identity()).await?.value;
+            assert_eq!(user_account, expected_account);
+            assert_eq!(orders.len(), 0);
+            assert!(contract.order(id).await?.value.is_none());
+        }
+
+        Ok(())
+    } */
 
     //#[tokio::test]
     async fn buy_quote() -> anyhow::Result<()> {
