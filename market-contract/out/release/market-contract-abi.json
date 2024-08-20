@@ -1456,7 +1456,7 @@
         "type": 22,
         "typeArguments": []
       },
-      "offset": 73024
+      "offset": 71856
     },
     {
       "name": "BASE_ASSET_DECIMALS",
@@ -1465,7 +1465,7 @@
         "type": 38,
         "typeArguments": null
       },
-      "offset": 73056
+      "offset": 71888
     },
     {
       "name": "OWNER",
@@ -1474,7 +1474,7 @@
         "type": 21,
         "typeArguments": []
       },
-      "offset": 73112
+      "offset": 71944
     },
     {
       "name": "PRICE_DECIMALS",
@@ -1483,7 +1483,7 @@
         "type": 38,
         "typeArguments": null
       },
-      "offset": 73144
+      "offset": 71976
     },
     {
       "name": "QUOTE_ASSET",
@@ -1492,7 +1492,7 @@
         "type": 22,
         "typeArguments": []
       },
-      "offset": 73152
+      "offset": 71984
     },
     {
       "name": "QUOTE_ASSET_DECIMALS",
@@ -1501,7 +1501,7 @@
         "type": 38,
         "typeArguments": null
       },
-      "offset": 73184
+      "offset": 72016
     },
     {
       "name": "FUEL_ASSET",
@@ -1510,7 +1510,7 @@
         "type": 22,
         "typeArguments": []
       },
-      "offset": 73080
+      "offset": 71912
     },
     {
       "name": "ETH_BASE_PRICE",
@@ -1519,7 +1519,7 @@
         "type": 39,
         "typeArguments": null
       },
-      "offset": 73064
+      "offset": 71896
     },
     {
       "name": "ETH_QUOTE_PRICE",
@@ -1528,7 +1528,7 @@
         "type": 39,
         "typeArguments": null
       },
-      "offset": 73072
+      "offset": 71904
     },
     {
       "name": "VERSION",
@@ -1537,7 +1537,7 @@
         "type": 38,
         "typeArguments": null
       },
-      "offset": 73192
+      "offset": 72024
     }
   ]
 }
