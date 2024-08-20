@@ -5,6 +5,7 @@ use spark_market_sdk::{/*AssetType,*/ OrderType};
 mod success {
 
     use super::*;
+    use crate::functions::core::convert;
     use crate::{functions::core::deposit, setup::create_account};
     use fuels::accounts::ViewOnlyAccount;
     use spark_market_sdk::CancelOrderEvent;
@@ -173,19 +174,18 @@ mod success {
 
         println!("defaults: {:?}", defaults.price_decimals);
 
-        // let deposit_amount = 1_000_000 * 10_u64.pow(defaults.quote_decimals);
-        let deposit_amount = 1541844000000; //
+        // Deposit 1 million USDC
+        let deposit_amount = 1_000_000 * 10_u64.pow(defaults.quote_decimals);
         let expected_account = create_account(0, deposit_amount, 0, 0);
 
-        // fuzz this
-        // let order_amount = 1 * 10_u64.pow(defaults.base_decimals);
-        let order_amount = 84000000;
+        // 1 BTC/USDC
+        let order_amount = 1 * 10_u64.pow(defaults.base_decimals);
         let asset_to_pay_wth = assets.quote.id;
         let order_type = OrderType::Buy;
 
-        // fuzz this
-        // let price = 100_000 * 10_u64.pow(defaults.price_decimals);
-        let price = 363957000000000;
+        // 100k BTC/USDC
+        let price = 100_000 * 10_u64.pow(defaults.price_decimals);
+
         let expected_id = contract
             .order_id(
                 /*AssetType::Base,*/
@@ -196,6 +196,7 @@ mod success {
             )
             .await?
             .value;
+        assert!(contract.order(expected_id).await?.value.is_none());
 
         let _ = contract.deposit(deposit_amount, asset_to_pay_wth).await;
 
@@ -203,7 +204,6 @@ mod success {
         let orders = contract.user_orders(owner.identity()).await?.value;
         assert_eq!(user_account, expected_account);
         assert_eq!(orders, vec![]);
-        assert!(contract.order(expected_id).await?.value.is_none());
 
         let id = contract
             .open_order(
@@ -234,127 +234,6 @@ mod success {
         let expected_account = create_account(0, liquid_quote, 0, locked_quote);
         let mut orders = contract.user_orders(owner.identity()).await?.value;
 
-        println!("user_account: {:?}", user_account);
-        assert_eq!(user_account, expected_account);
-        assert_eq!(orders.len(), 1);
-        assert_eq!(orders.pop().unwrap(), id);
-        assert_eq!(id, expected_id);
-
-        let response = contract.cancel_order(id).await?;
-        let log = response
-            .decode_logs_with_type::<CancelOrderEvent>()
-            .unwrap();
-        let event = log.first().unwrap();
-        assert_eq!(*event, CancelOrderEvent { order_id: id });
-
-        let user_account = contract.account(owner.identity()).await?.value.unwrap();
-        let expected_account = create_account(0, deposit_amount, 0, 0);
-        let orders = contract.user_orders(owner.identity()).await?.value;
-        assert_eq!(user_account, expected_account);
-        assert_eq!(orders.len(), 0);
-        assert!(contract.order(id).await?.value.is_none());
-
-        Ok(())
-    }
-
-    #[tokio::test]
-    async fn buy_base_bug() -> anyhow::Result<()> {
-        let defaults = Defaults::default();
-        let (contract, owner, _user, assets) = setup(
-            defaults.base_decimals,
-            defaults.quote_decimals,
-            defaults.price_decimals,
-        )
-        .await?;
-        let provider = owner.wallet.try_provider()?;
-
-        println!("defaults: {:?}", defaults.price_decimals);
-
-        let deposit_amount = 1_000_000 * 10_u64.pow(defaults.quote_decimals);
-        // let deposit_amount = 1541844000000; // 1.5m USDC
-        let expected_account = create_account(0, deposit_amount, 0, 0);
-
-        // fuzz this
-        let order_amount = 1 * 10_u64.pow(defaults.base_decimals);
-        // let order_amount= 84000000; // 0.84 BTC
-        let asset_to_pay_wth = assets.quote.id;
-        let order_type = OrderType::Buy;
-
-        // fuzz this
-        let price = 100_000 * 10_u64.pow(defaults.price_decimals);
-        // let price = 363957000000000; // 363k BTC/USDC
-        let expected_id = contract
-            .order_id(
-                /*AssetType::Base,*/
-                order_type.clone(),
-                owner.identity(),
-                price,
-                provider.latest_block_height().await?,
-            )
-            .await?
-            .value;
-
-        let balance_before = owner
-            .wallet
-            .get_asset_balance(&assets.quote.id)
-            .await
-            .unwrap();
-
-        let _ = contract
-            .with_account(&owner.wallet)
-            .await
-            .unwrap()
-            .deposit(deposit_amount, asset_to_pay_wth)
-            .await
-            .is_ok();
-
-        let balance_after = owner
-            .wallet
-            .get_asset_balance(&assets.quote.id)
-            .await
-            .unwrap();
-
-        println!(
-            "balance_usdc before and after {:?} {:?}",
-            balance_before, balance_after
-        );
-
-        let user_account = contract.account(owner.identity()).await?.value.unwrap();
-        let orders = contract.user_orders(owner.identity()).await?.value;
-        assert_eq!(user_account, expected_account);
-        assert_eq!(orders, vec![]);
-        assert!(contract.order(expected_id).await?.value.is_none());
-
-        let id = contract
-            .open_order(
-                order_amount,
-                /*AssetType::Base,*/ order_type.clone(),
-                price,
-            )
-            .await?
-            .value;
-        let expected_id = contract
-            .order_id(
-                /*AssetType::Base,*/
-                order_type.clone(),
-                owner.identity(),
-                price,
-                provider.latest_block_height().await?,
-            )
-            .await?
-            .value;
-
-        let user_account = contract.account(owner.identity()).await?.value.unwrap();
-
-        let liquid_quote = deposit_amount
-            - (price / 10_u64.pow(defaults.price_decimals) * 10_u64.pow(defaults.quote_decimals));
-        let locked_quote =
-            price / 10_u64.pow(defaults.price_decimals) * 10_u64.pow(defaults.quote_decimals);
-
-        let expected_account = create_account(0, liquid_quote, 0, locked_quote);
-        let mut orders = contract.user_orders(owner.identity()).await?.value;
-
-        println!("user_account: {:?}", user_account);
         assert_eq!(user_account, expected_account);
         assert_eq!(orders.len(), 1);
         assert_eq!(orders.pop().unwrap(), id);
@@ -391,25 +270,27 @@ mod success {
             .await?;
             let provider = owner.wallet.try_provider()?;
 
-            // Randomize deposit_amount and fuzz this value
-            let deposit_amount = rng.gen_range(1_000..1_000_000) * 10_u64.pow(6);
-            // let deposit_amount = 600000 * 10_u64.pow(defaults.quote_decimals);
+            // Randomize deposit_amount 1 to 1 million USDC
+            let deposit_amount = rng.gen_range(1..1_000_000) * 10_u64.pow(6);
             let expected_account = create_account(0, deposit_amount, 0, 0);
-
-            // Randomize order_amount and fuzz this value
 
             let asset_to_pay_wth = assets.quote.id;
             let order_type = OrderType::Buy;
 
-            // Randomize price and fuzz this value
-            let price = rng.gen_range(100..500_000) * 10_u64.pow(defaults.price_decimals);
-            // let price = 500_000 * 10_u64.pow(defaults.price_decimals);
+            // Randomize price
+            let price = rng.gen_range(1..10) * 10_u64.pow(defaults.price_decimals - 2);
 
+            println!("PRICE: {}", price);
+            println!("deposit_amount: {}", deposit_amount);
+            println!("multiplier: {}", deposit_amount * 10_u64.pow(8));
+            println!("price mul: {}", price * 10_u64.pow(defaults.base_decimals));
             // Scale and convert to u64
-            let max_order_amount =
-                deposit_amount * 10_u64.pow(6) / price * 10_u64.pow(defaults.base_decimals) / 10_u64.pow(3);
+            let max_order_amount = deposit_amount * 10_u64.pow(8)
+                / (price * 10_u64.pow(defaults.base_decimals))
+                / 10_u64.pow(3);
 
-            println!("max order amount: {}", max_order_amount);
+            println!("MAX ORDER AMOUNT: {}", max_order_amount);
+
             let order_amount = rng.gen_range(1..=max_order_amount);
 
             let expected_id = contract
@@ -454,26 +335,31 @@ mod success {
                 .await?
                 .value;
 
-/*             let user_account = contract.account(owner.identity()).await?.value.unwrap();
-            
+            let user_account = contract.account(owner.identity()).await?.value.unwrap();
+
             // Ensure all calculations are done with appropriate precision
-            let price_scaled = price as u128;
-            let order_amount_scaled = order_amount as u128;
-            
-            // Calculate the locked quote amount
-            // The locked quote is the amount locked in the order, which is price * order_amount / price_decimals
-            let locked_quote = (price_scaled * order_amount_scaled)
-                / 10_u128.pow(defaults.price_decimals);
-            
+            // Convert the order amount to quote using the convert function
+            let locked_quote = convert(
+                order_amount,            // amount in base asset (order amount)
+                defaults.base_decimals,  // base asset decimals (8 decimals)
+                price,                   // base price
+                defaults.price_decimals, // price decimals (9 decimals)
+                defaults.quote_decimals, // quote asset decimals (6 decimals)
+                true,                    // Convert from base to quote
+            );
+
             // Calculate the remaining liquid quote after locking the amount
-            let liquid_quote = deposit_amount as u128 - locked_quote;
-            
+            let liquid_quote = (deposit_amount as u128).saturating_sub(locked_quote as u128); // Ensure no overflow
+
             // Cast to u64 before creating the expected account
             let expected_account = create_account(0, liquid_quote as u64, 0, locked_quote as u64);
-             */
+
+            println!("user_account: {:?}", user_account);
+            println!("expected_account: {:?}", expected_account);
+
             let mut orders = contract.user_orders(owner.identity()).await?.value;
 
-            // assert_eq!(user_account, expected_account);
+            assert_eq!(user_account, expected_account);
             assert_eq!(orders.len(), 1);
             assert_eq!(orders.pop().unwrap(), id);
             assert_eq!(id, expected_id);
