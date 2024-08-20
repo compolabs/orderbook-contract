@@ -810,7 +810,6 @@ fn match_order_internal(
     order1: Order,
 ) -> (MatchResult, b256, u64) {
     let matcher = msg_sender().unwrap();
-    let mut matcher_reward = 0_u64;
 
     // Matching orders with different types (e.g., Base vs. Quote asset type)
     if order0.order_type == order1.order_type && order0.asset_type != order1.asset_type {
@@ -871,15 +870,7 @@ fn match_order_internal(
         // Execute the trade and update balances
         execute_same_order_type_trade(b_order, q_order, b_amount, q_amount, price_delta);
         // Handle partial or full order fulfillment and rewards
-        update_order_storage_and_reward(
-            b_amount,
-            b_order,
-            b_id,
-            q_amount,
-            q_order,
-            q_id,
-            &mut matcher_reward,
-        )
+        update_order_storage_and_reward(b_amount, b_order, b_id, q_amount, q_order, q_id)
         // Matching orders with the same asset type (e.g., Buy vs. Sell)
     } else if order0.order_type != order1.order_type && order0.asset_type == order1.asset_type {
         let (mut s_order, s_id, mut b_order, b_id) = if order0.order_type == OrderType::Sell {
@@ -924,18 +915,10 @@ fn match_order_internal(
         // Execute the trade and update balances
         execute_same_asset_type_trade(s_order, b_order, amount, pay_amount, price_delta);
         // Handle partial or full order fulfillment and rewards
-        update_order_storage_and_reward(
-            amount,
-            s_order,
-            s_id,
-            amount,
-            b_order,
-            b_id,
-            &mut matcher_reward,
-        )
+        update_order_storage_and_reward(amount, s_order, s_id, amount, b_order, b_id)
         // If orders do not match by type or asset, no match occurs
     } else {
-        (MatchResult::ZeroMatch, ZERO_B256, matcher_reward)
+        (MatchResult::ZeroMatch, ZERO_B256, 0)
     }
 }
 
@@ -954,20 +937,21 @@ fn update_order_storage_and_reward(
     amount1: u64,
     ref mut order1: Order,
     id1: b256,
-    matcher_reward: &mut u64,
 ) -> (MatchResult, b256, u64) {
+    let mut matcher_reward = 0u64;
+
     // Case where the first order is completely filled
     if amount0 == order0.amount {
         update_protocol_fee(order0.protocol_fee);
 
-        *matcher_reward += order0.matcher_fee.as_u64();
+        matcher_reward += order0.matcher_fee.as_u64();
         remove_order(order0.owner, id0);
     }
     // Case where the second order is completely filled
     if amount1 == order1.amount {
         update_protocol_fee(order1.protocol_fee);
 
-        *matcher_reward += order1.matcher_fee.as_u64();
+        matcher_reward += order1.matcher_fee.as_u64();
         remove_order(order1.owner, id1);
     }
     // Case where the first order is partially filled
@@ -977,11 +961,11 @@ fn update_order_storage_and_reward(
         order0.protocol_fee -= fee;
 
         let order_matcher_reward = order0.matcher_fee.as_u64() * amount0 / order0.amount;
-        *matcher_reward += order_matcher_reward;
+        matcher_reward += order_matcher_reward;
         order0.matcher_fee -= order_matcher_reward.try_as_u32().unwrap();
         order0.amount -= amount0;
         storage.orders.insert(id0, order0);
-        return (MatchResult::PartialMatch, id0, *matcher_reward);
+        return (MatchResult::PartialMatch, id0, matcher_reward);
         // Case where the second order is partially filled
     } else if amount1 != order1.amount {
         let fee = order1.protocol_fee * amount1 / order1.amount;
@@ -989,14 +973,14 @@ fn update_order_storage_and_reward(
         order1.protocol_fee -= fee;
 
         let order_matcher_reward = order1.matcher_fee.as_u64() * amount1 / order1.amount;
-        *matcher_reward += order_matcher_reward;
+        matcher_reward += order_matcher_reward;
         order1.matcher_fee -= order_matcher_reward.try_as_u32().unwrap();
         order1.amount -= amount1;
         storage.orders.insert(id1, order1);
-        return (MatchResult::PartialMatch, id1, *matcher_reward);
+        return (MatchResult::PartialMatch, id1, matcher_reward);
     }
     // Case where both orders are fully matched
-    (MatchResult::FullMatch, ZERO_B256, *matcher_reward)
+    (MatchResult::FullMatch, ZERO_B256, matcher_reward)
 }
 
 #[storage(read, write)]
