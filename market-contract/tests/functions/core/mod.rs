@@ -7,3 +7,4 @@ mod open_order;
 mod set_matcher_fee;
 mod set_protocol_fee;
 mod withdraw;
+mod withdraw_protocol_fees;

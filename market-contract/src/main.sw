@@ -484,6 +484,7 @@ fn open_order_internal(
 
     let mut fee = msg_amount();
     let protocol_fee = protocol_fee_amount(amount, asset_type);
+
     // Require income fee
     require(
         fee >= matcher_fee + protocol_fee,
@@ -547,11 +548,6 @@ fn open_order_internal(
 
     // Update the state of the user's account
     storage.account.insert(user, account);
-
-    // Add protocol fee to total
-    storage
-        .total_protocol_fee
-        .write(storage.total_protocol_fee.read() + protocol_fee);
 
     let asset = get_asset_id(asset_type);
 
@@ -624,6 +620,11 @@ fn cancel_order_internal(order_id: b256) {
     // Refund matcher_fee
     if order.matcher_fee > 0 {
         transfer(user, FUEL_ASSET, order.matcher_fee.as_u64());
+    }
+
+    // Refund protocol_fee
+    if order.protocol_fee > 0 {
+        transfer(user, FUEL_ASSET, order.protocol_fee);
     }
 
     log_order_change_info(
@@ -810,41 +811,38 @@ fn match_order_internal(
 ) -> (MatchResult, b256, u64) {
     let matcher = msg_sender().unwrap();
     let mut matcher_reward = 0_u64;
-    // the orders should have different directions
+
+    // Matching orders with different types (e.g., Base vs. Quote asset type)
     if order0.order_type == order1.order_type && order0.asset_type != order1.asset_type {
         let (mut b_order, b_id, mut q_order, q_id) = if order0.asset_type == AssetType::Base {
             (order0, order0_id, order1, order1_id)
         } else {
             (order1, order1_id, order0, order0_id)
         };
-        // check if base sell price <= base buy price
-        if (b_order
-                    .price > q_order
-                    .price
-                && b_order
-                    .order_type == OrderType::Sell)
-                || (b_order
-                        .price < q_order
-                        .price
-                    && b_order
-                        .order_type == OrderType::Buy)
-        {
+
+        // Checking if the prices align for a possible match
+        if (b_order.price > q_order.price && b_order.order_type == OrderType::Sell) || (b_order.price < q_order.price && b_order.order_type == OrderType::Buy) {
+            // No match possible due to price mismatch
             return (MatchResult::ZeroMatch, ZERO_B256, 0);
         }
+
         let match_price = min(b_order.price, q_order.price);
         let price_delta = max(b_order.price, q_order.price) - match_price;
-        // amount is a minimum of order amounts
-        let b_amount = convert(
-            q_order
+
+        // Determine trade amounts based on the minimum available
+        let b_amount = min(
+            b_order
                 .amount,
-            BASE_ASSET_DECIMALS,
-            match_price,
-            PRICE_DECIMALS,
-            QUOTE_ASSET_DECIMALS,
-            false,
+            convert(
+                q_order
+                    .amount,
+                BASE_ASSET_DECIMALS,
+                match_price,
+                PRICE_DECIMALS,
+                QUOTE_ASSET_DECIMALS,
+                false,
+            ),
         );
-        // amount is a minimum of order amounts
-        let b_amount = min(b_order.amount, b_amount);
         let q_amount = if b_amount != b_order.amount {
             q_order.amount
         } else {
@@ -857,112 +855,49 @@ fn match_order_internal(
                 true,
             )
         };
-        // emit match events
-        log_order_change_info(
+
+        // Emit events for a matched order scenario
+        emit_match_events(
             b_id,
-            OrderChangeInfo::new(
-                OrderChangeType::OrderMatched,
-                block_height(),
-                matcher,
-                tx_id(),
-                b_order
-                    .amount,
-                b_order
-                    .amount - b_amount,
-            ),
-        );
-        log(MatchOrderEvent {
-            order_id: b_id,
-            asset: get_asset_id(AssetType::Base),
-            order_matcher: matcher,
-            owner: b_order.owner,
-            counterparty: q_order.owner,
-            match_size: b_amount,
-            match_price: match_price,
-        });
-        log_order_change_info(
+            b_order,
+            b_amount,
             q_id,
-            OrderChangeInfo::new(
-                OrderChangeType::OrderMatched,
-                block_height(),
-                matcher,
-                tx_id(),
-                q_order
-                    .amount,
-                q_order
-                    .amount - q_amount,
-            ),
+            q_order,
+            q_amount,
+            matcher,
+            match_price,
         );
-        log(MatchOrderEvent {
-            order_id: q_id,
-            asset: get_asset_id(AssetType::Quote),
-            order_matcher: matcher,
-            owner: q_order.owner,
-            counterparty: b_order.owner,
-            match_size: q_amount,
-            match_price: match_price,
-        });
-        log(TradeOrderEvent {
-            base_sell_order_id: b_id,
-            base_buy_order_id: q_id,
-            order_matcher: matcher,
-            trade_size: b_amount,
-            trade_price: match_price,
-            block_height: block_height(),
-            tx_id: tx_id(),
-        });
-        // update account balances
+
+        // Execute the trade and update balances
         execute_same_order_type_trade(b_order, q_order, b_amount, q_amount, price_delta);
-        // update order storages
-        if b_amount == b_order.amount {
-            matcher_reward += b_order.matcher_fee.as_u64();
-            remove_order(b_order.owner, b_id);
-        }
-        if q_amount == q_order.amount {
-            matcher_reward += q_order.matcher_fee.as_u64();
-            remove_order(q_order.owner, q_id);
-        }
-        if b_amount != b_order.amount {
-            let order_matcher_reward = b_order.matcher_fee.as_u64() * b_amount / b_order.amount;
-            matcher_reward += order_matcher_reward;
-            b_order.matcher_fee -= order_matcher_reward.try_as_u32().unwrap();
-            b_order.amount -= b_amount;
-            // update amount
-            storage.orders.insert(b_id, b_order);
-            return (MatchResult::PartialMatch, b_id, matcher_reward);
-        } else if q_amount != q_order.amount {
-            let order_matcher_reward = q_order.matcher_fee.as_u64() * q_amount / q_order.amount;
-            matcher_reward += order_matcher_reward;
-            q_order.matcher_fee -= order_matcher_reward.try_as_u32().unwrap();
-            q_order.amount -= q_amount;
-            // update amount
-            storage.orders.insert(q_id, q_order);
-            return (MatchResult::PartialMatch, q_id, matcher_reward);
-        }
-        (MatchResult::FullMatch, ZERO_B256, matcher_reward)
+        // Handle partial or full order fulfillment and rewards
+        update_order_storage_and_reward(
+            b_amount,
+            b_order,
+            b_id,
+            q_amount,
+            q_order,
+            q_id,
+            &mut matcher_reward,
+        )
+        // Matching orders with the same asset type (e.g., Buy vs. Sell)
     } else if order0.order_type != order1.order_type && order0.asset_type == order1.asset_type {
         let (mut s_order, s_id, mut b_order, b_id) = if order0.order_type == OrderType::Sell {
             (order0, order0_id, order1, order1_id)
         } else {
             (order1, order1_id, order0, order0_id)
         };
-        // check if sell price <= buy price
-        if s_order
-                .price > b_order
-                .price
-            && order0
-                .asset_type == AssetType::Base
-                || s_order
-                    .price < b_order
-                    .price
-                && order0
-                    .asset_type == AssetType::Quote
-        {
+
+        // Checking if the prices align for a possible match
+        if (s_order.price > b_order.price && s_order.asset_type == AssetType::Base) || (s_order.price < b_order.price && s_order.asset_type == AssetType::Quote) {
+            // No match possible due to price mismatch
             return (MatchResult::ZeroMatch, ZERO_B256, 0);
         }
+
         let match_price = min(s_order.price, b_order.price);
         let price_delta = max(s_order.price, b_order.price) - match_price;
-        // amount is a minimum of order amounts
+
+        // Determine trade amounts based on the minimum available
         let amount = min(s_order.amount, b_order.amount);
         let pay_amount = convert(
             amount,
@@ -973,101 +908,174 @@ fn match_order_internal(
             s_order
                 .asset_type == AssetType::Base,
         );
-        // emit match events
-        log_order_change_info(
+
+        // Emit events for a matched order scenario
+        emit_match_events(
             s_id,
-            OrderChangeInfo::new(
-                OrderChangeType::OrderMatched,
-                block_height(),
-                matcher,
-                tx_id(),
-                s_order
-                    .amount,
-                s_order
-                    .amount - amount,
-            ),
-        );
-        log(MatchOrderEvent {
-            order_id: s_id,
-            asset: get_asset_id(s_order.asset_type),
-            order_matcher: matcher,
-            owner: s_order.owner,
-            counterparty: b_order.owner,
-            match_size: amount,
-            match_price: match_price,
-        });
-        log_order_change_info(
+            s_order,
+            amount,
             b_id,
-            OrderChangeInfo::new(
-                OrderChangeType::OrderMatched,
-                block_height(),
-                matcher,
-                tx_id(),
-                b_order
-                    .amount,
-                b_order
-                    .amount - amount,
-            ),
+            b_order,
+            amount,
+            matcher,
+            match_price,
         );
-        log(MatchOrderEvent {
-            order_id: b_id,
-            asset: get_asset_id(b_order.asset_type),
-            order_matcher: matcher,
-            owner: b_order.owner,
-            counterparty: s_order.owner,
-            match_size: amount,
-            match_price: match_price,
-        });
-        log(TradeOrderEvent {
-            base_sell_order_id: if s_order.asset_type == AssetType::Base {
-                s_id
-            } else {
-                b_id
-            },
-            base_buy_order_id: if s_order.asset_type == AssetType::Quote {
-                s_id
-            } else {
-                b_id
-            },
-            order_matcher: matcher,
-            trade_size: amount,
-            trade_price: match_price,
-            block_height: block_height(),
-            tx_id: tx_id(),
-        });
-        // update account balances
+
+        // Execute the trade and update balances
         execute_same_asset_type_trade(s_order, b_order, amount, pay_amount, price_delta);
-        // update order storages
-        if amount == s_order.amount {
-            matcher_reward += s_order.matcher_fee.as_u64();
-            remove_order(s_order.owner, s_id);
-        }
-        if amount == b_order.amount {
-            matcher_reward += b_order.matcher_fee.as_u64();
-            remove_order(b_order.owner, b_id);
-        }
-        if amount < s_order.amount {
-            let order_matcher_reward = s_order.matcher_fee.as_u64() * amount / s_order.amount;
-            matcher_reward += order_matcher_reward;
-            s_order.matcher_fee -= order_matcher_reward.try_as_u32().unwrap();
-            s_order.amount -= amount;
-            // update amount
-            storage.orders.insert(s_id, s_order);
-            return (MatchResult::PartialMatch, s_id, matcher_reward);
-        }
-        if amount < b_order.amount {
-            let order_matcher_reward = b_order.matcher_fee.as_u64() * amount / b_order.amount;
-            matcher_reward += order_matcher_reward;
-            b_order.matcher_fee -= order_matcher_reward.try_as_u32().unwrap();
-            b_order.amount -= amount;
-            // update amount
-            storage.orders.insert(b_id, b_order);
-            return (MatchResult::PartialMatch, b_id, matcher_reward);
-        }
-        (MatchResult::FullMatch, ZERO_B256, matcher_reward)
+        // Handle partial or full order fulfillment and rewards
+        update_order_storage_and_reward(
+            amount,
+            s_order,
+            s_id,
+            amount,
+            b_order,
+            b_id,
+            &mut matcher_reward,
+        )
+        // If orders do not match by type or asset, no match occurs
     } else {
         (MatchResult::ZeroMatch, ZERO_B256, matcher_reward)
     }
+}
+
+#[storage(read, write)]
+fn update_protocol_fee(amount: u64) {
+    storage
+        .total_protocol_fee
+        .write(storage.total_protocol_fee.read() + amount);
+}
+
+#[storage(read, write)]
+fn update_order_storage_and_reward(
+    amount0: u64,
+    ref mut order0: Order,
+    id0: b256,
+    amount1: u64,
+    ref mut order1: Order,
+    id1: b256,
+    matcher_reward: &mut u64,
+) -> (MatchResult, b256, u64) {
+    // Case where the first order is completely filled
+    if amount0 == order0.amount {
+        update_protocol_fee(order0.protocol_fee);
+
+        *matcher_reward += order0.matcher_fee.as_u64();
+        remove_order(order0.owner, id0);
+    }
+    // Case where the second order is completely filled
+    if amount1 == order1.amount {
+        update_protocol_fee(order1.protocol_fee);
+
+        *matcher_reward += order1.matcher_fee.as_u64();
+        remove_order(order1.owner, id1);
+    }
+    // Case where the first order is partially filled
+    if amount0 != order0.amount {
+        let fee = order0.protocol_fee * amount0 / order0.amount;
+        update_protocol_fee(fee);
+        order0.protocol_fee -= fee;
+
+        let order_matcher_reward = order0.matcher_fee.as_u64() * amount0 / order0.amount;
+        *matcher_reward += order_matcher_reward;
+        order0.matcher_fee -= order_matcher_reward.try_as_u32().unwrap();
+        order0.amount -= amount0;
+        storage.orders.insert(id0, order0);
+        return (MatchResult::PartialMatch, id0, *matcher_reward);
+        // Case where the second order is partially filled
+    } else if amount1 != order1.amount {
+        let fee = order1.protocol_fee * amount1 / order1.amount;
+        update_protocol_fee(fee);
+        order1.protocol_fee -= fee;
+
+        let order_matcher_reward = order1.matcher_fee.as_u64() * amount1 / order1.amount;
+        *matcher_reward += order_matcher_reward;
+        order1.matcher_fee -= order_matcher_reward.try_as_u32().unwrap();
+        order1.amount -= amount1;
+        storage.orders.insert(id1, order1);
+        return (MatchResult::PartialMatch, id1, *matcher_reward);
+    }
+    // Case where both orders are fully matched
+    (MatchResult::FullMatch, ZERO_B256, *matcher_reward)
+}
+
+#[storage(read, write)]
+fn emit_match_events(
+    id0: b256,
+    order0: Order,
+    amount0: u64,
+    id1: b256,
+    order1: Order,
+    amount1: u64,
+    matcher: Identity,
+    match_price: u64,
+) {
+    // Emit events for the first order
+    log_order_change_info(
+        id0,
+        OrderChangeInfo::new(
+            OrderChangeType::OrderMatched,
+            block_height(),
+            matcher,
+            tx_id(),
+            order0
+                .amount,
+            order0
+                .amount - amount0,
+        ),
+    );
+    log(MatchOrderEvent {
+        order_id: id0,
+        asset: get_asset_id(order0.asset_type),
+        order_matcher: matcher,
+        owner: order0.owner,
+        counterparty: order1.owner,
+        match_size: amount0,
+        match_price: match_price,
+    });
+
+    // Emit events for the second order
+    log_order_change_info(
+        id1,
+        OrderChangeInfo::new(
+            OrderChangeType::OrderMatched,
+            block_height(),
+            matcher,
+            tx_id(),
+            order1
+                .amount,
+            order1
+                .amount - amount1,
+        ),
+    );
+    log(MatchOrderEvent {
+        order_id: id1,
+        asset: get_asset_id(order1.asset_type),
+        order_matcher: matcher,
+        owner: order1.owner,
+        counterparty: order0.owner,
+        match_size: amount1,
+        match_price: match_price,
+    });
+
+    // Emit event for the trade execution
+    log(TradeOrderEvent {
+        base_sell_order_id: if order0.asset_type == AssetType::Base {
+            id0
+        } else {
+            id1
+        },
+        base_buy_order_id: if order0.asset_type == AssetType::Quote {
+            id0
+        } else {
+            id1
+        },
+        order_matcher: matcher,
+        trade_size: amount0,
+        trade_price: match_price,
+        block_height: block_height(),
+        tx_id: tx_id(),
+    });
 }
 
 #[storage(read, write)]

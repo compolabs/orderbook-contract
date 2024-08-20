@@ -34,7 +34,8 @@ mod success {
             )
             .await?;
 
-        assert_eq!(contract.total_protocol_fee().await?.value, 2);
+        // protocol fee is 0 before open order
+        assert_eq!(contract.total_protocol_fee().await?.value, 0);
 
         Ok(())
     }
