@@ -172,8 +172,6 @@ mod success {
         .await?;
         let provider = owner.wallet.try_provider()?;
 
-        println!("defaults: {:?}", defaults.price_decimals);
-
         // Deposit 1 million USDC
         let deposit_amount = 1_000_000 * 10_u64.pow(defaults.quote_decimals);
         let expected_account = create_account(0, deposit_amount, 0, 0);
