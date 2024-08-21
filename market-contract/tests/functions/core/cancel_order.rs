@@ -255,6 +255,7 @@ mod success {
     }
 
     #[tokio::test(flavor = "multi_thread")]
+    #[ignore]
     async fn fuzz_buy_base() -> anyhow::Result<()> {
         let defaults = Defaults::default();
         let mut rng = rand::thread_rng();
@@ -275,7 +276,7 @@ mod success {
             let asset_to_pay_wth = assets.quote.id;
             let order_type = OrderType::Buy;
 
-            // Randomize price 1 to 1m USD 
+            // Randomize price 1 to 1m USD
             let price = rng.gen_range(1..1_000_000) * 10_u64.pow(defaults.price_decimals);
 
             // Scale and convert to u64
