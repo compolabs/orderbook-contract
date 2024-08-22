@@ -22,9 +22,8 @@ forc build --release & cargo test --release
 
 ### Running Fuzz Tests:
 ```
-forc build --release && cargo test --release fuzz
+cargo test --release -- --ignored fuzz
 ```
-
 
 ## Contribution
 
