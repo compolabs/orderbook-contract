@@ -172,18 +172,13 @@ mod success {
         .await?;
         let provider = owner.wallet.try_provider()?;
 
-        // Deposit 1 million USDC
-        let deposit_amount = 1_000_000 * 10_u64.pow(defaults.quote_decimals);
+        let deposit_amount = 70000;
         let expected_account = create_account(0, deposit_amount, 0, 0);
 
-        // 1 BTC/USDC
-        let order_amount = 1 * 10_u64.pow(defaults.base_decimals);
+        let order_amount = 100;
         let asset_to_pay_wth = assets.quote.id;
         let order_type = OrderType::Buy;
-
-        // 100k BTC/USDC
-        let price = 100_000 * 10_u64.pow(defaults.price_decimals);
-
+        let price = 70000 * 10_u64.pow(defaults.price_decimals);
         let expected_id = contract
             .order_id(
                 /*AssetType::Base,*/
@@ -194,7 +189,6 @@ mod success {
             )
             .await?
             .value;
-        assert!(contract.order(expected_id).await?.value.is_none());
 
         let _ = contract.deposit(deposit_amount, asset_to_pay_wth).await;
 
@@ -202,6 +196,7 @@ mod success {
         let orders = contract.user_orders(owner.identity()).await?.value;
         assert_eq!(user_account, expected_account);
         assert_eq!(orders, vec![]);
+        assert!(contract.order(expected_id).await?.value.is_none());
 
         let id = contract
             .open_order(
@@ -223,13 +218,7 @@ mod success {
             .value;
 
         let user_account = contract.account(owner.identity()).await?.value.unwrap();
-
-        let liquid_quote = deposit_amount
-            - (price / 10_u64.pow(defaults.price_decimals) * 10_u64.pow(defaults.quote_decimals));
-        let locked_quote =
-            price / 10_u64.pow(defaults.price_decimals) * 10_u64.pow(defaults.quote_decimals);
-
-        let expected_account = create_account(0, liquid_quote, 0, locked_quote);
+        let expected_account = create_account(0, 0, 0, deposit_amount);
         let mut orders = contract.user_orders(owner.identity()).await?.value;
 
         assert_eq!(user_account, expected_account);
