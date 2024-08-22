@@ -3,7 +3,7 @@ use fuels::{
         abigen, Address, AssetId, CallParameters, Contract, ContractId, LoadConfiguration,
         StorageConfiguration, TxPolicies, VariableOutputPolicy, WalletUnlocked,
     },
-    programs::responses::CallResponse,
+    programs::{calls::Execution, responses::CallResponse},
     types::{bech32::Bech32ContractId, Bits256, Bytes32, Identity},
 };
 
@@ -285,11 +285,21 @@ impl MarketContract {
     }
 
     pub async fn account(&self, user: Identity) -> anyhow::Result<CallResponse<Option<Account>>> {
-        Ok(self.instance.methods().account(user).simulate().await?)
+        Ok(self
+            .instance
+            .methods()
+            .account(user)
+            .simulate(Execution::StateReadOnly)
+            .await?)
     }
 
     pub async fn protocol_fee(&self) -> anyhow::Result<CallResponse<u32>> {
-        Ok(self.instance.methods().protocol_fee().simulate().await?)
+        Ok(self
+            .instance
+            .methods()
+            .protocol_fee()
+            .simulate(Execution::StateReadOnly)
+            .await?)
     }
 
     pub async fn total_protocol_fee(&self) -> anyhow::Result<CallResponse<u64>> {
@@ -297,7 +307,7 @@ impl MarketContract {
             .instance
             .methods()
             .total_protocol_fee()
-            .simulate()
+            .simulate(Execution::StateReadOnly)
             .await?)
     }
 
@@ -306,20 +316,35 @@ impl MarketContract {
             .instance
             .methods()
             .protocol_fee_amount(amount)
-            .simulate()
+            .simulate(Execution::StateReadOnly)
             .await?)
     }
 
     pub async fn matcher_fee(&self) -> anyhow::Result<CallResponse<u32>> {
-        Ok(self.instance.methods().matcher_fee().simulate().await?)
+        Ok(self
+            .instance
+            .methods()
+            .matcher_fee()
+            .simulate(Execution::StateReadOnly)
+            .await?)
     }
 
     pub async fn order(&self, order: Bits256) -> anyhow::Result<CallResponse<Option<Order>>> {
-        Ok(self.instance.methods().order(order).simulate().await?)
+        Ok(self
+            .instance
+            .methods()
+            .order(order)
+            .simulate(Execution::StateReadOnly)
+            .await?)
     }
 
     pub async fn user_orders(&self, user: Identity) -> anyhow::Result<CallResponse<Vec<Bits256>>> {
-        Ok(self.instance.methods().user_orders(user).simulate().await?)
+        Ok(self
+            .instance
+            .methods()
+            .user_orders(user)
+            .simulate(Execution::StateReadOnly)
+            .await?)
     }
 
     pub async fn order_change_info(
@@ -330,7 +355,7 @@ impl MarketContract {
             .instance
             .methods()
             .order_change_info(order_id)
-            .simulate()
+            .simulate(Execution::StateReadOnly)
             .await?)
     }
 
@@ -338,7 +363,12 @@ impl MarketContract {
         &self,
     ) -> anyhow::Result<CallResponse<(Address, AssetId, u32, AssetId, u32, u32, AssetId, u32)>>
     {
-        Ok(self.instance.methods().config().simulate().await?)
+        Ok(self
+            .instance
+            .methods()
+            .config()
+            .simulate(Execution::StateReadOnly)
+            .await?)
     }
 
     pub async fn order_id(
@@ -352,7 +382,7 @@ impl MarketContract {
             .instance
             .methods()
             .order_id(order_type, owner, price, block_height)
-            .simulate()
+            .simulate(Execution::StateReadOnly)
             .await?)
     }
 }
