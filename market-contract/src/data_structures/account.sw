@@ -37,7 +37,7 @@ impl Account {
         asset: AssetType,
 ) {
         require(amount != 0, OrderError::ZeroLockAmount);
-        self.locked.debit(amount, asset);
         to.liquid.credit(amount, asset);
+        self.locked.debit(amount, asset);
     }
 }

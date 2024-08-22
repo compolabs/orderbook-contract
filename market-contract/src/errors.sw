@@ -10,9 +10,13 @@ pub enum ValueError {
     InvalidSlippage: (),
     InvalidArrayLength: (),
     InvalidFeeAmount: (u64, u64),
+    InvalidEpoch: (u64, u64, u64, u64),
+    InvalidFeeSorting: (),
+    InvalidFeeZeroBased: (),
 }
 
 pub enum OrderError {
+    OrderDuplicate: b256,
     OrderNotFound: b256,
     PriceTooSmall: (u64, u64),
     ZeroOrderAmount: (),
