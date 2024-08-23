@@ -62,7 +62,6 @@ mod success {
     async fn fuzz_sell_base() -> anyhow::Result<()> {
         let defaults = Defaults::default();
 
-        // Fuzz test: run multiple iterations with random deposit and order amounts
         for _ in 0..100 {
             let (contract, owner, _user, assets) = setup(
                 defaults.base_decimals,

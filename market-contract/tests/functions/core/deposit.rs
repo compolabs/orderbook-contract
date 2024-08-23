@@ -51,7 +51,6 @@ mod success {
     async fn fuzz_base_asset() -> anyhow::Result<()> {
         let defaults = Defaults::default();
 
-        // Fuzz test: run multiple iterations with random deposit amounts
         for _ in 0..100 {
             let (contract, owner, _user, assets) = setup(
                 defaults.base_decimals,
@@ -134,7 +133,6 @@ mod success {
     async fn fuzz_quote_asset() -> anyhow::Result<()> {
         let defaults = Defaults::default();
 
-        // Fuzz test: run multiple iterations with random deposit amounts
         for _ in 0..100 {
             let (contract, owner, _user, assets) = setup(
                 defaults.base_decimals,

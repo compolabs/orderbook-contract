@@ -297,7 +297,7 @@ mod success {
     #[tokio::test(flavor = "multi_thread")]
     #[ignore]
     async fn fuzz_match_order_many() -> anyhow::Result<()> {
-        for _ in 0..10 {
+        for _ in 0..25 {
             let defaults = Defaults::default();
             let (contract, user0, user1, assets) = setup(
                 defaults.base_decimals,
@@ -307,8 +307,8 @@ mod success {
             .await?;
 
             // Specify the range for order amounts and prices
-            let amount_range = 100_000..100_000_000; // 0.001 BTC to 2 BTC
-            let price_range = 1_000_000_000_i64..500_000_000_000_000_i64; // 1 USDC to 500k USDC
+            let amount_range = 100_000..100_000_000; // 0.001 BTC to 1 BTC
+            let price_range = 1_000_000_000_i64..200_000_000_000_000_i64; // 1 USDC to 200k USDC
             let price_variation_range = -500..=500; // Range for price variation
 
             let mut rng = rand::thread_rng();

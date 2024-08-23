@@ -362,7 +362,7 @@ mod success_ioc {
     async fn fuzz_fulfill_order_many_same_asset_type_partial_fulfill() -> anyhow::Result<()> {
         let mut rng = rand::thread_rng();
 
-        for _ in 0..10 {
+        for _ in 0..25 {
             let defaults = Defaults::default();
             let (contract, user0, user1, assets) = setup(
                 defaults.base_decimals,
@@ -408,13 +408,13 @@ mod success_ioc {
                 .await?
                 .deposit(quote_deposit, assets.quote.id)
                 .await?;
-            println!("quote");
+
             contract
                 .with_account(&user1.wallet)
                 .await?
                 .deposit(base_deposit, assets.base.id)
                 .await?;
-            println!("base");
+
             let mut order_ids: Vec<Bits256> = Vec::new();
             for config in order_configs {
                 order_ids.push(
