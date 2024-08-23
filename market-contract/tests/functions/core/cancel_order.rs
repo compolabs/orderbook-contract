@@ -1,5 +1,5 @@
 use crate::setup::{setup, Defaults};
-use spark_market_sdk::{/*AssetType,*/ OrderType};
+use spark_market_sdk::OrderType;
 
 mod success {
 
@@ -122,11 +122,11 @@ mod success {
         let price = 70000 * 10_u64.pow(defaults.price_decimals);
         let expected_id = contract
             .order_id(
-                /*AssetType::Base,*/
                 order_type.clone(),
                 owner.identity(),
                 price,
                 provider.latest_block_height().await?,
+                0
             )
             .await?
             .value;
@@ -142,18 +142,18 @@ mod success {
         let id = contract
             .open_order(
                 order_amount,
-                /*AssetType::Base,*/ order_type.clone(),
+                order_type.clone(),
                 price,
             )
             .await?
             .value;
         let expected_id = contract
             .order_id(
-                /*AssetType::Base,*/
                 order_type.clone(),
                 owner.identity(),
                 price,
                 provider.latest_block_height().await?,
+                1
             )
             .await?
             .value;
@@ -212,18 +212,18 @@ mod success {
         let id = contract
             .open_order(
                 order_amount,
-                /*AssetType::Quote,*/ order_type.clone(),
+                order_type.clone(),
                 price,
             )
             .await?
             .value;
         let expected_id = contract
             .order_id(
-                /*AssetType::Quote,*/
                 order_type.clone(),
                 owner.identity(),
                 price,
                 owner.wallet.try_provider()?.latest_block_height().await?,
+                0
             )
             .await?
             .value;
@@ -231,9 +231,6 @@ mod success {
         let user_account = contract.account(owner.identity()).await?.value.unwrap();
         let expected_account = create_account(0, 0, deposit_amount, 0);
         let mut orders = contract.user_orders(owner.identity()).await?.value;
-
-        //dbg!(&user_account);
-        //dbg!(&expected_account);
 
         assert_eq!(user_account, expected_account);
         assert_eq!(orders.len(), 1);

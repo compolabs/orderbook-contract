@@ -12,10 +12,10 @@ mod success {
         )
         .await?;
 
-        assert_eq!(contract.matcher_fee().await?.value, 0_u32);
+        assert_eq!(contract.matcher_fee().await?.value, 0_u64);
 
         // Change fee to be non-zero for testing purposes
-        let matcher_fee = 1000_u32;
+        let matcher_fee = 1000_u64;
 
         let _ = contract.set_matcher_fee(matcher_fee).await?;
 

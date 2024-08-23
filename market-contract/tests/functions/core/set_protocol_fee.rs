@@ -19,7 +19,8 @@ mod success {
         let new_fee = 5;
 
         // Assert precondition of initial fee
-        assert_eq!(contract.protocol_fee().await?.value, initial_fee);
+        assert!(false);
+        /*assert_eq!(contract.protocol_fee().await?.value, initial_fee);
 
         // Increase the fee to new_fee
         let response = contract.set_protocol_fee(new_fee).await?;
@@ -33,7 +34,7 @@ mod success {
 
         // Check fee has changed from the initial fee
         assert_ne!(initial_fee, new_fee);
-        assert_eq!(contract.protocol_fee().await?.value, new_fee);
+        assert_eq!(contract.protocol_fee().await?.value, new_fee);*/
 
         Ok(())
     }
@@ -58,12 +59,12 @@ mod revert {
         let new_fee = 5;
 
         // Reverts
-        contract
+        /*contract
             .with_account(&user.wallet)
             .await
             .unwrap()
             .set_protocol_fee(new_fee)
             .await
-            .unwrap();
+            .unwrap();*/
     }
 }

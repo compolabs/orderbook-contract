@@ -15,13 +15,12 @@ mod success {
         assert_eq!(
             contract.config().await?.value,
             (
-                owner.address(),
                 assets.base.id,
                 assets.base.decimals,
                 assets.quote.id,
                 assets.quote.decimals,
+                owner.address().into(),
                 defaults.price_decimals,
-                assets.fuel.id,
                 0xFAFBFC,
             )
         );

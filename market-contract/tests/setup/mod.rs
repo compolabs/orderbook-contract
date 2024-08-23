@@ -131,9 +131,8 @@ pub(crate) async fn setup(
         assets.base.decimals,
         assets.quote.id,
         assets.quote.decimals,
-        price_decimals,
         owner.clone(),
-        *owner.provider().unwrap().base_asset_id(),
+        price_decimals,
         0xFAFBFC,
     )
     .await?;

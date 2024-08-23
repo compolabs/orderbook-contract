@@ -3,7 +3,7 @@ mod success {
     use crate::setup::{setup, Defaults};
     use fuels::accounts::ViewOnlyAccount;
     use fuels::types::Bits256;
-    use spark_market_sdk::{/*AssetType,*/ OrderType};
+    use spark_market_sdk::OrderType;
 
     #[tokio::test]
     async fn returns_none() -> anyhow::Result<()> {
@@ -34,7 +34,7 @@ mod success {
         let id = contract
             .open_order(
                 1,
-                /*AssetType::Base,*/ OrderType::Sell,
+                OrderType::Sell,
                 70_000_000_000_000_u64,
             )
             .await?;
@@ -42,11 +42,11 @@ mod success {
         let order = contract.order(id.value).await?.value.unwrap();
         let expected_id = contract
             .order_id(
-                /*order.asset_type,*/
                 order.order_type,
                 order.owner,
                 order.price,
                 owner.wallet.try_provider()?.latest_block_height().await?,
+                0,
             )
             .await?;
 

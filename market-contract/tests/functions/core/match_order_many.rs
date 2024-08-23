@@ -35,25 +35,21 @@ mod success {
         let order_configs: Vec<OrderConfig> = vec![
             OrderConfig {
                 amount: base_amount,
-                /*asset_type: AssetType::Base,*/
                 order_type: OrderType::Buy,
                 price: price1,
             },
             OrderConfig {
                 amount: base_amount,
-                /*asset_type: AssetType::Base,*/
                 order_type: OrderType::Buy,
                 price: price2,
             },
             OrderConfig {
                 amount: base_amount,
-                /*asset_type: AssetType::Base,*/
                 order_type: OrderType::Sell,
                 price: price2,
             },
             OrderConfig {
                 amount: base_amount,
-                /*asset_type: AssetType::Base,*/
                 order_type: OrderType::Sell,
                 price: price1,
             },
@@ -82,7 +78,6 @@ mod success {
                     .await?
                     .open_order(
                         config.amount,
-                        /*config.asset_type,*/
                         config.order_type,
                         config.price,
                     )
@@ -130,25 +125,21 @@ mod success {
         let order_configs: Vec<OrderConfig> = vec![
             OrderConfig {
                 amount: 2 * base_amount,
-                /*asset_type: AssetType::Base,*/
                 order_type: OrderType::Buy,
                 price: price1,
             },
             OrderConfig {
                 amount: base_amount,
-                /*asset_type: AssetType::Base,*/
                 order_type: OrderType::Buy,
                 price: price2,
             },
             OrderConfig {
                 amount: base_amount,
-                /*asset_type: AssetType::Base,*/
                 order_type: OrderType::Sell,
                 price: price2,
             },
             OrderConfig {
                 amount: 2 * base_amount,
-                /*asset_type: AssetType::Base,*/
                 order_type: OrderType::Sell,
                 price: price1,
             },
@@ -177,7 +168,6 @@ mod success {
                     .await?
                     .open_order(
                         config.amount,
-                        /*config.asset_type,*/
                         config.order_type,
                         config.price,
                     )
@@ -218,37 +208,31 @@ mod success {
         let order_configs: Vec<OrderConfig> = vec![
             OrderConfig {
                 amount: 287573,
-                /*asset_type: AssetType::Base,*/
                 order_type: OrderType::Buy,
                 price: 61348523016940,
             },
             OrderConfig {
                 amount: 1124659,
-                /*asset_type: AssetType::Base,*/
                 order_type: OrderType::Buy,
                 price: 61348575050000,
             },
             OrderConfig {
                 amount: 489073,
-                /*asset_type: AssetType::Base,*/
                 order_type: OrderType::Buy,
                 price: 61348523016940,
             },
             OrderConfig {
                 amount: 342334,
-                /*asset_type: AssetType::Base,*/
                 order_type: OrderType::Buy,
                 price: 61348523016940,
             },
             OrderConfig {
                 amount: 1749096,
-                /*asset_type: AssetType::Base,*/
                 order_type: OrderType::Buy,
                 price: 61348538733430,
             },
             OrderConfig {
                 amount: 440000,
-                /*asset_type: AssetType::Base,*/
                 order_type: OrderType::Sell,
                 price: 61169061298050,
             },
@@ -276,7 +260,6 @@ mod success {
                     .await?
                     .open_order(
                         config.amount,
-                        /*config.asset_type,*/
                         config.order_type,
                         config.price,
                     )
@@ -304,7 +287,7 @@ mod success {
         )
         .await?;
 
-        let matcher_fee = 100_000_u32;
+        let matcher_fee = 100_000_u64;
         let _ = contract.set_matcher_fee(matcher_fee).await?;
 
         let to_quote_scale =
@@ -317,25 +300,21 @@ mod success {
         let order_configs: Vec<OrderConfig> = vec![
             OrderConfig {
                 amount: base_amount,
-                /*asset_type: AssetType::Base,*/
                 order_type: OrderType::Buy,
                 price: price1,
             },
             OrderConfig {
                 amount: base_amount,
-                /*asset_type: AssetType::Base,*/
                 order_type: OrderType::Buy,
                 price: price2,
             },
             OrderConfig {
                 amount: base_amount,
-                /*asset_type: AssetType::Base,*/
                 order_type: OrderType::Sell,
                 price: price2,
             },
             OrderConfig {
                 amount: base_amount,
-                /*asset_type: AssetType::Base,*/
                 order_type: OrderType::Sell,
                 price: price1,
             },
@@ -364,7 +343,6 @@ mod success {
                     .await?
                     .open_order(
                         config.amount,
-                        /*config.asset_type,*/
                         config.order_type,
                         config.price,
                     )
@@ -405,7 +383,7 @@ mod success {
             .gas_price;
         assert_eq!(
             new_balance - balance,
-            (matcher_fee * order_ids.len() as u32) as u64 - gas_price
+            matcher_fee * order_ids.len() as u64 - gas_price
         );
 
         let expected_account0 = create_account(base_deposit, quote_deposit, 0, 0);
@@ -427,7 +405,6 @@ mod revert {
 
     struct OrderConfig {
         pub amount: u64,
-        /*pub asset_type: AssetType,*/
         pub order_type: OrderType,
         pub price: u64,
     }
@@ -451,25 +428,21 @@ mod revert {
         let order_configs: Vec<OrderConfig> = vec![
             OrderConfig {
                 amount: base_amount,
-                /*asset_type: AssetType::Base,*/
                 order_type: OrderType::Sell,
                 price: price1,
             },
             OrderConfig {
                 amount: base_amount,
-                /*asset_type: AssetType::Base,*/
                 order_type: OrderType::Sell,
                 price: price2,
             },
             OrderConfig {
                 amount: base_amount,
-                /*asset_type: AssetType::Base,*/
                 order_type: OrderType::Sell,
                 price: price2,
             },
             OrderConfig {
                 amount: base_amount,
-                /*asset_type: AssetType::Base,*/
                 order_type: OrderType::Sell,
                 price: price1,
             },
@@ -494,7 +467,6 @@ mod revert {
                     .unwrap()
                     .open_order(
                         config.amount,
-                        /*config.asset_type,*/
                         config.order_type,
                         config.price,
                     )

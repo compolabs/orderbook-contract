@@ -15,9 +15,10 @@ mod success {
         // Change fee to be non-zero for testing purposes
         let protocol_fee = 5;
 
-        let _ = contract.set_protocol_fee(protocol_fee).await?;
+        /*let _ = contract.set_protocol_fee(protocol_fee).await?;
 
-        assert_eq!(contract.protocol_fee().await?.value, protocol_fee);
+        assert_eq!(contract.protocol_fee().await?.value, protocol_fee);*/
+        assert!(false);
 
         Ok(())
     }

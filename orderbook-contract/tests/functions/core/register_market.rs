@@ -15,9 +15,8 @@ mod success {
             1,
             quote_asset,
             1,
-            9,
             admin.wallet.clone(),
-            *admin.wallet.provider().unwrap().base_asset_id(),
+            9,
             0xFAFBFC,
         )
         .await?;
@@ -59,9 +58,8 @@ mod revert {
             1,
             quote_asset,
             1,
-            9,
             user.wallet.clone(),
-            *user.wallet.provider().unwrap().base_asset_id(),
+            9,
             0xFAFBFC,
         )
         .await
@@ -92,9 +90,8 @@ mod revert {
             1,
             quote_asset,
             1,
-            9,
             admin.wallet.clone(),
-            *admin.wallet.provider().unwrap().base_asset_id(),
+            9,
             0xFAFBFC,
         )
         .await

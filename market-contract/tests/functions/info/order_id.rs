@@ -17,20 +17,20 @@ mod success {
 
         let id1 = contract
             .order_id(
-                /*AssetType::Base,*/
                 OrderType::Buy,
                 owner.identity(),
                 70_000_000_000_000_u64,
                 2,
+                0,
             )
             .await?;
         let id2 = contract
             .order_id(
-                /*AssetType::Base,*/
                 OrderType::Buy,
                 owner.identity(),
                 80_000_000_000_000_u64,
                 2,
+                1,
             )
             .await?;
 
@@ -40,7 +40,7 @@ mod success {
     }
 
     #[tokio::test]
-    async fn accepts_base_asset() -> anyhow::Result<()> {
+    async fn accepts_buy_order() -> anyhow::Result<()> {
         // In this test we only care about the test not reverting with the correct asset
         let defaults = Defaults::default();
         let (contract, owner, _user, _) = setup(
@@ -52,11 +52,11 @@ mod success {
 
         let _ = contract
             .order_id(
-                /*AssetType::Base,*/
                 OrderType::Buy,
                 owner.identity(),
                 70_000_000_000_000_u64,
                 2,
+                0,
             )
             .await?;
 
@@ -64,7 +64,7 @@ mod success {
     }
 
     #[tokio::test]
-    async fn accepts_quote_asset() -> anyhow::Result<()> {
+    async fn accepts_sell_order() -> anyhow::Result<()> {
         // In this test we only care about the test not reverting with the correct asset
         let defaults = Defaults::default();
         let (contract, owner, _user, _) = setup(
@@ -76,11 +76,11 @@ mod success {
 
         let _ = contract
             .order_id(
-                /*AssetType::Base,*/
                 OrderType::Buy,
                 owner.identity(),
                 70_000_000_000_000_u64,
                 2,
+                1,
             )
             .await?;
 
