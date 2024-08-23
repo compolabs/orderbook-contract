@@ -8,7 +8,7 @@ use spark_market_sdk::MarketContract;
 pub(crate) struct SetMatcherFeeCommand {
     /// The fee to set
     #[clap(long)]
-    pub(crate) amount: u32,
+    pub(crate) amount: u64,
 
     /// The contract id of the market
     #[clap(long)]

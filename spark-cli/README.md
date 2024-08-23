@@ -17,7 +17,6 @@ Run from project root folder
     --quote-asset 0xfed3ee85624c79cb18a3a848092239f2e764ed6b0aa156ad10a18bfdbe74269f \
     --quote-decimals 6 \
     --price-decimals 9 \
-    --fuel-asset 0xf8f8b6283d7fa5b672b530cbb84fcccb4ff8dc40f8176ef4544ddb1f1952ad07 \
     --rpc "testnet.fuel.network"
 
 Sample output:
@@ -111,7 +110,7 @@ Owner address: fuel173lqaa6y4jxfjd2suq730uwys3zfg4f6zt9vzx4cc45v3xvlmwlszdvdpz
 Sets protocol fee
 
 ./target/release/spark-cli core set-protocol-fee \
-    --amount 0 \
+    --fee 0, 0, 0 \
     --rpc "testnet.fuel.network" \
     --contract-id 0x21f2df4b6562991f7b364244b278b6420fbdebaa478b2690499ab049507d06e5
 
@@ -121,16 +120,6 @@ Sets a matcher fee for the market
 
 ./target/release/spark-cli core set-matcher-fee \
     --amount 1000 \
-    --rpc "testnet.fuel.network" \
-    --contract-id 0x21f2df4b6562991f7b364244b278b6420fbdebaa478b2690499ab049507d06e5
-
-## Withdraw Protocol Fee
-
-Withdraw protocol fee
-
-./target/release/spark-cli core withdraw-protocol-fee \
-    --account-to-type address \
-    --account-to-id 0xf47e0ef744ac8c993550e03d17f1c4844494553a12cac11ab8c568c8999fdbbf \
     --rpc "testnet.fuel.network" \
     --contract-id 0x21f2df4b6562991f7b364244b278b6420fbdebaa478b2690499ab049507d06e5
 
@@ -160,20 +149,14 @@ Protocol fee
     --rpc "testnet.fuel.network" \
     --contract-id 0x21f2df4b6562991f7b364244b278b6420fbdebaa478b2690499ab049507d06e5
 
-## Total Protocol Fee
-
-Total Protocol fee collected
-
-./target/release/spark-cli info total-protocol-fee \
-    --rpc "testnet.fuel.network" \
-    --contract-id 0x21f2df4b6562991f7b364244b278b6420fbdebaa478b2690499ab049507d06e5
-
 ## Protocol Fee Amount
 
 Calculates Protocol fee for a order amount
 
 ./target/release/spark-cli info protocol-fee-amount \
     --amount 10 \
+    --account-type address \
+    --account-id 0xf47e0ef744ac8c993550e03d17f1c4844494553a12cac11ab8c568c8999fdbbf \
     --rpc "testnet.fuel.network" \
     --contract-id 0x21f2df4b6562991f7b364244b278b6420fbdebaa478b2690499ab049507d06e5
 

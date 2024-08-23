@@ -48,12 +48,12 @@ use std::{
 use sway_libs::reentrancy::*;
 
 configurable {
-    OWNER: Identity = Identity::Address(Address::zero()),
-    PRICE_DECIMALS: u32 = 9,
     BASE_ASSET: AssetId = AssetId::zero(),
     BASE_ASSET_DECIMALS: u32 = 9,
     QUOTE_ASSET: AssetId = AssetId::zero(),
     QUOTE_ASSET_DECIMALS: u32 = 9,
+    OWNER: Identity = Identity::Address(Address::zero()),
+    PRICE_DECIMALS: u32 = 9,
     VERSION: u32 = 0,
 }
 
@@ -390,13 +390,13 @@ impl MarketInfo for Contract {
         storage.order_change_info.get(order_id).load_vec()
     }
 
-    fn config() -> (Identity, AssetId, u32, AssetId, u32, u32, u32) {
+    fn config() -> (AssetId, u32, AssetId, u32, Identity, u32, u32) {
         (
-            OWNER,
             BASE_ASSET,
             BASE_ASSET_DECIMALS,
             QUOTE_ASSET,
             QUOTE_ASSET_DECIMALS,
+            OWNER,
             PRICE_DECIMALS,
             VERSION,
         )

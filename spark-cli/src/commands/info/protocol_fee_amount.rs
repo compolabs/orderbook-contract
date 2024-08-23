@@ -1,6 +1,8 @@
-use crate::utils::{setup, validate_contract_id /*, AssetType*/};
+use crate::utils::{setup, validate_contract_id, AccountType};
 use clap::Args;
-use spark_market_sdk::{/*AssetType as ContractAssetType,*/ MarketContract};
+use fuels::types::{Address, ContractId, Identity};
+use spark_market_sdk::MarketContract;
+use std::str::FromStr;
 
 #[derive(Args, Clone)]
 #[command(about = "Query the protocol fee amount")]
@@ -9,9 +11,13 @@ pub(crate) struct ProtocolFeeAmountCommand {
     #[clap(long)]
     pub(crate) amount: u64,
 
-    /// The asset type of the market
-    /*#[clap(long)]
-    pub(crate) asset_type: AssetType,*/
+    /// The b256 id of the account
+    #[clap(long)]
+    pub(crate) account_id: String,
+
+    /// The type of account
+    #[clap(long)]
+    pub(crate) account_type: AccountType,
 
     /// The contract id of the market
     #[clap(long)]
@@ -30,17 +36,27 @@ impl ProtocolFeeAmountCommand {
 
         // Connect to the deployed contract via the rpc
         let contract = MarketContract::new(contract_id, wallet).await;
-        /*let asset_type = match self.asset_type {
-            AssetType::Base => ContractAssetType::Base,
-            AssetType::Quote => ContractAssetType::Quote,
-        };*/
+
+        let account = match self.account_type {
+            AccountType::Address => {
+                let address = Address::from_str(&self.account_id).expect("Invalid address");
+                Identity::Address(address)
+            }
+            AccountType::Contract => {
+                let address = ContractId::from_str(&self.account_id).expect("Invalid contract id");
+                Identity::ContractId(address)
+            }
+        };
 
         let protocol_fee_amount = contract
-            .protocol_fee_amount(self.amount /*, asset_type*/)
+            .protocol_fee_amount(self.amount, account)
             .await?
             .value;
 
-        println!("Protocol Fee Amount: {}", protocol_fee_amount);
+        println!(
+            "Protocol Fee Amount: for {:?} of {} (maker_fee, taker_fee) ({}, {})",
+            account, self.amount, protocol_fee_amount.0, protocol_fee_amount.1
+        );
 
         Ok(())
     }

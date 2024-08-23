@@ -1,6 +1,6 @@
 use fuels::{
     prelude::{
-        abigen, Address, AssetId, CallParameters, Contract, ContractId, LoadConfiguration,
+        abigen, AssetId, CallParameters, Contract, ContractId, LoadConfiguration,
         StorageConfiguration, TxPolicies, VariableOutputPolicy, WalletUnlocked,
     },
     programs::responses::CallResponse,
@@ -29,9 +29,8 @@ impl MarketContract {
         base_decimals: u32,
         quote_asset: AssetId,
         quote_decimals: u32,
-        price_decimals: u32,
         owner: WalletUnlocked,
-        fuel_asset: AssetId,
+        price_decimals: u32,
         version: u32,
     ) -> anyhow::Result<Self> {
         let mut rng = rand::thread_rng();
@@ -50,11 +49,9 @@ impl MarketContract {
             .unwrap()
             .with_QUOTE_ASSET_DECIMALS(quote_decimals)
             .unwrap()
-            .with_PRICE_DECIMALS(price_decimals)
-            .unwrap()
             .with_OWNER(owner.address().into())
             .unwrap()
-            .with_FUEL_ASSET(fuel_asset)
+            .with_PRICE_DECIMALS(price_decimals)
             .unwrap()
             .with_VERSION(version)
             .unwrap();
@@ -106,7 +103,7 @@ impl MarketContract {
     }
 
     pub async fn contract_version(&self) -> anyhow::Result<u32> {
-        let (_, _, _, _, _, _, _, version) = self.config().await?.value;
+        let (_, _, _, _, _, _, version) = self.config().await?.value;
         Ok(version)
     }
 
@@ -170,33 +167,10 @@ impl MarketContract {
         order_type: OrderType,
         price: u64,
     ) -> anyhow::Result<CallResponse<Bits256>> {
-        let protocol_fee = self.protocol_fee_amount(amount).await?.value;
-        let matcher_fee = self.matcher_fee().await?.value;
-        let call_params = CallParameters::default().with_amount(matcher_fee as u64 + protocol_fee);
         Ok(self
             .instance
             .methods()
             .open_order(amount, order_type, price)
-            .call_params(call_params)?
-            .call()
-            .await?)
-    }
-
-    pub async fn open_order_with_matcher_fee(
-        &self,
-        amount: u64,
-        order_type: OrderType,
-        price: u64,
-        matcher_fee: u32,
-    ) -> anyhow::Result<CallResponse<Bits256>> {
-        let protocol_fee = self.protocol_fee_amount(amount).await?.value;
-        let call_params = CallParameters::default().with_amount(matcher_fee as u64 + protocol_fee);
-        Ok(self
-            .instance
-            .methods()
-            .open_order(amount, order_type, price)
-            .with_variable_output_policy(VariableOutputPolicy::Exactly(1))
-            .call_params(call_params)?
             .call()
             .await?)
     }
@@ -244,28 +218,23 @@ impl MarketContract {
         slippage: u64,
         orders: Vec<Bits256>,
     ) -> anyhow::Result<CallResponse<Bits256>> {
-        let protocol_fee = self.protocol_fee_amount(amount).await?.value;
-        let call_params = CallParameters::default().with_amount(protocol_fee);
         Ok(self
             .instance
             .methods()
             .fulfill_order_many(amount, order_type, limit_type, price, slippage, orders)
             .with_variable_output_policy(VariableOutputPolicy::Exactly(1))
-            .call_params(call_params)?
             .call()
             .await?)
     }
 
-    pub async fn set_protocol_fee(&self, amount: u32) -> anyhow::Result<CallResponse<()>> {
-        Ok(self
-            .instance
-            .methods()
-            .set_protocol_fee(amount)
-            .call()
-            .await?)
+    pub async fn set_protocol_fee(
+        &self,
+        fee: Vec<ProtocolFee>,
+    ) -> anyhow::Result<CallResponse<()>> {
+        Ok(self.instance.methods().set_protocol_fee(fee).call().await?)
     }
 
-    pub async fn set_matcher_fee(&self, amount: u32) -> anyhow::Result<CallResponse<()>> {
+    pub async fn set_matcher_fee(&self, amount: u64) -> anyhow::Result<CallResponse<()>> {
         Ok(self
             .instance
             .methods()
@@ -274,43 +243,28 @@ impl MarketContract {
             .await?)
     }
 
-    pub async fn withdraw_protocol_fee(&self, to: Identity) -> anyhow::Result<CallResponse<()>> {
-        Ok(self
-            .instance
-            .methods()
-            .withdraw_protocol_fee(to)
-            .with_variable_output_policy(VariableOutputPolicy::Exactly(1))
-            .call()
-            .await?)
-    }
-
     pub async fn account(&self, user: Identity) -> anyhow::Result<CallResponse<Option<Account>>> {
         Ok(self.instance.methods().account(user).simulate().await?)
     }
 
-    pub async fn protocol_fee(&self) -> anyhow::Result<CallResponse<u32>> {
+    pub async fn protocol_fee(&self) -> anyhow::Result<CallResponse<Vec<ProtocolFee>>> {
         Ok(self.instance.methods().protocol_fee().simulate().await?)
     }
 
-    pub async fn total_protocol_fee(&self) -> anyhow::Result<CallResponse<u64>> {
+    pub async fn protocol_fee_amount(
+        &self,
+        amount: u64,
+        user: Identity,
+    ) -> anyhow::Result<CallResponse<(u64, u64)>> {
         Ok(self
             .instance
             .methods()
-            .total_protocol_fee()
+            .protocol_fee_amount(amount, user)
             .simulate()
             .await?)
     }
 
-    pub async fn protocol_fee_amount(&self, amount: u64) -> anyhow::Result<CallResponse<u64>> {
-        Ok(self
-            .instance
-            .methods()
-            .protocol_fee_amount(amount)
-            .simulate()
-            .await?)
-    }
-
-    pub async fn matcher_fee(&self) -> anyhow::Result<CallResponse<u32>> {
+    pub async fn matcher_fee(&self) -> anyhow::Result<CallResponse<u64>> {
         Ok(self.instance.methods().matcher_fee().simulate().await?)
     }
 
@@ -336,8 +290,7 @@ impl MarketContract {
 
     pub async fn config(
         &self,
-    ) -> anyhow::Result<CallResponse<(Address, AssetId, u32, AssetId, u32, u32, AssetId, u32)>>
-    {
+    ) -> anyhow::Result<CallResponse<(AssetId, u32, AssetId, u32, Identity, u32, u32)>> {
         Ok(self.instance.methods().config().simulate().await?)
     }
 
@@ -347,11 +300,12 @@ impl MarketContract {
         owner: Identity,
         price: u64,
         block_height: u32,
+        order_height: u64,
     ) -> anyhow::Result<CallResponse<Bits256>> {
         Ok(self
             .instance
             .methods()
-            .order_id(order_type, owner, price, block_height)
+            .order_id(order_type, owner, price, block_height, order_height)
             .simulate()
             .await?)
     }

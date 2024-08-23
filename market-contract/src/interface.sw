@@ -76,7 +76,7 @@ abi MarketInfo {
     #[storage(read)]
     fn order_change_info(order_id: b256) -> Vec<OrderChangeInfo>;
 
-    fn config() -> (Identity, AssetId, u32, AssetId, u32, u32, u32);
+    fn config() -> (AssetId, u32, AssetId, u32, Identity, u32, u32);
 
     fn order_id(
         order_type: OrderType,

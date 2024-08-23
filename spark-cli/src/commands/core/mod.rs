@@ -9,4 +9,3 @@ pub(crate) mod open_order;
 pub(crate) mod set_matcher_fee;
 pub(crate) mod set_protocol_fee;
 pub(crate) mod withdraw;
-pub(crate) mod withdraw_protocol_fee;

@@ -1,14 +1,14 @@
 use crate::utils::{setup, validate_contract_id};
 use clap::Args;
 use fuels::accounts::ViewOnlyAccount;
-use spark_market_sdk::MarketContract;
+use spark_market_sdk::{MarketContract, ProtocolFee};
 
 #[derive(Args, Clone)]
 #[command(about = "Change the protocol fee")]
 pub(crate) struct SetProtocolFeeCommand {
     /// The fee to set
     #[clap(long)]
-    pub(crate) amount: u32,
+    pub(crate) fee: u64, // Todo Vec<ProtocolFee>,
 
     /// The contract id of the market
     #[clap(long)]
@@ -33,14 +33,15 @@ impl SetProtocolFeeCommand {
         // Connect to the deployed contract via the rpc
         let contract = MarketContract::new(contract_id, wallet.clone()).await;
 
-        let _ = contract.set_protocol_fee(self.amount).await?;
+        // Todo
+        //let _ = contract.set_protocol_fee(self.fee.clone()).await?;
 
         // Balance post-deployment
         let new_balance = wallet
             .get_asset_balance(&wallet.provider().unwrap().base_asset_id())
             .await?;
 
-        println!("\nThe global fee has been set to: {}", self.amount);
+        println!("\nThe global fee has been set to: {:?}", self.fee);
         println!("Contract call cost: {}", balance - new_balance);
 
         Ok(())
