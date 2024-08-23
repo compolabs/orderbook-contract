@@ -1177,14 +1177,8 @@
       "name": "account",
       "output": {
         "name": "",
-        "type": 13,
-        "typeArguments": [
-          {
-            "name": "",
-            "type": 21,
-            "typeArguments": null
-          }
-        ]
+        "type": 21,
+        "typeArguments": null
       },
       "attributes": [
         {
@@ -1359,6 +1353,29 @@
     {
       "inputs": [
         {
+          "name": "user",
+          "type": 10,
+          "typeArguments": null
+        }
+      ],
+      "name": "protocol_fee_user",
+      "output": {
+        "name": "",
+        "type": 1,
+        "typeArguments": null
+      },
+      "attributes": [
+        {
+          "name": "storage",
+          "arguments": [
+            "read"
+          ]
+        }
+      ]
+    },
+    {
+      "inputs": [
+        {
           "name": "amount",
           "type": 41,
           "typeArguments": null
@@ -1369,7 +1386,7 @@
           "typeArguments": null
         }
       ],
-      "name": "protocol_fee_amount",
+      "name": "protocol_fee_user_amount",
       "output": {
         "name": "",
         "type": 1,
@@ -1553,7 +1570,7 @@
         "type": 23,
         "typeArguments": []
       },
-      "offset": 79736
+      "offset": 79952
     },
     {
       "name": "BASE_ASSET_DECIMALS",
@@ -1562,7 +1579,7 @@
         "type": 40,
         "typeArguments": null
       },
-      "offset": 79768
+      "offset": 79984
     },
     {
       "name": "QUOTE_ASSET",
@@ -1571,7 +1588,7 @@
         "type": 23,
         "typeArguments": []
       },
-      "offset": 79824
+      "offset": 80040
     },
     {
       "name": "QUOTE_ASSET_DECIMALS",
@@ -1580,7 +1597,7 @@
         "type": 40,
         "typeArguments": null
       },
-      "offset": 79856
+      "offset": 80072
     },
     {
       "name": "OWNER",
@@ -1589,7 +1606,7 @@
         "type": 10,
         "typeArguments": []
       },
-      "offset": 79776
+      "offset": 79992
     },
     {
       "name": "PRICE_DECIMALS",
@@ -1598,7 +1615,7 @@
         "type": 40,
         "typeArguments": null
       },
-      "offset": 79816
+      "offset": 80032
     },
     {
       "name": "VERSION",
@@ -1607,7 +1624,7 @@
         "type": 40,
         "typeArguments": null
       },
-      "offset": 79864
+      "offset": 80080
     }
   ]
 }

@@ -76,11 +76,7 @@ mod success {
                 contract
                     .with_account(&user0.wallet)
                     .await?
-                    .open_order(
-                        config.amount,
-                        config.order_type,
-                        config.price,
-                    )
+                    .open_order(config.amount, config.order_type, config.price)
                     .await?
                     .value,
             );
@@ -89,7 +85,7 @@ mod success {
         let expected_account0 = create_account(0, 0, base_deposit, quote_deposit);
 
         assert_eq!(
-            contract.account(user0.identity()).await?.value.unwrap(),
+            contract.account(user0.identity()).await?.value,
             expected_account0
         );
 
@@ -98,7 +94,7 @@ mod success {
         let expected_account0 = create_account(base_deposit, quote_deposit, 0, 0);
 
         assert_eq!(
-            contract.account(user0.identity()).await?.value.unwrap(),
+            contract.account(user0.identity()).await?.value,
             expected_account0
         );
 
@@ -166,11 +162,7 @@ mod success {
                 contract
                     .with_account(&user0.wallet)
                     .await?
-                    .open_order(
-                        config.amount,
-                        config.order_type,
-                        config.price,
-                    )
+                    .open_order(config.amount, config.order_type, config.price)
                     .await?
                     .value,
             );
@@ -179,7 +171,7 @@ mod success {
         let expected_account0 = create_account(0, 0, base_deposit, quote_deposit);
 
         assert_eq!(
-            contract.account(user0.identity()).await?.value.unwrap(),
+            contract.account(user0.identity()).await?.value,
             expected_account0
         );
 
@@ -188,7 +180,7 @@ mod success {
         let expected_account0 = create_account(base_deposit, quote_deposit, 0, 0);
 
         assert_eq!(
-            contract.account(user0.identity()).await?.value.unwrap(),
+            contract.account(user0.identity()).await?.value,
             expected_account0
         );
 
@@ -258,11 +250,7 @@ mod success {
                 contract
                     .with_account(&user0.wallet)
                     .await?
-                    .open_order(
-                        config.amount,
-                        config.order_type,
-                        config.price,
-                    )
+                    .open_order(config.amount, config.order_type, config.price)
                     .await?
                     .value,
             );
@@ -341,11 +329,7 @@ mod success {
                 contract
                     .with_account(&user0.wallet)
                     .await?
-                    .open_order(
-                        config.amount,
-                        config.order_type,
-                        config.price,
-                    )
+                    .open_order(config.amount, config.order_type, config.price)
                     .await?
                     .value,
             );
@@ -354,7 +338,7 @@ mod success {
         let expected_account0 = create_account(0, 0, base_deposit, quote_deposit);
 
         assert_eq!(
-            contract.account(user0.identity()).await?.value.unwrap(),
+            contract.account(user0.identity()).await?.value,
             expected_account0
         );
 
@@ -389,7 +373,7 @@ mod success {
         let expected_account0 = create_account(base_deposit, quote_deposit, 0, 0);
 
         assert_eq!(
-            contract.account(user0.identity()).await?.value.unwrap(),
+            contract.account(user0.identity()).await?.value,
             expected_account0
         );
 
@@ -465,11 +449,7 @@ mod revert {
                     .with_account(&user0.wallet)
                     .await
                     .unwrap()
-                    .open_order(
-                        config.amount,
-                        config.order_type,
-                        config.price,
-                    )
+                    .open_order(config.amount, config.order_type, config.price)
                     .await
                     .unwrap()
                     .value,
@@ -479,12 +459,7 @@ mod revert {
         let expected_account0 = create_account(0, 0, base_deposit, 0);
 
         assert_eq!(
-            contract
-                .account(user0.identity())
-                .await
-                .unwrap()
-                .value
-                .unwrap(),
+            contract.account(user0.identity()).await.unwrap().value,
             expected_account0
         );
 

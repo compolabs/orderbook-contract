@@ -3,7 +3,7 @@ mod success {
     use crate::setup::{create_account, setup, Defaults};
 
     #[tokio::test]
-    async fn returns_none() -> anyhow::Result<()> {
+    async fn returns_account_zeros() -> anyhow::Result<()> {
         let defaults = Defaults::default();
         let (contract, owner, _user, _assets) = setup(
             defaults.base_decimals,
@@ -11,7 +11,12 @@ mod success {
             defaults.price_decimals,
         )
         .await?;
-        assert!(contract.account(owner.identity()).await?.value.is_none());
+        let expected_account = create_account(0, 0, 0, 0);
+
+        assert_eq!(
+            contract.account(owner.identity()).await?.value,
+            expected_account
+        );
 
         Ok(())
     }
@@ -30,7 +35,7 @@ mod success {
 
         let _ = contract.deposit(deposit_amount, assets.base.id).await?;
 
-        let user_account = contract.account(owner.identity()).await?.value.unwrap();
+        let user_account = contract.account(owner.identity()).await?.value;
 
         assert_eq!(user_account, expected_account);
 

@@ -1,7 +1,7 @@
 use crate::commands::info::{
     account::AccountCommand, config::ConfigCommand, matcher_fee::MatcherFeeCommand,
     order::OrderCommand, order_id::OrderIdCommand, protocol_fee::ProtocolFeeCommand,
-    protocol_fee_amount::ProtocolFeeAmountCommand, user_orders::UserOrdersCommand,
+    protocol_fee_user_amount::ProtocolFeeAmountCommand, user_orders::UserOrdersCommand,
 };
 use clap::Subcommand;
 

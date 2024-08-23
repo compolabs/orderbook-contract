@@ -30,7 +30,7 @@ mod success {
             .await?
             .value;
 
-        let user_account = contract.account(owner.identity()).await?.value.unwrap();
+        let user_account = contract.account(owner.identity()).await?.value;
         let expected_account = create_account(deposit_amount - order_amount, 0, order_amount, 0);
         let mut orders = contract.user_orders(owner.identity()).await?.value;
         assert_eq!(user_account, expected_account);
@@ -45,55 +45,8 @@ mod success {
         let event = log.first().unwrap();
         assert_eq!(*event, CancelOrderEvent { order_id: id });
 
-        let user_account = contract.account(owner.identity()).await?.value.unwrap();
+        let user_account = contract.account(owner.identity()).await?.value;
         let expected_account = create_account(deposit_amount, 0, 0, 0);
-        let orders = contract.user_orders(owner.identity()).await?.value;
-        assert_eq!(user_account, expected_account);
-        assert_eq!(orders.len(), 0);
-        assert!(contract.order(id).await?.value.is_none());
-
-        Ok(())
-    }
-
-    //#[tokio::test]
-    async fn sell_quote() -> anyhow::Result<()> {
-        let defaults = Defaults::default();
-        let (contract, owner, _user, assets) = setup(
-            defaults.base_decimals,
-            defaults.quote_decimals,
-            defaults.price_decimals,
-        )
-        .await?;
-
-        let deposit_amount = 70000;
-        let order_amount = 50000;
-        let asset = assets.quote.id;
-        let order_type = OrderType::Sell;
-        let price = 70_000_000_000_000_u64;
-
-        let _ = contract.deposit(deposit_amount, asset).await?;
-        let id = contract
-            .open_order(order_amount, /*AssetType::Quote,*/ order_type, price)
-            .await?
-            .value;
-
-        let user_account = contract.account(owner.identity()).await?.value.unwrap();
-        let expected_account = create_account(0, deposit_amount - order_amount, 0, order_amount);
-        let mut orders = contract.user_orders(owner.identity()).await?.value;
-        assert_eq!(user_account, expected_account);
-        assert_eq!(orders.len(), 1);
-        assert_eq!(orders.pop().unwrap(), id);
-        assert!(contract.order(id).await?.value.is_some());
-
-        let response = contract.cancel_order(id).await?;
-        let log = response
-            .decode_logs_with_type::<CancelOrderEvent>()
-            .unwrap();
-        let event = log.first().unwrap();
-        assert_eq!(*event, CancelOrderEvent { order_id: id });
-
-        let user_account = contract.account(owner.identity()).await?.value.unwrap();
-        let expected_account = create_account(0, deposit_amount, 0, 0);
         let orders = contract.user_orders(owner.identity()).await?.value;
         assert_eq!(user_account, expected_account);
         assert_eq!(orders.len(), 0);
@@ -126,39 +79,25 @@ mod success {
                 owner.identity(),
                 price,
                 provider.latest_block_height().await?,
-                0
+                0,
             )
             .await?
             .value;
 
         let _ = contract.deposit(deposit_amount, asset_to_pay_wth).await;
 
-        let user_account = contract.account(owner.identity()).await?.value.unwrap();
+        let user_account = contract.account(owner.identity()).await?.value;
         let orders = contract.user_orders(owner.identity()).await?.value;
         assert_eq!(user_account, expected_account);
         assert_eq!(orders, vec![]);
         assert!(contract.order(expected_id).await?.value.is_none());
 
         let id = contract
-            .open_order(
-                order_amount,
-                order_type.clone(),
-                price,
-            )
-            .await?
-            .value;
-        let expected_id = contract
-            .order_id(
-                order_type.clone(),
-                owner.identity(),
-                price,
-                provider.latest_block_height().await?,
-                1
-            )
+            .open_order(order_amount, order_type.clone(), price)
             .await?
             .value;
 
-        let user_account = contract.account(owner.identity()).await?.value.unwrap();
+        let user_account = contract.account(owner.identity()).await?.value;
         let expected_account = create_account(0, 0, 0, deposit_amount);
         let mut orders = contract.user_orders(owner.identity()).await?.value;
 
@@ -174,78 +113,8 @@ mod success {
         let event = log.first().unwrap();
         assert_eq!(*event, CancelOrderEvent { order_id: id });
 
-        let user_account = contract.account(owner.identity()).await?.value.unwrap();
+        let user_account = contract.account(owner.identity()).await?.value;
         let expected_account = create_account(0, deposit_amount, 0, 0);
-        let orders = contract.user_orders(owner.identity()).await?.value;
-        assert_eq!(user_account, expected_account);
-        assert_eq!(orders.len(), 0);
-        assert!(contract.order(id).await?.value.is_none());
-
-        Ok(())
-    }
-
-    //#[tokio::test]
-    async fn buy_quote() -> anyhow::Result<()> {
-        let defaults = Defaults::default();
-        let (contract, owner, _user, assets) = setup(
-            defaults.base_decimals,
-            defaults.quote_decimals,
-            defaults.price_decimals,
-        )
-        .await?;
-
-        let deposit_amount = 100;
-        let expected_account = create_account(deposit_amount, 0, 0, 0);
-
-        let order_amount = 70000;
-        let asset_to_pay_wth = assets.base.id;
-        let order_type = OrderType::Buy;
-        let price = 70000 * 10_u64.pow(defaults.price_decimals);
-
-        let _ = contract.deposit(deposit_amount, asset_to_pay_wth).await?;
-
-        let user_account = contract.account(owner.identity()).await?.value.unwrap();
-        let orders = contract.user_orders(owner.identity()).await?.value;
-        assert_eq!(user_account, expected_account);
-        assert_eq!(orders, vec![]);
-
-        let id = contract
-            .open_order(
-                order_amount,
-                order_type.clone(),
-                price,
-            )
-            .await?
-            .value;
-        let expected_id = contract
-            .order_id(
-                order_type.clone(),
-                owner.identity(),
-                price,
-                owner.wallet.try_provider()?.latest_block_height().await?,
-                0
-            )
-            .await?
-            .value;
-
-        let user_account = contract.account(owner.identity()).await?.value.unwrap();
-        let expected_account = create_account(0, 0, deposit_amount, 0);
-        let mut orders = contract.user_orders(owner.identity()).await?.value;
-
-        assert_eq!(user_account, expected_account);
-        assert_eq!(orders.len(), 1);
-        assert_eq!(orders.pop().unwrap(), id);
-        assert_eq!(id, expected_id);
-
-        let response = contract.cancel_order(id).await?;
-        let log = response
-            .decode_logs_with_type::<CancelOrderEvent>()
-            .unwrap();
-        let event = log.first().unwrap();
-        assert_eq!(*event, CancelOrderEvent { order_id: id });
-
-        let user_account = contract.account(owner.identity()).await?.value.unwrap();
-        let expected_account = create_account(deposit_amount, 0, 0, 0);
         let orders = contract.user_orders(owner.identity()).await?.value;
         assert_eq!(user_account, expected_account);
         assert_eq!(orders.len(), 0);

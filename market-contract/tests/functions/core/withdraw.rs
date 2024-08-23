@@ -21,7 +21,7 @@ mod success {
         let _ = contract.deposit(deposit_amount, assets.base.id).await?;
 
         let user_balance = owner.balance(&assets.base.id).await;
-        let user_account = contract.account(owner.identity()).await?.value.unwrap();
+        let user_account = contract.account(owner.identity()).await?.value;
         let expected_account = create_account(deposit_amount, 0, 0, 0);
 
         // Precondition enforces deposited account
@@ -41,7 +41,7 @@ mod success {
         );
 
         let new_balance = owner.balance(&assets.base.id).await;
-        let user_account = contract.account(owner.identity()).await?.value.unwrap();
+        let user_account = contract.account(owner.identity()).await?.value;
         let expected_account = create_account(0, 0, 0, 0);
 
         assert_eq!(new_balance, user_balance + deposit_amount);
@@ -65,7 +65,7 @@ mod success {
         let _ = contract.deposit(deposit_amount, assets.quote.id).await?;
 
         let user_balance = owner.balance(&assets.quote.id).await;
-        let user_account = contract.account(owner.identity()).await?.value.unwrap();
+        let user_account = contract.account(owner.identity()).await?.value;
         let expected_account = create_account(0, deposit_amount, 0, 0);
 
         // Precondition enforces deposited account
@@ -85,7 +85,7 @@ mod success {
         );
 
         let new_balance = owner.balance(&assets.quote.id).await;
-        let user_account = contract.account(owner.identity()).await?.value.unwrap();
+        let user_account = contract.account(owner.identity()).await?.value;
         let expected_account = create_account(0, 0, 0, 0);
 
         assert_eq!(new_balance, user_balance + deposit_amount);

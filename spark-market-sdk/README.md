@@ -271,7 +271,7 @@ Returns total protocol fee amount of fuel asset
 ### Protocol Fee Amount Info
 
 ```rust
-pub async fn protocol_fee_amount(&self, amount: u64) -> anyhow::Result<CallResponse<u64>>
+pub async fn protocol_fee_user_amount(&self, amount: u64) -> anyhow::Result<CallResponse<u64>>
 ```
 
 Calculates protocol fee amount that needs to be passed to payble market function during order submission.

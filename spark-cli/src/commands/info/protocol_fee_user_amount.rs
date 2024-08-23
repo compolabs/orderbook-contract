@@ -48,14 +48,14 @@ impl ProtocolFeeAmountCommand {
             }
         };
 
-        let protocol_fee_amount = contract
-            .protocol_fee_amount(self.amount, account)
+        let protocol_fee_user_amount = contract
+            .protocol_fee_user_amount(self.amount, account)
             .await?
             .value;
 
         println!(
             "Protocol Fee Amount: for {:?} of {} (maker_fee, taker_fee) ({}, {})",
-            account, self.amount, protocol_fee_amount.0, protocol_fee_amount.1
+            account, self.amount, protocol_fee_user_amount.0, protocol_fee_user_amount.1
         );
 
         Ok(())

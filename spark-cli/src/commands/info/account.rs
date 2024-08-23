@@ -51,16 +51,7 @@ impl AccountCommand {
         println!("\nContract base asset balance: {}", balance);
 
         // TODO: replace println with tracing
-        match account {
-            Some(account) => {
-                // TODO: print line-by-line instead of debug?
-                println!("\n{:#?}", account);
-            }
-            None => println!(
-                "\nUser: {}, is not registered in the contract",
-                self.account_id
-            ),
-        };
+        println!("\n{:#?}", account);
 
         Ok(())
     }

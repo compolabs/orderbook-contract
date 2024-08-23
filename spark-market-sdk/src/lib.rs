@@ -243,7 +243,7 @@ impl MarketContract {
             .await?)
     }
 
-    pub async fn account(&self, user: Identity) -> anyhow::Result<CallResponse<Option<Account>>> {
+    pub async fn account(&self, user: Identity) -> anyhow::Result<CallResponse<Account>> {
         Ok(self.instance.methods().account(user).simulate().await?)
     }
 
@@ -251,7 +251,19 @@ impl MarketContract {
         Ok(self.instance.methods().protocol_fee().simulate().await?)
     }
 
-    pub async fn protocol_fee_amount(
+    pub async fn protocol_fee_user(
+        &self,
+        user: Identity,
+    ) -> anyhow::Result<CallResponse<(u64, u64)>> {
+        Ok(self
+            .instance
+            .methods()
+            .protocol_fee_user(user)
+            .simulate()
+            .await?)
+    }
+
+    pub async fn protocol_fee_user_amount(
         &self,
         amount: u64,
         user: Identity,
@@ -259,7 +271,7 @@ impl MarketContract {
         Ok(self
             .instance
             .methods()
-            .protocol_fee_amount(amount, user)
+            .protocol_fee_user_amount(amount, user)
             .simulate()
             .await?)
     }

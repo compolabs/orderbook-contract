@@ -1369,7 +1369,7 @@
           "typeArguments": null
         }
       ],
-      "name": "protocol_fee_amount",
+      "name": "protocol_fee_user_amount",
       "output": {
         "name": "",
         "type": 1,

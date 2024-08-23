@@ -351,8 +351,8 @@ impl Market for Contract {
 
 impl MarketInfo for Contract {
     #[storage(read)]
-    fn account(user: Identity) -> Option<Account> {
-        storage.account.get(user).try_read()
+    fn account(user: Identity) -> Account {
+        storage.account.get(user).try_read().unwrap_or(Account::new())
     }
 
     #[storage(read)]
@@ -361,18 +361,23 @@ impl MarketInfo for Contract {
     }
 
     #[storage(read)]
+    fn matcher_fee() -> u64 {
+        storage.matcher_fee.read()
+    }
+
+    #[storage(read)]
     fn protocol_fee() -> Vec<ProtocolFee> {
         storage.protocol_fee.load_vec()
     }
 
     #[storage(read)]
-    fn protocol_fee_amount(amount: u64, user: Identity) -> (u64, u64) {
-        protocol_fee_amount(amount, user)
+    fn protocol_fee_user(user: Identity) -> (u64, u64) {
+        protocol_fee_user(user)
     }
 
     #[storage(read)]
-    fn matcher_fee() -> u64 {
-        storage.matcher_fee.read()
+    fn protocol_fee_user_amount(amount: u64, user: Identity) -> (u64, u64) {
+        protocol_fee_user_amount(amount, user)
     }
 
     #[storage(read)]
@@ -448,7 +453,7 @@ fn open_order_internal(
     require(amount > 0, ValueError::InvalidAmount);
 
     let user = msg_sender().unwrap();
-    let (protocol_maker_fee, protocol_taker_fee) = protocol_fee_amount(amount, user);
+    let (protocol_maker_fee, protocol_taker_fee) = protocol_fee_user(user);
 
     let mut order = Order::new(
         amount,
@@ -615,12 +620,18 @@ fn extend_epoch() {
 }
 
 #[storage(read)]
-fn protocol_fee_amount(amount: u64, user: Identity) -> (u64, u64) {
+fn protocol_fee_user(user: Identity) -> (u64, u64) {
     let volume = storage.user_volumes.get(user).try_read().unwrap_or(UserVolume::new()).get(storage.epoch.read());
     let protocol_fee = storage.protocol_fee.get_volume_protocol_fee(volume);
+    (protocol_fee.maker_fee, protocol_fee.taker_fee)
+}
+
+#[storage(read)]
+fn protocol_fee_user_amount(amount: u64, user: Identity) -> (u64, u64) {
+    let protocol_fee = protocol_fee_user(user);
     (
-        amount * protocol_fee.maker_fee / HUNDRED_PERCENT,
-        amount * protocol_fee.taker_fee / HUNDRED_PERCENT,
+        amount * protocol_fee.0 / HUNDRED_PERCENT,
+        amount * protocol_fee.1 / HUNDRED_PERCENT,
     )
 }
 

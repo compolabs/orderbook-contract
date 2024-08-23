@@ -53,19 +53,22 @@ abi Market {
 
 abi MarketInfo {
     #[storage(read)]
-    fn account(user: Identity) -> Option<Account>;
+    fn account(user: Identity) -> Account;
 
     #[storage(read)]
     fn get_epoch() -> (u64, u64);
 
     #[storage(read)]
-    fn protocol_fee() -> Vec<ProtocolFee>;
-
-    #[storage(read)]
     fn matcher_fee() -> u64;
 
     #[storage(read)]
-    fn protocol_fee_amount(amount: u64, user: Identity) -> (u64, u64);
+    fn protocol_fee() -> Vec<ProtocolFee>;
+
+    #[storage(read)]
+    fn protocol_fee_user(user: Identity) -> (u64, u64);
+
+    #[storage(read)]
+    fn protocol_fee_user_amount(amount: u64, user: Identity) -> (u64, u64);
 
     #[storage(read)]
     fn order(order: b256) -> Option<Order>;

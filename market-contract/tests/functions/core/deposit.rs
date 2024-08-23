@@ -17,10 +17,14 @@ mod success {
         .await?;
 
         let deposit_amount = 100;
-        let expected_account = create_account(deposit_amount, 0, 0, 0);
+        let expected_account = create_account(0, 0, 0, 0);
 
         // Precondition enforces empty account
-        assert!(contract.account(owner.identity()).await?.value.is_none());
+        assert_eq!(
+            contract.account(owner.identity()).await?.value,
+            expected_account
+        );
+        let expected_account = create_account(deposit_amount, 0, 0, 0);
 
         let user_balance = owner.balance(&assets.base.id).await;
         let response = contract.deposit(deposit_amount, assets.base.id).await?;
@@ -38,7 +42,7 @@ mod success {
             }
         );
 
-        let user_account = contract.account(owner.identity()).await?.value.unwrap();
+        let user_account = contract.account(owner.identity()).await?.value;
 
         assert_eq!(user_account, expected_account);
 
@@ -56,10 +60,14 @@ mod success {
         .await?;
 
         let deposit_amount = 100;
-        let expected_account = create_account(0, deposit_amount, 0, 0);
+        let expected_account = create_account(0, 0, 0, 0);
 
         // Precondition enforces empty account
-        assert!(contract.account(owner.identity()).await?.value.is_none());
+        assert_eq!(
+            contract.account(owner.identity()).await?.value,
+            expected_account
+        );
+        let expected_account = create_account(0, deposit_amount, 0, 0);
 
         let user_balance = owner.balance(&assets.quote.id).await;
         let response = contract.deposit(deposit_amount, assets.quote.id).await?;
@@ -77,7 +85,7 @@ mod success {
             }
         );
 
-        let user_account = contract.account(owner.identity()).await?.value.unwrap();
+        let user_account = contract.account(owner.identity()).await?.value;
 
         assert_eq!(user_account, expected_account);
 

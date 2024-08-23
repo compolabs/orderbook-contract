@@ -1,6 +1,6 @@
 use crate::setup::{create_account, setup, Defaults};
 use fuels::accounts::ViewOnlyAccount;
-use spark_market_sdk::{/*AssetType,*/ OrderType};
+use spark_market_sdk::OrderType;
 
 mod success_same_asset_type {
 
@@ -53,11 +53,11 @@ mod success_same_asset_type {
         let expected_account1 = create_account(0, 0, 0, quote_amount);
 
         assert_eq!(
-            contract.account(user0.identity()).await?.value.unwrap(),
+            contract.account(user0.identity()).await?.value,
             expected_account0
         );
         assert_eq!(
-            contract.account(user1.identity()).await?.value.unwrap(),
+            contract.account(user1.identity()).await?.value,
             expected_account1
         );
 
@@ -67,11 +67,11 @@ mod success_same_asset_type {
         contract.match_order_pair(id0, id1).await?;
 
         assert_eq!(
-            contract.account(user0.identity()).await?.value.unwrap(),
+            contract.account(user0.identity()).await?.value,
             expected_account0
         );
         assert_eq!(
-            contract.account(user1.identity()).await?.value.unwrap(),
+            contract.account(user1.identity()).await?.value,
             expected_account1
         );
 
@@ -107,18 +107,14 @@ mod success_same_asset_type {
         let expected_account0 = create_account(base_amount, quote_amount, 0, 0);
 
         assert_eq!(
-            contract.account(user0.identity()).await?.value.unwrap(),
+            contract.account(user0.identity()).await?.value,
             expected_account0
         );
 
         let id0 = contract
             .with_account(&user0.wallet)
             .await?
-            .open_order(
-                base_amount,
-                OrderType::Sell,
-                price,
-            )
+            .open_order(base_amount, OrderType::Sell, price)
             .await?
             .value;
         let id1 = contract
@@ -131,7 +127,7 @@ mod success_same_asset_type {
         let expected_account0 = create_account(0, 0, base_amount, quote_amount);
 
         assert_eq!(
-            contract.account(user0.identity()).await?.value.unwrap(),
+            contract.account(user0.identity()).await?.value,
             expected_account0
         );
 
@@ -140,7 +136,7 @@ mod success_same_asset_type {
         let expected_account0 = create_account(base_amount, quote_amount, 0, 0);
 
         assert_eq!(
-            contract.account(user0.identity()).await?.value.unwrap(),
+            contract.account(user0.identity()).await?.value,
             expected_account0
         );
 
@@ -178,21 +174,13 @@ mod success_same_asset_type {
         let id0 = contract
             .with_account(&user0.wallet)
             .await?
-            .open_order(
-                base_amount,
-                OrderType::Sell,
-                sell_price,
-            )
+            .open_order(base_amount, OrderType::Sell, sell_price)
             .await?
             .value;
         let id1 = contract
             .with_account(&user1.wallet)
             .await?
-            .open_order(
-                base_amount,
-                OrderType::Buy,
-                buy_price,
-            )
+            .open_order(base_amount, OrderType::Buy, buy_price)
             .await?
             .value;
 
@@ -200,11 +188,11 @@ mod success_same_asset_type {
         let expected_account1 = create_account(0, 0, 0, buy_quote_amount);
 
         assert_eq!(
-            contract.account(user0.identity()).await?.value.unwrap(),
+            contract.account(user0.identity()).await?.value,
             expected_account0
         );
         assert_eq!(
-            contract.account(user1.identity()).await?.value.unwrap(),
+            contract.account(user1.identity()).await?.value,
             expected_account1
         );
 
@@ -215,11 +203,11 @@ mod success_same_asset_type {
         contract.match_order_pair(id0, id1).await?;
 
         assert_eq!(
-            contract.account(user0.identity()).await?.value.unwrap(),
+            contract.account(user0.identity()).await?.value,
             expected_account0
         );
         assert_eq!(
-            contract.account(user1.identity()).await?.value.unwrap(),
+            contract.account(user1.identity()).await?.value,
             expected_account1
         );
 
@@ -257,21 +245,13 @@ mod success_same_asset_type {
         let id0 = contract
             .with_account(&user0.wallet)
             .await?
-            .open_order(
-                sell_base_amount,
-                OrderType::Sell,
-                price,
-            )
+            .open_order(sell_base_amount, OrderType::Sell, price)
             .await?
             .value;
         let id1 = contract
             .with_account(&user1.wallet)
             .await?
-            .open_order(
-                buy_base_amount,
-                OrderType::Buy,
-                price,
-            )
+            .open_order(buy_base_amount, OrderType::Buy, price)
             .await?
             .value;
 
@@ -280,11 +260,11 @@ mod success_same_asset_type {
             create_account(0, sell_quote_amount - buy_quote_amount, 0, buy_quote_amount);
 
         assert_eq!(
-            contract.account(user0.identity()).await?.value.unwrap(),
+            contract.account(user0.identity()).await?.value,
             expected_account0
         );
         assert_eq!(
-            contract.account(user1.identity()).await?.value.unwrap(),
+            contract.account(user1.identity()).await?.value,
             expected_account1
         );
 
@@ -296,11 +276,11 @@ mod success_same_asset_type {
         contract.match_order_pair(id0, id1).await?;
 
         assert_eq!(
-            contract.account(user0.identity()).await?.value.unwrap(),
+            contract.account(user0.identity()).await?.value,
             expected_account0
         );
         assert_eq!(
-            contract.account(user1.identity()).await?.value.unwrap(),
+            contract.account(user1.identity()).await?.value,
             expected_account1
         );
 
@@ -344,11 +324,7 @@ mod success_same_asset_type {
         let id0 = contract
             .with_account(&user0.wallet)
             .await?
-            .open_order(
-                base_amount,
-                OrderType::Sell,
-                price,
-            )
+            .open_order(base_amount, OrderType::Sell, price)
             .await?
             .value;
         let id1 = contract
@@ -362,11 +338,11 @@ mod success_same_asset_type {
         let expected_account1 = create_account(0, 0, 0, quote_amount);
 
         assert_eq!(
-            contract.account(user0.identity()).await?.value.unwrap(),
+            contract.account(user0.identity()).await?.value,
             expected_account0
         );
         assert_eq!(
-            contract.account(user1.identity()).await?.value.unwrap(),
+            contract.account(user1.identity()).await?.value,
             expected_account1
         );
 
@@ -399,11 +375,11 @@ mod success_same_asset_type {
         assert_eq!(new_balance - balance, (matcher_fee * 2) as u64 - gas_price);
 
         assert_eq!(
-            contract.account(user0.identity()).await?.value.unwrap(),
+            contract.account(user0.identity()).await?.value,
             expected_account0
         );
         assert_eq!(
-            contract.account(user1.identity()).await?.value.unwrap(),
+            contract.account(user1.identity()).await?.value,
             expected_account1
         );
 
@@ -452,11 +428,7 @@ mod revert {
             .with_account(&user0.wallet)
             .await
             .unwrap()
-            .open_order(
-                base_amount,
-                OrderType::Sell,
-                sell_price,
-            )
+            .open_order(base_amount, OrderType::Sell, sell_price)
             .await
             .unwrap()
             .value;
@@ -464,11 +436,7 @@ mod revert {
             .with_account(&user1.wallet)
             .await
             .unwrap()
-            .open_order(
-                base_amount,
-                OrderType::Buy,
-                buy_price,
-            )
+            .open_order(base_amount, OrderType::Buy, buy_price)
             .await
             .unwrap()
             .value;
@@ -477,21 +445,11 @@ mod revert {
         let expected_account1 = create_account(0, 0, 0, quote_amount);
 
         assert_eq!(
-            contract
-                .account(user0.identity())
-                .await
-                .unwrap()
-                .value
-                .unwrap(),
+            contract.account(user0.identity()).await.unwrap().value,
             expected_account0
         );
         assert_eq!(
-            contract
-                .account(user1.identity())
-                .await
-                .unwrap()
-                .value
-                .unwrap(),
+            contract.account(user1.identity()).await.unwrap().value,
             expected_account1
         );
 
@@ -535,11 +493,7 @@ mod revert {
             .with_account(&user0.wallet)
             .await
             .unwrap()
-            .open_order(
-                base_amount,
-                OrderType::Sell,
-                sell_price,
-            )
+            .open_order(base_amount, OrderType::Sell, sell_price)
             .await
             .unwrap()
             .value;
@@ -547,11 +501,7 @@ mod revert {
             .with_account(&user1.wallet)
             .await
             .unwrap()
-            .open_order(
-                quote_amount,
-                OrderType::Sell,
-                buy_price,
-            )
+            .open_order(quote_amount, OrderType::Sell, buy_price)
             .await
             .unwrap()
             .value;
@@ -560,21 +510,11 @@ mod revert {
         let expected_account1 = create_account(0, 0, 0, quote_amount);
 
         assert_eq!(
-            contract
-                .account(user0.identity())
-                .await
-                .unwrap()
-                .value
-                .unwrap(),
+            contract.account(user0.identity()).await.unwrap().value,
             expected_account0
         );
         assert_eq!(
-            contract
-                .account(user1.identity())
-                .await
-                .unwrap()
-                .value
-                .unwrap(),
+            contract.account(user1.identity()).await.unwrap().value,
             expected_account1
         );
 
