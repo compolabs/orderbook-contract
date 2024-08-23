@@ -5,8 +5,7 @@ use spark_market_sdk::{/*AssetType,*/ OrderType};
 mod success {
 
     use super::*;
-    use crate::functions::core::convert;
-    use crate::{functions::core::deposit, setup::create_account};
+    use crate::setup::{convert, create_account};
     use fuels::accounts::ViewOnlyAccount;
     use spark_market_sdk::CancelOrderEvent;
 
