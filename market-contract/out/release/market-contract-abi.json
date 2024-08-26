@@ -1060,7 +1060,7 @@
     {
       "inputs": [
         {
-          "name": "epoch",
+          "name": "new_epoch",
           "type": 41,
           "typeArguments": null
         },
