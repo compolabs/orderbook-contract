@@ -297,28 +297,28 @@ impl Market for Contract {
 
     #[storage(write)]
     fn set_epoch(epoch: u64, epoch_duration: u64) {
-        require_owner_only();
+        only_owner();
 
-        let now_epoch = storage.epoch.read();
+        let current_epoch = storage.epoch.read();
         let now = block_timestamp();
 
         require(
-            epoch >= now_epoch && epoch + epoch_duration > now,
-            ValueError::InvalidEpoch((now_epoch, epoch, epoch_duration, now)),
+            epoch >= current_epoch && (epoch + epoch_duration > now),
+            ValueError::InvalidEpoch((current_epoch, epoch, epoch_duration, now)),
         );
 
         storage.epoch.write(epoch);
         storage.epoch_duration.write(epoch_duration);
 
         log(SetEpochEvent {
-            epoch,
+            epoch: epoch,
             epoch_duration,
         });
     }
 
     #[storage(write)]
     fn set_protocol_fee(protocol_fee: Vec<ProtocolFee>) {
-        require_owner_only();
+        only_owner();
 
         if protocol_fee.len() > 0 {
             require(
@@ -341,7 +341,7 @@ impl Market for Contract {
 
     #[storage(write)]
     fn set_matcher_fee(amount: u64) {
-        require_owner_only();
+        only_owner();
 
         storage.matcher_fee.write(amount);
 
@@ -1009,6 +1009,6 @@ fn convert_asset_amount(amount: u64, price: u64, base_to_quote: bool) -> u64 {
     }
 }
 
-fn require_owner_only() {
+fn only_owner() {
     require(msg_sender().unwrap() == OWNER, AuthError::Unauthorized);
 }
