@@ -1,7 +1,7 @@
 use crate::utils::setup;
 use clap::Args;
 use fuels::accounts::ViewOnlyAccount;
-use spark_orderbook_sdk::OrderbookContract;
+use spark_registry_sdk::OrderbookContract;
 
 #[derive(Args, Clone)]
 #[command(about = "Deploys the orderbook to a network")]

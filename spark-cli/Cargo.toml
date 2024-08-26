@@ -14,5 +14,5 @@ clap = { version = "4.5.4", features = ["derive"] }
 dotenv = "0.15.0"
 fuels = { workspace = true }
 spark-market-sdk = { path = "../spark-market-sdk" }
-spark-orderbook-sdk = { path = "../spark-orderbook-sdk" }
+spark-registry-sdk = { path = "../spark-registry-sdk" }
 tokio = { workspace = true }
