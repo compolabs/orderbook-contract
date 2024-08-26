@@ -5,7 +5,7 @@ mod success {
     #[tokio::test]
     async fn returns_matcher_fee() -> anyhow::Result<()> {
         let defaults = Defaults::default();
-        let (contract, _owner, _user, _assets) = setup(
+        let (contract, _owner, _user, _, _, _assets) = setup(
             defaults.base_decimals,
             defaults.quote_decimals,
             defaults.price_decimals,

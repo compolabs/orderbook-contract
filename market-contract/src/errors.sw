@@ -22,6 +22,7 @@ pub enum OrderError {
     ZeroOrderAmount: (),
     ZeroLockAmount: (),
     ZeroUnlockAmount: (),
+    ZeroTransferAmount: (),
     FailedToRemove: b256,
 }
 
@@ -36,5 +37,5 @@ pub enum AuthError {
 }
 
 pub enum AccountError {
-    InsufficientBalance: (u64, u64),
+    InsufficientBalance: (u64, u64, bool),
 }

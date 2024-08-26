@@ -11,7 +11,7 @@ mod success {
     #[tokio::test]
     async fn sell_base() -> anyhow::Result<()> {
         let defaults = Defaults::default();
-        let (contract, owner, _user, assets) = setup(
+        let (contract, owner, _user, _, _, assets) = setup(
             defaults.base_decimals,
             defaults.quote_decimals,
             defaults.price_decimals,
@@ -58,7 +58,7 @@ mod success {
     #[tokio::test]
     async fn buy_base() -> anyhow::Result<()> {
         let defaults = Defaults::default();
-        let (contract, owner, _user, assets) = setup(
+        let (contract, owner, _user, _, _, assets) = setup(
             defaults.base_decimals,
             defaults.quote_decimals,
             defaults.price_decimals,
@@ -133,7 +133,7 @@ mod revert {
     #[should_panic(expected = "OrderNotFound")]
     async fn when_order_does_not_exist() {
         let defaults = Defaults::default();
-        let (contract, _owner, _user, _assets) = setup(
+        let (contract, _owner, _user, _, _, _assets) = setup(
             defaults.base_decimals,
             defaults.quote_decimals,
             defaults.price_decimals,
@@ -149,7 +149,7 @@ mod revert {
     #[should_panic(expected = "Unauthorized")]
     async fn when_user_is_not_owner() {
         let defaults = Defaults::default();
-        let (contract, _owner, user, assets) = setup(
+        let (contract, _owner, user, _, _, assets) = setup(
             defaults.base_decimals,
             defaults.quote_decimals,
             defaults.price_decimals,

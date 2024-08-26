@@ -723,7 +723,10 @@ fn execute_trade(
         s_account.transfer_locked_amount(b_account, trade_size, asset_type);
         b_account.transfer_locked_amount(s_account, s_trade_volume, !asset_type);
         // lock protocol and matcher_fee for seller
-        s_account.lock_amount(s_order_protocol_fee + s_order_matcher_fee, !asset_type);
+        let lock_fee = s_order_protocol_fee + s_order_matcher_fee;
+        if (lock_fee > 0) {
+            s_account.lock_amount(s_order_protocol_fee + s_order_matcher_fee, !asset_type);
+        }
         // if b_price > s_price unlock extra funds and its extra protocol fee
         let trade_volume_delta = b_trade_volume - s_trade_volume;
         if trade_volume_delta > 0 {
@@ -739,55 +742,63 @@ fn execute_trade(
     }
 
     // seller - matcher deal
-    if s_order.owner == matcher {
-        let mut account = storage.account.get(s_order.owner).read();
-        account.unlock_amount(s_order_matcher_fee, !asset_type);
-        storage.account.insert(s_order.owner, account);
-    } else {
-        let mut s_account = storage.account.get(s_order.owner).read();
-        let mut m_account = storage.account.get(matcher).try_read().unwrap_or(Account::new());
-        s_account.transfer_locked_amount(m_account, s_order_matcher_fee, !asset_type);
-        storage.account.insert(s_order.owner, s_account);
-        storage.account.insert(matcher, m_account);
+    if (s_order_matcher_fee > 0) {
+        if s_order.owner == matcher {
+            let mut account = storage.account.get(s_order.owner).read();
+            account.unlock_amount(s_order_matcher_fee, !asset_type);
+            storage.account.insert(s_order.owner, account);
+        } else {
+            let mut s_account = storage.account.get(s_order.owner).read();
+            let mut m_account = storage.account.get(matcher).try_read().unwrap_or(Account::new());
+            s_account.transfer_locked_amount(m_account, s_order_matcher_fee, !asset_type);
+            storage.account.insert(s_order.owner, s_account);
+            storage.account.insert(matcher, m_account);
+        }
     }
 
     // buyer - matcher deal
-    if b_order.owner == matcher {
-        let mut account = storage.account.get(b_order.owner).read();
-        account.unlock_amount(b_order_matcher_fee, !asset_type);
-        storage.account.insert(b_order.owner, account);
-    } else {
-        let mut b_account = storage.account.get(b_order.owner).read();
-        let mut m_account = storage.account.get(matcher).try_read().unwrap_or(Account::new());
-        b_account.transfer_locked_amount(m_account, b_order_matcher_fee, !asset_type);
-        storage.account.insert(b_order.owner, b_account);
-        storage.account.insert(matcher, m_account);
+    if (b_order_matcher_fee > 0) {
+        if b_order.owner == matcher {
+            let mut account = storage.account.get(b_order.owner).read();
+            account.unlock_amount(b_order_matcher_fee, !asset_type);
+            storage.account.insert(b_order.owner, account);
+        } else {
+            let mut b_account = storage.account.get(b_order.owner).read();
+            let mut m_account = storage.account.get(matcher).try_read().unwrap_or(Account::new());
+            b_account.transfer_locked_amount(m_account, b_order_matcher_fee, !asset_type);
+            storage.account.insert(b_order.owner, b_account);
+            storage.account.insert(matcher, m_account);
+        }
     }
 
     // seller - owner deal
-    if s_order.owner == OWNER {
-        let mut account = storage.account.get(s_order.owner).read();
-        account.unlock_amount(s_order_matcher_fee, !asset_type);
-        storage.account.insert(s_order.owner, account);
-    } else {
-        let mut s_account = storage.account.get(s_order.owner).read();
-        let mut o_account = storage.account.get(OWNER).try_read().unwrap_or(Account::new());
-        s_account.transfer_locked_amount(o_account, s_order_protocol_fee, !asset_type);
-        storage.account.insert(s_order.owner, s_account);
-        storage.account.insert(OWNER, o_account);
+    if (s_order_protocol_fee > 0) {
+        if s_order.owner == OWNER {
+            let mut account = storage.account.get(s_order.owner).read();
+            account.unlock_amount(s_order_protocol_fee, !asset_type);
+            storage.account.insert(s_order.owner, account);
+        } else {
+            let mut s_account = storage.account.get(s_order.owner).read();
+            let mut o_account = storage.account.get(OWNER).try_read().unwrap_or(Account::new());
+            s_account.transfer_locked_amount(o_account, s_order_protocol_fee, !asset_type);
+            storage.account.insert(s_order.owner, s_account);
+            storage.account.insert(OWNER, o_account);
+        }
     }
 
     // buyer - owner deal
-    if b_order.owner == OWNER {
-        let mut account = storage.account.get(b_order.owner).read();
-        account.unlock_amount(b_order_matcher_fee, !asset_type);
-        storage.account.insert(b_order.owner, account);
-    } else {
-        let mut b_account = storage.account.get(b_order.owner).read();
-        let mut o_account = storage.account.get(OWNER).try_read().unwrap_or(Account::new());
-        b_account.transfer_locked_amount(o_account, b_order_protocol_fee, !asset_type);
-        storage.account.insert(b_order.owner, b_account);
-        storage.account.insert(OWNER, o_account);
+    if (b_order_protocol_fee > 0) {
+        if b_order.owner == OWNER {
+            let mut account = storage.account.get(b_order.owner).read();
+            account.unlock_amount(b_order_protocol_fee, !asset_type);
+            storage.account.insert(b_order.owner, account);
+        } else {
+            let mut b_account = storage.account.get(b_order.owner).read();
+            let mut o_account = storage.account.get(OWNER).try_read().unwrap_or(Account::new());
+            b_account.transfer_locked_amount(o_account, b_order_protocol_fee, !asset_type);
+            storage.account.insert(b_order.owner, b_account);
+            storage.account.insert(OWNER, o_account);
+        }
     }
     (s_trade_volume, s_order_matcher_fee, b_order_matcher_fee)
 }

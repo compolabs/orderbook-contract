@@ -9,7 +9,7 @@ mod success_same_asset_type {
     #[tokio::test]
     async fn match_same_base_asset_type_orders_same_price() -> anyhow::Result<()> {
         let defaults = Defaults::default();
-        let (contract, user0, user1, assets) = setup(
+        let (contract, _, user0, user1, _, assets) = setup(
             defaults.base_decimals,
             defaults.quote_decimals,
             defaults.price_decimals,
@@ -35,17 +35,13 @@ mod success_same_asset_type {
         let id0 = contract
             .with_account(&user0.wallet)
             .await?
-            .open_order(
-                base_amount,
-                /*AssetType::Base,*/ OrderType::Sell,
-                price,
-            )
+            .open_order(base_amount, OrderType::Sell, price)
             .await?
             .value;
         let id1 = contract
             .with_account(&user1.wallet)
             .await?
-            .open_order(base_amount, /*AssetType::Base,*/ OrderType::Buy, price)
+            .open_order(base_amount, OrderType::Buy, price)
             .await?
             .value;
 
@@ -81,7 +77,7 @@ mod success_same_asset_type {
     #[tokio::test]
     async fn match_same_base_asset_type_orders_same_price_same_user() -> anyhow::Result<()> {
         let defaults = Defaults::default();
-        let (contract, user0, _, assets) = setup(
+        let (contract, _, user0, _, _, assets) = setup(
             defaults.base_decimals,
             defaults.quote_decimals,
             defaults.price_decimals,
@@ -146,7 +142,7 @@ mod success_same_asset_type {
     #[tokio::test]
     async fn match_same_base_asset_type_orders_size_equal_price_different() -> anyhow::Result<()> {
         let defaults = Defaults::default();
-        let (contract, user0, user1, assets) = setup(
+        let (contract, _, user0, user1, _, assets) = setup(
             defaults.base_decimals,
             defaults.quote_decimals,
             defaults.price_decimals,
@@ -217,7 +213,7 @@ mod success_same_asset_type {
     #[tokio::test]
     async fn match_same_base_asset_type_orders_size_not_equal() -> anyhow::Result<()> {
         let defaults = Defaults::default();
-        let (contract, user0, user1, assets) = setup(
+        let (contract, _, user0, user1, _, assets) = setup(
             defaults.base_decimals,
             defaults.quote_decimals,
             defaults.price_decimals,
@@ -295,7 +291,7 @@ mod success_same_asset_type {
     #[tokio::test]
     async fn match_same_base_asset_type_orders_same_price_with_matcher_fee() -> anyhow::Result<()> {
         let defaults = Defaults::default();
-        let (contract, user0, user1, assets) = setup(
+        let (contract, _, user0, user1, matcher, assets) = setup(
             defaults.base_decimals,
             defaults.quote_decimals,
             defaults.price_decimals,
@@ -309,7 +305,7 @@ mod success_same_asset_type {
             10_u64.pow(defaults.price_decimals + defaults.base_decimals - defaults.quote_decimals);
         let price = 70_000_000_000_000_u64; // 70,000$ price
         let base_amount = 100_000_u64; // 0.001 BTC
-        let quote_amount = price / to_quote_scale * base_amount;
+        let quote_amount = price / to_quote_scale * base_amount + matcher_fee;
         contract
             .with_account(&user0.wallet)
             .await?
@@ -346,33 +342,16 @@ mod success_same_asset_type {
             expected_account1
         );
 
-        let expected_account0 = create_account(0, quote_amount, 0, 0);
+        let expected_account0 = create_account(0, quote_amount - 2 * matcher_fee, 0, 0);
         let expected_account1 = create_account(base_amount, 0, 0, 0);
 
-        let balance = user1
-            .wallet
-            .get_asset_balance(&user1.wallet.provider().unwrap().base_asset_id())
-            .await?;
+        let expected_account = create_account(0, matcher_fee * 2, 0, 0);
 
         contract
-            .with_account(&user1.wallet)
+            .with_account(&matcher.wallet)
             .await?
             .match_order_pair(id0, id1)
             .await?;
-
-        let new_balance = user1
-            .wallet
-            .get_asset_balance(&user1.wallet.provider().unwrap().base_asset_id())
-            .await?;
-
-        let gas_price = user1
-            .wallet
-            .provider()
-            .unwrap()
-            .latest_gas_price()
-            .await?
-            .gas_price;
-        assert_eq!(new_balance - balance, (matcher_fee * 2) as u64 - gas_price);
 
         assert_eq!(
             contract.account(user0.identity()).await?.value,
@@ -381,6 +360,10 @@ mod success_same_asset_type {
         assert_eq!(
             contract.account(user1.identity()).await?.value,
             expected_account1
+        );
+        assert_eq!(
+            contract.account(matcher.identity()).await?.value,
+            expected_account
         );
 
         Ok(())
@@ -395,7 +378,7 @@ mod revert {
     #[should_panic(expected = "CantMatch")]
     async fn match_same_asset_type_orders_buy_price_low() {
         let defaults = Defaults::default();
-        let (contract, user0, user1, assets) = setup(
+        let (contract, _, user0, user1, _, assets) = setup(
             defaults.base_decimals,
             defaults.quote_decimals,
             defaults.price_decimals,
@@ -437,71 +420,6 @@ mod revert {
             .await
             .unwrap()
             .open_order(base_amount, OrderType::Buy, buy_price)
-            .await
-            .unwrap()
-            .value;
-
-        let expected_account0 = create_account(0, 0, base_amount, 0);
-        let expected_account1 = create_account(0, 0, 0, quote_amount);
-
-        assert_eq!(
-            contract.account(user0.identity()).await.unwrap().value,
-            expected_account0
-        );
-        assert_eq!(
-            contract.account(user1.identity()).await.unwrap().value,
-            expected_account1
-        );
-
-        contract.match_order_pair(id0, id1).await.unwrap();
-    }
-
-    //#[tokio::test]
-    //#[should_panic(expected = "InvalidAsset")]
-    async fn match_same_order_type_orders_buy_price_low() {
-        let defaults = Defaults::default();
-        let (contract, user0, user1, assets) = setup(
-            defaults.base_decimals,
-            defaults.quote_decimals,
-            defaults.price_decimals,
-        )
-        .await
-        .unwrap();
-
-        let to_quote_scale =
-            10_u64.pow(defaults.price_decimals + defaults.base_decimals - defaults.quote_decimals);
-        let sell_price = 70_000_000_000_000_u64; // 70,000$ price
-        let buy_price = 67_000_000_000_000_u64; // 77,000$ price
-        let base_amount = 100_000_u64; // 0.001 BTC
-        let quote_amount = buy_price / to_quote_scale * base_amount;
-        contract
-            .with_account(&user0.wallet)
-            .await
-            .unwrap()
-            .deposit(base_amount, assets.base.id)
-            .await
-            .unwrap();
-        contract
-            .with_account(&user1.wallet)
-            .await
-            .unwrap()
-            .deposit(quote_amount, assets.quote.id)
-            .await
-            .unwrap();
-
-        let id0 = contract
-            .with_account(&user0.wallet)
-            .await
-            .unwrap()
-            .open_order(base_amount, OrderType::Sell, sell_price)
-            .await
-            .unwrap()
-            .value;
-        let id1 = contract
-            .with_account(&user1.wallet)
-            .await
-            .unwrap()
-            .open_order(quote_amount, OrderType::Sell, buy_price)
             .await
             .unwrap()
             .value;

@@ -6,7 +6,7 @@ mod success {
     #[tokio::test]
     async fn returns_protocol_fee_user_amount_base() -> anyhow::Result<()> {
         let defaults = Defaults::default();
-        let (contract, _owner, _user, _assets) = setup(
+        let (contract, _owner, _user, _, _, _assets) = setup(
             defaults.base_decimals,
             defaults.quote_decimals,
             defaults.price_decimals,

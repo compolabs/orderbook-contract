@@ -9,7 +9,7 @@ mod success {
     #[tokio::test]
     async fn sets_protocol_fee() -> anyhow::Result<()> {
         let defaults = Defaults::default();
-        let (contract, _owner, _, _assets) = setup(
+        let (contract, _owner, _user, _, _, _assets) = setup(
             defaults.base_decimals,
             defaults.quote_decimals,
             defaults.price_decimals,
@@ -60,7 +60,7 @@ mod revert {
     #[should_panic(expected = "Unauthorized")]
     async fn reverts_when_non_owner() {
         let defaults = Defaults::default();
-        let (contract, _owner, user, _assets) = setup(
+        let (contract, _owner, user, _, _, _assets) = setup(
             defaults.base_decimals,
             defaults.quote_decimals,
             defaults.price_decimals,
@@ -87,7 +87,7 @@ mod revert {
     #[should_panic(expected = "InvalidFeeZeroBased")]
     async fn protocol_fee_starts_with_non_zero_volume() {
         let defaults = Defaults::default();
-        let (contract, _owner, _, _assets) = setup(
+        let (contract, _owner, _, _, _, _assets) = setup(
             defaults.base_decimals,
             defaults.quote_decimals,
             defaults.price_decimals,
@@ -124,7 +124,7 @@ mod revert {
     #[should_panic(expected = "InvalidFeeSorting")]
     async fn protocol_fee_is_not_sorted_by_volume() {
         let defaults = Defaults::default();
-        let (contract, _owner, _, _assets) = setup(
+        let (contract, _owner, _, _, _, _assets) = setup(
             defaults.base_decimals,
             defaults.quote_decimals,
             defaults.price_decimals,

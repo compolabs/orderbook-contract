@@ -9,7 +9,7 @@ mod success {
     #[tokio::test]
     async fn base_asset() -> anyhow::Result<()> {
         let defaults = Defaults::default();
-        let (contract, owner, _user, assets) = setup(
+        let (contract, owner, _user, _, _, assets) = setup(
             defaults.base_decimals,
             defaults.quote_decimals,
             defaults.price_decimals,
@@ -52,7 +52,7 @@ mod success {
     #[tokio::test]
     async fn quote_asset() -> anyhow::Result<()> {
         let defaults = Defaults::default();
-        let (contract, owner, _user, assets) = setup(
+        let (contract, owner, _user, _, _, assets) = setup(
             defaults.base_decimals,
             defaults.quote_decimals,
             defaults.price_decimals,
@@ -101,7 +101,7 @@ mod revert {
     #[should_panic(expected = "InvalidAsset")]
     async fn when_invalid_asset() {
         let defaults = Defaults::default();
-        let (contract, _owner, _user, assets) = setup(
+        let (contract, _owner, _user, _, _, assets) = setup(
             defaults.base_decimals,
             defaults.quote_decimals,
             defaults.price_decimals,

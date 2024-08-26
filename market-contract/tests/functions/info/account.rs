@@ -5,7 +5,7 @@ mod success {
     #[tokio::test]
     async fn returns_account_zeros() -> anyhow::Result<()> {
         let defaults = Defaults::default();
-        let (contract, owner, _user, _assets) = setup(
+        let (contract, owner, _user, _, _, _assets) = setup(
             defaults.base_decimals,
             defaults.quote_decimals,
             defaults.price_decimals,
@@ -24,7 +24,7 @@ mod success {
     #[tokio::test]
     async fn returns_account_info() -> anyhow::Result<()> {
         let defaults = Defaults::default();
-        let (contract, owner, _user, assets) = setup(
+        let (contract, owner, _user, _, _, assets) = setup(
             defaults.base_decimals,
             defaults.quote_decimals,
             defaults.price_decimals,

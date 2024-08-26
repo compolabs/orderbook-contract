@@ -17,7 +17,7 @@ mod success_ioc {
     #[tokio::test]
     async fn fulfill_order_many_same_asset_type_equal_orders() -> anyhow::Result<()> {
         let defaults = Defaults::default();
-        let (contract, user0, user1, assets) = setup(
+        let (contract, user0, user1, _, _, assets) = setup(
             defaults.base_decimals,
             defaults.quote_decimals,
             defaults.price_decimals,
@@ -122,7 +122,7 @@ mod success_ioc {
     #[tokio::test]
     async fn fulfill_order_many_same_asset_type_partial_fulfill_1() -> anyhow::Result<()> {
         let defaults = Defaults::default();
-        let (contract, user0, user1, assets) = setup(
+        let (contract, user0, user1, _, _, assets) = setup(
             defaults.base_decimals,
             defaults.quote_decimals,
             defaults.price_decimals,
@@ -223,7 +223,7 @@ mod success_ioc {
     #[tokio::test]
     async fn fulfill_order_many_same_asset_type_partial_fulfill_2() -> anyhow::Result<()> {
         let defaults = Defaults::default();
-        let (contract, user0, user1, assets) = setup(
+        let (contract, user0, user1, _, _, assets) = setup(
             defaults.base_decimals,
             defaults.quote_decimals,
             defaults.price_decimals,
@@ -330,7 +330,7 @@ mod success_ioc {
     async fn fulfill_order_many_same_asset_type_equal_orders_with_matcher_fee() -> anyhow::Result<()>
     {
         let defaults = Defaults::default();
-        let (contract, user0, user1, assets) = setup(
+        let (contract, user0, user1, _, _, assets) = setup(
             defaults.base_decimals,
             defaults.quote_decimals,
             defaults.price_decimals,
@@ -473,7 +473,7 @@ mod success_fok {
     #[tokio::test]
     async fn fulfill_order_many_same_asset_type_equal_orders() -> anyhow::Result<()> {
         let defaults = Defaults::default();
-        let (contract, user0, user1, assets) = setup(
+        let (contract, user0, user1, _, _, assets) = setup(
             defaults.base_decimals,
             defaults.quote_decimals,
             defaults.price_decimals,
@@ -578,7 +578,7 @@ mod success_fok {
     #[tokio::test]
     async fn fulfill_order_many_same_asset_type_partial_fulfill_1() -> anyhow::Result<()> {
         let defaults = Defaults::default();
-        let (contract, user0, user1, assets) = setup(
+        let (contract, user0, user1, _, _, assets) = setup(
             defaults.base_decimals,
             defaults.quote_decimals,
             defaults.price_decimals,
@@ -679,7 +679,7 @@ mod success_fok {
     #[tokio::test]
     async fn fulfill_order_many_same_asset_type_partial_fulfill_2() -> anyhow::Result<()> {
         let defaults = Defaults::default();
-        let (contract, user0, user1, assets) = setup(
+        let (contract, user0, user1, _, _, assets) = setup(
             defaults.base_decimals,
             defaults.quote_decimals,
             defaults.price_decimals,
@@ -786,7 +786,7 @@ mod success_fok {
     async fn fulfill_order_many_same_asset_type_equal_orders_with_matcher_fee() -> anyhow::Result<()>
     {
         let defaults = Defaults::default();
-        let (contract, user0, user1, assets) = setup(
+        let (contract, user0, user1, _, _, assets) = setup(
             defaults.base_decimals,
             defaults.quote_decimals,
             defaults.price_decimals,
@@ -930,7 +930,7 @@ mod revert {
     #[should_panic(expected = "CantFulfillMany")]
     async fn fulfill_order_many_ioc_same_asset_type_same_direction() {
         let defaults = Defaults::default();
-        let (contract, user0, user1, assets) = setup(
+        let (contract, user0, user1, _, _, assets) = setup(
             defaults.base_decimals,
             defaults.quote_decimals,
             defaults.price_decimals,
@@ -1023,7 +1023,7 @@ mod revert {
     #[should_panic(expected = "CantFulfillMany")]
     async fn fulfill_order_many_ioc_same_asset_type_low_slippage() {
         let defaults = Defaults::default();
-        let (contract, user0, user1, assets) = setup(
+        let (contract, user0, user1, _, _, assets) = setup(
             defaults.base_decimals,
             defaults.quote_decimals,
             defaults.price_decimals,
@@ -1109,7 +1109,7 @@ mod revert {
     #[should_panic(expected = "CantFulfillMany")]
     async fn fulfill_order_many_fok_same_asset_type_cannot_fully_match() {
         let defaults = Defaults::default();
-        let (contract, user0, user1, assets) = setup(
+        let (contract, user0, user1, _, _, assets) = setup(
             defaults.base_decimals,
             defaults.quote_decimals,
             defaults.price_decimals,

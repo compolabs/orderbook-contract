@@ -12,7 +12,7 @@ mod success {
     #[tokio::test]
     async fn sell_base() -> anyhow::Result<()> {
         let defaults = Defaults::default();
-        let (contract, owner, _user, assets) = setup(
+        let (contract, owner, _user, _, _, assets) = setup(
             defaults.base_decimals,
             defaults.quote_decimals,
             defaults.price_decimals,
@@ -100,7 +100,7 @@ mod success {
     #[tokio::test]
     async fn buy_base_with_fee() -> anyhow::Result<()> {
         let defaults = Defaults::default();
-        let (contract, owner, _user, assets) = setup(
+        let (contract, owner, _user, _, _, assets) = setup(
             defaults.base_decimals,
             defaults.quote_decimals,
             defaults.price_decimals,
@@ -110,7 +110,7 @@ mod success {
         let matcher_fee = 100_u64;
         let _ = contract.set_matcher_fee(matcher_fee).await?;
 
-        let deposit_amount = 70100;
+        let deposit_amount = 70000 + matcher_fee;
         let expected_account = create_account(0, deposit_amount, 0, 0);
 
         let order_amount = 100;
@@ -182,7 +182,7 @@ mod success {
     #[tokio::test]
     async fn sell_base_with_fee() -> anyhow::Result<()> {
         let defaults = Defaults::default();
-        let (contract, _, _user, assets) = setup(
+        let (contract, _, _user, _, _, assets) = setup(
             defaults.base_decimals,
             defaults.quote_decimals,
             defaults.price_decimals,
@@ -306,7 +306,7 @@ mod revert {
     #[should_panic(expected = "InsufficientBalance")]
     async fn when_invalid_user() {
         let defaults = Defaults::default();
-        let (contract, _owner, user, _) = setup(
+        let (contract, _owner, user, _, _, _) = setup(
             defaults.base_decimals,
             defaults.quote_decimals,
             defaults.price_decimals,
@@ -332,7 +332,7 @@ mod revert {
     #[should_panic(expected = "InsufficientBalance")]
     async fn when_insufficient_base_balance_to_sell() {
         let defaults = Defaults::default();
-        let (contract, _owner, _user, assets) = setup(
+        let (contract, _owner, _, _, _, assets) = setup(
             defaults.base_decimals,
             defaults.quote_decimals,
             defaults.price_decimals,
@@ -359,7 +359,7 @@ mod revert {
     #[should_panic(expected = "InsufficientBalance")]
     async fn when_insufficient_base_balance_to_buy() {
         let defaults = Defaults::default();
-        let (contract, _owner, _user, assets) = setup(
+        let (contract, _owner, _user, _, _, assets) = setup(
             defaults.base_decimals,
             defaults.quote_decimals,
             defaults.price_decimals,
@@ -384,7 +384,10 @@ mod revert {
             volume_threshold: 0,
         }];
 
-        let _ = contract.set_protocol_fee(protocol_fee.clone()).await.unwrap();
+        let _ = contract
+            .set_protocol_fee(protocol_fee.clone())
+            .await
+            .unwrap();
 
         // Revert
         contract
@@ -397,7 +400,7 @@ mod revert {
     #[should_panic(expected = "PriceTooSmall")]
     async fn when_price_too_small() {
         let defaults = Defaults::default();
-        let (contract, _owner, _user, assets) = setup(
+        let (contract, _owner, _user, _, _, assets) = setup(
             defaults.base_decimals,
             defaults.quote_decimals,
             defaults.price_decimals,

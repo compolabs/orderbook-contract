@@ -8,7 +8,7 @@ mod success {
     #[tokio::test]
     async fn orders_create_different_ids() -> anyhow::Result<()> {
         let defaults = Defaults::default();
-        let (contract, owner, _user, _) = setup(
+        let (contract, owner, _user, _, _, _) = setup(
             defaults.base_decimals,
             defaults.quote_decimals,
             defaults.price_decimals,
@@ -43,7 +43,7 @@ mod success {
     async fn accepts_buy_order() -> anyhow::Result<()> {
         // In this test we only care about the test not reverting with the correct asset
         let defaults = Defaults::default();
-        let (contract, owner, _user, _) = setup(
+        let (contract, owner, _user, _, _, _) = setup(
             defaults.base_decimals,
             defaults.quote_decimals,
             defaults.price_decimals,
@@ -67,7 +67,7 @@ mod success {
     async fn accepts_sell_order() -> anyhow::Result<()> {
         // In this test we only care about the test not reverting with the correct asset
         let defaults = Defaults::default();
-        let (contract, owner, _user, _) = setup(
+        let (contract, owner, _user, _, _, _) = setup(
             defaults.base_decimals,
             defaults.quote_decimals,
             defaults.price_decimals,

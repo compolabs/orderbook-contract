@@ -10,7 +10,6 @@ mod success {
 
     struct OrderConfig {
         pub amount: u64,
-        /*pub asset_type: AssetType,*/
         pub order_type: OrderType,
         pub price: u64,
     }
@@ -18,7 +17,7 @@ mod success {
     #[tokio::test]
     async fn match_order_many_same_asset_type_same_user_equal_orders() -> anyhow::Result<()> {
         let defaults = Defaults::default();
-        let (contract, user0, _, assets) = setup(
+        let (contract, _, user0, _, _, assets) = setup(
             defaults.base_decimals,
             defaults.quote_decimals,
             defaults.price_decimals,
@@ -104,7 +103,7 @@ mod success {
     #[tokio::test]
     async fn match_order_many_same_asset_type_same_user_partial_match() -> anyhow::Result<()> {
         let defaults = Defaults::default();
-        let (contract, user0, _, assets) = setup(
+        let (contract, _, user0, _, _, assets) = setup(
             defaults.base_decimals,
             defaults.quote_decimals,
             defaults.price_decimals,
@@ -190,7 +189,7 @@ mod success {
     #[tokio::test]
     async fn match_order_many_big_match() -> anyhow::Result<()> {
         let defaults = Defaults::default();
-        let (contract, user0, _, assets) = setup(
+        let (contract, _, user0, _, _, assets) = setup(
             defaults.base_decimals,
             defaults.quote_decimals,
             defaults.price_decimals,
@@ -268,7 +267,7 @@ mod success {
     async fn match_order_many_same_asset_type_same_user_equal_orders_with_matcher_fee(
     ) -> anyhow::Result<()> {
         let defaults = Defaults::default();
-        let (contract, user0, user1, assets) = setup(
+        let (contract, _, user0, user1, matcher, assets) = setup(
             defaults.base_decimals,
             defaults.quote_decimals,
             defaults.price_decimals,
@@ -283,7 +282,7 @@ mod success {
 
         let base_amount = 1_000_u64; // 0.00001 BTC
         let price1 = 70_000_000_000_000_u64; // 70,000$ price
-        let price2 = 75_000_000_000_000_u64; // 70,000$ price
+        let price2 = 75_000_000_000_000_u64; // 75,000$ price
 
         let order_configs: Vec<OrderConfig> = vec![
             OrderConfig {
@@ -299,18 +298,19 @@ mod success {
             OrderConfig {
                 amount: base_amount,
                 order_type: OrderType::Sell,
-                price: price2,
+                price: price1,
             },
             OrderConfig {
                 amount: base_amount,
                 order_type: OrderType::Sell,
-                price: price1,
+                price: price2,
             },
         ];
 
         let base_deposit = base_amount * 2;
-        let quote_deposit =
-            price1 / to_quote_scale * base_amount + price2 / to_quote_scale * base_amount;
+        let quote_deposit = price1 / to_quote_scale * base_amount
+            + price2 / to_quote_scale * base_amount
+            + matcher_fee * 2;
 
         contract
             .with_account(&user0.wallet)
@@ -335,46 +335,29 @@ mod success {
             );
         }
 
-        let expected_account0 = create_account(0, 0, base_deposit, quote_deposit);
+        let expected_account = create_account(0, 0, base_deposit, quote_deposit);
 
         assert_eq!(
             contract.account(user0.identity()).await?.value,
-            expected_account0
+            expected_account
         );
 
-        let balance = user1
-            .wallet
-            .get_asset_balance(&user1.wallet.provider().unwrap().base_asset_id())
-            .await?;
-
         contract
-            .with_account(&user1.wallet)
+            .with_account(&matcher.wallet)
             .await?
             .match_order_many(order_ids.clone())
             .await?;
 
-        let new_balance = user1
-            .wallet
-            .get_asset_balance(&user1.wallet.provider().unwrap().base_asset_id())
-            .await?;
-
-        let gas_price = user1
-            .wallet
-            .provider()
-            .unwrap()
-            .latest_gas_price()
-            .await?
-            .gas_price;
+        let expected_account = create_account(base_deposit, matcher_fee * 4, 0, 0);
         assert_eq!(
-            new_balance - balance,
-            matcher_fee * order_ids.len() as u64 - gas_price
+            contract.account(matcher.identity()).await?.value,
+            expected_account
         );
 
-        let expected_account0 = create_account(base_deposit, quote_deposit, 0, 0);
-
+        let expected_account = create_account(base_deposit, quote_deposit - matcher_fee * 4, 0, 0);
         assert_eq!(
             contract.account(user0.identity()).await?.value,
-            expected_account0
+            expected_account
         );
 
         Ok(())
@@ -397,7 +380,7 @@ mod revert {
     #[should_panic(expected = "CantMatchMany")]
     async fn match_order_many_same_asset_type_same_direction() {
         let defaults = Defaults::default();
-        let (contract, user0, _, assets) = setup(
+        let (contract, _, user0, _, _, assets) = setup(
             defaults.base_decimals,
             defaults.quote_decimals,
             defaults.price_decimals,
@@ -455,13 +438,6 @@ mod revert {
                     .value,
             );
         }
-
-        let expected_account0 = create_account(0, 0, base_deposit, 0);
-
-        assert_eq!(
-            contract.account(user0.identity()).await.unwrap().value,
-            expected_account0
-        );
 
         contract.match_order_many(order_ids).await.unwrap();
     }
