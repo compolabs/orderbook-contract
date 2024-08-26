@@ -296,22 +296,22 @@ impl Market for Contract {
     }
 
     #[storage(write)]
-    fn set_epoch(new_epoch: u64, epoch_duration: u64) {
+    fn set_epoch(epoch: u64, epoch_duration: u64) {
         only_owner();
 
         let current_epoch = storage.epoch.read();
         let now = block_timestamp();
 
         require(
-            new_epoch >= current_epoch && (new_epoch + epoch_duration > now),
-            ValueError::InvalidEpoch((current_epoch, new_epoch, epoch_duration, now)),
+            epoch >= current_epoch && (epoch + epoch_duration > now),
+            ValueError::InvalidEpoch((current_epoch, epoch, epoch_duration, now)),
         );
 
-        storage.epoch.write(new_epoch);
+        storage.epoch.write(epoch);
         storage.epoch_duration.write(epoch_duration);
 
         log(SetEpochEvent {
-            epoch: new_epoch,
+            epoch: epoch,
             epoch_duration,
         });
     }
