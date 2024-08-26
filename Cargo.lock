@@ -3771,6 +3771,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "market-registry"
+version = "0.1.1"
+dependencies = [
+ "anyhow",
+ "fuels",
+ "spark-market-sdk",
+ "spark-registry-sdk",
+ "tokio",
+]
+
+[[package]]
 name = "match_cfg"
 version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4166,17 +4177,6 @@ name = "openssl-probe"
 version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ff011a302c396a5197692431fc1948019154afc178baf7d8e37367442a4601cf"
-
-[[package]]
-name = "orderbook-contract"
-version = "0.1.1"
-dependencies = [
- "anyhow",
- "fuels",
- "spark-market-sdk",
- "spark-orderbook-sdk",
- "tokio",
-]
 
 [[package]]
 name = "p256"
@@ -5407,7 +5407,7 @@ dependencies = [
  "dotenv",
  "fuels",
  "spark-market-sdk",
- "spark-orderbook-sdk",
+ "spark-registry-sdk",
  "tokio",
 ]
 
@@ -5422,7 +5422,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "spark-orderbook-sdk"
+name = "spark-registry-sdk"
 version = "0.1.0"
 dependencies = [
  "anyhow",

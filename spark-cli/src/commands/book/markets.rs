@@ -1,7 +1,7 @@
 use crate::utils::{setup, validate_contract_id};
 use clap::Args;
 use fuels::types::AssetId;
-use spark_orderbook_sdk::OrderbookContract;
+use spark_registry_sdk::OrderbookContract;
 use std::str::FromStr;
 
 #[derive(Args, Clone)]

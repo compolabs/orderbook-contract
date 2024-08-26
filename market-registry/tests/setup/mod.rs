@@ -6,7 +6,7 @@ use fuels::{
     },
     types::Identity,
 };
-use spark_orderbook_sdk::OrderbookContract;
+use spark_registry_sdk::OrderbookContract;
 
 pub(crate) struct User {
     pub(crate) wallet: WalletUnlocked,
