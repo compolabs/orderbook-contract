@@ -1,5 +1,4 @@
 use crate::setup::{create_account, setup, Defaults};
-use fuels::accounts::ViewOnlyAccount;
 use spark_market_sdk::OrderType;
 
 mod success_same_asset_type {
@@ -18,7 +17,7 @@ mod success_same_asset_type {
 
         let to_quote_scale =
             10_u64.pow(defaults.price_decimals + defaults.base_decimals - defaults.quote_decimals);
-        let price = 70_000_000_000_000_u64; // 70,000$ price
+        let price = 70_000 * 10_u64.pow(defaults.price_decimals);
         let base_amount = 100_000_u64; // 0.001 BTC
         let quote_amount = price / to_quote_scale * base_amount;
         contract
@@ -86,7 +85,7 @@ mod success_same_asset_type {
 
         let to_quote_scale =
             10_u64.pow(defaults.price_decimals + defaults.base_decimals - defaults.quote_decimals);
-        let price = 70_000_000_000_000_u64; // 70,000$ price
+        let price = 70_000 * 10_u64.pow(defaults.price_decimals);
         let base_amount = 100_000_u64; // 0.001 BTC
         let quote_amount = price / to_quote_scale * base_amount;
         contract
@@ -151,8 +150,8 @@ mod success_same_asset_type {
 
         let to_quote_scale =
             10_u64.pow(defaults.price_decimals + defaults.base_decimals - defaults.quote_decimals);
-        let sell_price = 70_000_000_000_000_u64; // 70,000$ price
-        let buy_price = 77_000_000_000_000_u64; // 77,000$ price
+        let sell_price = 70_000 * 10_u64.pow(defaults.price_decimals);
+        let buy_price = 77_000 * 10_u64.pow(defaults.price_decimals); // 77,000$ price
         let base_amount = 100_000_u64; // 0.001 BTC
         let sell_quote_amount = sell_price / to_quote_scale * base_amount;
         let buy_quote_amount = buy_price / to_quote_scale * base_amount;
@@ -222,7 +221,7 @@ mod success_same_asset_type {
 
         let to_quote_scale =
             10_u64.pow(defaults.price_decimals + defaults.base_decimals - defaults.quote_decimals);
-        let price = 70_000_000_000_000_u64; // 70,000$ price
+        let price = 70_000 * 10_u64.pow(defaults.price_decimals);
         let sell_base_amount = 100_000_u64; // 0.001 BTC
         let buy_base_amount = 90_000_u64; // 0.0009 BTC
         let sell_quote_amount = price / to_quote_scale * sell_base_amount;
@@ -303,7 +302,7 @@ mod success_same_asset_type {
 
         let to_quote_scale =
             10_u64.pow(defaults.price_decimals + defaults.base_decimals - defaults.quote_decimals);
-        let price = 70_000_000_000_000_u64; // 70,000$ price
+        let price = 70_000 * 10_u64.pow(defaults.price_decimals);
         let base_amount = 100_000_u64; // 0.001 BTC
         let quote_amount = price / to_quote_scale * base_amount + matcher_fee;
         contract
@@ -368,6 +367,71 @@ mod success_same_asset_type {
 
         Ok(())
     }
+
+    #[tokio::test]
+    async fn match_same_base_asset_type_orders_same_price_with_matcher_fee_same_user_matcher() -> anyhow::Result<()> {
+        let defaults = Defaults::default();
+        let (contract, _, user0, _, _, assets) = setup(
+            defaults.base_decimals,
+            defaults.quote_decimals,
+            defaults.price_decimals,
+        )
+        .await?;
+
+        let matcher_fee = 100_000_u64;
+        let _ = contract.set_matcher_fee(matcher_fee).await?;
+
+        let to_quote_scale =
+            10_u64.pow(defaults.price_decimals + defaults.base_decimals - defaults.quote_decimals);
+        let price = 70_000 * 10_u64.pow(defaults.price_decimals);
+        let base_amount = 100_000_u64; // 0.001 BTC
+        let quote_amount = price / to_quote_scale * base_amount + matcher_fee;
+        contract
+            .with_account(&user0.wallet)
+            .await?
+            .deposit(base_amount, assets.base.id)
+            .await?;
+        contract
+            .with_account(&user0.wallet)
+            .await?
+            .deposit(quote_amount, assets.quote.id)
+            .await?;
+
+        let id0 = contract
+            .with_account(&user0.wallet)
+            .await?
+            .open_order(base_amount, OrderType::Sell, price)
+            .await?
+            .value;
+        let id1 = contract
+            .with_account(&user0.wallet)
+            .await?
+            .open_order(base_amount, OrderType::Buy, price)
+            .await?
+            .value;
+
+        let expected_account0 = create_account(0, 0, base_amount, quote_amount);
+
+        assert_eq!(
+            contract.account(user0.identity()).await?.value,
+            expected_account0
+        );
+
+        let expected_account0 = create_account(base_amount, quote_amount, 0, 0);
+
+        contract
+            .with_account(&user0.wallet)
+            .await?
+            .match_order_pair(id0, id1)
+            .await?;
+
+        assert_eq!(
+            contract.account(user0.identity()).await?.value,
+            expected_account0
+        );
+
+        Ok(())
+    }
 }
 
 mod revert {
@@ -388,8 +452,8 @@ mod revert {
 
         let to_quote_scale =
             10_u64.pow(defaults.price_decimals + defaults.base_decimals - defaults.quote_decimals);
-        let sell_price = 70_000_000_000_000_u64; // 70,000$ price
-        let buy_price = 67_000_000_000_000_u64; // 77,000$ price
+        let sell_price = 70_000 * 10_u64.pow(defaults.price_decimals); // 70,000$ price
+        let buy_price = 67_000 * 10_u64.pow(defaults.price_decimals); // 67,000$ price
         let base_amount = 100_000_u64; // 0.001 BTC
         let quote_amount = buy_price / to_quote_scale * base_amount;
         contract

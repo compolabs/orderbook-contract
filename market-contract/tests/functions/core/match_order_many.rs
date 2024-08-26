@@ -1,5 +1,4 @@
 use crate::setup::{create_account, setup, Defaults};
-use fuels::accounts::ViewOnlyAccount;
 use spark_market_sdk::{/*AssetType,*/ OrderType};
 
 mod success {
@@ -267,7 +266,7 @@ mod success {
     async fn match_order_many_same_asset_type_same_user_equal_orders_with_matcher_fee(
     ) -> anyhow::Result<()> {
         let defaults = Defaults::default();
-        let (contract, _, user0, user1, matcher, assets) = setup(
+        let (contract, _, user0, _, matcher, assets) = setup(
             defaults.base_decimals,
             defaults.quote_decimals,
             defaults.price_decimals,
@@ -348,7 +347,7 @@ mod success {
             .match_order_many(order_ids.clone())
             .await?;
 
-        let expected_account = create_account(base_deposit, matcher_fee * 4, 0, 0);
+        let expected_account = create_account(0, matcher_fee * 4, 0, 0);
         assert_eq!(
             contract.account(matcher.identity()).await?.value,
             expected_account
