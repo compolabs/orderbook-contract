@@ -3766,6 +3766,7 @@ version = "0.1.1"
 dependencies = [
  "anyhow",
  "fuels",
+ "rand",
  "spark-market-sdk",
  "tokio",
 ]

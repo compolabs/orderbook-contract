@@ -14,10 +14,15 @@ The Ordebook framework consist of five parts might by found in root folder.
 `spark-registry-sdk` Spark Orderbook SDK is a Rust library for the Orderbook contract interaction. Detailed information is in Readme.md.
 
 
-## Running Tests
+## Running All Tests
 
 ```
 forc build --release & cargo test --release
+```
+
+### Running Fuzz Tests:
+```
+cargo test --release -- --ignored fuzz
 ```
 
 ## Contribution
