@@ -25,7 +25,7 @@ impl Account {
     }
 
     pub fn unlock_amount(ref mut self, amount: u64, asset: AssetType) {
-        require(amount != 0, OrderError::ZeroLockAmount);
+        require(amount != 0, OrderError::ZeroUnlockAmount);
         self.liquid.credit(amount, asset);
         self.locked.debit(amount, asset);
     }

@@ -21,6 +21,7 @@ pub enum OrderError {
     PriceTooSmall: (u64, u64),
     ZeroOrderAmount: (),
     ZeroLockAmount: (),
+    ZeroUnlockAmount: (),
     FailedToRemove: b256,
 }
 

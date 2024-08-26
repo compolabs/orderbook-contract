@@ -94,16 +94,4 @@ impl Order {
     pub fn matcher_fee_of_amount(self, amount: u64) -> u64 {
         self.matcher_fee * amount / self.amount
     }
-
-    pub fn lock_order_amount(self) -> u64 {
-        if self.asset_type == AssetType::Base
-            && self.order_type == OrderType::Buy
-                || self.asset_type == AssetType::Quote
-                && self.order_type == OrderType::Sell
-        {
-            self.amount + self.max_protocol_fee_of_amount(self.amount) + self.matcher_fee
-        } else {
-            self.amount
-        }
-    }
 }

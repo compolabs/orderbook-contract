@@ -301,6 +301,11 @@
           "typeArguments": null
         },
         {
+          "name": "ZeroUnlockAmount",
+          "type": 0,
+          "typeArguments": null
+        },
+        {
           "name": "FailedToRemove",
           "type": 5,
           "typeArguments": null
@@ -1177,14 +1182,8 @@
       "name": "account",
       "output": {
         "name": "",
-        "type": 13,
-        "typeArguments": [
-          {
-            "name": "",
-            "type": 21,
-            "typeArguments": null
-          }
-        ]
+        "type": 21,
+        "typeArguments": null
       },
       "attributes": [
         {
@@ -1346,6 +1345,29 @@
             "typeArguments": null
           }
         ]
+      },
+      "attributes": [
+        {
+          "name": "storage",
+          "arguments": [
+            "read"
+          ]
+        }
+      ]
+    },
+    {
+      "inputs": [
+        {
+          "name": "user",
+          "type": 10,
+          "typeArguments": null
+        }
+      ],
+      "name": "protocol_fee_user",
+      "output": {
+        "name": "",
+        "type": 1,
+        "typeArguments": null
       },
       "attributes": [
         {
@@ -1553,7 +1575,7 @@
         "type": 23,
         "typeArguments": []
       },
-      "offset": 79736
+      "offset": 79616
     },
     {
       "name": "BASE_ASSET_DECIMALS",
@@ -1562,7 +1584,7 @@
         "type": 40,
         "typeArguments": null
       },
-      "offset": 79768
+      "offset": 79648
     },
     {
       "name": "QUOTE_ASSET",
@@ -1571,7 +1593,7 @@
         "type": 23,
         "typeArguments": []
       },
-      "offset": 79824
+      "offset": 79704
     },
     {
       "name": "QUOTE_ASSET_DECIMALS",
@@ -1580,7 +1602,7 @@
         "type": 40,
         "typeArguments": null
       },
-      "offset": 79856
+      "offset": 79736
     },
     {
       "name": "OWNER",
@@ -1589,7 +1611,7 @@
         "type": 10,
         "typeArguments": []
       },
-      "offset": 79776
+      "offset": 79656
     },
     {
       "name": "PRICE_DECIMALS",
@@ -1598,7 +1620,7 @@
         "type": 40,
         "typeArguments": null
       },
-      "offset": 79816
+      "offset": 79696
     },
     {
       "name": "VERSION",
@@ -1607,7 +1629,7 @@
         "type": 40,
         "typeArguments": null
       },
-      "offset": 79864
+      "offset": 79744
     }
   ]
 }

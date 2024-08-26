@@ -301,6 +301,11 @@
           "typeArguments": null
         },
         {
+          "name": "ZeroUnlockAmount",
+          "type": 0,
+          "typeArguments": null
+        },
+        {
           "name": "FailedToRemove",
           "type": 5,
           "typeArguments": null
@@ -1570,7 +1575,7 @@
         "type": 23,
         "typeArguments": []
       },
-      "offset": 79952
+      "offset": 79616
     },
     {
       "name": "BASE_ASSET_DECIMALS",
@@ -1579,7 +1584,7 @@
         "type": 40,
         "typeArguments": null
       },
-      "offset": 79984
+      "offset": 79648
     },
     {
       "name": "QUOTE_ASSET",
@@ -1588,7 +1593,7 @@
         "type": 23,
         "typeArguments": []
       },
-      "offset": 80040
+      "offset": 79704
     },
     {
       "name": "QUOTE_ASSET_DECIMALS",
@@ -1597,7 +1602,7 @@
         "type": 40,
         "typeArguments": null
       },
-      "offset": 80072
+      "offset": 79736
     },
     {
       "name": "OWNER",
@@ -1606,7 +1611,7 @@
         "type": 10,
         "typeArguments": []
       },
-      "offset": 79992
+      "offset": 79656
     },
     {
       "name": "PRICE_DECIMALS",
@@ -1615,7 +1620,7 @@
         "type": 40,
         "typeArguments": null
       },
-      "offset": 80032
+      "offset": 79696
     },
     {
       "name": "VERSION",
@@ -1624,7 +1629,7 @@
         "type": 40,
         "typeArguments": null
       },
-      "offset": 80080
+      "offset": 79744
     }
   ]
 }

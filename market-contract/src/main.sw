@@ -491,18 +491,13 @@ fn open_order_internal(
 
     // Update user account balance
     let mut account = storage.account.get(user).try_read().unwrap_or(Account::new());
-    let lock_amount = order.lock_order_amount();
-    match order_type {
-        OrderType::Sell => {
-            account.lock_amount(lock_amount, asset_type);
-        }
-        OrderType::Buy => {
-            account.lock_amount(
-                convert_asset_amount(lock_amount, price, asset_type == AssetType::Base),
-                !asset_type,
-            );
-        }
-    }
+    account.lock_amount(
+        lock_order_amount(order),
+        match order.order_type {
+            OrderType::Sell => order.asset_type,
+            OrderType::Buy => !order.asset_type,
+        },
+    );
 
     // Update the state of the user's account
     storage.account.insert(user, account);
@@ -547,23 +542,14 @@ fn cancel_order_internal(order_id: b256) {
     // Safe to read() because user is the owner of the order
     let mut account = storage.account.get(user).read();
 
-    // Order is about to be cancelled, unlock illiquid funds
-    let unlock_amount = order.lock_order_amount();
-    match order.order_type {
-        OrderType::Sell => {
-            account.unlock_amount(unlock_amount, order.asset_type);
-        }
-        OrderType::Buy => {
-            account.unlock_amount(
-                convert_asset_amount(
-                    unlock_amount,
-                    order.price,
-                    order.asset_type == AssetType::Base,
-                ),
-                !order.asset_type,
-            );
-        }
-    }
+    // Order is about to be cancelled, unlock liliquid funds
+    account.unlock_amount(
+        lock_order_amount(order),
+        match order.order_type {
+            OrderType::Sell => order.asset_type,
+            OrderType::Buy => !order.asset_type,
+        },
+    );
 
     remove_order(user, order_id);
     storage.account.insert(user, account);
@@ -786,7 +772,7 @@ fn execute_trade(
     } else {
         let mut s_account = storage.account.get(s_order.owner).read();
         let mut o_account = storage.account.get(OWNER).try_read().unwrap_or(Account::new());
-        s_account.transfer_locked_amount(o_account, s_order_matcher_fee, !asset_type);
+        s_account.transfer_locked_amount(o_account, s_order_protocol_fee, !asset_type);
         storage.account.insert(s_order.owner, s_account);
         storage.account.insert(OWNER, o_account);
     }
@@ -799,7 +785,7 @@ fn execute_trade(
     } else {
         let mut b_account = storage.account.get(b_order.owner).read();
         let mut o_account = storage.account.get(OWNER).try_read().unwrap_or(Account::new());
-        b_account.transfer_locked_amount(o_account, b_order_matcher_fee, !asset_type);
+        b_account.transfer_locked_amount(o_account, b_order_protocol_fee, !asset_type);
         storage.account.insert(b_order.owner, b_account);
         storage.account.insert(OWNER, o_account);
     }
@@ -1006,6 +992,16 @@ fn convert_asset_amount(amount: u64, price: u64, base_to_quote: bool) -> u64 {
         amount.mul_div(op1, op2)
     } else {
         amount.mul_div(op2, op1)
+    }
+}
+
+pub fn lock_order_amount(order: Order) -> u64 {
+    // For asset_type base only
+    if order.order_type == OrderType::Buy {
+        let amount = quote_of_base_amount(order.amount, order.price);
+        amount + order.max_protocol_fee_of_amount(amount) + order.matcher_fee
+    } else {
+        order.amount
     }
 }
 
