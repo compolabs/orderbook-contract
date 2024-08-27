@@ -280,6 +280,23 @@ impl MarketContract {
         Ok(self.instance.methods().matcher_fee().simulate().await?)
     }
 
+    pub async fn get_epoch(&self) -> anyhow::Result<CallResponse<(u64, u64)>> {
+        Ok(self.instance.methods().get_epoch().simulate().await?)
+    }
+
+    pub async fn set_epoch(
+        &self,
+        epoch: u64,
+        epoch_duration: u64,
+    ) -> anyhow::Result<CallResponse<()>> {
+        Ok(self
+            .instance
+            .methods()
+            .set_epoch(epoch, epoch_duration)
+            .call()
+            .await?)
+    }
+
     pub async fn order(&self, order: Bits256) -> anyhow::Result<CallResponse<Option<Order>>> {
         Ok(self.instance.methods().order(order).simulate().await?)
     }
