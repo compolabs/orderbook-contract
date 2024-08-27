@@ -49,9 +49,7 @@ impl WithdrawCommand {
         };
         let asset_balance = wallet.get_asset_balance(&asset).await?;
 
-        let r = contract.withdraw(self.amount, asset_type.clone()).await?;
-        // TODO: sdk debugging
-        dbg!(r);
+        let _ = contract.withdraw(self.amount, asset_type.clone()).await?;
 
         // Balance post-call
         let new_balance = wallet

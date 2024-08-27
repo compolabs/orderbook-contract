@@ -174,7 +174,13 @@ Returns a new instance of MarketContract type.
 ### Set Protocol Fee
 
 ```rust
-pub async fn set_protocol_fee(&self, amount: u32) -> anyhow::Result<CallResponse<()>>
+pub struct ProtocolFee {
+    pub maker_fee: u64,
+    pub taker_fee: u64,
+    pub volume_threshold: u64,
+}
+
+pub async fn set_protocol_fee(&self, protocol_fee: Vec<ProtocolFee>) -> anyhow::Result<CallResponse<()>>
 ```
 
 Owner sets protocol fee as percent of trade volume.
@@ -194,23 +200,26 @@ pub async fn set_matcher_fee(&self, amount: u32) -> anyhow::Result<CallResponse<
 Owner sets fixed matcher reward for single order match.
 
 `self` The MarketContract instance
-`amount` The matcher fee amount in fuel token
+`amount` The matcher fee amount in quote token
 
 Returns a call result
 
 
-### Withdraw Protocol Fee
+### Set Epoch
 
 ```rust
-pub async fn withdraw_protocol_fee(&self, to: Identity) -> anyhow::Result<CallResponse<()>>
+pub async fn set_epoch(&self, epoch: u64, epoch_duration) -> anyhow::Result<CallResponse<()>>
 ```
 
-Owner withdraws protocol fee to beneficiary address.
+Owner resets epoch for cumulative trade volumes.
 
 `self` The MarketContract instance
-`to` The beneficiary address
+`epoch` The epoch timestamp
+`epoch_duration` The epoch duration in seconds
 
 Returns a call result
+
+
 
 
 ## MarketContract Getter Methods
@@ -242,42 +251,58 @@ pub struct Balance {
 }
 ```
 
+### Epoch Info
+
+```rust
+pub async fn get_epoch(&self) -> anyhow::Result<CallResponse<(u64, u64)>>
+```
+
+Retrieves epoch and its duration.
+
+`self` The MarketContract instance
+
+Returns epoch and epoch duration
+
+
+
 ### Protocol Fee Info
 
 ```rust
-pub async fn protocol_fee(&self) -> anyhow::Result<CallResponse<u32>>
+pub async fn protocol_fee(&self) -> anyhow::Result<CallResponse<Vec<ProtocolFee>>>
 ```
 
-Retrieves protocol fee percent.
+Retrieves protocol fee stucture vector.
 
 `self` The MarketContract instance
 
 Returns protocol fee percent, 10_000 == 100%
 
 
-### Total Protocol Fee Info
+### Protocol Fee User Info
 
 ```rust
-pub async fn total_protocol_fee(&self) -> anyhow::Result<CallResponse<u64>>
+pub async fn protocol_fee_user(&self, user: Identity) -> anyhow::Result<CallResponse<Vec<ProtocolFee>>>
 ```
 
-Retrieves total collected protocol fee that could be withdrawn by owner.
+Retrieves user maker and taker protocol fees.
 
 `self` The MarketContract instance
+`user` The user address
 
-Returns total protocol fee amount of fuel asset
+Returns protocol maker & taker fee percents, 10_000 == 100%
 
 
 ### Protocol Fee Amount Info
 
 ```rust
-pub async fn protocol_fee_user_amount(&self, amount: u64) -> anyhow::Result<CallResponse<u64>>
+pub async fn protocol_fee_user_amount(&self, amount: u64, user: Identity) -> anyhow::Result<CallResponse<u64>>
 ```
 
-Calculates protocol fee amount that needs to be passed to payble market function during order submission.
+Calculates protocol fee amount that needs to be extra order size submission.
 
 `self` The MarketContract instance
 `amount` The order size to be submitted
+`user` The user address
 
 Returns calculated protocol fee amount
 

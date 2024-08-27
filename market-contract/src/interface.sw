@@ -47,7 +47,7 @@ abi Market {
     #[storage(write)]
     fn set_protocol_fee(protocol_fee: Vec<ProtocolFee>);
 
-    #[storage(write)]
+    #[storage(read, write)]
     fn set_matcher_fee(amount: u64);
 }
 

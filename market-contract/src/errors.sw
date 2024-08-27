@@ -13,6 +13,7 @@ pub enum ValueError {
     InvalidEpoch: (u64, u64, u64, u64),
     InvalidFeeSorting: (),
     InvalidFeeZeroBased: (),
+    InvalidValueSame: (),
 }
 
 pub enum OrderError {

@@ -5,12 +5,8 @@ use spark_market_sdk::MarketContract;
 use std::str::FromStr;
 
 #[derive(Args, Clone)]
-#[command(about = "Query the protocol fee user amount")]
-pub(crate) struct ProtocolFeeUserAmountCommand {
-    /// The amount of asset
-    #[clap(long)]
-    pub(crate) amount: u64,
-
+#[command(about = "Query the protocol fee user")]
+pub(crate) struct ProtocolFeeUserCommand {
     /// The b256 id of the account
     #[clap(long)]
     pub(crate) account_id: String,
@@ -29,7 +25,7 @@ pub(crate) struct ProtocolFeeUserAmountCommand {
     pub(crate) rpc: String,
 }
 
-impl ProtocolFeeUserAmountCommand {
+impl ProtocolFeeUserCommand {
     pub(crate) async fn run(&self) -> anyhow::Result<()> {
         let wallet = setup(&self.rpc).await?;
         let contract_id = validate_contract_id(&self.contract_id)?;
@@ -48,14 +44,11 @@ impl ProtocolFeeUserAmountCommand {
             }
         };
 
-        let protocol_fee_user_amount = contract
-            .protocol_fee_user_amount(self.amount, account)
-            .await?
-            .value;
+        let protocol_fee_user = contract.protocol_fee_user(account).await?.value;
 
         println!(
-            "Protocol Fee Amount: for {:?} of {} (maker_fee, taker_fee) ({}, {})",
-            account, self.amount, protocol_fee_user_amount.0, protocol_fee_user_amount.1
+            "Protocol Fee: for {:?} (maker_fee, taker_fee) ({}, {})",
+            account, protocol_fee_user.0, protocol_fee_user.1
         );
 
         Ok(())

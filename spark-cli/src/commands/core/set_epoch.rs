@@ -1,14 +1,18 @@
 use crate::utils::{setup, validate_contract_id};
 use clap::Args;
 use fuels::accounts::ViewOnlyAccount;
-use spark_market_sdk::{MarketContract, ProtocolFee};
+use spark_market_sdk::MarketContract;
 
 #[derive(Args, Clone)]
-#[command(about = "Change the protocol fee")]
-pub(crate) struct SetProtocolFeeCommand {
-    /// The fee to set
+#[command(about = "Change the epoch and epoch duration for the market")]
+pub(crate) struct SetEpochCommand {
+    /// The epoch to set
     #[clap(long)]
-    pub(crate) fee: Vec<String>,
+    pub(crate) epoch: u64,
+
+    /// The epoch duration to set
+    #[clap(long)]
+    pub(crate) epoch_duration: u64,
 
     /// The contract id of the market
     #[clap(long)]
@@ -20,26 +24,10 @@ pub(crate) struct SetProtocolFeeCommand {
     pub(crate) rpc: String,
 }
 
-impl SetProtocolFeeCommand {
+impl SetEpochCommand {
     pub(crate) async fn run(&self) -> anyhow::Result<()> {
         let wallet = setup(&self.rpc).await?;
         let contract_id = validate_contract_id(&self.contract_id)?;
-
-        let mut protocol_fee: Vec<ProtocolFee> = Vec::new();
-        for fee in self.fee.clone() {
-            let fee = fee.split(',').collect::<Vec<&str>>();
-            assert_eq!(fee.len(), 3);
-            let fee = fee
-                .iter()
-                .map(|&x| x.parse::<u64>().unwrap())
-                .collect::<Vec<u64>>();
-            let fee = ProtocolFee {
-                maker_fee: fee[0],
-                taker_fee: fee[1],
-                volume_threshold: fee[2],
-            };
-            protocol_fee.push(fee);
-        }
 
         // Initial balance prior to contract call - used to calculate contract interaction cost
         let balance = wallet
@@ -49,14 +37,18 @@ impl SetProtocolFeeCommand {
         // Connect to the deployed contract via the rpc
         let contract = MarketContract::new(contract_id, wallet.clone()).await;
 
-        let _ = contract.set_protocol_fee(protocol_fee).await?;
+        let _ = contract.set_epoch(self.epoch, self.epoch_duration).await?;
 
         // Balance post-deployment
         let new_balance = wallet
             .get_asset_balance(&wallet.provider().unwrap().base_asset_id())
             .await?;
 
-        println!("\nThe global fee has been set to: {:?}", self.fee);
+        // TODO: replace println with tracing
+        println!(
+            "\nThe epoch and duration have been set to: {}, {}",
+            self.epoch, self.epoch_duration
+        );
         println!("Contract call cost: {}", balance - new_balance);
 
         Ok(())

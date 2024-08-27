@@ -9,10 +9,10 @@ members = [
 
 [workspace.package]
 authors = ["alexey <alexnagornnyy.an@gmail.com>"]
-version = "0.1.1"
+version = "0.2.0"
 edition = "2021"
 license = "Apache-2.0"
-rust-version = "1.75.0"
+rust-version = "1.79.0"
 
 [workspace.dependencies]
 anyhow = "1.0.86"

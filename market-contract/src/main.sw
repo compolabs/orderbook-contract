@@ -339,10 +339,15 @@ impl Market for Contract {
         log(SetProtocolFeeEvent { protocol_fee });
     }
 
-    #[storage(write)]
+    #[storage(read, write)]
     fn set_matcher_fee(amount: u64) {
         only_owner();
-
+        require(
+            amount != storage
+                .matcher_fee
+                .read(),
+            ValueError::InvalidValueSame,
+        );
         storage.matcher_fee.write(amount);
 
         log(SetMatcherRewardEvent { amount });

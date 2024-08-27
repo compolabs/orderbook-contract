@@ -1,7 +1,7 @@
 use crate::commands::core::{
     cancel_order::CancelCommand, deploy::DeployCommand, deposit::DepositCommand,
     fulfill_many::FulfillManyCommand, match_many::MatchManyCommand, match_pair::MatchPairCommand,
-    open_order::OpenCommand, set_matcher_fee::SetMatcherFeeCommand,
+    open_order::OpenCommand, set_epoch::SetEpochCommand, set_matcher_fee::SetMatcherFeeCommand,
     set_protocol_fee::SetProtocolFeeCommand, withdraw::WithdrawCommand,
 };
 use clap::Subcommand;
@@ -35,6 +35,10 @@ pub(crate) enum CoreCommands {
     /// Open an order
     #[clap(short_flag = 'O')]
     Open(OpenCommand),
+
+    /// Set a protocol fee
+    #[clap(short_flag = 'E')]
+    SetEpoch(SetEpochCommand),
 
     /// Set a protocol fee
     #[clap(short_flag = 'S')]
