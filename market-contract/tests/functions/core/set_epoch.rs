@@ -79,7 +79,7 @@ mod revert {
     #[should_panic(expected = "Unauthorized")]
     async fn reverts_when_non_owner() {
         let defaults = Defaults::default();
-        let (contract, owner, user, _, _, _assets) = setup(
+        let (contract, _, user, _, _, _assets) = setup(
             defaults.base_decimals,
             defaults.quote_decimals,
             defaults.price_decimals,
@@ -87,7 +87,7 @@ mod revert {
         .await
         .unwrap();
 
-        let new_epoch = 0; 
+        let new_epoch = 0;
         let epoch_duration = 60 * 60 * 24;
 
         // Attempt to set the epoch with a non-owner user
