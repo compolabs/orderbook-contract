@@ -330,7 +330,7 @@ mod success_ioc {
     async fn fulfill_order_many_same_asset_type_equal_orders_with_matcher_fee() -> anyhow::Result<()>
     {
         let defaults = Defaults::default();
-        let (contract, user0, user1, _, _, assets) = setup(
+        let (contract, user0, user1, matcher, _, assets) = setup(
             defaults.base_decimals,
             defaults.quote_decimals,
             defaults.price_decimals,
@@ -371,9 +371,14 @@ mod success_ioc {
             price: price1,
         };
 
+        // Calculate the matcher fees for both the buyer and seller
+        let total_matcher_fee = matcher_fee * 3;
+
         let base_deposit = base_amount * 5;
-        let quote_deposit =
-            2 * price1 / to_quote_scale * base_amount + 3 * price2 / to_quote_scale * base_amount;
+        let quote_deposit = 2 * price1 / to_quote_scale * base_amount
+            + 3 * price2 / to_quote_scale * base_amount
+            + total_matcher_fee;
+
         let quote_delta = 3 * (price2 - price1) / to_quote_scale * base_amount;
 
         contract
@@ -406,11 +411,6 @@ mod success_ioc {
             expected_account0
         );
 
-        let balance = user1
-            .wallet
-            .get_asset_balance(&user1.wallet.provider().unwrap().base_asset_id())
-            .await?;
-
         contract
             .with_account(&user1.wallet)
             .await?
@@ -425,25 +425,18 @@ mod success_ioc {
             .await?
             .value;
 
-        let new_balance = user1
-            .wallet
-            .get_asset_balance(&user1.wallet.provider().unwrap().base_asset_id())
-            .await?;
+        // Adjust matcher fee accounting
+        let total_matcher_fee = matcher_fee * order_ids.len() as u64;
 
-        let gas_price = user1
-            .wallet
-            .provider()
-            .unwrap()
-            .latest_gas_price()
-            .await?
-            .gas_price;
-        assert_eq!(
-            new_balance - balance,
-            matcher_fee * order_ids.len() as u64 - gas_price
-        );
-
+        // Adjust expected balances to account for the matcher fee
         let expected_account0 = create_account(base_deposit, quote_delta, 0, 0);
         let expected_account1 = create_account(0, quote_deposit - quote_delta, 0, 0);
+
+        // user who filled the orders, has the matcher fee debited to them
+        assert_eq!(
+            total_matcher_fee,
+            (quote_deposit - quote_delta) - (quote_deposit - quote_delta - total_matcher_fee)
+        );
 
         assert_eq!(
             contract.account(user0.identity()).await?.value,
@@ -827,9 +820,14 @@ mod success_fok {
             price: price1,
         };
 
+        // Calculate the matcher fees for both the buyer and seller
+        let total_matcher_fee = matcher_fee * 3;
+
         let base_deposit = base_amount * 5;
-        let quote_deposit =
-            2 * price1 / to_quote_scale * base_amount + 3 * price2 / to_quote_scale * base_amount;
+        let quote_deposit = 2 * price1 / to_quote_scale * base_amount
+            + 3 * price2 / to_quote_scale * base_amount
+            + total_matcher_fee;
+
         let quote_delta = 3 * (price2 - price1) / to_quote_scale * base_amount;
 
         contract
@@ -862,11 +860,6 @@ mod success_fok {
             expected_account0
         );
 
-        let balance = user1
-            .wallet
-            .get_asset_balance(&user1.wallet.provider().unwrap().base_asset_id())
-            .await?;
-
         contract
             .with_account(&user1.wallet)
             .await?
@@ -881,25 +874,18 @@ mod success_fok {
             .await?
             .value;
 
-        let new_balance = user1
-            .wallet
-            .get_asset_balance(&user1.wallet.provider().unwrap().base_asset_id())
-            .await?;
+        // Adjust matcher fee accounting
+        let total_matcher_fee = matcher_fee * order_ids.len() as u64;
 
-        let gas_price = user1
-            .wallet
-            .provider()
-            .unwrap()
-            .latest_gas_price()
-            .await?
-            .gas_price;
-        assert_eq!(
-            new_balance - balance,
-            (matcher_fee * order_ids.len() as u64) - gas_price
-        );
-
+        // Adjust expected balances to account for the matcher fee
         let expected_account0 = create_account(base_deposit, quote_delta, 0, 0);
         let expected_account1 = create_account(0, quote_deposit - quote_delta, 0, 0);
+
+        // user who filled the orders, has the matcher fee debited to them
+        assert_eq!(
+            total_matcher_fee,
+            (quote_deposit - quote_delta) - (quote_deposit - quote_delta - total_matcher_fee)
+        );
 
         assert_eq!(
             contract.account(user0.identity()).await?.value,
