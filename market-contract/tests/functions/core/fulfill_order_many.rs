@@ -338,16 +338,16 @@ mod success_ioc {
         .await?;
 
         let matcher_fee = 100_000_u64;
-        let _ = contract.set_matcher_fee(matcher_fee).await?;
+        contract.set_matcher_fee(matcher_fee).await?;
 
         let to_quote_scale =
             10_u64.pow(defaults.price_decimals + defaults.base_decimals - defaults.quote_decimals);
 
-        let base_amount = 1_000_u64; // 0.00001 BTC
-        let price1 = 70_000_000_000_000_u64; // 70,000$ price
-        let price2 = 70_500_000_000_000_u64; // 70,500$ price
+        let base_amount = 1_000_u64;
+        let price1 = 70_000_000_000_000_u64;
+        let price2 = 70_500_000_000_000_u64;
 
-        let order_configs: Vec<OrderConfig> = vec![
+        let order_configs = vec![
             OrderConfig {
                 amount: 2 * base_amount,
                 order_type: OrderType::Buy,
@@ -372,7 +372,7 @@ mod success_ioc {
         };
 
         // Calculate the matcher fees for both the buyer and seller
-        let total_matcher_fee = matcher_fee * 3;
+        let total_matcher_fee = matcher_fee * order_configs.len() as u64;
 
         let base_deposit = base_amount * 5;
         let quote_deposit = 2 * price1 / to_quote_scale * base_amount
@@ -381,36 +381,42 @@ mod success_ioc {
 
         let quote_delta = 3 * (price2 - price1) / to_quote_scale * base_amount;
 
+        // Deposit initial amounts for users
         contract
             .with_account(&user0.wallet)
             .await?
             .deposit(quote_deposit, assets.quote.id)
             .await?;
+
         contract
             .with_account(&user1.wallet)
             .await?
             .deposit(base_deposit, assets.base.id)
             .await?;
 
-        let mut order_ids: Vec<Bits256> = Vec::new();
-        for config in order_configs {
-            order_ids.push(
-                contract
-                    .with_account(&user0.wallet)
-                    .await?
-                    .open_order(config.amount, config.order_type, config.price)
-                    .await?
-                    .value,
-            );
+        // Place orders and collect order IDs
+        let mut total_fill_amount = 0;
+        let mut order_ids = Vec::new();
+
+        for config in &order_configs {
+            total_fill_amount += config.amount;
+            let order_id = contract
+                .with_account(&user0.wallet)
+                .await?
+                .open_order(config.amount, config.order_type.clone(), config.price)
+                .await?
+                .value;
+            order_ids.push(order_id);
         }
 
+        // Expected balances for user0
         let expected_account0 = create_account(0, 0, 0, quote_deposit);
-
         assert_eq!(
             contract.account(user0.identity()).await?.value,
             expected_account0
         );
 
+        // Fulfill orders
         contract
             .with_account(&user1.wallet)
             .await?
@@ -420,24 +426,21 @@ mod success_ioc {
                 LimitType::IOC,
                 fulfill_order_config.price,
                 100,
-                order_ids.clone(),
+                order_ids,
             )
-            .await?
-            .value;
+            .await?;
 
-        // Adjust matcher fee accounting
-        let total_matcher_fee = matcher_fee * order_ids.len() as u64;
-
-        // Adjust expected balances to account for the matcher fee
+        // Adjust expected balances
         let expected_account0 = create_account(base_deposit, quote_delta, 0, 0);
         let expected_account1 = create_account(0, quote_deposit - quote_delta, 0, 0);
 
-        // user who filled the orders, has the matcher fee debited to them
-        assert_eq!(
-            total_matcher_fee,
-            (quote_deposit - quote_delta) - (quote_deposit - quote_delta - total_matcher_fee)
-        );
+        let fill_amount = total_fill_amount * (price1 / 10_u64.pow(defaults.price_decimals)) / 100;
+        let calculated_matcher_fee = quote_deposit - quote_delta - fill_amount;
 
+        // Assert matcher fee is as expected
+        assert_eq!(total_matcher_fee, calculated_matcher_fee);
+
+        // Assert final balances
         assert_eq!(
             contract.account(user0.identity()).await?.value,
             expected_account0
@@ -787,16 +790,16 @@ mod success_fok {
         .await?;
 
         let matcher_fee = 100_000_u64;
-        let _ = contract.set_matcher_fee(matcher_fee).await?;
+        contract.set_matcher_fee(matcher_fee).await?;
 
         let to_quote_scale =
             10_u64.pow(defaults.price_decimals + defaults.base_decimals - defaults.quote_decimals);
 
-        let base_amount = 1_000_u64; // 0.00001 BTC
-        let price1 = 70_000_000_000_000_u64; // 70,000$ price
-        let price2 = 70_500_000_000_000_u64; // 70,500$ price
+        let base_amount = 1_000_u64;
+        let price1 = 70_000_000_000_000_u64;
+        let price2 = 70_500_000_000_000_u64;
 
-        let order_configs: Vec<OrderConfig> = vec![
+        let order_configs = vec![
             OrderConfig {
                 amount: 2 * base_amount,
                 order_type: OrderType::Buy,
@@ -820,46 +823,54 @@ mod success_fok {
             price: price1,
         };
 
-        // Calculate the matcher fees for both the buyer and seller
-        let total_matcher_fee = matcher_fee * 3;
+        // Calculate total matcher fee
+        let total_matcher_fee = matcher_fee * order_configs.len() as u64;
 
+        // Calculate deposits
         let base_deposit = base_amount * 5;
         let quote_deposit = 2 * price1 / to_quote_scale * base_amount
             + 3 * price2 / to_quote_scale * base_amount
             + total_matcher_fee;
 
+        // Calculate quote delta
         let quote_delta = 3 * (price2 - price1) / to_quote_scale * base_amount;
 
+        // Deposit initial amounts for users
         contract
             .with_account(&user0.wallet)
             .await?
             .deposit(quote_deposit, assets.quote.id)
             .await?;
+
         contract
             .with_account(&user1.wallet)
             .await?
             .deposit(base_deposit, assets.base.id)
             .await?;
 
-        let mut order_ids: Vec<Bits256> = Vec::new();
-        for config in order_configs {
-            order_ids.push(
-                contract
-                    .with_account(&user0.wallet)
-                    .await?
-                    .open_order(config.amount, config.order_type, config.price)
-                    .await?
-                    .value,
-            );
+        // Place orders and collect order IDs
+        let mut total_fill_amount = 0;
+        let mut order_ids = Vec::new();
+
+        for config in &order_configs {
+            total_fill_amount += config.amount;
+            let order_id = contract
+                .with_account(&user0.wallet)
+                .await?
+                .open_order(config.amount, config.order_type.clone(), config.price)
+                .await?
+                .value;
+            order_ids.push(order_id);
         }
 
+        // Expected balances for user0
         let expected_account0 = create_account(0, 0, 0, quote_deposit);
-
         assert_eq!(
             contract.account(user0.identity()).await?.value,
             expected_account0
         );
 
+        // Fulfill orders
         contract
             .with_account(&user1.wallet)
             .await?
@@ -869,24 +880,21 @@ mod success_fok {
                 LimitType::FOK,
                 fulfill_order_config.price,
                 100,
-                order_ids.clone(),
+                order_ids,
             )
-            .await?
-            .value;
+            .await?;
 
-        // Adjust matcher fee accounting
-        let total_matcher_fee = matcher_fee * order_ids.len() as u64;
-
-        // Adjust expected balances to account for the matcher fee
+        // Calculate expected balances
         let expected_account0 = create_account(base_deposit, quote_delta, 0, 0);
         let expected_account1 = create_account(0, quote_deposit - quote_delta, 0, 0);
 
-        // user who filled the orders, has the matcher fee debited to them
-        assert_eq!(
-            total_matcher_fee,
-            (quote_deposit - quote_delta) - (quote_deposit - quote_delta - total_matcher_fee)
-        );
+        // Verify matcher fee
+        let total_fill_amount_in_quote =
+            total_fill_amount * (price1 / 10_u64.pow(defaults.price_decimals)) / 100;
+        let calculated_matcher_fee = quote_deposit - quote_delta - total_fill_amount_in_quote;
+        assert_eq!(total_matcher_fee, calculated_matcher_fee);
 
+        // Assert final balances
         assert_eq!(
             contract.account(user0.identity()).await?.value,
             expected_account0
