@@ -14,8 +14,7 @@ abigen!(Contract(
     abi = "market-registry/out/release/market-registry-abi.json"
 ));
 
-const ORDERBOOK_CONTRACT_BINARY_PATH: &str =
-    "../market-registry/out/release/market-registry.bin";
+const ORDERBOOK_CONTRACT_BINARY_PATH: &str = "../market-registry/out/release/market-registry.bin";
 const ORDERBOOK_CONTRACT_STORAGE_PATH: &str =
     "../market-registry/out/release/market-registry-storage_slots.json";
 

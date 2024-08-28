@@ -1,5 +1,4 @@
 use crate::setup::{create_account, setup, Defaults};
-use fuels::accounts::ViewOnlyAccount;
 use rand::Rng;
 use spark_market_sdk::{/*AssetType,*/ OrderType};
 
@@ -269,7 +268,7 @@ mod success {
     async fn fuzz_match_order_many() -> anyhow::Result<()> {
         for _ in 0..25 {
             let defaults = Defaults::default();
-            let (contract, user0, user1, assets) = setup(
+            let (contract, _, user0, user1, _, assets) = setup(
                 defaults.base_decimals,
                 defaults.quote_decimals,
                 defaults.price_decimals,

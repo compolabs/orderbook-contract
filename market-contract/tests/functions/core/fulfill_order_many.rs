@@ -1,7 +1,6 @@
 use crate::setup::{create_account, setup, Defaults};
-use fuels::accounts::ViewOnlyAccount;
 use rand::Rng;
-use spark_market_sdk::{/*AssetType,*/ LimitType, OrderType};
+use spark_market_sdk::{LimitType, OrderType, ProtocolFee};
 
 mod success_ioc {
 
@@ -334,7 +333,7 @@ mod success_ioc {
 
         for _ in 0..25 {
             let defaults = Defaults::default();
-            let (contract, user0, user1, assets) = setup(
+            let (contract, user0, user1, _, _, assets) = setup(
                 defaults.base_decimals,
                 defaults.quote_decimals,
                 defaults.price_decimals,
@@ -397,8 +396,8 @@ mod success_ioc {
                 );
             }
 
-            let user0_account_t0 = contract.account(user0.identity()).await?.value.unwrap();
-            let user1_account_t0 = contract.account(user1.identity()).await?.value.unwrap();
+            let user0_account_t0 = contract.account(user0.identity()).await?.value;
+            let user1_account_t0 = contract.account(user1.identity()).await?.value;
 
             contract
                 .with_account(&user1.wallet)
@@ -414,8 +413,8 @@ mod success_ioc {
                 .await?
                 .value;
 
-            let user0_account_t1 = contract.account(user0.identity()).await?.value.unwrap();
-            let user1_account_t1 = contract.account(user1.identity()).await?.value.unwrap();
+            let user0_account_t1 = contract.account(user0.identity()).await?.value;
+            let user1_account_t1 = contract.account(user1.identity()).await?.value;
 
             // open order balance decreased
             assert!(user0_account_t1.locked.quote < user0_account_t0.locked.quote);
@@ -1014,8 +1013,8 @@ mod success_fok {
     }
 
     #[tokio::test]
-    async fn fulfill_order_many_same_asset_type_equal_orders_with_protocol_fee() -> anyhow::Result<()>
-    {
+    async fn fulfill_order_many_same_asset_type_equal_orders_with_protocol_fee(
+    ) -> anyhow::Result<()> {
         let defaults = Defaults::default();
         let (contract, owner, user0, user1, _, assets) = setup(
             defaults.base_decimals,
@@ -1064,8 +1063,8 @@ mod success_fok {
 
         // Calculate deposits
         let base_deposit = fulfill_order_config.amount;
-        let quote_deposit = 2 * price1 / to_quote_scale * base_amount
-            + 3 * price2 / to_quote_scale * base_amount;
+        let quote_deposit =
+            2 * price1 / to_quote_scale * base_amount + 3 * price2 / to_quote_scale * base_amount;
         let max_protocol_fee = quote_deposit
             * std::cmp::max(protocol_fee[0].maker_fee, protocol_fee[0].taker_fee)
             / 10_000;
@@ -1122,8 +1121,14 @@ mod success_fok {
             .await?;
 
         // Calculate expected balances
-        let expected_account_owner = create_account(0, maker_protocol_fee + taker_protocol_fee, 0, 0);
-        let expected_account0 = create_account(base_deposit, quote_deposit - trade_volume - maker_protocol_fee, 0, 0);
+        let expected_account_owner =
+            create_account(0, maker_protocol_fee + taker_protocol_fee, 0, 0);
+        let expected_account0 = create_account(
+            base_deposit,
+            quote_deposit - trade_volume - maker_protocol_fee,
+            0,
+            0,
+        );
         let expected_account1 = create_account(0, trade_volume - taker_protocol_fee, 0, 0);
 
         // Assert final balances

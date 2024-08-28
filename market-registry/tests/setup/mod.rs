@@ -1,8 +1,8 @@
 use fuels::{
     accounts::ViewOnlyAccount,
     prelude::{
-        launch_custom_provider_and_get_wallets, Address, AssetConfig, AssetId,
-        WalletUnlocked, WalletsConfig,
+        launch_custom_provider_and_get_wallets, Address, AssetConfig, AssetId, WalletUnlocked,
+        WalletsConfig,
     },
     types::Identity,
 };
