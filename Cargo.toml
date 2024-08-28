@@ -16,6 +16,5 @@ rust-version = "1.79.0"
 
 [workspace.dependencies]
 anyhow = "1.0.86"
-fuels = { version = "0.65.1", features = ["fuel-core-lib"] }
-tokio = { version = "1.38", features = ["rt", "macros"] }
-
+fuels = { version = "0.66.2", features = ["fuel-core-lib"] }
+tokio = { version = "1.39.3", features = ["rt", "macros"] }

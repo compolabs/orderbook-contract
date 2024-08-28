@@ -1,314 +1,311 @@
 {
-  "encoding": "1",
-  "types": [
+  "programType": "contract",
+  "specVersion": "1",
+  "encodingVersion": "1",
+  "concreteTypes": [
     {
-      "typeId": 0,
       "type": "()",
-      "components": [],
-      "typeParameters": null
+      "concreteTypeId": "2e38e77b22c314a449e91fafed92a43826ac6aa403ae6a8acb6cf58239fbaf5d"
     },
     {
-      "typeId": 1,
+      "type": "(struct std::address::Address, u32)",
+      "concreteTypeId": "24adc22ce19c83012fe99cf2fa649f86e6e8ce9053543d9c641f907273616e2a",
+      "metadataTypeId": 0
+    },
+    {
+      "type": "(struct std::asset_id::AssetId, struct std::asset_id::AssetId)",
+      "concreteTypeId": "d3ddf84f691d572b4313a7be3ae1d8b67fe9061c281ff6ae955e4c4441524f92",
+      "metadataTypeId": 1
+    },
+    {
+      "type": "(struct std::asset_id::AssetId, struct std::asset_id::AssetId, enum std::option::Option<struct std::contract_id::ContractId>)",
+      "concreteTypeId": "ebac2eda4e76df30d6c6d33c546e9423167d2e38b538752e7ae5b31e6fc772df",
+      "metadataTypeId": 2
+    },
+    {
+      "type": "enum errors::AuthError",
+      "concreteTypeId": "06c3d78f1057db580eb36dc2fc04ebd7407f4a4e954417b6761844fe38ee1a5d",
+      "metadataTypeId": 4
+    },
+    {
+      "type": "enum errors::OrderbookError",
+      "concreteTypeId": "3eb547542e0a8ac0ab5f91b2d15e72cf26f90968c806b45aa65ce22c3efa1f4d",
+      "metadataTypeId": 5
+    },
+    {
+      "type": "struct events::MarketRegisterEvent",
+      "concreteTypeId": "e559511bc70821c6e5333f8fe558060c41a83e157902640537145a83fe39911c",
+      "metadataTypeId": 9
+    },
+    {
+      "type": "struct events::MarketUnregisterEvent",
+      "concreteTypeId": "78914643255fa4cad1546556baf0eb607cc71b603273e23c79caef436311a897",
+      "metadataTypeId": 10
+    },
+    {
+      "type": "struct std::address::Address",
+      "concreteTypeId": "f597b637c3b0f588fb8d7086c6f4735caa3122b85f0423b82e489f9bb58e2308",
+      "metadataTypeId": 11
+    },
+    {
+      "type": "struct std::contract_id::ContractId",
+      "concreteTypeId": "29c10735d33b5159f0c71ee1dbd17b36a3e69e41f00fab0d42e1bd9f428d8a54",
+      "metadataTypeId": 13
+    },
+    {
+      "type": "struct std::vec::Vec<(struct std::asset_id::AssetId, struct std::asset_id::AssetId)>",
+      "concreteTypeId": "6447a267e9d2fb14747f1d0aac4c6698545574e97ab28e075201fd7fa1f0400e",
+      "metadataTypeId": 15,
+      "typeArguments": [
+        "d3ddf84f691d572b4313a7be3ae1d8b67fe9061c281ff6ae955e4c4441524f92"
+      ]
+    },
+    {
+      "type": "struct std::vec::Vec<(struct std::asset_id::AssetId, struct std::asset_id::AssetId, enum std::option::Option<struct std::contract_id::ContractId>)>",
+      "concreteTypeId": "1188c4d215c8979c27750c27dbb0e8ab6b1a113d969fb16256fee601c9dc8f73",
+      "metadataTypeId": 15,
+      "typeArguments": [
+        "ebac2eda4e76df30d6c6d33c546e9423167d2e38b538752e7ae5b31e6fc772df"
+      ]
+    },
+    {
+      "type": "u32",
+      "concreteTypeId": "d7649d428b9ff33d188ecbf38a7e4d8fd167fa01b2e10fe9a8f9308e52f1d7cc"
+    }
+  ],
+  "metadataTypes": [
+    {
       "type": "(_, _)",
+      "metadataTypeId": 0,
       "components": [
         {
           "name": "__tuple_element",
-          "type": 10,
-          "typeArguments": null
+          "typeId": 11
         },
         {
           "name": "__tuple_element",
-          "type": 17,
-          "typeArguments": null
+          "typeId": "d7649d428b9ff33d188ecbf38a7e4d8fd167fa01b2e10fe9a8f9308e52f1d7cc"
         }
-      ],
-      "typeParameters": null
+      ]
     },
     {
-      "typeId": 2,
       "type": "(_, _)",
+      "metadataTypeId": 1,
       "components": [
         {
           "name": "__tuple_element",
-          "type": 11,
-          "typeArguments": null
+          "typeId": 12
         },
         {
           "name": "__tuple_element",
-          "type": 11,
-          "typeArguments": null
+          "typeId": 12
         }
-      ],
-      "typeParameters": null
+      ]
     },
     {
-      "typeId": 3,
       "type": "(_, _, _)",
+      "metadataTypeId": 2,
       "components": [
         {
           "name": "__tuple_element",
-          "type": 11,
-          "typeArguments": null
+          "typeId": 12
         },
         {
           "name": "__tuple_element",
-          "type": 11,
-          "typeArguments": null
+          "typeId": 12
         },
         {
           "name": "__tuple_element",
-          "type": 6,
+          "typeId": 6,
           "typeArguments": [
             {
               "name": "",
-              "type": 12,
-              "typeArguments": null
+              "typeId": 13
             }
           ]
         }
-      ],
-      "typeParameters": null
+      ]
     },
     {
-      "typeId": 4,
       "type": "b256",
-      "components": null,
-      "typeParameters": null
+      "metadataTypeId": 3
     },
     {
-      "typeId": 5,
-      "type": "enum AuthError",
+      "type": "enum errors::AuthError",
+      "metadataTypeId": 4,
       "components": [
         {
           "name": "Unauthorized",
-          "type": 0,
-          "typeArguments": null
+          "typeId": "2e38e77b22c314a449e91fafed92a43826ac6aa403ae6a8acb6cf58239fbaf5d"
         }
-      ],
-      "typeParameters": null
-    },
-    {
-      "typeId": 6,
-      "type": "enum Option",
-      "components": [
-        {
-          "name": "None",
-          "type": 0,
-          "typeArguments": null
-        },
-        {
-          "name": "Some",
-          "type": 8,
-          "typeArguments": null
-        }
-      ],
-      "typeParameters": [
-        8
       ]
     },
     {
-      "typeId": 7,
-      "type": "enum OrderbookError",
+      "type": "enum errors::OrderbookError",
+      "metadataTypeId": 5,
       "components": [
         {
           "name": "MarketAlreadyRegistered",
-          "type": 0,
-          "typeArguments": null
+          "typeId": "2e38e77b22c314a449e91fafed92a43826ac6aa403ae6a8acb6cf58239fbaf5d"
         },
         {
           "name": "MarketNotRegistered",
-          "type": 0,
-          "typeArguments": null
+          "typeId": "2e38e77b22c314a449e91fafed92a43826ac6aa403ae6a8acb6cf58239fbaf5d"
         }
-      ],
-      "typeParameters": null
-    },
-    {
-      "typeId": 8,
-      "type": "generic T",
-      "components": null,
-      "typeParameters": null
-    },
-    {
-      "typeId": 9,
-      "type": "raw untyped ptr",
-      "components": null,
-      "typeParameters": null
-    },
-    {
-      "typeId": 10,
-      "type": "struct Address",
-      "components": [
-        {
-          "name": "bits",
-          "type": 4,
-          "typeArguments": null
-        }
-      ],
-      "typeParameters": null
-    },
-    {
-      "typeId": 11,
-      "type": "struct AssetId",
-      "components": [
-        {
-          "name": "bits",
-          "type": 4,
-          "typeArguments": null
-        }
-      ],
-      "typeParameters": null
-    },
-    {
-      "typeId": 12,
-      "type": "struct ContractId",
-      "components": [
-        {
-          "name": "bits",
-          "type": 4,
-          "typeArguments": null
-        }
-      ],
-      "typeParameters": null
-    },
-    {
-      "typeId": 13,
-      "type": "struct MarketRegisterEvent",
-      "components": [
-        {
-          "name": "base",
-          "type": 11,
-          "typeArguments": null
-        },
-        {
-          "name": "quote",
-          "type": 11,
-          "typeArguments": null
-        },
-        {
-          "name": "market",
-          "type": 12,
-          "typeArguments": null
-        }
-      ],
-      "typeParameters": null
-    },
-    {
-      "typeId": 14,
-      "type": "struct MarketUnregisterEvent",
-      "components": [
-        {
-          "name": "base",
-          "type": 11,
-          "typeArguments": null
-        },
-        {
-          "name": "quote",
-          "type": 11,
-          "typeArguments": null
-        },
-        {
-          "name": "market",
-          "type": 12,
-          "typeArguments": null
-        }
-      ],
-      "typeParameters": null
-    },
-    {
-      "typeId": 15,
-      "type": "struct RawVec",
-      "components": [
-        {
-          "name": "ptr",
-          "type": 9,
-          "typeArguments": null
-        },
-        {
-          "name": "cap",
-          "type": 18,
-          "typeArguments": null
-        }
-      ],
-      "typeParameters": [
-        8
       ]
     },
     {
-      "typeId": 16,
-      "type": "struct Vec",
+      "type": "enum std::option::Option",
+      "metadataTypeId": 6,
+      "components": [
+        {
+          "name": "None",
+          "typeId": "2e38e77b22c314a449e91fafed92a43826ac6aa403ae6a8acb6cf58239fbaf5d"
+        },
+        {
+          "name": "Some",
+          "typeId": 7
+        }
+      ],
+      "typeParameters": [
+        7
+      ]
+    },
+    {
+      "type": "generic T",
+      "metadataTypeId": 7
+    },
+    {
+      "type": "raw untyped ptr",
+      "metadataTypeId": 8
+    },
+    {
+      "type": "struct events::MarketRegisterEvent",
+      "metadataTypeId": 9,
+      "components": [
+        {
+          "name": "base",
+          "typeId": 12
+        },
+        {
+          "name": "quote",
+          "typeId": 12
+        },
+        {
+          "name": "market",
+          "typeId": 13
+        }
+      ]
+    },
+    {
+      "type": "struct events::MarketUnregisterEvent",
+      "metadataTypeId": 10,
+      "components": [
+        {
+          "name": "base",
+          "typeId": 12
+        },
+        {
+          "name": "quote",
+          "typeId": 12
+        },
+        {
+          "name": "market",
+          "typeId": 13
+        }
+      ]
+    },
+    {
+      "type": "struct std::address::Address",
+      "metadataTypeId": 11,
+      "components": [
+        {
+          "name": "bits",
+          "typeId": 3
+        }
+      ]
+    },
+    {
+      "type": "struct std::asset_id::AssetId",
+      "metadataTypeId": 12,
+      "components": [
+        {
+          "name": "bits",
+          "typeId": 3
+        }
+      ]
+    },
+    {
+      "type": "struct std::contract_id::ContractId",
+      "metadataTypeId": 13,
+      "components": [
+        {
+          "name": "bits",
+          "typeId": 3
+        }
+      ]
+    },
+    {
+      "type": "struct std::vec::RawVec",
+      "metadataTypeId": 14,
+      "components": [
+        {
+          "name": "ptr",
+          "typeId": 8
+        },
+        {
+          "name": "cap",
+          "typeId": 16
+        }
+      ],
+      "typeParameters": [
+        7
+      ]
+    },
+    {
+      "type": "struct std::vec::Vec",
+      "metadataTypeId": 15,
       "components": [
         {
           "name": "buf",
-          "type": 15,
+          "typeId": 14,
           "typeArguments": [
             {
               "name": "",
-              "type": 8,
-              "typeArguments": null
+              "typeId": 7
             }
           ]
         },
         {
           "name": "len",
-          "type": 18,
-          "typeArguments": null
+          "typeId": 16
         }
       ],
       "typeParameters": [
-        8
+        7
       ]
     },
     {
-      "typeId": 17,
-      "type": "u32",
-      "components": null,
-      "typeParameters": null
-    },
-    {
-      "typeId": 18,
       "type": "u64",
-      "components": null,
-      "typeParameters": null
+      "metadataTypeId": 16
     }
   ],
   "functions": [
     {
       "inputs": [],
       "name": "config",
-      "output": {
-        "name": "",
-        "type": 1,
-        "typeArguments": null
-      },
+      "output": "24adc22ce19c83012fe99cf2fa649f86e6e8ce9053543d9c641f907273616e2a",
       "attributes": null
     },
     {
       "inputs": [
         {
           "name": "market_assets",
-          "type": 16,
-          "typeArguments": [
-            {
-              "name": "",
-              "type": 2,
-              "typeArguments": null
-            }
-          ]
+          "concreteTypeId": "6447a267e9d2fb14747f1d0aac4c6698545574e97ab28e075201fd7fa1f0400e"
         }
       ],
       "name": "markets",
-      "output": {
-        "name": "",
-        "type": 16,
-        "typeArguments": [
-          {
-            "name": "",
-            "type": 3,
-            "typeArguments": null
-          }
-        ]
-      },
+      "output": "1188c4d215c8979c27750c27dbb0e8ab6b1a113d969fb16256fee601c9dc8f73",
       "attributes": [
         {
           "name": "storage",
@@ -322,16 +319,11 @@
       "inputs": [
         {
           "name": "market",
-          "type": 12,
-          "typeArguments": null
+          "concreteTypeId": "29c10735d33b5159f0c71ee1dbd17b36a3e69e41f00fab0d42e1bd9f428d8a54"
         }
       ],
       "name": "register_market",
-      "output": {
-        "name": "",
-        "type": 0,
-        "typeArguments": null
-      },
+      "output": "2e38e77b22c314a449e91fafed92a43826ac6aa403ae6a8acb6cf58239fbaf5d",
       "attributes": [
         {
           "name": "storage",
@@ -346,16 +338,11 @@
       "inputs": [
         {
           "name": "market",
-          "type": 12,
-          "typeArguments": null
+          "concreteTypeId": "29c10735d33b5159f0c71ee1dbd17b36a3e69e41f00fab0d42e1bd9f428d8a54"
         }
       ],
       "name": "unregister_market",
-      "output": {
-        "name": "",
-        "type": 0,
-        "typeArguments": null
-      },
+      "output": "2e38e77b22c314a449e91fafed92a43826ac6aa403ae6a8acb6cf58239fbaf5d",
       "attributes": [
         {
           "name": "storage",
@@ -369,56 +356,32 @@
   "loggedTypes": [
     {
       "logId": "487470194140633944",
-      "loggedType": {
-        "name": "",
-        "type": 5,
-        "typeArguments": []
-      }
+      "concreteTypeId": "06c3d78f1057db580eb36dc2fc04ebd7407f4a4e954417b6761844fe38ee1a5d"
     },
     {
       "logId": "4518596228011428544",
-      "loggedType": {
-        "name": "",
-        "type": 7,
-        "typeArguments": []
-      }
+      "concreteTypeId": "3eb547542e0a8ac0ab5f91b2d15e72cf26f90968c806b45aa65ce22c3efa1f4d"
     },
     {
       "logId": "16526329487357911494",
-      "loggedType": {
-        "name": "",
-        "type": 13,
-        "typeArguments": []
-      }
+      "concreteTypeId": "e559511bc70821c6e5333f8fe558060c41a83e157902640537145a83fe39911c"
     },
     {
       "logId": "8687802410378175690",
-      "loggedType": {
-        "name": "",
-        "type": 14,
-        "typeArguments": []
-      }
+      "concreteTypeId": "78914643255fa4cad1546556baf0eb607cc71b603273e23c79caef436311a897"
     }
   ],
   "messagesTypes": [],
   "configurables": [
     {
       "name": "OWNER",
-      "configurableType": {
-        "name": "",
-        "type": 10,
-        "typeArguments": []
-      },
-      "offset": 16344
+      "concreteTypeId": "f597b637c3b0f588fb8d7086c6f4735caa3122b85f0423b82e489f9bb58e2308",
+      "offset": 18240
     },
     {
       "name": "VERSION",
-      "configurableType": {
-        "name": "",
-        "type": 17,
-        "typeArguments": null
-      },
-      "offset": 16376
+      "concreteTypeId": "d7649d428b9ff33d188ecbf38a7e4d8fd167fa01b2e10fe9a8f9308e52f1d7cc",
+      "offset": 18272
     }
   ]
 }

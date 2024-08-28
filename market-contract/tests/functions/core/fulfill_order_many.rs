@@ -1,5 +1,4 @@
 use crate::setup::{create_account, setup, Defaults};
-use fuels::accounts::ViewOnlyAccount;
 use spark_market_sdk::{LimitType, OrderType};
 
 mod success_ioc {
@@ -330,7 +329,7 @@ mod success_ioc {
     async fn fulfill_order_many_same_asset_type_equal_orders_with_matcher_fee() -> anyhow::Result<()>
     {
         let defaults = Defaults::default();
-        let (contract, user0, user1, matcher, _, assets) = setup(
+        let (contract, user0, user1, _, _, assets) = setup(
             defaults.base_decimals,
             defaults.quote_decimals,
             defaults.price_decimals,
