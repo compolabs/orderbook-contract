@@ -1,5 +1,5 @@
 use crate::setup::{setup, Defaults};
-use spark_market_sdk::OrderType;
+use spark_market_sdk::{OrderType, ProtocolFee};
 
 mod success {
 
@@ -17,6 +17,16 @@ mod success {
             defaults.price_decimals,
         )
         .await?;
+
+        let matcher_fee = 100_000_u64;
+        let _ = contract.set_matcher_fee(matcher_fee).await?;
+
+        let protocol_fee = vec![ProtocolFee {
+            maker_fee: 10,
+            taker_fee: 15,
+            volume_threshold: 0,
+        }];
+        let _ = contract.set_protocol_fee(protocol_fee.clone()).await?;
 
         let deposit_amount = 100;
         let order_amount = 1;
@@ -66,7 +76,20 @@ mod success {
         .await?;
         let provider = owner.wallet.try_provider()?;
 
+        let matcher_fee = 100_u64;
+        let _ = contract.set_matcher_fee(matcher_fee).await?;
+
+        let protocol_fee = vec![ProtocolFee {
+            maker_fee: 10,
+            taker_fee: 15,
+            volume_threshold: 0,
+        }];
+        let _ = contract.set_protocol_fee(protocol_fee.clone()).await?;
+
         let deposit_amount = 70000;
+        let deposit_amount = deposit_amount + deposit_amount
+            * std::cmp::max(protocol_fee[0].maker_fee, protocol_fee[0].taker_fee)
+            / 10_000 + matcher_fee;
         let expected_account = create_account(0, deposit_amount, 0, 0);
 
         let order_amount = 100;

@@ -12,7 +12,6 @@ pub(crate) struct Assets {
     pub(crate) base: Asset,
     pub(crate) quote: Asset,
     pub(crate) random: Asset,
-    pub(crate) fuel: Asset,
 }
 
 pub(crate) struct Asset {
@@ -121,10 +120,6 @@ pub(crate) async fn setup(
         random: Asset {
             id: random_asset_id,
             decimals: 10,
-        },
-        fuel: Asset {
-            id: fuel_asset_id,
-            decimals: 9,
         },
     };
 

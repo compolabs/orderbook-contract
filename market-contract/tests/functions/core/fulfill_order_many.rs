@@ -1,5 +1,5 @@
 use crate::setup::{create_account, setup, Defaults};
-use spark_market_sdk::{LimitType, OrderType};
+use spark_market_sdk::{LimitType, OrderType, ProtocolFee};
 
 mod success_ioc {
 
@@ -16,7 +16,7 @@ mod success_ioc {
     #[tokio::test]
     async fn fulfill_order_many_same_asset_type_equal_orders() -> anyhow::Result<()> {
         let defaults = Defaults::default();
-        let (contract, user0, user1, _, _, assets) = setup(
+        let (contract, _, user0, user1, _, assets) = setup(
             defaults.base_decimals,
             defaults.quote_decimals,
             defaults.price_decimals,
@@ -121,7 +121,7 @@ mod success_ioc {
     #[tokio::test]
     async fn fulfill_order_many_same_asset_type_partial_fulfill_1() -> anyhow::Result<()> {
         let defaults = Defaults::default();
-        let (contract, user0, user1, _, _, assets) = setup(
+        let (contract, _, user0, user1, _, assets) = setup(
             defaults.base_decimals,
             defaults.quote_decimals,
             defaults.price_decimals,
@@ -222,7 +222,7 @@ mod success_ioc {
     #[tokio::test]
     async fn fulfill_order_many_same_asset_type_partial_fulfill_2() -> anyhow::Result<()> {
         let defaults = Defaults::default();
-        let (contract, user0, user1, _, _, assets) = setup(
+        let (contract, _, user0, user1, _, assets) = setup(
             defaults.base_decimals,
             defaults.quote_decimals,
             defaults.price_decimals,
@@ -329,7 +329,7 @@ mod success_ioc {
     async fn fulfill_order_many_same_asset_type_equal_orders_with_matcher_fee() -> anyhow::Result<()>
     {
         let defaults = Defaults::default();
-        let (contract, user0, user1, _, _, assets) = setup(
+        let (contract, _, user0, user1, _, assets) = setup(
             defaults.base_decimals,
             defaults.quote_decimals,
             defaults.price_decimals,
@@ -468,7 +468,7 @@ mod success_fok {
     #[tokio::test]
     async fn fulfill_order_many_same_asset_type_equal_orders() -> anyhow::Result<()> {
         let defaults = Defaults::default();
-        let (contract, user0, user1, _, _, assets) = setup(
+        let (contract, _, user0, user1, _, assets) = setup(
             defaults.base_decimals,
             defaults.quote_decimals,
             defaults.price_decimals,
@@ -573,7 +573,7 @@ mod success_fok {
     #[tokio::test]
     async fn fulfill_order_many_same_asset_type_partial_fulfill_1() -> anyhow::Result<()> {
         let defaults = Defaults::default();
-        let (contract, user0, user1, _, _, assets) = setup(
+        let (contract, _, user0, user1, _, assets) = setup(
             defaults.base_decimals,
             defaults.quote_decimals,
             defaults.price_decimals,
@@ -674,7 +674,7 @@ mod success_fok {
     #[tokio::test]
     async fn fulfill_order_many_same_asset_type_partial_fulfill_2() -> anyhow::Result<()> {
         let defaults = Defaults::default();
-        let (contract, user0, user1, _, _, assets) = setup(
+        let (contract, _, user0, user1, _, assets) = setup(
             defaults.base_decimals,
             defaults.quote_decimals,
             defaults.price_decimals,
@@ -781,7 +781,7 @@ mod success_fok {
     async fn fulfill_order_many_same_asset_type_equal_orders_with_matcher_fee() -> anyhow::Result<()>
     {
         let defaults = Defaults::default();
-        let (contract, user0, user1, _, _, assets) = setup(
+        let (contract, _, user0, user1, _, assets) = setup(
             defaults.base_decimals,
             defaults.quote_decimals,
             defaults.price_decimals,
@@ -894,6 +894,136 @@ mod success_fok {
         assert_eq!(total_matcher_fee, calculated_matcher_fee);
 
         // Assert final balances
+        assert_eq!(
+            contract.account(user0.identity()).await?.value,
+            expected_account0
+        );
+        assert_eq!(
+            contract.account(user1.identity()).await?.value,
+            expected_account1
+        );
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn fulfill_order_many_same_asset_type_equal_orders_with_protocol_fee() -> anyhow::Result<()>
+    {
+        let defaults = Defaults::default();
+        let (contract, owner, user0, user1, _, assets) = setup(
+            defaults.base_decimals,
+            defaults.quote_decimals,
+            defaults.price_decimals,
+        )
+        .await?;
+
+        let protocol_fee = vec![ProtocolFee {
+            maker_fee: 10,
+            taker_fee: 15,
+            volume_threshold: 0,
+        }];
+        let _ = contract.set_protocol_fee(protocol_fee.clone()).await?;
+
+        let to_quote_scale =
+            10_u64.pow(defaults.price_decimals + defaults.base_decimals - defaults.quote_decimals);
+
+        let base_amount = 1_000_u64;
+        let price1 = 70_000_000_000_000_u64;
+        let price2 = 70_500_000_000_000_u64;
+
+        let order_configs = vec![
+            OrderConfig {
+                amount: 2 * base_amount,
+                order_type: OrderType::Buy,
+                price: price1,
+            },
+            OrderConfig {
+                amount: base_amount,
+                order_type: OrderType::Buy,
+                price: price2,
+            },
+            OrderConfig {
+                amount: 2 * base_amount,
+                order_type: OrderType::Buy,
+                price: price2,
+            },
+        ];
+
+        let fulfill_order_config = OrderConfig {
+            amount: 5 * base_amount,
+            order_type: OrderType::Sell,
+            price: price1,
+        };
+
+        // Calculate deposits
+        let base_deposit = fulfill_order_config.amount;
+        let quote_deposit = 2 * price1 / to_quote_scale * base_amount
+            + 3 * price2 / to_quote_scale * base_amount;
+        let max_protocol_fee = quote_deposit
+            * std::cmp::max(protocol_fee[0].maker_fee, protocol_fee[0].taker_fee)
+            / 10_000;
+        let quote_deposit = quote_deposit + max_protocol_fee;
+        let trade_volume = base_deposit * price1 / to_quote_scale;
+        let maker_protocol_fee = trade_volume * protocol_fee[0].maker_fee / 10_000;
+        let taker_protocol_fee = trade_volume * protocol_fee[0].taker_fee / 10_000;
+
+        // Deposit initial amounts for users
+        contract
+            .with_account(&user0.wallet)
+            .await?
+            .deposit(quote_deposit, assets.quote.id)
+            .await?;
+
+        contract
+            .with_account(&user1.wallet)
+            .await?
+            .deposit(base_deposit, assets.base.id)
+            .await?;
+
+        // Place orders and collect order IDs
+        let mut order_ids = Vec::new();
+
+        for config in &order_configs {
+            let order_id = contract
+                .with_account(&user0.wallet)
+                .await?
+                .open_order(config.amount, config.order_type.clone(), config.price)
+                .await?
+                .value;
+            order_ids.push(order_id);
+        }
+
+        // Expected balances for user0
+        let expected_account0 = create_account(0, 0, 0, quote_deposit);
+        assert_eq!(
+            contract.account(user0.identity()).await?.value,
+            expected_account0
+        );
+
+        // Fulfill orders
+        contract
+            .with_account(&user1.wallet)
+            .await?
+            .fulfill_many(
+                fulfill_order_config.amount,
+                fulfill_order_config.order_type,
+                LimitType::FOK,
+                fulfill_order_config.price,
+                100,
+                order_ids,
+            )
+            .await?;
+
+        // Calculate expected balances
+        let expected_account_owner = create_account(0, maker_protocol_fee + taker_protocol_fee, 0, 0);
+        let expected_account0 = create_account(base_deposit, quote_deposit - trade_volume - maker_protocol_fee, 0, 0);
+        let expected_account1 = create_account(0, trade_volume - taker_protocol_fee, 0, 0);
+
+        // Assert final balances
+        assert_eq!(
+            contract.account(owner.identity()).await?.value,
+            expected_account_owner
+        );
         assert_eq!(
             contract.account(user0.identity()).await?.value,
             expected_account0

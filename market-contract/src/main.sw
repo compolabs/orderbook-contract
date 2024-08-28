@@ -699,13 +699,15 @@ fn execute_trade(
     let s_trade_volume = quote_of_base_amount(trade_size, s_order.price);
     // it is trade volume reserved by buyer for trade_size
     let b_trade_volume = quote_of_base_amount(trade_size, b_order.price);
+    // delta trade volume
+    let d_trade_volume = b_trade_volume - s_trade_volume;
     // s_order.matcher_fee part for trade_size <= s_order.amount
     let s_order_matcher_fee = s_order.matcher_fee_of_amount(trade_size);
     // b_order.matcher_fee part for trade_size <= b_order.amount
     let b_order_matcher_fee = b_order.matcher_fee_of_amount(trade_size);
     // s_order.protocol_fee part for trade_size <= b_order.amount with maker/taker condition
     let s_order_protocol_fee = s_order.protocol_fee_of_amount(b_order, s_trade_volume);
-    let b_order_protocol_fee = b_order.protocol_fee_of_amount(s_order, b_trade_volume);
+    let b_order_protocol_fee = b_order.protocol_fee_of_amount(s_order, s_trade_volume);
 
     // seller - buyer deal
     if s_order.owner == b_order.owner {
@@ -714,10 +716,9 @@ fn execute_trade(
         account.unlock_amount(trade_size, asset_type);
         // unlock locked quote asset
         // if b_price > s_price unlock extra funds and its extra protocol fee
-        let trade_volume_delta = b_trade_volume - s_trade_volume;
         account.unlock_amount(
             b_trade_volume + b_order
-                .max_protocol_fee_of_amount(trade_volume_delta) - s_order_protocol_fee - s_order_matcher_fee,
+                .max_protocol_fee_of_amount(d_trade_volume) - s_order_protocol_fee - s_order_matcher_fee,
             !asset_type,
         );
         storage.account.insert(s_order.owner, account);
@@ -729,18 +730,14 @@ fn execute_trade(
         b_account.transfer_locked_amount(s_account, s_trade_volume, !asset_type);
         // lock protocol and matcher_fee for seller
         let lock_fee = s_order_protocol_fee + s_order_matcher_fee;
-        if (lock_fee > 0) {
+        if lock_fee > 0 {
             s_account.lock_amount(s_order_protocol_fee + s_order_matcher_fee, !asset_type);
         }
-        // if b_price > s_price unlock extra funds and its extra protocol fee
-        let trade_volume_delta = b_trade_volume - s_trade_volume;
-        if trade_volume_delta > 0 {
-            b_account.unlock_amount(
-                trade_volume_delta + b_order
-                    .max_protocol_fee_of_amount(trade_volume_delta),
-                !asset_type,
-            );
+        let unlock_fee = d_trade_volume + b_order.max_protocol_fee_of_amount(b_trade_volume) - b_order_protocol_fee;
+        if unlock_fee > 0 {
+            b_account.unlock_amount(unlock_fee, !asset_type);
         }
+
         // store accounts
         storage.account.insert(s_order.owner, s_account);
         storage.account.insert(b_order.owner, b_account);
