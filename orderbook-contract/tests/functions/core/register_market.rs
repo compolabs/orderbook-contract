@@ -24,11 +24,9 @@ mod success {
         let contract_id: ContractId = market.contract_id().into();
         contract
             .with_account(&admin.wallet)
-            .await
-            .unwrap()
+            .await?
             .register_market(contract_id)
-            .await
-            .unwrap();
+            .await?;
         assert_eq!(
             contract
                 .markets(vec![(base_asset, quote_asset)])

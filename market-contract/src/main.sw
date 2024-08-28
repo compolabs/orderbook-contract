@@ -717,7 +717,7 @@ fn execute_trade(
         let trade_volume_delta = b_trade_volume - s_trade_volume;
         account.unlock_amount(
             b_trade_volume + b_order
-                .max_protocol_fee_of_amount(trade_volume_delta) - s_order_matcher_fee,
+                .max_protocol_fee_of_amount(trade_volume_delta) - s_order_protocol_fee - s_order_matcher_fee,
             !asset_type,
         );
         storage.account.insert(s_order.owner, account);

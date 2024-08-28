@@ -528,6 +528,7 @@ mod success_same_asset_type {
         Ok(())
     }
 
+    #[tokio::test]
     async fn match_same_base_asset_type_orders_same_price_with_protocol_fee_same_user(
     ) -> anyhow::Result<()> {
         let defaults = Defaults::default();
