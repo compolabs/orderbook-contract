@@ -1,7 +1,7 @@
 use fuels::{
     accounts::ViewOnlyAccount,
     prelude::{
-        launch_custom_provider_and_get_wallets, Address, AssetConfig, AssetId, ContractId,
+        launch_custom_provider_and_get_wallets, Address, AssetConfig, AssetId,
         WalletUnlocked, WalletsConfig,
     },
     types::Identity,
@@ -28,10 +28,6 @@ impl User {
 
 pub(crate) fn random_asset_id(random: u8) -> AssetId {
     AssetId::new([random; 32])
-}
-
-pub(crate) fn random_contract_id() -> ContractId {
-    ContractId::new([30; 32])
 }
 
 pub(crate) async fn setup() -> anyhow::Result<(OrderbookContract, User, User)> {

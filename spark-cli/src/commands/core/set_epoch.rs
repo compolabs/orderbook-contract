@@ -4,11 +4,15 @@ use fuels::accounts::ViewOnlyAccount;
 use spark_market_sdk::MarketContract;
 
 #[derive(Args, Clone)]
-#[command(about = "Change the matcher fee for the market")]
-pub(crate) struct SetMatcherFeeCommand {
-    /// The fee to set
+#[command(about = "Change the epoch and epoch duration for the market")]
+pub(crate) struct SetEpochCommand {
+    /// The epoch to set
     #[clap(long)]
-    pub(crate) amount: u64,
+    pub(crate) epoch: u64,
+
+    /// The epoch duration to set
+    #[clap(long)]
+    pub(crate) epoch_duration: u64,
 
     /// The contract id of the market
     #[clap(long)]
@@ -20,7 +24,7 @@ pub(crate) struct SetMatcherFeeCommand {
     pub(crate) rpc: String,
 }
 
-impl SetMatcherFeeCommand {
+impl SetEpochCommand {
     pub(crate) async fn run(&self) -> anyhow::Result<()> {
         let wallet = setup(&self.rpc).await?;
         let contract_id = validate_contract_id(&self.contract_id)?;
@@ -33,7 +37,7 @@ impl SetMatcherFeeCommand {
         // Connect to the deployed contract via the rpc
         let contract = MarketContract::new(contract_id, wallet.clone()).await;
 
-        let _ = contract.set_matcher_fee(self.amount).await?;
+        let _ = contract.set_epoch(self.epoch, self.epoch_duration).await?;
 
         // Balance post-deployment
         let new_balance = wallet
@@ -41,7 +45,10 @@ impl SetMatcherFeeCommand {
             .await?;
 
         // TODO: replace println with tracing
-        println!("\nThe matcher fee has been set to: {}", self.amount);
+        println!(
+            "\nThe epoch and duration have been set to: {}, {}",
+            self.epoch, self.epoch_duration
+        );
         println!("Contract call cost: {}", balance - new_balance);
 
         Ok(())

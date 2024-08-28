@@ -1,13 +1,12 @@
 use crate::utils::{setup, validate_contract_id, AccountType};
 use clap::Args;
-use fuels::accounts::ViewOnlyAccount;
 use fuels::types::{Address, ContractId, Identity};
 use spark_market_sdk::MarketContract;
 use std::str::FromStr;
 
 #[derive(Args, Clone)]
-#[command(about = "Query the account info for a user")]
-pub(crate) struct AccountCommand {
+#[command(about = "Query the protocol fee user")]
+pub(crate) struct ProtocolFeeUserCommand {
     /// The b256 id of the account
     #[clap(long)]
     pub(crate) account_id: String,
@@ -26,32 +25,31 @@ pub(crate) struct AccountCommand {
     pub(crate) rpc: String,
 }
 
-impl AccountCommand {
+impl ProtocolFeeUserCommand {
     pub(crate) async fn run(&self) -> anyhow::Result<()> {
         let wallet = setup(&self.rpc).await?;
         let contract_id = validate_contract_id(&self.contract_id)?;
 
         // Connect to the deployed contract via the rpc
-        let contract = MarketContract::new(contract_id, wallet.clone()).await;
+        let contract = MarketContract::new(contract_id, wallet).await;
 
         let account = match self.account_type {
             AccountType::Address => {
                 let address = Address::from_str(&self.account_id).expect("Invalid address");
-                contract.account(Identity::Address(address)).await?.value
+                Identity::Address(address)
             }
             AccountType::Contract => {
                 let address = ContractId::from_str(&self.account_id).expect("Invalid contract id");
-                contract.account(Identity::ContractId(address)).await?.value
+                Identity::ContractId(address)
             }
         };
 
-        let balance = wallet
-            .get_asset_balance(&wallet.provider().unwrap().base_asset_id())
-            .await?;
-        println!("\nContract base asset balance: {}", balance);
+        let protocol_fee_user = contract.protocol_fee_user(account).await?.value;
 
-        // TODO: replace println with tracing
-        println!("\n{:#?}", account);
+        println!(
+            "Protocol Fee: for {:?} (maker_fee, taker_fee) ({}, {})",
+            account, protocol_fee_user.0, protocol_fee_user.1
+        );
 
         Ok(())
     }

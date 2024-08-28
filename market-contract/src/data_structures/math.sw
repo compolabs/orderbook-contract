@@ -1,8 +1,9 @@
 library;
 
-use ::data_structures::{asset_type::AssetType, order::Order, order_type::OrderType};
-
+use ::data_structures::asset_type::AssetType;
 use std::u128::U128;
+
+pub const HUNDRED_PERCENT = 10_000;
 
 impl u64 {
     pub fn mul_div(self, mul_to: u64, div_to: u64) -> u64 {
@@ -21,25 +22,6 @@ impl u64 {
             0
         };
         div_result.as_u64().unwrap() + add
-    }
-}
-
-pub fn convert(
-    amount: u64,
-    base_asset_decimals: u32,
-    base_price: u64,
-    price_decimals: u32,
-    quote_asset_decimals: u32,
-    base_to_quote: bool,
-) -> u64 {
-    let (op1, op2) = (
-        base_price,
-        10_u64.pow(base_asset_decimals + price_decimals - quote_asset_decimals),
-    );
-    if base_to_quote {
-        amount.mul_div(op1, op2)
-    } else {
-        amount.mul_div(op2, op1)
     }
 }
 

@@ -8,7 +8,7 @@ mod success {
     #[tokio::test]
     async fn sets_matcher_fee() -> anyhow::Result<()> {
         let defaults = Defaults::default();
-        let (contract, _owner, _, _assets) = setup(
+        let (contract, _owner, _, _, _, _assets) = setup(
             defaults.base_decimals,
             defaults.quote_decimals,
             defaults.price_decimals,
@@ -47,7 +47,7 @@ mod revert {
     #[should_panic(expected = "Unauthorized")]
     async fn reverts_when_non_owner() {
         let defaults = Defaults::default();
-        let (contract, _owner, user, _assets) = setup(
+        let (contract, _owner, user, _, _, _) = setup(
             defaults.base_decimals,
             defaults.quote_decimals,
             defaults.price_decimals,

@@ -18,7 +18,7 @@ storage {
 }
 
 abi MarketInfo {
-    fn config() -> (Address, AssetId, u32, AssetId, u32, u32, AssetId, u32);
+    fn config() -> (AssetId, u32, AssetId, u32, Identity, u32, u32);
 }
 
 abi Orderbook {
@@ -104,7 +104,7 @@ impl Orderbook for Contract {
 }
 
 fn market_assets(market: ContractId) -> (AssetId, AssetId) {
-    let (_, base, _, quote, _, _, _, _) = abi(MarketInfo, market.into()).config();
+    let (base, _, quote, _, _, _, _) = abi(MarketInfo, market.into()).config();
     (base, quote)
 }
 

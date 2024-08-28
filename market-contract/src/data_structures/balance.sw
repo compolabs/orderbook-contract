@@ -28,14 +28,14 @@ impl Balance {
             AssetType::Base => {
                 require(
                     amount <= self.base,
-                    AccountError::InsufficientBalance((self.base, amount)),
+                    AccountError::InsufficientBalance((self.base, amount, true)),
                 );
                 self.base -= amount;
             },
             AssetType::Quote => {
                 require(
                     amount <= self.quote,
-                    AccountError::InsufficientBalance((self.quote, amount)),
+                    AccountError::InsufficientBalance((self.quote, amount, false)),
                 );
                 self.quote -= amount;
             }

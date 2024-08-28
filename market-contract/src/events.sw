@@ -1,6 +1,11 @@
 library;
 
-use ::data_structures::{asset_type::AssetType, order_type::OrderType};
+use ::data_structures::{
+    asset_type::AssetType,
+    limit_type::LimitType,
+    order_type::OrderType,
+    protocol_fee::ProtocolFee,
+};
 
 pub struct CancelOrderEvent {
     pub order_id: b256,
@@ -21,12 +26,17 @@ pub struct OpenOrderEvent {
     pub user: Identity,
 }
 
+pub struct SetEpochEvent {
+    pub epoch: u64,
+    pub epoch_duration: u64,
+}
+
 pub struct SetProtocolFeeEvent {
-    pub amount: u32,
+    pub protocol_fee: Vec<ProtocolFee>,
 }
 
 pub struct SetMatcherRewardEvent {
-    pub amount: u32,
+    pub amount: u64,
 }
 
 pub struct MatchOrderEvent {
@@ -42,21 +52,19 @@ pub struct MatchOrderEvent {
 pub struct TradeOrderEvent {
     pub base_sell_order_id: b256,
     pub base_buy_order_id: b256,
+    pub base_sell_order_limit: LimitType,
+    pub base_buy_order_limit: LimitType,
     pub order_matcher: Identity,
     pub trade_size: u64,
     pub trade_price: u64,
     pub block_height: u32,
     pub tx_id: b256,
+    pub order_seller: Identity,
+    pub order_buyer: Identity,
 }
 
 pub struct WithdrawEvent {
     pub amount: u64,
     pub asset: AssetId,
     pub user: Identity,
-}
-
-pub struct WithdrawProtocolFeeEvent {
-    pub amount: u64,
-    pub to: Identity,
-    pub owner: Identity,
 }

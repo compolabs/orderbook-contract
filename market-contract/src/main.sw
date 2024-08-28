@@ -5,7 +5,6 @@ mod errors;
 mod data_structures;
 mod events;
 mod interface;
-mod math;
 
 use ::data_structures::{
     account::Account,
@@ -13,10 +12,13 @@ use ::data_structures::{
     balance::Balance,
     limit_type::LimitType,
     match_result::MatchResult,
+    math::*,
     order::Order,
     order_change::OrderChangeInfo,
     order_change::OrderChangeType,
     order_type::OrderType,
+    protocol_fee::*,
+    user_volume::UserVolume,
 };
 use ::errors::{AccountError, AssetError, AuthError, MatchError, OrderError, ValueError};
 use ::events::{
@@ -24,26 +26,21 @@ use ::events::{
     DepositEvent,
     MatchOrderEvent,
     OpenOrderEvent,
+    SetEpochEvent,
     SetMatcherRewardEvent,
     SetProtocolFeeEvent,
     TradeOrderEvent,
     WithdrawEvent,
-    WithdrawProtocolFeeEvent,
 };
 use ::interface::{Market, MarketInfo};
-use ::math::*;
 
 use std::{
     asset::transfer,
     block::height as block_height,
+    block::timestamp as block_timestamp,
     call_frames::msg_asset_id,
-    constants::ZERO_B256,
     context::msg_amount,
-    contract_id::ContractId,
-    hash::{
-        Hash,
-        sha256,
-    },
+    hash::Hash,
     storage::storage_vec::*,
     tx::tx_id,
 };
@@ -51,15 +48,12 @@ use std::{
 use sway_libs::reentrancy::*;
 
 configurable {
-    BASE_ASSET: AssetId = AssetId::from(ZERO_B256),
+    BASE_ASSET: AssetId = AssetId::zero(),
     BASE_ASSET_DECIMALS: u32 = 9,
-    OWNER: Address = Address::from(ZERO_B256),
-    PRICE_DECIMALS: u32 = 9,
-    QUOTE_ASSET: AssetId = AssetId::from(ZERO_B256),
+    QUOTE_ASSET: AssetId = AssetId::zero(),
     QUOTE_ASSET_DECIMALS: u32 = 9,
-    FUEL_ASSET: AssetId = AssetId::from(ZERO_B256),
-    ETH_BASE_PRICE: u64 = 189200000000,
-    ETH_QUOTE_PRICE: u64 = 292300000,
+    OWNER: Identity = Identity::Address(Address::zero()),
+    PRICE_DECIMALS: u32 = 9,
     VERSION: u32 = 0,
 }
 
@@ -75,14 +69,18 @@ storage {
     // Temporary order change log structure for indexer debug
     order_change_info: StorageMap<b256, StorageVec<OrderChangeInfo>> = StorageMap {},
     // Protocol fee
-    protocol_fee: u32 = 15, // 0.15%
+    protocol_fee: StorageVec<ProtocolFee> = StorageVec {},
     // The reward to the matcher for single order match
-    matcher_fee: u32 = 0,
-    // Total protocol fee to withdraw
-    total_protocol_fee: u64 = 0,
+    matcher_fee: u64 = 0,
+    // User trade volumes
+    user_volumes: StorageMap<Identity, UserVolume> = StorageMap {},
+    // Epoch
+    epoch: u64 = 0,
+    // Epoch duration
+    epoch_duration: u64 = 31 * 24 * 60 * 60,
+    // Order height
+    order_height: u64 = 0,
 }
-
-const HUNDRED_PERCENT = 10_000;
 
 impl Market for Contract {
     #[payable]
@@ -131,7 +129,6 @@ impl Market for Contract {
         });
     }
 
-    #[payable]
     #[storage(read, write)]
     fn open_order(amount: u64, order_type: OrderType, price: u64) -> b256 {
         reentrancy_guard();
@@ -144,8 +141,7 @@ impl Market for Contract {
             price,
             storage
                 .matcher_fee
-                .read()
-                .as_u64(),
+                .read(),
         )
     }
 
@@ -164,17 +160,20 @@ impl Market for Contract {
         require(order0.is_some(), OrderError::OrderNotFound(order0_id));
         let order1 = storage.orders.get(order1_id).try_read();
         require(order1.is_some(), OrderError::OrderNotFound(order1_id));
-        let (match_result, _, matcher_reward) = match_order_internal(order0_id, order0.unwrap(), order1_id, order1.unwrap());
+        let (match_result, _) = match_order_internal(
+            order0_id,
+            order0
+                .unwrap(),
+            LimitType::GTC,
+            order1_id,
+            order1
+                .unwrap(),
+            LimitType::GTC,
+        );
         require(
             match_result != MatchResult::ZeroMatch,
             MatchError::CantMatch((order0_id, order1_id)),
         );
-
-        // reward order matcher
-        let matcher = msg_sender().unwrap();
-        if matcher_reward > 0 {
-            transfer(matcher, FUEL_ASSET, matcher_reward);
-        }
     }
 
     #[storage(read, write)]
@@ -187,7 +186,6 @@ impl Market for Contract {
         let mut idx0 = 0;
         let mut idx1 = 1;
         let mut full_matched = 0;
-        let mut matcher_reward = 0;
 
         while lts(idx0, idx1, len) {
             if idx0 == idx1 {
@@ -212,8 +210,16 @@ impl Market for Contract {
             }
 
             // try match
-            let (match_result, partial_order_id, matcher_reward_single) = match_order_internal(id0, order0.unwrap(), id1, order1.unwrap());
-            matcher_reward += matcher_reward_single;
+            let (match_result, partial_order_id) = match_order_internal(
+                id0,
+                order0
+                    .unwrap(),
+                LimitType::GTC,
+                id1,
+                order1
+                    .unwrap(),
+                LimitType::GTC,
+            );
 
             match match_result {
                 MatchResult::ZeroMatch => {
@@ -238,12 +244,6 @@ impl Market for Contract {
             }
         }
         require(full_matched > 0, MatchError::CantMatchMany);
-
-        // reward order matcher
-        let matcher = msg_sender().unwrap();
-        if matcher_reward > 0 {
-            transfer(matcher, FUEL_ASSET, matcher_reward);
-        }
     }
 
     #[payable]
@@ -266,7 +266,6 @@ impl Market for Contract {
         let len = orders.len();
         let mut idx1 = 0;
         let mut matched = MatchResult::ZeroMatch;
-        let mut matcher_reward = 0;
         let slippage = price * slippage / HUNDRED_PERCENT;
 
         while idx1 < len {
@@ -281,8 +280,7 @@ impl Market for Contract {
                         && order_type == OrderType::Buy
                     || distance(price, order1.price) <= slippage
                 {
-                    let (match_result, partial_order_id, match_reward_single) = match_order_internal(id0, order0, id1, order1);
-                    matcher_reward += match_reward_single;
+                    let (match_result, partial_order_id) = match_order_internal(id0, order0, limit_type, id1, order1, LimitType::GTC);
                     match match_result {
                         MatchResult::ZeroMatch => {}
                         MatchResult::PartialMatch => {
@@ -304,102 +302,109 @@ impl Market for Contract {
             idx1 += 1;
         }
         require(
-            !(matched == MatchResult::ZeroMatch) && !(matched == MatchResult::PartialMatch && limit_type == LimitType::FOK),
+            !(matched == MatchResult::ZeroMatch),
             MatchError::CantFulfillMany,
+        );
+        require(
+            !(matched == MatchResult::PartialMatch && limit_type == LimitType::FOK),
+            MatchError::CantFulfillFOK,
         );
 
         if matched == MatchResult::PartialMatch {
             cancel_order_internal(id0);
         }
 
-        // reward order matcher
-        let matcher = msg_sender().unwrap();
-        if matcher_reward > 0 {
-            transfer(matcher, FUEL_ASSET, matcher_reward);
-        }
-
         id0
     }
 
     #[storage(write)]
-    fn set_protocol_fee(amount: u32) {
+    fn set_epoch(epoch: u64, epoch_duration: u64) {
+        only_owner();
+
+        let current_epoch = storage.epoch.read();
+        let now = block_timestamp();
+
         require(
-            msg_sender()
-                .unwrap()
-                .as_address()
-                .unwrap() == OWNER,
-            AuthError::Unauthorized,
+            epoch >= current_epoch && (epoch + epoch_duration > now),
+            ValueError::InvalidEpoch((current_epoch, epoch, epoch_duration, now)),
         );
 
-        storage.protocol_fee.write(amount);
+        storage.epoch.write(epoch);
+        storage.epoch_duration.write(epoch_duration);
 
-        log(SetProtocolFeeEvent { amount });
+        log(SetEpochEvent {
+            epoch: epoch,
+            epoch_duration,
+        });
     }
 
     #[storage(write)]
-    fn set_matcher_fee(amount: u32) {
+    fn set_protocol_fee(protocol_fee: Vec<ProtocolFee>) {
+        only_owner();
+
+        if protocol_fee.len() > 0 {
+            require(
+                protocol_fee
+                    .get(0)
+                    .unwrap()
+                    .volume_threshold == 0,
+                ValueError::InvalidFeeZeroBased,
+            );
+        }
         require(
-            msg_sender()
-                .unwrap()
-                .as_address()
-                .unwrap() == OWNER,
-            AuthError::Unauthorized,
+            protocol_fee
+                .is_volume_threshold_sorted(),
+            ValueError::InvalidFeeSorting,
         );
+        storage.protocol_fee.store_vec(protocol_fee);
 
-        storage.matcher_fee.write(amount);
-
-        log(SetMatcherRewardEvent { amount });
+        log(SetProtocolFeeEvent { protocol_fee });
     }
 
     #[storage(read, write)]
-    fn withdraw_protocol_fee(to: Identity) {
-        let owner = msg_sender().unwrap();
+    fn set_matcher_fee(amount: u64) {
+        only_owner();
         require(
-            owner
-                .as_address()
-                .unwrap() == OWNER,
-            AuthError::Unauthorized,
+            amount != storage
+                .matcher_fee
+                .read(),
+            ValueError::InvalidValueSame,
         );
+        storage.matcher_fee.write(amount);
 
-        let amount = storage.total_protocol_fee.read();
-        require(amount > 0, AccountError::InsufficientBalance((0, 0)));
-
-        storage.total_protocol_fee.write(0);
-
-        transfer(to, FUEL_ASSET, amount);
-
-        log(WithdrawProtocolFeeEvent {
-            amount,
-            to,
-            owner,
-        });
+        log(SetMatcherRewardEvent { amount });
     }
 }
 
 impl MarketInfo for Contract {
     #[storage(read)]
-    fn account(user: Identity) -> Option<Account> {
-        storage.account.get(user).try_read()
+    fn account(user: Identity) -> Account {
+        storage.account.get(user).try_read().unwrap_or(Account::new())
     }
 
     #[storage(read)]
-    fn protocol_fee() -> u32 {
-        storage.protocol_fee.read()
+    fn get_epoch() -> (u64, u64) {
+        (storage.epoch.read(), storage.epoch_duration.read())
     }
 
     #[storage(read)]
-    fn protocol_fee_amount(amount: u64) -> u64 {
-        protocol_fee_amount(amount, AssetType::Base)
-    }
-
-    #[storage(read)]
-    fn total_protocol_fee() -> u64 {
-        storage.total_protocol_fee.read()
-    }
-
-    #[storage(read)]
-    fn matcher_fee() -> u32 {
+    fn matcher_fee() -> u64 {
         storage.matcher_fee.read()
+    }
+
+    #[storage(read)]
+    fn protocol_fee() -> Vec<ProtocolFee> {
+        storage.protocol_fee.load_vec()
+    }
+
+    #[storage(read)]
+    fn protocol_fee_user(user: Identity) -> (u64, u64) {
+        protocol_fee_user(user)
+    }
+
+    #[storage(read)]
+    fn protocol_fee_user_amount(amount: u64, user: Identity) -> (u64, u64) {
+        protocol_fee_user_amount(amount, user)
     }
 
     #[storage(read)]
@@ -417,15 +422,14 @@ impl MarketInfo for Contract {
         storage.order_change_info.get(order_id).load_vec()
     }
 
-    fn config() -> (Address, AssetId, u32, AssetId, u32, u32, AssetId, u32) {
+    fn config() -> (AssetId, u32, AssetId, u32, Identity, u32, u32) {
         (
-            OWNER,
             BASE_ASSET,
             BASE_ASSET_DECIMALS,
             QUOTE_ASSET,
             QUOTE_ASSET_DECIMALS,
+            OWNER,
             PRICE_DECIMALS,
-            FUEL_ASSET,
             VERSION,
         )
     }
@@ -435,6 +439,7 @@ impl MarketInfo for Contract {
         owner: Identity,
         price: u64,
         block_height: u32,
+        order_height: u64,
     ) -> b256 {
         let asset_type = AssetType::Base;
         require(
@@ -449,22 +454,21 @@ impl MarketInfo for Contract {
             price,
             PRICE_DECIMALS,
             block_height,
+            order_height,
+            0,
             0,
             0,
         ).id()
     }
 }
 
-#[storage(read)]
-fn protocol_fee_amount(amount: u64, asset_type: AssetType) -> u64 {
-    (if asset_type == AssetType::Base {
-        ETH_BASE_PRICE
-    } else {
-        ETH_QUOTE_PRICE
-    }) / HUNDRED_PERCENT * amount * storage.protocol_fee.read().as_u64() / 10_u64.pow(PRICE_DECIMALS)
+#[storage(read, write)]
+fn next_order_height() -> u64 {
+    let order_height = storage.order_height.read();
+    storage.order_height.write(order_height + 1);
+    order_height
 }
 
-#[payable]
 #[storage(read, write)]
 fn open_order_internal(
     amount: u64,
@@ -476,20 +480,8 @@ fn open_order_internal(
     require(amount > 0, ValueError::InvalidAmount);
 
     let user = msg_sender().unwrap();
+    let (protocol_maker_fee, protocol_taker_fee) = protocol_fee_user(user);
 
-    require(
-        matcher_fee == 0 || msg_asset_id() == FUEL_ASSET,
-        AssetError::InvalidFeeAsset,
-    );
-
-    let mut fee = msg_amount();
-    let protocol_fee = protocol_fee_amount(amount, asset_type);
-
-    // Require income fee
-    require(
-        fee >= matcher_fee + protocol_fee,
-        ValueError::InvalidFeeAmount((fee, matcher_fee + protocol_fee)),
-    );
     let mut order = Order::new(
         amount,
         asset_type,
@@ -498,63 +490,46 @@ fn open_order_internal(
         price,
         PRICE_DECIMALS,
         block_height(),
-        matcher_fee
-            .try_as_u32()
-            .unwrap(),
-        protocol_fee,
+        next_order_height(),
+        matcher_fee,
+        protocol_maker_fee,
+        protocol_taker_fee,
     );
 
     let order_id = order.id();
-    let amount_before = match storage.orders.get(order_id).try_read() {
-        Some(o) => o.amount,
-        _ => 0,
-    };
-    fee -= matcher_fee + protocol_fee;
-    if amount_before > 0 {
-        // The order already exists in the same transaction
-        order.amount += amount_before;
-    } else {
-        // Indexing
-        storage.user_orders.get(user).push(order_id);
+    require(
         storage
-            .user_order_indexes
-            .get(user)
-            .insert(order_id, storage.user_orders.get(user).len() - 1);
-    }
+            .orders
+            .get(order_id)
+            .try_read()
+            .is_none(),
+        OrderError::OrderDuplicate(order_id),
+    );
+
+    // Indexing
+    storage.user_orders.get(user).push(order_id);
+    storage
+        .user_order_indexes
+        .get(user)
+        .insert(order_id, storage.user_orders.get(user).len() - 1);
 
     // Store the new or updated order
     storage.orders.insert(order_id, order);
 
     // Update user account balance
     let mut account = storage.account.get(user).try_read().unwrap_or(Account::new());
-    match order_type {
-        OrderType::Sell => {
-            account.lock_amount(amount, asset_type);
-        }
-        OrderType::Buy => {
-            account.lock_amount(
-                convert(
-                    amount,
-                    BASE_ASSET_DECIMALS,
-                    price,
-                    PRICE_DECIMALS,
-                    QUOTE_ASSET_DECIMALS,
-                    asset_type == AssetType::Base,
-                ),
-                !asset_type,
-            );
-        }
-    }
+    account.lock_amount(
+        lock_order_amount(order),
+        match order.order_type {
+            OrderType::Sell => order.asset_type,
+            OrderType::Buy => !order.asset_type,
+        },
+    );
 
     // Update the state of the user's account
     storage.account.insert(user, account);
 
     let asset = get_asset_id(asset_type);
-
-    // Refund extra income fee if any
-    if fee > 0 {
-        transfer(user, msg_asset_id(), fee);
-    }
 
     log_order_change_info(
         order_id,
@@ -563,7 +538,7 @@ fn open_order_internal(
             block_height(),
             user,
             tx_id(),
-            amount_before,
+            0,
             order.amount,
         ),
     );
@@ -594,38 +569,17 @@ fn cancel_order_internal(order_id: b256) {
     // Safe to read() because user is the owner of the order
     let mut account = storage.account.get(user).read();
 
-    // Order is about to be cancelled, unlock illiquid funds
-    match order.order_type {
-        OrderType::Sell => {
-            account.unlock_amount(order.amount, order.asset_type);
-        }
-        OrderType::Buy => {
-            account.unlock_amount(
-                convert(
-                    order.amount,
-                    BASE_ASSET_DECIMALS,
-                    order.price,
-                    PRICE_DECIMALS,
-                    QUOTE_ASSET_DECIMALS,
-                    order.asset_type == AssetType::Base,
-                ),
-                !order.asset_type,
-            );
-        }
-    }
+    // Order is about to be cancelled, unlock liliquid funds
+    account.unlock_amount(
+        lock_order_amount(order),
+        match order.order_type {
+            OrderType::Sell => order.asset_type,
+            OrderType::Buy => !order.asset_type,
+        },
+    );
 
     remove_order(user, order_id);
     storage.account.insert(user, account);
-
-    // Refund matcher_fee
-    if order.matcher_fee > 0 {
-        transfer(user, FUEL_ASSET, order.matcher_fee.as_u64());
-    }
-
-    // Refund protocol_fee
-    if order.protocol_fee > 0 {
-        transfer(user, FUEL_ASSET, order.protocol_fee);
-    }
 
     log_order_change_info(
         order_id,
@@ -662,6 +616,47 @@ fn get_asset_id(asset_type: AssetType) -> AssetId {
         require(false, AssetError::InvalidAsset);
         QUOTE_ASSET
     }
+}
+
+#[storage(write)]
+fn extend_epoch() {
+    let epoch_duration = storage.epoch_duration.read();
+    let epoch = storage.epoch.read() + epoch_duration;
+
+    if epoch <= block_timestamp() {
+        storage.epoch.write(epoch);
+        log(SetEpochEvent {
+            epoch,
+            epoch_duration,
+        });
+    }
+}
+
+#[storage(read)]
+fn protocol_fee_user(user: Identity) -> (u64, u64) {
+    let volume = storage.user_volumes.get(user).try_read().unwrap_or(UserVolume::new()).get(storage.epoch.read());
+    let protocol_fee = storage.protocol_fee.get_volume_protocol_fee(volume);
+    (protocol_fee.maker_fee, protocol_fee.taker_fee)
+}
+
+#[storage(read)]
+fn protocol_fee_user_amount(amount: u64, user: Identity) -> (u64, u64) {
+    let protocol_fee = protocol_fee_user(user);
+    (
+        amount * protocol_fee.0 / HUNDRED_PERCENT,
+        amount * protocol_fee.1 / HUNDRED_PERCENT,
+    )
+}
+
+#[storage(read, write)]
+fn increase_user_volume(user: Identity, volume: u64) {
+    extend_epoch();
+    storage
+        .user_volumes
+        .get(user)
+        .try_read()
+        .unwrap_or(UserVolume::new())
+        .update(storage.epoch.read(), volume);
 }
 
 #[storage(read, write)]
@@ -715,281 +710,238 @@ fn remove_order(user: Identity, order_id: b256) {
 }
 
 #[storage(read, write)]
-fn execute_same_asset_type_trade(
+fn execute_trade(
     s_order: Order,
     b_order: Order,
-    amount: u64,
-    pay_amount: u64,
-    price_delta: u64,
-) {
-    let mut s_account = storage.account.get(s_order.owner).try_read().unwrap_or(Account::new());
-    let mut b_account = storage.account.get(b_order.owner).try_read().unwrap_or(Account::new());
+    trade_size: u64,
+    matcher: Identity,
+) -> (u64, u64, u64) {
+    let asset_type = s_order.asset_type;
+    // it is a trade volume
+    let s_trade_volume = quote_of_base_amount(trade_size, s_order.price);
+    // it is trade volume reserved by buyer for trade_size
+    let b_trade_volume = quote_of_base_amount(trade_size, b_order.price);
+    // delta trade volume
+    let d_trade_volume = b_trade_volume - s_trade_volume;
+    // s_order.matcher_fee part for trade_size <= s_order.amount
+    let s_order_matcher_fee = s_order.matcher_fee_of_amount(trade_size);
+    // b_order.matcher_fee part for trade_size <= b_order.amount
+    let b_order_matcher_fee = b_order.matcher_fee_of_amount(trade_size);
+    // s_order.protocol_fee part for trade_size <= b_order.amount with maker/taker condition
+    let s_order_protocol_fee = s_order.protocol_fee_of_amount(b_order, s_trade_volume);
+    let b_order_protocol_fee = b_order.protocol_fee_of_amount(s_order, s_trade_volume);
 
+    // seller - buyer deal
     if s_order.owner == b_order.owner {
-        b_account.unlock_amount(amount, s_order.asset_type);
-        b_account.unlock_amount(pay_amount, !s_order.asset_type);
-    } else {
-        s_account.transfer_locked_amount(b_account, amount, s_order.asset_type);
-        b_account.transfer_locked_amount(s_account, pay_amount, !s_order.asset_type);
-    }
-
-    if b_order.asset_type == AssetType::Base {
-        // unlock delta if order_type == buy for asset_type == base
-        let q_unlock_amount = convert(
-            amount,
-            BASE_ASSET_DECIMALS,
-            price_delta,
-            PRICE_DECIMALS,
-            QUOTE_ASSET_DECIMALS,
-            true,
+        let mut account = storage.account.get(s_order.owner).read();
+        // unlock locked base asset
+        account.unlock_amount(trade_size, asset_type);
+        // unlock locked quote asset
+        // if b_price > s_price unlock extra funds and its extra protocol fee
+        account.unlock_amount(
+            b_trade_volume + b_order
+                .max_protocol_fee_of_amount(d_trade_volume) - s_order_protocol_fee - s_order_matcher_fee,
+            !asset_type,
         );
-        if q_unlock_amount > 0 {
-            b_account.unlock_amount(q_unlock_amount, AssetType::Quote);
-        }
-    }
-    if s_order.owner == b_order.owner {
-        storage.account.insert(b_order.owner, b_account);
+        storage.account.insert(s_order.owner, account);
     } else {
+        let mut s_account = storage.account.get(s_order.owner).read();
+        let mut b_account = storage.account.get(b_order.owner).read();
+        // exchange trade funds
+        s_account.transfer_locked_amount(b_account, trade_size, asset_type);
+        b_account.transfer_locked_amount(s_account, s_trade_volume, !asset_type);
+        // lock protocol and matcher_fee for seller
+        let lock_fee = s_order_protocol_fee + s_order_matcher_fee;
+        if lock_fee > 0 {
+            s_account.lock_amount(s_order_protocol_fee + s_order_matcher_fee, !asset_type);
+        }
+        let unlock_fee = d_trade_volume + b_order.max_protocol_fee_of_amount(b_trade_volume) - b_order_protocol_fee;
+        if unlock_fee > 0 {
+            b_account.unlock_amount(unlock_fee, !asset_type);
+        }
+
+        // store accounts
         storage.account.insert(s_order.owner, s_account);
         storage.account.insert(b_order.owner, b_account);
     }
-}
 
-#[storage(read, write)]
-fn execute_same_order_type_trade(
-    b_order: Order,
-    q_order: Order,
-    b_amount: u64,
-    q_amount: u64,
-    price_delta: u64,
-) {
-    let mut b_account = storage.account.get(b_order.owner).try_read().unwrap_or(Account::new());
-    let mut q_account = storage.account.get(q_order.owner).try_read().unwrap_or(Account::new());
-    if b_order.owner == q_order.owner {
-        b_account.unlock_amount(b_amount, AssetType::Base);
-        b_account.unlock_amount(q_amount, AssetType::Quote);
-    }
-    if b_order.order_type == OrderType::Sell {
-        if (b_order.owner != q_order.owner) {
-            b_account.transfer_locked_amount(q_account, b_amount, AssetType::Base);
-            q_account.transfer_locked_amount(b_account, q_amount, AssetType::Quote);
-        }
-    } else {
-        if b_order.owner != q_order.owner {
-            q_account.transfer_locked_amount(b_account, b_amount, AssetType::Base);
-            b_account.transfer_locked_amount(q_account, q_amount, AssetType::Quote);
-        }
-        // unlock delta if order_type == buy for asset_type == base
-        if price_delta > 0 {
-            let q_unlock_amount = convert(
-                b_amount,
-                BASE_ASSET_DECIMALS,
-                price_delta,
-                PRICE_DECIMALS,
-                QUOTE_ASSET_DECIMALS,
-                true,
-            );
-            if q_unlock_amount > 0 {
-                b_account.unlock_amount(q_unlock_amount, AssetType::Quote);
-            }
+    // seller - matcher deal
+    if (s_order_matcher_fee > 0) {
+        if s_order.owner == matcher {
+            let mut account = storage.account.get(s_order.owner).read();
+            account.unlock_amount(s_order_matcher_fee, !asset_type);
+            storage.account.insert(s_order.owner, account);
+        } else {
+            let mut s_account = storage.account.get(s_order.owner).read();
+            let mut m_account = storage.account.get(matcher).try_read().unwrap_or(Account::new());
+            s_account.transfer_locked_amount(m_account, s_order_matcher_fee, !asset_type);
+            storage.account.insert(s_order.owner, s_account);
+            storage.account.insert(matcher, m_account);
         }
     }
-    if b_order.owner == q_order.owner {
-        storage.account.insert(b_order.owner, b_account);
-    } else {
-        storage.account.insert(b_order.owner, b_account);
-        storage.account.insert(q_order.owner, q_account);
+
+    // buyer - matcher deal
+    if (b_order_matcher_fee > 0) {
+        if b_order.owner == matcher {
+            let mut account = storage.account.get(b_order.owner).read();
+            account.unlock_amount(b_order_matcher_fee, !asset_type);
+            storage.account.insert(b_order.owner, account);
+        } else {
+            let mut b_account = storage.account.get(b_order.owner).read();
+            let mut m_account = storage.account.get(matcher).try_read().unwrap_or(Account::new());
+            b_account.transfer_locked_amount(m_account, b_order_matcher_fee, !asset_type);
+            storage.account.insert(b_order.owner, b_account);
+            storage.account.insert(matcher, m_account);
+        }
     }
+
+    // seller - owner deal
+    if (s_order_protocol_fee > 0) {
+        if s_order.owner == OWNER {
+            let mut account = storage.account.get(s_order.owner).read();
+            account.unlock_amount(s_order_protocol_fee, !asset_type);
+            storage.account.insert(s_order.owner, account);
+        } else {
+            let mut s_account = storage.account.get(s_order.owner).read();
+            let mut o_account = storage.account.get(OWNER).try_read().unwrap_or(Account::new());
+            s_account.transfer_locked_amount(o_account, s_order_protocol_fee, !asset_type);
+            storage.account.insert(s_order.owner, s_account);
+            storage.account.insert(OWNER, o_account);
+        }
+    }
+
+    // buyer - owner deal
+    if (b_order_protocol_fee > 0) {
+        if b_order.owner == OWNER {
+            let mut account = storage.account.get(b_order.owner).read();
+            account.unlock_amount(b_order_protocol_fee, !asset_type);
+            storage.account.insert(b_order.owner, account);
+        } else {
+            let mut b_account = storage.account.get(b_order.owner).read();
+            let mut o_account = storage.account.get(OWNER).try_read().unwrap_or(Account::new());
+            b_account.transfer_locked_amount(o_account, b_order_protocol_fee, !asset_type);
+            storage.account.insert(b_order.owner, b_account);
+            storage.account.insert(OWNER, o_account);
+        }
+    }
+    (s_trade_volume, s_order_matcher_fee, b_order_matcher_fee)
 }
 
 #[storage(read, write)]
 fn match_order_internal(
     order0_id: b256,
     order0: Order,
+    order0_limit: LimitType,
     order1_id: b256,
     order1: Order,
-) -> (MatchResult, b256, u64) {
+    order1_limit: LimitType,
+) -> (MatchResult, b256) {
     let matcher = msg_sender().unwrap();
 
-    // Matching orders with different types (e.g., Base vs. Quote asset type)
-    if order0.order_type == order1.order_type && order0.asset_type != order1.asset_type {
-        let (mut b_order, b_id, mut q_order, q_id) = if order0.asset_type == AssetType::Base {
-            (order0, order0_id, order1, order1_id)
-        } else {
-            (order1, order1_id, order0, order0_id)
-        };
+    require(
+        order0
+            .asset_type == AssetType::Base && order1
+            .asset_type == AssetType::Base,
+        AssetError::InvalidAsset,
+    );
 
-        // Checking if the prices align for a possible match
-        if (b_order.price > q_order.price && b_order.order_type == OrderType::Sell) || (b_order.price < q_order.price && b_order.order_type == OrderType::Buy) {
-            // No match possible due to price mismatch
-            return (MatchResult::ZeroMatch, ZERO_B256, 0);
-        }
-
-        let match_price = min(b_order.price, q_order.price);
-        let price_delta = max(b_order.price, q_order.price) - match_price;
-
-        // Determine trade amounts based on the minimum available
-        let b_amount = min(
-            b_order
-                .amount,
-            convert(
-                q_order
-                    .amount,
-                BASE_ASSET_DECIMALS,
-                match_price,
-                PRICE_DECIMALS,
-                QUOTE_ASSET_DECIMALS,
-                false,
-            ),
-        );
-        let q_amount = if b_amount != b_order.amount {
-            q_order.amount
-        } else {
-            convert(
-                b_amount,
-                BASE_ASSET_DECIMALS,
-                match_price,
-                PRICE_DECIMALS,
-                QUOTE_ASSET_DECIMALS,
-                true,
-            )
-        };
-
-        // Emit events for a matched order scenario
-        emit_match_events(
-            b_id,
-            b_order,
-            b_amount,
-            q_id,
-            q_order,
-            q_amount,
-            matcher,
-            match_price,
-        );
-
-        // Execute the trade and update balances
-        execute_same_order_type_trade(b_order, q_order, b_amount, q_amount, price_delta);
-        // Handle partial or full order fulfillment and rewards
-        update_order_storage_and_reward(b_amount, b_order, b_id, q_amount, q_order, q_id)
-        // Matching orders with the same asset type (e.g., Buy vs. Sell)
-    } else if order0.order_type != order1.order_type && order0.asset_type == order1.asset_type {
-        let (mut s_order, s_id, mut b_order, b_id) = if order0.order_type == OrderType::Sell {
-            (order0, order0_id, order1, order1_id)
-        } else {
-            (order1, order1_id, order0, order0_id)
-        };
-
-        // Checking if the prices align for a possible match
-        if (s_order.price > b_order.price && s_order.asset_type == AssetType::Base) || (s_order.price < b_order.price && s_order.asset_type == AssetType::Quote) {
-            // No match possible due to price mismatch
-            return (MatchResult::ZeroMatch, ZERO_B256, 0);
-        }
-
-        let match_price = min(s_order.price, b_order.price);
-        let price_delta = max(s_order.price, b_order.price) - match_price;
-
-        // Determine trade amounts based on the minimum available
-        let amount = min(s_order.amount, b_order.amount);
-        let pay_amount = convert(
-            amount,
-            BASE_ASSET_DECIMALS,
-            match_price,
-            PRICE_DECIMALS,
-            QUOTE_ASSET_DECIMALS,
-            s_order
-                .asset_type == AssetType::Base,
-        );
-
-        // Emit events for a matched order scenario
-        emit_match_events(
-            s_id,
-            s_order,
-            amount,
-            b_id,
-            b_order,
-            amount,
-            matcher,
-            match_price,
-        );
-
-        // Execute the trade and update balances
-        execute_same_asset_type_trade(s_order, b_order, amount, pay_amount, price_delta);
-        // Handle partial or full order fulfillment and rewards
-        update_order_storage_and_reward(amount, s_order, s_id, amount, b_order, b_id)
-        // If orders do not match by type or asset, no match occurs
-    } else {
-        (MatchResult::ZeroMatch, ZERO_B256, 0)
+    // The same order direction
+    if order0.order_type == order1.order_type {
+        return (MatchResult::ZeroMatch, b256::zero());
     }
+
+    let (mut s_order, s_id, s_limit, mut b_order, b_id, b_limit) = if order0.order_type == OrderType::Sell {
+        (order0, order0_id, order0_limit, order1, order1_id, order1_limit)
+    } else {
+        (order1, order1_id, order1_limit, order0, order0_id, order0_limit)
+    };
+
+    // Checking if the prices align for a possible match
+    if s_order.price > b_order.price {
+        // No match possible due to price mismatch
+        return (MatchResult::ZeroMatch, b256::zero());
+    }
+
+    let trade_price = s_order.price;
+    // Determine trade amounts based on the minimum available
+    let trade_size = min(s_order.amount, b_order.amount);
+
+    // Emit events for a matched order scenario
+    emit_match_events(
+        s_id,
+        s_order,
+        s_limit,
+        trade_size,
+        b_id,
+        b_order,
+        b_limit,
+        trade_size,
+        matcher,
+        trade_price,
+    );
+
+    // Execute the trade and update balances
+    let (trade_volume, s_order_matcher_fee, b_order_matcher_fee) = execute_trade(s_order, b_order, trade_size, matcher);
+
+    increase_user_volume(s_order.owner, trade_volume);
+    increase_user_volume(b_order.owner, trade_volume);
+
+    // Handle partial or full order fulfillment
+    update_order_storage(
+        trade_size,
+        s_order,
+        s_id,
+        s_order_matcher_fee,
+        b_order,
+        b_id,
+        b_order_matcher_fee,
+    )
 }
 
 #[storage(read, write)]
-fn update_protocol_fee(amount: u64) {
-    storage
-        .total_protocol_fee
-        .write(storage.total_protocol_fee.read() + amount);
-}
-
-#[storage(read, write)]
-fn update_order_storage_and_reward(
-    amount0: u64,
+fn update_order_storage(
+    amount: u64,
     ref mut order0: Order,
     id0: b256,
-    amount1: u64,
+    order_matcher_fee0: u64,
     ref mut order1: Order,
     id1: b256,
-) -> (MatchResult, b256, u64) {
-    let mut matcher_reward = 0u64;
-
+    order_matcher_fee1: u64,
+) -> (MatchResult, b256) {
     // Case where the first order is completely filled
-    if amount0 == order0.amount {
-        update_protocol_fee(order0.protocol_fee);
-
-        matcher_reward += order0.matcher_fee.as_u64();
+    if amount == order0.amount {
         remove_order(order0.owner, id0);
     }
     // Case where the second order is completely filled
-    if amount1 == order1.amount {
-        update_protocol_fee(order1.protocol_fee);
-
-        matcher_reward += order1.matcher_fee.as_u64();
+    if amount == order1.amount {
         remove_order(order1.owner, id1);
     }
-    // Case where the first order is partially filled
-    if amount0 != order0.amount {
-        let fee = order0.protocol_fee * amount0 / order0.amount;
-        update_protocol_fee(fee);
-        order0.protocol_fee -= fee;
-
-        let order_matcher_reward = order0.matcher_fee.as_u64() * amount0 / order0.amount;
-        matcher_reward += order_matcher_reward;
-        order0.matcher_fee -= order_matcher_reward.try_as_u32().unwrap();
-        order0.amount -= amount0;
+    if amount != order0.amount {
+        // Case where the first order is partially filled
+        order0.matcher_fee -= order_matcher_fee0;
+        order0.amount -= amount;
         storage.orders.insert(id0, order0);
-        return (MatchResult::PartialMatch, id0, matcher_reward);
+        return (MatchResult::PartialMatch, id0);
+    } else if amount != order1.amount {
         // Case where the second order is partially filled
-    } else if amount1 != order1.amount {
-        let fee = order1.protocol_fee * amount1 / order1.amount;
-        update_protocol_fee(fee);
-        order1.protocol_fee -= fee;
-
-        let order_matcher_reward = order1.matcher_fee.as_u64() * amount1 / order1.amount;
-        matcher_reward += order_matcher_reward;
-        order1.matcher_fee -= order_matcher_reward.try_as_u32().unwrap();
-        order1.amount -= amount1;
+        order1.matcher_fee -= order_matcher_fee1;
+        order1.amount -= amount;
         storage.orders.insert(id1, order1);
-        return (MatchResult::PartialMatch, id1, matcher_reward);
+        return (MatchResult::PartialMatch, id1);
     }
     // Case where both orders are fully matched
-    (MatchResult::FullMatch, ZERO_B256, matcher_reward)
+    (MatchResult::FullMatch, b256::zero())
 }
 
 #[storage(read, write)]
 fn emit_match_events(
     id0: b256,
     order0: Order,
+    limit0: LimitType,
     amount0: u64,
     id1: b256,
     order1: Order,
+    limit1: LimitType,
     amount1: u64,
     matcher: Identity,
     match_price: u64,
@@ -1044,25 +996,52 @@ fn emit_match_events(
 
     // Emit event for the trade execution
     log(TradeOrderEvent {
-        base_sell_order_id: if order0.asset_type == AssetType::Base {
-            id0
-        } else {
-            id1
-        },
-        base_buy_order_id: if order0.asset_type == AssetType::Quote {
-            id0
-        } else {
-            id1
-        },
+        base_sell_order_id: id0,
+        base_buy_order_id: id1,
+        base_sell_order_limit: limit0,
+        base_buy_order_limit: limit1,
         order_matcher: matcher,
         trade_size: amount0,
         trade_price: match_price,
         block_height: block_height(),
         tx_id: tx_id(),
+        order_seller: order0.owner,
+        order_buyer: order1.owner,
     });
 }
 
 #[storage(read, write)]
 fn log_order_change_info(order_id: b256, change_info: OrderChangeInfo) {
     storage.order_change_info.get(order_id).push(change_info);
+}
+
+fn quote_of_base_amount(amount: u64, price: u64) -> u64 {
+    convert_asset_amount(amount, price, true)
+}
+
+fn base_of_quote_amount(amount: u64, price: u64) -> u64 {
+    convert_asset_amount(amount, price, false)
+}
+
+fn convert_asset_amount(amount: u64, price: u64, base_to_quote: bool) -> u64 {
+    let (op1, op2) = (price, 10_u64.pow(BASE_ASSET_DECIMALS + PRICE_DECIMALS - QUOTE_ASSET_DECIMALS));
+    if base_to_quote {
+        amount.mul_div(op1, op2)
+    } else {
+        amount.mul_div(op2, op1)
+    }
+}
+
+pub fn lock_order_amount(order: Order) -> u64 {
+    // For asset_type base only
+    if order.order_type == OrderType::Buy {
+        let amount = quote_of_base_amount(order.amount, order.price);
+        amount + order.max_protocol_fee_of_amount(amount) + order.matcher_fee
+    } else {
+        order.amount
+    }
+}
+
+fn only_owner() {
+    require(msg_sender().unwrap() == OWNER, AuthError::Unauthorized);
 }

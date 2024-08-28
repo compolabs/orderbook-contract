@@ -43,15 +43,13 @@ impl WithdrawCommand {
         let contract = MarketContract::new(contract_id, wallet.clone()).await;
         let config = contract.config().await?.value;
         let asset = if asset_type == ContractAssetType::Base {
-            config.1
+            config.0
         } else {
-            config.3
+            config.2
         };
         let asset_balance = wallet.get_asset_balance(&asset).await?;
 
-        let r = contract.withdraw(self.amount, asset_type.clone()).await?;
-        // TODO: sdk debugging
-        dbg!(r);
+        let _ = contract.withdraw(self.amount, asset_type.clone()).await?;
 
         // Balance post-call
         let new_balance = wallet
