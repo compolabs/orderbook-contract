@@ -7,6 +7,7 @@ use ::data_structures::{
     order::Order,
     order_change::OrderChangeInfo,
     order_type::OrderType,
+    protocol_fee::ProtocolFee,
 };
 
 abi Market {
@@ -17,7 +18,6 @@ abi Market {
     #[storage(read, write)]
     fn withdraw(amount: u64, asset_type: AssetType);
 
-    #[payable]
     #[storage(read, write)]
     fn open_order(amount: u64, order_type: OrderType, price: u64) -> b256;
 
@@ -42,30 +42,33 @@ abi Market {
     ) -> b256;
 
     #[storage(write)]
-    fn set_protocol_fee(amount: u32);
+    fn set_epoch(epoch: u64, epoch_duration: u64);
 
     #[storage(write)]
-    fn set_matcher_fee(amount: u32);
+    fn set_protocol_fee(protocol_fee: Vec<ProtocolFee>);
 
     #[storage(read, write)]
-    fn withdraw_protocol_fee(to: Identity);
+    fn set_matcher_fee(amount: u64);
 }
 
 abi MarketInfo {
     #[storage(read)]
-    fn account(user: Identity) -> Option<Account>;
+    fn account(user: Identity) -> Account;
 
     #[storage(read)]
-    fn protocol_fee() -> u32;
+    fn get_epoch() -> (u64, u64);
 
     #[storage(read)]
-    fn total_protocol_fee() -> u64;
+    fn matcher_fee() -> u64;
 
     #[storage(read)]
-    fn matcher_fee() -> u32;
+    fn protocol_fee() -> Vec<ProtocolFee>;
 
     #[storage(read)]
-    fn protocol_fee_amount(amount: u64) -> u64;
+    fn protocol_fee_user(user: Identity) -> (u64, u64);
+
+    #[storage(read)]
+    fn protocol_fee_user_amount(amount: u64, user: Identity) -> (u64, u64);
 
     #[storage(read)]
     fn order(order: b256) -> Option<Order>;
@@ -76,12 +79,13 @@ abi MarketInfo {
     #[storage(read)]
     fn order_change_info(order_id: b256) -> Vec<OrderChangeInfo>;
 
-    fn config() -> (Address, AssetId, u32, AssetId, u32, u32, AssetId, u32);
+    fn config() -> (AssetId, u32, AssetId, u32, Identity, u32, u32);
 
     fn order_id(
         order_type: OrderType,
         owner: Identity,
         price: u64,
         block_height: u32,
+        order_height: u64,
     ) -> b256;
 }

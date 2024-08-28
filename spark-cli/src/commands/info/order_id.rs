@@ -31,6 +31,10 @@ pub(crate) struct OrderIdCommand {
     #[clap(long)]
     pub(crate) block_height: u32,
 
+    /// The price of the order
+    #[clap(long)]
+    pub(crate) order_height: u64,
+
     /// The contract id of the market
     #[clap(long)]
     pub(crate) contract_id: String,
@@ -74,11 +78,11 @@ impl OrderIdCommand {
 
         let hash = contract
             .order_id(
-                /*asset_type,*/
                 order_type,
                 account,
                 self.price,
                 self.block_height,
+                self.order_height,
             )
             .await?
             .value;

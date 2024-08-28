@@ -1,9 +1,8 @@
 use crate::commands::core::{
     cancel_order::CancelCommand, deploy::DeployCommand, deposit::DepositCommand,
     fulfill_many::FulfillManyCommand, match_many::MatchManyCommand, match_pair::MatchPairCommand,
-    open_order::OpenCommand, set_matcher_fee::SetMatcherFeeCommand,
+    open_order::OpenCommand, set_epoch::SetEpochCommand, set_matcher_fee::SetMatcherFeeCommand,
     set_protocol_fee::SetProtocolFeeCommand, withdraw::WithdrawCommand,
-    withdraw_protocol_fee::WithdrawProtocolFeeCommand,
 };
 use clap::Subcommand;
 
@@ -38,16 +37,16 @@ pub(crate) enum CoreCommands {
     Open(OpenCommand),
 
     /// Set a protocol fee
+    #[clap(short_flag = 'E')]
+    SetEpoch(SetEpochCommand),
+
+    /// Set a protocol fee
     #[clap(short_flag = 'S')]
     SetProtocolFee(SetProtocolFeeCommand),
 
     /// Set a matcher fee for the market
     #[clap(short_flag = 'T')]
     SetMatcherFee(SetMatcherFeeCommand),
-
-    /// Withdraw from the market contract
-    #[clap(short_flag = 'U')]
-    WithdrawProtocolFee(WithdrawProtocolFeeCommand),
 
     /// Withdraw from the market contract
     #[clap(short_flag = 'W')]

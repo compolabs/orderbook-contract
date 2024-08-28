@@ -17,11 +17,10 @@ Run from project root folder
     --quote-asset 0xfed3ee85624c79cb18a3a848092239f2e764ed6b0aa156ad10a18bfdbe74269f \
     --quote-decimals 6 \
     --price-decimals 9 \
-    --fuel-asset 0xf8f8b6283d7fa5b672b530cbb84fcccb4ff8dc40f8176ef4544ddb1f1952ad07 \
     --rpc "testnet.fuel.network"
 
 Sample output:
-Market deployed to: 0x21f2df4b6562991f7b364244b278b6420fbdebaa478b2690499ab049507d06e5
+Market deployed to: 0x67632a67764130dc9d14e4213c5a5e1ccfe51f184e8789fa68c7f34447c671a7
 Deployment cost: 0
 Owner address: fuel173lqaa6y4jxfjd2suq730uwys3zfg4f6zt9vzx4cc45v3xvlmwlszdvdpz
                0xf47e0ef744ac8c993550e03d17f1c4844494553a12cac11ab8c568c8999fdbbf
@@ -32,13 +31,13 @@ Owner address: fuel173lqaa6y4jxfjd2suq730uwys3zfg4f6zt9vzx4cc45v3xvlmwlszdvdpz
     --asset-type base \
     --amount 10 \
     --rpc "testnet.fuel.network" \
-    --contract-id 0x21f2df4b6562991f7b364244b278b6420fbdebaa478b2690499ab049507d06e5
+    --contract-id 0x67632a67764130dc9d14e4213c5a5e1ccfe51f184e8789fa68c7f34447c671a7
 
 ./target/release/spark-cli core deposit \
     --asset-type quote \
     --amount 7000 \
     --rpc "testnet.fuel.network" \
-    --contract-id 0x21f2df4b6562991f7b364244b278b6420fbdebaa478b2690499ab049507d06e5
+    --contract-id 0x67632a67764130dc9d14e4213c5a5e1ccfe51f184e8789fa68c7f34447c671a7
 
 ## Withdraw
 
@@ -46,13 +45,13 @@ Owner address: fuel173lqaa6y4jxfjd2suq730uwys3zfg4f6zt9vzx4cc45v3xvlmwlszdvdpz
     --asset-type base \
     --amount 10 \
     --rpc "testnet.fuel.network" \
-    --contract-id 0x21f2df4b6562991f7b364244b278b6420fbdebaa478b2690499ab049507d06e5
+    --contract-id 0x67632a67764130dc9d14e4213c5a5e1ccfe51f184e8789fa68c7f34447c671a7
 
 ./target/release/spark-cli core withdraw \
     --asset-type quote \
     --amount 7000 \
     --rpc "testnet.fuel.network" \
-    --contract-id 0x21f2df4b6562991f7b364244b278b6420fbdebaa478b2690499ab049507d06e5
+    --contract-id 0x67632a67764130dc9d14e4213c5a5e1ccfe51f184e8789fa68c7f34447c671a7
 
 ## Open Order
 
@@ -61,37 +60,37 @@ Owner address: fuel173lqaa6y4jxfjd2suq730uwys3zfg4f6zt9vzx4cc45v3xvlmwlszdvdpz
     --order-type buy \
     --price 70000000000000 \
     --rpc "testnet.fuel.network" \
-    --contract-id 0x21f2df4b6562991f7b364244b278b6420fbdebaa478b2690499ab049507d06e5
+    --contract-id 0x67632a67764130dc9d14e4213c5a5e1ccfe51f184e8789fa68c7f34447c671a7
 
 ./target/release/spark-cli core open \
     --amount 10 \
     --order-type sell \
     --price 70000000000000 \
     --rpc "testnet.fuel.network" \
-    --contract-id 0x21f2df4b6562991f7b364244b278b6420fbdebaa478b2690499ab049507d06e5
+    --contract-id 0x67632a67764130dc9d14e4213c5a5e1ccfe51f184e8789fa68c7f34447c671a7
 
 ## Cancel Order
 
 ./target/release/spark-cli core cancel \
-    --order-id aef6701b76abb633bb638c4fb5793237f558c40369cfacaaec30876320551f4e \
+    --order-id e950192bd177292dd7b98c69e6f85a46f5d59d93a0ba2f84af1f9d06d1fdf821 \
     --rpc "testnet.fuel.network" \
-    --contract-id 0x21f2df4b6562991f7b364244b278b6420fbdebaa478b2690499ab049507d06e5
+    --contract-id 0x67632a67764130dc9d14e4213c5a5e1ccfe51f184e8789fa68c7f34447c671a7
 
 ## Match Order Pair
 
 ./target/release/spark-cli core match-pair \
-    --orders de8797d3e6a5b36bf93f9cfb0a57282d1cce4dcc525104ffbe10fdc922c21bb7 \
-    --orders c76080c47d8efc3fb60afa1b3465157ca809e900e93d9b11101259b19f472c4a \
+    --orders dcd473a361832d1c479d8c3ae498390cdb69d1e96ebacf5a779522935299b2f4 \
+    --orders 130aa3aece55b47c5b723f33c1c25dce99ff689382173d40188043df19bbf9be \
     --rpc "testnet.fuel.network" \
-    --contract-id 0x21f2df4b6562991f7b364244b278b6420fbdebaa478b2690499ab049507d06e5
+    --contract-id 0x67632a67764130dc9d14e4213c5a5e1ccfe51f184e8789fa68c7f34447c671a7
 
 ## Match Order Many
 
 ./target/release/spark-cli core match-many \
-    --orders fc1340a71df69d2c3ee8f939a8fa8baa5f22647090b659addc694f2e918d9666 \
-    --orders 4999b7f3305bf0719d73e8e96b2bd023c7c5472f6e8a282411c418b0328679f6 \
+    --orders 0a96241df0a2606ead475af4cf66f89097bcbec27fdb59ff5cdb30a7525393e2 \
+    --orders 2a6273b795e682f9fc4723097e682e0097c29c16f0419d7dc6132f77151e27ca \
     --rpc "testnet.fuel.network" \
-    --contract-id 0x21f2df4b6562991f7b364244b278b6420fbdebaa478b2690499ab049507d06e5
+    --contract-id 0x67632a67764130dc9d14e4213c5a5e1ccfe51f184e8789fa68c7f34447c671a7
 
 ## Fulfill Order Many
 
@@ -101,19 +100,20 @@ Owner address: fuel173lqaa6y4jxfjd2suq730uwys3zfg4f6zt9vzx4cc45v3xvlmwlszdvdpz
     --limit-type ioc \
     --price 70000000000000 \
     --slippage 100 \
-    --orders d2e1011c3fd8755d54d7887b8c4c2f3e5c22f16f00654e0d3b894792fcb50075 \
-    --orders 1d958e39a4102e2a2db332bec485095cac5ad4b6249083818d59f3c4da575aa4 \
+    --orders 0d0d7540d7350222b39a453452067cb3e1d1a29773a1678293771c9a0a12fe6f \
+    --orders 12e7c70e34d437960fe455ce41ee9f839a93f5b317d19a9708c3ef51dffb89d0 \
     --rpc "testnet.fuel.network" \
-    --contract-id 0x21f2df4b6562991f7b364244b278b6420fbdebaa478b2690499ab049507d06e5
+    --contract-id 0x67632a67764130dc9d14e4213c5a5e1ccfe51f184e8789fa68c7f34447c671a7
 
 ## Set Protocol Fee
 
 Sets protocol fee
 
 ./target/release/spark-cli core set-protocol-fee \
-    --amount 0 \
+    --fee "0,0,0" \
+    --fee "100,150,10000" \
     --rpc "testnet.fuel.network" \
-    --contract-id 0x21f2df4b6562991f7b364244b278b6420fbdebaa478b2690499ab049507d06e5
+    --contract-id 0x67632a67764130dc9d14e4213c5a5e1ccfe51f184e8789fa68c7f34447c671a7
 
 ## Set Matcher Fee
 
@@ -122,17 +122,21 @@ Sets a matcher fee for the market
 ./target/release/spark-cli core set-matcher-fee \
     --amount 1000 \
     --rpc "testnet.fuel.network" \
-    --contract-id 0x21f2df4b6562991f7b364244b278b6420fbdebaa478b2690499ab049507d06e5
+    --contract-id 0x67632a67764130dc9d14e4213c5a5e1ccfe51f184e8789fa68c7f34447c671a7
 
-## Withdraw Protocol Fee
+## Set Epoch
 
-Withdraw protocol fee
+Sets a epoch and duration for the market
 
-./target/release/spark-cli core withdraw-protocol-fee \
-    --account-to-type address \
-    --account-to-id 0xf47e0ef744ac8c993550e03d17f1c4844494553a12cac11ab8c568c8999fdbbf \
+./target/release/spark-cli core set-epoch \
+    --epoch 4611686020152148916 \
+    --epoch-duration 1000 \
     --rpc "testnet.fuel.network" \
-    --contract-id 0x21f2df4b6562991f7b364244b278b6420fbdebaa478b2690499ab049507d06e5
+    --contract-id 0x67632a67764130dc9d14e4213c5a5e1ccfe51f184e8789fa68c7f34447c671a7
+
+
+
+
 
 # Info
 
@@ -144,13 +148,19 @@ These functions return the state of the contract. They simulate calls and theref
     --account-type address \
     --account-id 0xf47e0ef744ac8c993550e03d17f1c4844494553a12cac11ab8c568c8999fdbbf \
     --rpc "testnet.fuel.network" \
-    --contract-id 0x21f2df4b6562991f7b364244b278b6420fbdebaa478b2690499ab049507d06e5
+    --contract-id 0x67632a67764130dc9d14e4213c5a5e1ccfe51f184e8789fa68c7f34447c671a7
 
 ## Config
 
 ./target/release/spark-cli info config \
     --rpc "testnet.fuel.network" \
-    --contract-id 0x21f2df4b6562991f7b364244b278b6420fbdebaa478b2690499ab049507d06e5
+    --contract-id 0x67632a67764130dc9d14e4213c5a5e1ccfe51f184e8789fa68c7f34447c671a7
+
+## Epoch
+
+./target/release/spark-cli info epoch \
+    --rpc "testnet.fuel.network" \
+    --contract-id 0x67632a67764130dc9d14e4213c5a5e1ccfe51f184e8789fa68c7f34447c671a7
 
 ## Protocol Fee
 
@@ -158,24 +168,28 @@ Protocol fee
 
 ./target/release/spark-cli info protocol-fee \
     --rpc "testnet.fuel.network" \
-    --contract-id 0x21f2df4b6562991f7b364244b278b6420fbdebaa478b2690499ab049507d06e5
+    --contract-id 0x67632a67764130dc9d14e4213c5a5e1ccfe51f184e8789fa68c7f34447c671a7
 
-## Total Protocol Fee
+## Protocol Fee User
 
-Total Protocol fee collected
+Gets Protocol user fee
 
-./target/release/spark-cli info total-protocol-fee \
+./target/release/spark-cli info protocol-fee-user \
+    --account-type address \
+    --account-id 0xf47e0ef744ac8c993550e03d17f1c4844494553a12cac11ab8c568c8999fdbbf \
     --rpc "testnet.fuel.network" \
-    --contract-id 0x21f2df4b6562991f7b364244b278b6420fbdebaa478b2690499ab049507d06e5
+    --contract-id 0x67632a67764130dc9d14e4213c5a5e1ccfe51f184e8789fa68c7f34447c671a7
 
-## Protocol Fee Amount
+## Protocol Fee User Amount
 
-Calculates Protocol fee for a order amount
+Calculates Protocol user fee for a order amount
 
-./target/release/spark-cli info protocol-fee-amount \
+./target/release/spark-cli info protocol-fee-user-amount \
     --amount 10 \
+    --account-type address \
+    --account-id 0xf47e0ef744ac8c993550e03d17f1c4844494553a12cac11ab8c568c8999fdbbf \
     --rpc "testnet.fuel.network" \
-    --contract-id 0x21f2df4b6562991f7b364244b278b6420fbdebaa478b2690499ab049507d06e5
+    --contract-id 0x67632a67764130dc9d14e4213c5a5e1ccfe51f184e8789fa68c7f34447c671a7
 
 ## Matcher Fee
 
@@ -183,7 +197,7 @@ Matcher Fee for the market
 
 ./target/release/spark-cli info matcher-fee \
     --rpc "testnet.fuel.network" \
-    --contract-id 0x21f2df4b6562991f7b364244b278b6420fbdebaa478b2690499ab049507d06e5
+    --contract-id 0x67632a67764130dc9d14e4213c5a5e1ccfe51f184e8789fa68c7f34447c671a7
 
 ## Order ID
 
@@ -194,14 +208,14 @@ Matcher Fee for the market
     --price 70000000000000 \
     --block-height 10000 \
     --rpc "testnet.fuel.network" \
-    --contract-id 0x21f2df4b6562991f7b364244b278b6420fbdebaa478b2690499ab049507d06e5
+    --contract-id 0x67632a67764130dc9d14e4213c5a5e1ccfe51f184e8789fa68c7f34447c671a7
 
 ## Order
 
 ./target/release/spark-cli info order \
     --order-id 769663aef01812de5e5b4a4cd96f31a1641d4924cd26bdf7665fc00708487007 \
     --rpc "testnet.fuel.network" \
-    --contract-id 0x21f2df4b6562991f7b364244b278b6420fbdebaa478b2690499ab049507d06e5
+    --contract-id 0x67632a67764130dc9d14e4213c5a5e1ccfe51f184e8789fa68c7f34447c671a7
 
 ## User Orders
 
@@ -209,7 +223,7 @@ Matcher Fee for the market
     --account-type address \
     --account-id 0xf47e0ef744ac8c993550e03d17f1c4844494553a12cac11ab8c568c8999fdbbf \
     --rpc "testnet.fuel.network" \
-    --contract-id 0x21f2df4b6562991f7b364244b278b6420fbdebaa478b2690499ab049507d06e5
+    --contract-id 0x67632a67764130dc9d14e4213c5a5e1ccfe51f184e8789fa68c7f34447c671a7
 
 ## Deploy Orderbook
 
@@ -225,14 +239,14 @@ Owner address: fuel173lqaa6y4jxfjd2suq730uwys3zfg4f6zt9vzx4cc45v3xvlmwlszdvdpz
 ## Register a market
 
 ./target/release/spark-cli book register \
-    --market 0x21f2df4b6562991f7b364244b278b6420fbdebaa478b2690499ab049507d06e5 \
+    --market 0x67632a67764130dc9d14e4213c5a5e1ccfe51f184e8789fa68c7f34447c671a7 \
     --rpc "testnet.fuel.network" \
     --contract-id 0x0713334e61ed73ba9421a3a49891953f9ccb7353828566b569752a82a39803e8
 
 ## Unregister a market
 
 ./target/release/spark-cli book unregister \
-    --market 0x21f2df4b6562991f7b364244b278b6420fbdebaa478b2690499ab049507d06e5 \
+    --market 0x67632a67764130dc9d14e4213c5a5e1ccfe51f184e8789fa68c7f34447c671a7 \
     --rpc "testnet.fuel.network" \
     --contract-id 0x0713334e61ed73ba9421a3a49891953f9ccb7353828566b569752a82a39803e8
 

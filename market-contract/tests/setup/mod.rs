@@ -76,8 +76,8 @@ pub(crate) async fn setup(
     base_decimals: u32,
     quote_decimals: u32,
     price_decimals: u32,
-) -> anyhow::Result<(MarketContract, User, User, Assets)> {
-    let number_of_wallets = 2;
+) -> anyhow::Result<(MarketContract, User, User, User, User, Assets)> {
+    let number_of_wallets = 4;
     let coins_per_wallet = 1;
     let amount_per_coin = 1_000_000_000_000;
 
@@ -105,7 +105,9 @@ pub(crate) async fn setup(
 
     let mut wallets = launch_custom_provider_and_get_wallets(config, None, None).await?;
     let owner = wallets.pop().unwrap();
-    let user = wallets.pop().unwrap();
+    let user0 = wallets.pop().unwrap();
+    let user1 = wallets.pop().unwrap();
+    let matcher = wallets.pop().unwrap();
 
     let assets = Assets {
         base: Asset {
@@ -131,15 +133,16 @@ pub(crate) async fn setup(
         assets.base.decimals,
         assets.quote.id,
         assets.quote.decimals,
-        price_decimals,
         owner.clone(),
-        *owner.provider().unwrap().base_asset_id(),
+        price_decimals,
         0xFAFBFC,
     )
     .await?;
 
     let owner = User { wallet: owner };
-    let non_owner = User { wallet: user };
+    let user0 = User { wallet: user0 };
+    let user1 = User { wallet: user1 };
+    let matcher = User { wallet: matcher };
 
-    Ok((contract, owner, non_owner, assets))
+    Ok((contract, owner, user0, user1, matcher, assets))
 }

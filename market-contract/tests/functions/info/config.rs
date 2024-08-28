@@ -5,7 +5,7 @@ mod success {
     #[tokio::test]
     async fn returns_config() -> anyhow::Result<()> {
         let defaults = Defaults::default();
-        let (contract, owner, _user, assets) = setup(
+        let (contract, owner, _user, _, _, assets) = setup(
             defaults.base_decimals,
             defaults.quote_decimals,
             defaults.price_decimals,
@@ -15,13 +15,12 @@ mod success {
         assert_eq!(
             contract.config().await?.value,
             (
-                owner.address(),
                 assets.base.id,
                 assets.base.decimals,
                 assets.quote.id,
                 assets.quote.decimals,
+                owner.address().into(),
                 defaults.price_decimals,
-                assets.fuel.id,
                 0xFAFBFC,
             )
         );

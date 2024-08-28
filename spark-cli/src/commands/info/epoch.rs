@@ -3,8 +3,8 @@ use clap::Args;
 use spark_market_sdk::MarketContract;
 
 #[derive(Args, Clone)]
-#[command(about = "Query the total protocol fee")]
-pub(crate) struct TotalProtocolFeeCommand {
+#[command(about = "Query the epoch")]
+pub(crate) struct EpochCommand {
     /// The contract id of the market
     #[clap(long)]
     pub(crate) contract_id: String,
@@ -15,7 +15,7 @@ pub(crate) struct TotalProtocolFeeCommand {
     pub(crate) rpc: String,
 }
 
-impl TotalProtocolFeeCommand {
+impl EpochCommand {
     pub(crate) async fn run(&self) -> anyhow::Result<()> {
         let wallet = setup(&self.rpc).await?;
         let contract_id = validate_contract_id(&self.contract_id)?;
@@ -23,9 +23,9 @@ impl TotalProtocolFeeCommand {
         // Connect to the deployed contract via the rpc
         let contract = MarketContract::new(contract_id, wallet).await;
 
-        let total_protocol_fee = contract.total_protocol_fee().await?.value;
+        let epoch = contract.get_epoch().await?.value;
 
-        println!("Total Protocol Fee: {}", total_protocol_fee);
+        println!("\nEpoch: epoch {}, duration {}", epoch.0, epoch.1);
 
         Ok(())
     }

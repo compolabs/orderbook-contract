@@ -4,7 +4,7 @@ mod fulfill_order_many;
 mod match_order_many;
 mod match_order_pair;
 mod open_order;
+mod set_epoch;
 mod set_matcher_fee;
 mod set_protocol_fee;
 mod withdraw;
-mod withdraw_protocol_fees;

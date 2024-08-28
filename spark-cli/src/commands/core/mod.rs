@@ -6,7 +6,7 @@ pub(crate) mod fulfill_many;
 pub(crate) mod match_many;
 pub(crate) mod match_pair;
 pub(crate) mod open_order;
+pub(crate) mod set_epoch;
 pub(crate) mod set_matcher_fee;
 pub(crate) mod set_protocol_fee;
 pub(crate) mod withdraw;
-pub(crate) mod withdraw_protocol_fee;

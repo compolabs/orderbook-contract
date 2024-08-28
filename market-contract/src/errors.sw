@@ -10,13 +10,20 @@ pub enum ValueError {
     InvalidSlippage: (),
     InvalidArrayLength: (),
     InvalidFeeAmount: (u64, u64),
+    InvalidEpoch: (u64, u64, u64, u64),
+    InvalidFeeSorting: (),
+    InvalidFeeZeroBased: (),
+    InvalidValueSame: (),
 }
 
 pub enum OrderError {
+    OrderDuplicate: b256,
     OrderNotFound: b256,
     PriceTooSmall: (u64, u64),
     ZeroOrderAmount: (),
     ZeroLockAmount: (),
+    ZeroUnlockAmount: (),
+    ZeroTransferAmount: (),
     FailedToRemove: b256,
 }
 
@@ -31,5 +38,5 @@ pub enum AuthError {
 }
 
 pub enum AccountError {
-    InsufficientBalance: (u64, u64),
+    InsufficientBalance: (u64, u64, bool),
 }

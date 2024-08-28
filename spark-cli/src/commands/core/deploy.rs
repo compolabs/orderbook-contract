@@ -27,10 +27,6 @@ pub(crate) struct DeployCommand {
     #[clap(long)]
     pub(crate) price_decimals: u32,
 
-    /// The asset id for the fuel asset of the market
-    #[clap(long)]
-    pub(crate) fuel_asset: String,
-
     /// The URL to deploy to
     /// Ex. testnet.fuel.network
     #[clap(long)]
@@ -49,13 +45,8 @@ impl DeployCommand {
             anyhow::bail!("Invalid quote asset length");
         }
 
-        if self.fuel_asset.len() as u64 != 66 {
-            anyhow::bail!("Invalid fuel asset length");
-        }
-
         let base_asset = AssetId::from_str(&self.base_asset).expect("Invalid base asset");
         let quote_asset = AssetId::from_str(&self.quote_asset).expect("Invalid quote asset");
-        let fuel_asset = AssetId::from_str(&self.fuel_asset).expect("Invalid fuel asset");
 
         // Initial balance prior to contract call - used to calculate contract interaction cost
         let balance = wallet
@@ -70,9 +61,8 @@ impl DeployCommand {
             self.base_decimals,
             quote_asset,
             self.quote_decimals,
-            self.price_decimals,
             wallet.clone(),
-            fuel_asset,
+            self.price_decimals,
             version,
         )
         .await?;

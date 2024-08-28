@@ -25,7 +25,7 @@ impl ProtocolFeeCommand {
 
         let protocol_fee = contract.protocol_fee().await?.value;
 
-        println!("Protocol Fee: {}", protocol_fee);
+        println!("Protocol Fee: {:?}", protocol_fee);
 
         Ok(())
     }

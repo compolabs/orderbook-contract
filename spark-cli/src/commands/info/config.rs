@@ -24,24 +24,22 @@ impl ConfigCommand {
         let contract = MarketContract::new(contract_id, wallet).await;
 
         let (
-            owner,
             base_asset,
             base_asset_decimals,
             quote_asset,
             quote_asset_decimals,
+            owner,
             price_decimals,
-            fuel_asset,
             version,
         ) = contract.config().await?.value;
 
         // TODO: replace println with tracing
-        println!("\nOwner: 0x{}", owner);
-        println!("Base Asset: 0x{}", base_asset);
+        println!("\nBase Asset: 0x{}", base_asset);
         println!("Base Asset Decimals: {}", base_asset_decimals);
         println!("Quote Asset: 0x{}", quote_asset);
         println!("Quote Asset Decimals: {}", quote_asset_decimals);
+        println!("Owner: 0x{:?}", owner);
         println!("Price Decimals: {}", price_decimals);
-        println!("Fuel Asset: 0x{}", fuel_asset);
         println!(
             "Version: {}.{}.{}",
             (version & 0xFF0000) >> 16,
