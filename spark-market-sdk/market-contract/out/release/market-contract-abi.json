@@ -413,6 +413,11 @@
           "name": "InvalidFeeZeroBased",
           "type": 0,
           "typeArguments": null
+        },
+        {
+          "name": "InvalidValueSame",
+          "type": 0,
+          "typeArguments": null
         }
       ],
       "typeParameters": null
@@ -1141,6 +1146,7 @@
         {
           "name": "storage",
           "arguments": [
+            "read",
             "write"
           ]
         }
@@ -1608,7 +1614,7 @@
         "type": 25,
         "typeArguments": []
       },
-      "offset": 80304
+      "offset": 80552
     },
     {
       "name": "BASE_ASSET_DECIMALS",
@@ -1617,7 +1623,7 @@
         "type": 42,
         "typeArguments": null
       },
-      "offset": 80336
+      "offset": 80584
     },
     {
       "name": "QUOTE_ASSET",
@@ -1626,7 +1632,7 @@
         "type": 25,
         "typeArguments": []
       },
-      "offset": 80392
+      "offset": 80640
     },
     {
       "name": "QUOTE_ASSET_DECIMALS",
@@ -1635,7 +1641,7 @@
         "type": 42,
         "typeArguments": null
       },
-      "offset": 80424
+      "offset": 80672
     },
     {
       "name": "OWNER",
@@ -1644,7 +1650,7 @@
         "type": 12,
         "typeArguments": []
       },
-      "offset": 80344
+      "offset": 80592
     },
     {
       "name": "PRICE_DECIMALS",
@@ -1653,7 +1659,7 @@
         "type": 42,
         "typeArguments": null
       },
-      "offset": 80384
+      "offset": 80632
     },
     {
       "name": "VERSION",
@@ -1662,7 +1668,7 @@
         "type": 42,
         "typeArguments": null
       },
-      "offset": 80432
+      "offset": 80680
     }
   ]
 }
