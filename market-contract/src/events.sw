@@ -59,6 +59,8 @@ pub struct TradeOrderEvent {
     pub trade_price: u64,
     pub block_height: u32,
     pub tx_id: b256,
+    pub order_seller: Identity,
+    pub order_buyer: Identity,
 }
 
 pub struct WithdrawEvent {

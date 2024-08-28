@@ -1005,6 +1005,8 @@ fn emit_match_events(
         trade_price: match_price,
         block_height: block_height(),
         tx_id: tx_id(),
+        order_seller: order0.owner,
+        order_buyer: order1.owner,
     });
 }
 
