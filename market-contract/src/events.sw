@@ -1,6 +1,11 @@
 library;
 
-use ::data_structures::{asset_type::AssetType, order_type::OrderType, protocol_fee::ProtocolFee};
+use ::data_structures::{
+    asset_type::AssetType,
+    limit_type::LimitType,
+    order_type::OrderType,
+    protocol_fee::ProtocolFee,
+};
 
 pub struct CancelOrderEvent {
     pub order_id: b256,
@@ -47,6 +52,8 @@ pub struct MatchOrderEvent {
 pub struct TradeOrderEvent {
     pub base_sell_order_id: b256,
     pub base_buy_order_id: b256,
+    pub base_sell_order_limit: LimitType,
+    pub base_buy_order_limit: LimitType,
     pub order_matcher: Identity,
     pub trade_size: u64,
     pub trade_price: u64,

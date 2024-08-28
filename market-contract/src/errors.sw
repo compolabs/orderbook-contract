@@ -31,6 +31,7 @@ pub enum MatchError {
     CantMatch: (b256, b256),
     CantMatchMany: (),
     CantFulfillMany: (),
+    CantFulfillFOK: (),
 }
 
 pub enum AuthError {

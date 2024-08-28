@@ -160,7 +160,16 @@ impl Market for Contract {
         require(order0.is_some(), OrderError::OrderNotFound(order0_id));
         let order1 = storage.orders.get(order1_id).try_read();
         require(order1.is_some(), OrderError::OrderNotFound(order1_id));
-        let (match_result, _) = match_order_internal(order0_id, order0.unwrap(), order1_id, order1.unwrap());
+        let (match_result, _) = match_order_internal(
+            order0_id,
+            order0
+                .unwrap(),
+            LimitType::GTC,
+            order1_id,
+            order1
+                .unwrap(),
+            LimitType::GTC,
+        );
         require(
             match_result != MatchResult::ZeroMatch,
             MatchError::CantMatch((order0_id, order1_id)),
@@ -201,7 +210,16 @@ impl Market for Contract {
             }
 
             // try match
-            let (match_result, partial_order_id) = match_order_internal(id0, order0.unwrap(), id1, order1.unwrap());
+            let (match_result, partial_order_id) = match_order_internal(
+                id0,
+                order0
+                    .unwrap(),
+                LimitType::GTC,
+                id1,
+                order1
+                    .unwrap(),
+                LimitType::GTC,
+            );
 
             match match_result {
                 MatchResult::ZeroMatch => {
@@ -262,7 +280,7 @@ impl Market for Contract {
                         && order_type == OrderType::Buy
                     || distance(price, order1.price) <= slippage
                 {
-                    let (match_result, partial_order_id) = match_order_internal(id0, order0, id1, order1);
+                    let (match_result, partial_order_id) = match_order_internal(id0, order0, limit_type, id1, order1, LimitType::GTC);
                     match match_result {
                         MatchResult::ZeroMatch => {}
                         MatchResult::PartialMatch => {
@@ -284,8 +302,12 @@ impl Market for Contract {
             idx1 += 1;
         }
         require(
-            !(matched == MatchResult::ZeroMatch) && !(matched == MatchResult::PartialMatch && limit_type == LimitType::FOK),
+            !(matched == MatchResult::ZeroMatch),
             MatchError::CantFulfillMany,
+        );
+        require(
+            !(matched == MatchResult::PartialMatch && limit_type == LimitType::FOK),
+            MatchError::CantFulfillFOK,
         );
 
         if matched == MatchResult::PartialMatch {
@@ -809,8 +831,10 @@ fn execute_trade(
 fn match_order_internal(
     order0_id: b256,
     order0: Order,
+    order0_limit: LimitType,
     order1_id: b256,
     order1: Order,
+    order1_limit: LimitType,
 ) -> (MatchResult, b256) {
     let matcher = msg_sender().unwrap();
 
@@ -826,10 +850,10 @@ fn match_order_internal(
         return (MatchResult::ZeroMatch, b256::zero());
     }
 
-    let (mut s_order, s_id, mut b_order, b_id) = if order0.order_type == OrderType::Sell {
-        (order0, order0_id, order1, order1_id)
+    let (mut s_order, s_id, s_limit, mut b_order, b_id, b_limit) = if order0.order_type == OrderType::Sell {
+        (order0, order0_id, order0_limit, order1, order1_id, order1_limit)
     } else {
-        (order1, order1_id, order0, order0_id)
+        (order1, order1_id, order1_limit, order0, order0_id, order0_limit)
     };
 
     // Checking if the prices align for a possible match
@@ -846,9 +870,11 @@ fn match_order_internal(
     emit_match_events(
         s_id,
         s_order,
+        s_limit,
         trade_size,
         b_id,
         b_order,
+        b_limit,
         trade_size,
         matcher,
         trade_price,
@@ -911,9 +937,11 @@ fn update_order_storage(
 fn emit_match_events(
     id0: b256,
     order0: Order,
+    limit0: LimitType,
     amount0: u64,
     id1: b256,
     order1: Order,
+    limit1: LimitType,
     amount1: u64,
     matcher: Identity,
     match_price: u64,
@@ -968,16 +996,10 @@ fn emit_match_events(
 
     // Emit event for the trade execution
     log(TradeOrderEvent {
-        base_sell_order_id: if order0.asset_type == AssetType::Base {
-            id0
-        } else {
-            id1
-        },
-        base_buy_order_id: if order0.asset_type == AssetType::Quote {
-            id0
-        } else {
-            id1
-        },
+        base_sell_order_id: id0,
+        base_buy_order_id: id1,
+        base_sell_order_limit: limit0,
+        base_buy_order_limit: limit1,
         order_matcher: matcher,
         trade_size: amount0,
         trade_price: match_price,

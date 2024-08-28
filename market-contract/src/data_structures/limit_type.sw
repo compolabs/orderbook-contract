@@ -3,6 +3,7 @@ library;
 use std::hash::{Hash, Hasher};
 
 pub enum LimitType {
+    GTC: (),
     IOC: (),
     FOK: (),
 }
@@ -10,6 +11,7 @@ pub enum LimitType {
 impl core::ops::Eq for LimitType {
     fn eq(self, other: Self) -> bool {
         match (self, other) {
+            (Self::GTC, Self::GTC) => true,
             (Self::IOC, Self::IOC) => true,
             (Self::FOK, Self::FOK) => true,
             _ => false,
@@ -20,11 +22,14 @@ impl core::ops::Eq for LimitType {
 impl Hash for LimitType {
     fn hash(self, ref mut state: Hasher) {
         match self {
-            Self::IOC => {
+            Self::GTC => {
                 0_u8.hash(state);
             }
-            Self::FOK => {
+            Self::IOC => {
                 1_u8.hash(state);
+            }
+            Self::FOK => {
+                2_u8.hash(state);
             }
         }
     }

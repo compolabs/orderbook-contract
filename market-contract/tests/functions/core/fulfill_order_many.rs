@@ -1229,8 +1229,8 @@ mod revert {
     }
 
     #[tokio::test]
-    #[should_panic(expected = "CantFulfillMany")]
-    async fn fulfill_order_many_fok_same_asset_type_cannot_fully_match() {
+    #[should_panic(expected = "CantFulfillFOK")]
+    async fn fulfill_order_many_fok_same_asset_type_fok_cannot_fulfill() {
         let defaults = Defaults::default();
         let (contract, user0, user1, _, _, assets) = setup(
             defaults.base_decimals,
