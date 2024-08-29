@@ -29,7 +29,7 @@ mod success {
 
         let base_amount = 1_000_u64; // 0.00001 BTC
         let price1 = 70_000_000_000_000_u64; // 70,000$ price
-        let price2 = 75_000_000_000_000_u64; // 70,000$ price
+        let price2 = 75_000_000_000_000_u64; // 75,000$ price
 
         let order_configs: Vec<OrderConfig> = vec![
             OrderConfig {
@@ -115,7 +115,7 @@ mod success {
 
         let base_amount = 1_000_u64; // 0.00001 BTC
         let price1 = 70_000_000_000_000_u64; // 70,000$ price
-        let price2 = 75_000_000_000_000_u64; // 70,000$ price
+        let price2 = 75_000_000_000_000_u64; // 75,000$ price
 
         let order_configs: Vec<OrderConfig> = vec![
             OrderConfig {
@@ -277,7 +277,7 @@ mod success {
 
             // Specify the range for order amounts and prices
             let amount_range = 100_000..100_000_000; // 0.001 BTC to 1 BTC
-            let price_range = 1_000_000_000_i64..200_000_000_000_000_i64; // 1 USDC to 200k USDC
+            let price_range = 1_64..100_000_000_000_000_i64; // 0.000000001 USDC to 100k USDC
             let price_variation_range = -500..=500; // Range for price variation
 
             let mut rng = rand::thread_rng();
@@ -511,7 +511,7 @@ mod revert {
 
         let base_amount = 1_000_u64; // 0.00001 BTC
         let price1 = 70_000_000_000_000_u64; // 70,000$ price
-        let price2 = 75_000_000_000_000_u64; // 70,000$ price
+        let price2 = 75_000_000_000_000_u64; // 75,000$ price
 
         let order_configs: Vec<OrderConfig> = vec![
             OrderConfig {

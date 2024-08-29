@@ -1,5 +1,5 @@
 [package]
-name = "spark-orderbook-sdk"
+name = "spark-registry-sdk"
 version = { workspace = true }
 authors = { workspace = true }
 edition = { workspace = true }

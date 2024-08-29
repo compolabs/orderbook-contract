@@ -5423,7 +5423,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "spark-orderbook-sdk"
+name = "spark-registry-sdk"
 version = "0.2.0"
 dependencies = [
  "anyhow",
