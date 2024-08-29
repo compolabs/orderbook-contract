@@ -37,10 +37,10 @@ impl Order {
     ) -> Self {
         require(amount != 0, OrderError::ZeroOrderAmount);
         require(asset_type == AssetType::Base, AssetError::InvalidAsset);
+        let price_minimum = 10_u64.pow(price_decimals - 3);
         require(
-            price >= 10_u64
-                .pow(price_decimals),
-            OrderError::PriceTooSmall((price, 10_u64.pow(price_decimals))),
+            price >= price_minimum,
+            OrderError::PriceTooSmall((price, price_minimum)),
         );
 
         Self {
