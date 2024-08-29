@@ -1,10 +1,16 @@
 [package]
 name = "spark-orderbook-sdk"
-version = "0.1.0"
+version = { workspace = true }
 authors = { workspace = true }
 edition = { workspace = true }
 license = { workspace = true }
 rust-version = { workspace = true }
+include = [
+    "orderbook-contract/out/release/orderbook-contract-abi.json",
+    "src/lib.rs",
+    "Cargo.toml",
+    "README.md"
+]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

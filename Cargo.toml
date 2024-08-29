@@ -8,7 +8,7 @@ members = [
 ]
 
 [workspace.package]
-authors = ["alexey <alexnagornnyy.an@gmail.com>"]
+authors = ["ComposabilityLabs"]
 version = "0.2.0"
 edition = "2021"
 license = "Apache-2.0"
