@@ -30,7 +30,7 @@ mod success {
         )
         .await?;
 
-        let one_month = 31 * 24 * 60 * 60;
+        let one_month = (86400.0 * 365.25 / 12.0) as u64;
 
         // Fetch the initial epoch values
         let (uninitialized_epoch, uninitialized_epoch_duration) = contract.get_epoch().await?.value;
