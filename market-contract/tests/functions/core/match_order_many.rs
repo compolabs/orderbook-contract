@@ -1,4 +1,5 @@
 use crate::setup::{create_account, setup, Defaults};
+use rand::Rng;
 use spark_market_sdk::{/*AssetType,*/ OrderType};
 
 mod success {
@@ -258,6 +259,127 @@ mod success {
 
         let orders = contract.user_orders(user0.identity()).await?.value;
         assert_eq!(orders.len(), 4);
+
+        Ok(())
+    }
+
+    #[tokio::test(flavor = "multi_thread")]
+    #[ignore]
+    async fn fuzz_match_order_many() -> anyhow::Result<()> {
+        for _ in 0..25 {
+            let defaults = Defaults::default();
+            let (contract, _, user0, user1, _, assets) = setup(
+                defaults.base_decimals,
+                defaults.quote_decimals,
+                defaults.price_decimals,
+            )
+            .await?;
+
+            // Specify the range for order amounts and prices
+            let amount_range = 100_000..100_000_000; // 0.001 BTC to 1 BTC
+            let price_range = 1_000_000_000_i64..200_000_000_000_000_i64; // 1 USDC to 200k USDC
+            let price_variation_range = -500..=500; // Range for price variation
+
+            let mut rng = rand::thread_rng();
+            let mut order_configs: Vec<OrderConfig> = Vec::new();
+
+            let base_price = rng.gen_range(price_range.clone());
+
+            for _ in 0..3 {
+                // Generate a random variation within the range of -500 to 500
+                let buy_price_variation: i64 = rng.gen_range(price_variation_range.clone()) + 500;
+                let sell_price_variation: i64 = rng.gen_range(price_variation_range.clone()) - 500;
+
+                // Adjust the buy and sell order prices by their respective variations
+                let buy_order_price = (base_price as i64 + buy_price_variation).max(0) as u64;
+                let sell_order_price = (base_price as i64 + sell_price_variation).max(0) as u64;
+
+                let buy_order = OrderConfig {
+                    amount: rng.gen_range(amount_range.clone()),
+                    order_type: OrderType::Buy,
+                    price: buy_order_price,
+                };
+                let sell_order = OrderConfig {
+                    amount: rng.gen_range(amount_range.clone()),
+                    order_type: OrderType::Sell,
+                    price: sell_order_price,
+                };
+                order_configs.push(buy_order);
+                order_configs.push(sell_order);
+            }
+
+            let base_deposit = 1_000_000_000_u64; // 10 BTC
+            let quote_deposit = 1_000_000_000_000_u64; // 1m USDC
+
+            // user0 deposits and opens 6 orders
+            contract
+                .with_account(&user0.wallet)
+                .await?
+                .deposit(base_deposit, assets.base.id)
+                .await?;
+            contract
+                .with_account(&user0.wallet)
+                .await?
+                .deposit(quote_deposit, assets.quote.id)
+                .await?;
+
+            let mut order_ids: Vec<Bits256> = Vec::new();
+            for config in &order_configs {
+                order_ids.push(
+                    contract
+                        .with_account(&user0.wallet)
+                        .await?
+                        .open_order(config.amount, config.order_type.clone(), config.price)
+                        .await?
+                        .value,
+                );
+            }
+
+            // user1 deposits and opens 6 orders
+            contract
+                .with_account(&user1.wallet)
+                .await?
+                .deposit(base_deposit, assets.base.id)
+                .await?;
+            contract
+                .with_account(&user1.wallet)
+                .await?
+                .deposit(quote_deposit, assets.quote.id)
+                .await?;
+
+            for config in &order_configs {
+                order_ids.push(
+                    contract
+                        .with_account(&user1.wallet)
+                        .await?
+                        .open_order(config.amount, config.order_type.clone(), config.price)
+                        .await?
+                        .value,
+                );
+            }
+
+            let orders_0: Vec<Bits256> = contract.user_orders(user0.identity()).await?.value;
+            let orders_1: Vec<Bits256> = contract.user_orders(user1.identity()).await?.value;
+
+            // Ensure that all orders were opened
+            assert!(orders_0.len() == 6);
+            assert!(orders_1.len() == 6);
+
+            let result = contract.match_order_many(order_ids.clone()).await;
+
+            assert!(
+                result.is_ok(),
+                "Expected match_order_many to succeed but it failed with: {:?}",
+                result.err()
+            );
+
+            let orders_0: Vec<Bits256> = contract.user_orders(user0.identity()).await?.value;
+            let orders_1: Vec<Bits256> = contract.user_orders(user1.identity()).await?.value;
+
+            // Checking that at least 1 of the 6 orders was filled based on the random input
+            assert!(orders_0.len() < 6);
+            assert!(orders_1.len() < 6);
+        }
 
         Ok(())
     }

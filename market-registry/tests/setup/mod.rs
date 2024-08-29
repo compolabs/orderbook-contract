@@ -1,12 +1,12 @@
 use fuels::{
     accounts::ViewOnlyAccount,
     prelude::{
-        launch_custom_provider_and_get_wallets, Address, AssetConfig, AssetId,
-        WalletUnlocked, WalletsConfig,
+        launch_custom_provider_and_get_wallets, Address, AssetConfig, AssetId, WalletUnlocked,
+        WalletsConfig,
     },
     types::Identity,
 };
-use spark_orderbook_sdk::OrderbookContract;
+use spark_registry_sdk::OrderbookContract;
 
 pub(crate) struct User {
     pub(crate) wallet: WalletUnlocked,

@@ -11,7 +11,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "orderbook-contract"
+name = "market-registry"
 source = "member"
 dependencies = ["std"]
 
