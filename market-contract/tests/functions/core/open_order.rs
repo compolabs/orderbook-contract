@@ -412,7 +412,9 @@ mod revert {
         let order_amount = 100;
         let deposit_asset = assets.quote.id;
         let order_type = OrderType::Sell;
-        let price = 999999999;
+
+        // minimum price is 0.000000001 i.e. 1 / 1e9 
+        let price = 0;
 
         let _ = contract
             .deposit(deposit_amount, deposit_asset)
