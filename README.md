@@ -26,7 +26,7 @@ forc build --release & cargo test --release
 To run fuzz tests, use the following command:
 
 ```
-cargo test --release -- --ignored fuzz
+cargo test --release -- --ignored fuzz --test-threads=$(nproc || sysctl -n hw.ncpu)
 ```
 
 ## Contribution

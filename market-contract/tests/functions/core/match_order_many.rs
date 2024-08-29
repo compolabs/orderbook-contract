@@ -266,7 +266,7 @@ mod success {
     #[tokio::test(flavor = "multi_thread")]
     #[ignore]
     async fn fuzz_match_order_many() -> anyhow::Result<()> {
-        for _ in 0..25 {
+        for _ in 0..100 {
             let defaults = Defaults::default();
             let (contract, _, user0, user1, _, assets) = setup(
                 defaults.base_decimals,
