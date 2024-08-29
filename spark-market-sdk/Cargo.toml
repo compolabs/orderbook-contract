@@ -1,12 +1,13 @@
 [package]
 name = "spark-market-sdk"
+description = "Spark Rust SDK for Market contract interaction"
 version = { workspace = true }
 authors = { workspace = true }
 edition = { workspace = true }
 license = { workspace = true }
 rust-version = { workspace = true }
 include = [
-    "market-contract/out/release/market-contract-abi.json",
+    "market-contract/out/release/*",
     "src/lib.rs",
     "Cargo.toml",
     "README.md"

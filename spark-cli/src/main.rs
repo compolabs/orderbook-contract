@@ -12,6 +12,9 @@ use dotenv::dotenv;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
+    let version: String = env!("CARGO_PKG_VERSION").into();
+    println!("Spark CLI v{}", version);
+
     dotenv().ok(); // TODO: check this works against std::env
 
     // TODO: document local provider rpc in each command

@@ -15,9 +15,9 @@ abigen!(Contract(
     abi = "market-contract/out/release/market-contract-abi.json"
 ));
 
-const MARKET_CONTRACT_BINARY_PATH: &str = "../market-contract/out/release/market-contract.bin";
+const MARKET_CONTRACT_BINARY_PATH: &str = "market-contract/out/release/market-contract.bin";
 const MARKET_CONTRACT_STORAGE_PATH: &str =
-    "../market-contract/out/release/market-contract-storage_slots.json";
+    "market-contract/out/release/market-contract-storage_slots.json";
 
 pub struct MarketContract {
     instance: Market<WalletUnlocked>,

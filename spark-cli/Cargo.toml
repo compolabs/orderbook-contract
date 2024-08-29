@@ -1,5 +1,6 @@
 [package]
 name = "spark-cli"
+description = "Spark Rust CLI for Market & Orderbook contract interactions"
 version = { workspace = true }
 authors = { workspace = true }
 edition = { workspace = true }
@@ -13,6 +14,6 @@ anyhow = { workspace = true }
 clap = { version = "4.5.16", features = ["derive"] }
 dotenv = "0.15.0"
 fuels = { workspace = true }
-spark-market-sdk = { path = "../spark-market-sdk" }
-spark-orderbook-sdk = { path = "../spark-orderbook-sdk" }
+spark-market-sdk = { version = "0.2.1" }
+spark-orderbook-sdk = { version = "0.2.1" }
 tokio = { workspace = true }

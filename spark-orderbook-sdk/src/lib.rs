@@ -15,9 +15,9 @@ abigen!(Contract(
 ));
 
 const ORDERBOOK_CONTRACT_BINARY_PATH: &str =
-    "../orderbook-contract/out/release/orderbook-contract.bin";
+    "orderbook-contract/out/release/orderbook-contract.bin";
 const ORDERBOOK_CONTRACT_STORAGE_PATH: &str =
-    "../orderbook-contract/out/release/orderbook-contract-storage_slots.json";
+    "orderbook-contract/out/release/orderbook-contract-storage_slots.json";
 
 pub struct OrderbookContract {
     instance: Orderbook<WalletUnlocked>,

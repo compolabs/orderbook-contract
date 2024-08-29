@@ -1,12 +1,13 @@
 [package]
 name = "spark-orderbook-sdk"
+description = "Spark Rust SDK for Orderbook contract interaction"
 version = { workspace = true }
 authors = { workspace = true }
 edition = { workspace = true }
 license = { workspace = true }
 rust-version = { workspace = true }
 include = [
-    "orderbook-contract/out/release/orderbook-contract-abi.json",
+    "orderbook-contract/out/release/*",
     "src/lib.rs",
     "Cargo.toml",
     "README.md"
