@@ -1,6 +1,6 @@
 use crate::utils::{setup, validate_contract_id};
 use clap::Args;
-use spark_orderbook_sdk::OrderbookContract;
+use spark_registry_sdk::OrderbookContract;
 
 #[derive(Args, Clone)]
 #[command(about = "Query the orderbook for its configurable variables")]

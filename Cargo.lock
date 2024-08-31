@@ -3762,11 +3762,23 @@ dependencies = [
 
 [[package]]
 name = "market-contract"
-version = "0.2.0"
+version = "0.2.1"
+dependencies = [
+ "anyhow",
+ "fuels",
+ "rand",
+ "spark-market-sdk",
+ "tokio",
+]
+
+[[package]]
+name = "market-registry"
+version = "0.2.1"
 dependencies = [
  "anyhow",
  "fuels",
  "spark-market-sdk",
+ "spark-registry-sdk",
  "tokio",
 ]
 
@@ -4166,17 +4178,6 @@ name = "openssl-probe"
 version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ff011a302c396a5197692431fc1948019154afc178baf7d8e37367442a4601cf"
-
-[[package]]
-name = "orderbook-contract"
-version = "0.2.0"
-dependencies = [
- "anyhow",
- "fuels",
- "spark-market-sdk",
- "spark-orderbook-sdk",
- "tokio",
-]
 
 [[package]]
 name = "p256"
@@ -5400,20 +5401,20 @@ dependencies = [
 
 [[package]]
 name = "spark-cli"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "anyhow",
  "clap",
  "dotenv",
  "fuels",
  "spark-market-sdk",
- "spark-orderbook-sdk",
+ "spark-registry-sdk",
  "tokio",
 ]
 
 [[package]]
 name = "spark-market-sdk"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "anyhow",
  "fuels",
@@ -5422,8 +5423,8 @@ dependencies = [
 ]
 
 [[package]]
-name = "spark-orderbook-sdk"
-version = "0.2.0"
+name = "spark-registry-sdk"
+version = "0.2.1"
 dependencies = [
  "anyhow",
  "fuels",

@@ -76,8 +76,8 @@ storage {
     user_volumes: StorageMap<Identity, UserVolume> = StorageMap {},
     // Epoch
     epoch: u64 = 0,
-    // Epoch duration
-    epoch_duration: u64 = 31 * 24 * 60 * 60,
+    // Epoch duration 1 month (86400 * 365.25 / 12)
+    epoch_duration: u64 = 2629800,
     // Order height
     order_height: u64 = 0,
 }
