@@ -70,6 +70,7 @@ mod success {
     #[ignore]
     async fn fuzz_sell_base() -> anyhow::Result<()> {
         let defaults = Defaults::default();
+        let mut rng = rand::thread_rng();
 
         for _ in 0..100 {
             let (contract, owner, _user, _, _, assets) = setup(
@@ -78,32 +79,81 @@ mod success {
                 defaults.price_decimals,
             )
             .await?;
+            let provider = owner.wallet.try_provider()?;
 
-            // Generate random deposit and order amounts
-            let deposit_amount = rand::thread_rng().gen_range(1..100_000_000);
-            let order_amount = rand::thread_rng().gen_range(1..deposit_amount);
-            let asset = assets.base.id;
+            // Randomize deposit_amount 0.0001 to 100 BTC
+            let deposit_amount = rng.gen_range(1..100_000) * 10_u64.pow(defaults.base_decimals - 3);
+            let expected_account = create_account(deposit_amount, 0, 0, 0);
+
+            let asset_to_sell = assets.base.id;
             let order_type = OrderType::Sell;
-            let price =
-                rand::thread_rng().gen_range(1_000_000_000_u64..100_000_000_000_000_000_u64); // 1 to 100 million
 
-            // Deposit assets and open order
-            let _ = contract.deposit(deposit_amount, asset).await?;
+            // Randomize price 0.001 to 1m USD
+            let price = rng.gen_range(1..1_000_000) * 10_u64.pow(defaults.price_decimals - 3);
+
+            // Calculate max order amount based on deposit and price
+            let max_order_amount = deposit_amount;
+
+            let order_amount = if max_order_amount > 0 {
+                rng.gen_range(1..=max_order_amount)
+            } else {
+                1
+            };
+
+            let expected_id = contract
+                .order_id(
+                    order_type.clone(),
+                    owner.identity(),
+                    price,
+                    provider.latest_block_height().await?,
+                    0,
+                )
+                .await?
+                .value;
+
+            let _ = contract
+                .deposit(deposit_amount, asset_to_sell)
+                .await
+                .is_ok();
+
+            let user_account = contract.account(owner.identity()).await?.value;
+            let orders = contract.user_orders(owner.identity()).await?.value;
+
+            assert_eq!(user_account, expected_account);
+            assert_eq!(orders, vec![]);
+            assert!(contract.order(expected_id).await?.value.is_none());
+
             let id = contract
-                .open_order(order_amount, order_type, price)
+                .open_order(order_amount, order_type.clone(), price)
+                .await?
+                .value;
+            let expected_id = contract
+                .order_id(
+                    order_type.clone(),
+                    owner.identity(),
+                    price,
+                    provider.latest_block_height().await?,
+                    0,
+                )
                 .await?
                 .value;
 
             let user_account = contract.account(owner.identity()).await?.value;
-            let expected_account =
-                create_account(deposit_amount - order_amount, 0, order_amount, 0);
+
+            // Calculate the remaining liquid base asset after locking the amount
+            let locked_base = order_amount;
+            let liquid_base = deposit_amount - locked_base;
+
+            // Create the expected account after the order is locked
+            let expected_account = create_account(liquid_base, 0, locked_base, 0);
+
             let mut orders = contract.user_orders(owner.identity()).await?.value;
+
             assert_eq!(user_account, expected_account);
             assert_eq!(orders.len(), 1);
             assert_eq!(orders.pop().unwrap(), id);
-            assert!(contract.order(id).await?.value.is_some());
+            assert_eq!(id, expected_id);
 
-            // Cancel order
             let response = contract.cancel_order(id).await?;
             let log = response
                 .decode_logs_with_type::<CancelOrderEvent>()
@@ -118,7 +168,6 @@ mod success {
             assert_eq!(orders.len(), 0);
             assert!(contract.order(id).await?.value.is_none());
         }
-
         Ok(())
     }
 
@@ -226,13 +275,17 @@ mod success {
             let asset_to_pay_wth = assets.quote.id;
             let order_type = OrderType::Buy;
 
-            // Randomize price 1 to 1m USD
-            let price = rng.gen_range(1..1_000_000) * 10_u64.pow(defaults.price_decimals);
+            // Randomize price 0.001 to 1m USD
+            let price = rng.gen_range(1..1_000_000) * 10_u64.pow(defaults.price_decimals - 3);
 
             // Scale and convert to u64
             let max_order_amount = deposit_amount * 10_u64.pow(6) / price * 10_u64.pow(5);
 
-            let order_amount = rng.gen_range(1..=max_order_amount);
+            let order_amount = if max_order_amount > 0 {
+                rng.gen_range(1..=max_order_amount)
+            } else {
+                1
+            };
 
             let expected_id = contract
                 .order_id(

@@ -331,7 +331,7 @@ mod success_ioc {
     async fn fuzz_fulfill_order_many_same_asset_type_partial_fulfill() -> anyhow::Result<()> {
         let mut rng = rand::thread_rng();
 
-        for _ in 0..25 {
+        for _ in 0..100 {
             let defaults = Defaults::default();
             let (contract, user0, user1, _, _, assets) = setup(
                 defaults.base_decimals,
