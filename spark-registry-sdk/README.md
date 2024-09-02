@@ -1,13 +1,13 @@
-# Spark Orderbook Contract Rust SDK
+# Spark MarketRegistry Contract Rust SDK
 
-The Spark Orderbook Contract SDK designed for Spark Market contract communication.
+The Spark MarketRegistry Contract SDK is designed for interacting with the Spark MarketRegistry contract.
 There are a set of transactional methods such as `deploy`, register/unregister owner methods and `markets` getter method. Given below a detailed explanation of every contract method.
 
-## OrderbookContract Type
+## MarketRegistryContract Type
 
 ```rust
-pub struct OrderbookContract {
-    instance: Orderbook<WalletUnlocked>,
+pub struct MarketRegistryContract {
+    instance: MarketRegistry<WalletUnlocked>,
 }
 ```
 
@@ -19,14 +19,14 @@ pub struct OrderbookContract {
 pub async fn deploy(owner: WalletUnlocked) -> anyhow::Result<Self>
 ```
 
-Deploys a new orderbook contract with given owner.
+Deploys a new market registry contract with given owner.
 
-`owner` The owner of the orderbook contract that manages market list.
+`owner` The owner of the market registry contract that manages market list.
 
-Returns a new instance of OrderbookContract type.
+Returns a new instance of MarketRegistryContract type.
 
 
-### Register Market
+### Register new Market
 
 ```rust
 pub async fn register_market(&self, market: ContractId) -> anyhow::Result<CallResponse<()>>
@@ -54,7 +54,7 @@ Unregisters a market by owner.
 Returns a call result
 
 
-## OrdebookContract Getter Methods
+## MarketRegistryContract Getter Methods
 
 ### Markets Info
 

@@ -6,7 +6,7 @@ use fuels::{
     },
     types::Identity,
 };
-use spark_registry_sdk::OrderbookContract;
+use spark_registry_sdk::MarketRegistryContract;
 
 pub(crate) struct User {
     pub(crate) wallet: WalletUnlocked,
@@ -16,21 +16,13 @@ impl User {
     pub(crate) fn address(&self) -> Address {
         Address::from(self.wallet.address())
     }
-
-    pub(crate) fn identity(&self) -> Identity {
-        Identity::Address(self.address())
-    }
-
-    pub(crate) async fn balance(&self, asset: &AssetId) -> u64 {
-        self.wallet.get_asset_balance(asset).await.unwrap()
-    }
 }
 
 pub(crate) fn random_asset_id(random: u8) -> AssetId {
     AssetId::new([random; 32])
 }
 
-pub(crate) async fn setup() -> anyhow::Result<(OrderbookContract, User, User)> {
+pub(crate) async fn setup() -> anyhow::Result<(MarketRegistryContract, User, User)> {
     let number_of_wallets = 2;
     let coins_per_wallet = 1;
     let amount_per_coin = 100_000_000;
@@ -55,7 +47,7 @@ pub(crate) async fn setup() -> anyhow::Result<(OrderbookContract, User, User)> {
     let owner = wallets.pop().unwrap();
     let user = wallets.pop().unwrap();
 
-    let contract = OrderbookContract::deploy(owner.clone(), 0xFAFBFC).await?;
+    let contract = MarketRegistryContract::deploy(owner.clone(), 0xFAFBFC).await?;
 
     let owner = User { wallet: owner };
     let non_owner = User { wallet: user };

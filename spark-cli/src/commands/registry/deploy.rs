@@ -1,10 +1,10 @@
 use crate::utils::setup;
 use clap::Args;
 use fuels::accounts::ViewOnlyAccount;
-use spark_registry_sdk::OrderbookContract;
+use spark_registry_sdk::MarketRegistryContract;
 
 #[derive(Args, Clone)]
-#[command(about = "Deploys the orderbook to a network")]
+#[command(about = "Deploys the MarketRegistry to a network")]
 pub(crate) struct DeployCommand {
     /// The URL to deploy to
     /// Ex. testnet.fuel.network
@@ -21,10 +21,10 @@ impl DeployCommand {
             .get_asset_balance(&wallet.provider().unwrap().base_asset_id())
             .await?;
 
-        let version = OrderbookContract::sdk_version();
+        let version = MarketRegistryContract::sdk_version();
 
         // Deploy the contract
-        let contract = OrderbookContract::deploy(wallet.clone(), version).await?;
+        let contract = MarketRegistryContract::deploy(wallet.clone(), version).await?;
 
         // Balance post-deployment
         let new_balance = wallet
@@ -33,7 +33,7 @@ impl DeployCommand {
 
         // TODO: replace println with tracing
         println!(
-            "\nOrderbook version {} ({}) deployed to: 0x{}",
+            "\n MarketRegistry version {} ({}) deployed to: 0x{}",
             contract.contract_str_version().await?,
             version,
             contract.id()
