@@ -21,7 +21,7 @@ abi MarketInfo {
     fn config() -> (AssetId, u32, AssetId, u32, Identity, u32, u32);
 }
 
-abi Orderbook {
+abi MarketRegistry {
     #[storage(read, write)]
     fn register_market(market: ContractId);
 
@@ -34,7 +34,7 @@ abi Orderbook {
     fn config() -> (Address, u32);
 }
 
-impl Orderbook for Contract {
+impl MarketRegistry for Contract {
     #[storage(read, write)]
     fn register_market(market: ContractId) {
         require(
@@ -52,7 +52,7 @@ impl Orderbook for Contract {
                 .get(id)
                 .try_read()
                 .is_none(),
-            OrderbookError::MarketAlreadyRegistered,
+            MarketRegistryError::MarketAlreadyRegistered,
         );
         storage.markets.insert(id, market);
         log(MarketRegisterEvent {
@@ -77,7 +77,7 @@ impl Orderbook for Contract {
             storage
                 .markets
                 .remove(id),
-            OrderbookError::MarketNotRegistered,
+            MarketRegistryError::MarketNotRegistered,
         );
         log(MarketUnregisterEvent {
             base: base,

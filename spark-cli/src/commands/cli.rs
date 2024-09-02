@@ -1,4 +1,6 @@
-use crate::commands::{book::cli::BookCommands, core::cli::CoreCommands, info::cli::InfoCommands};
+use crate::commands::{
+    core::cli::CoreCommands, info::cli::InfoCommands, registry::cli::RegistryCommands,
+};
 use clap::{Args, Parser, Subcommand};
 
 #[derive(Parser)]
@@ -26,7 +28,7 @@ pub(crate) enum Command {
 #[derive(Args, Clone)]
 pub(crate) struct Book {
     #[clap(subcommand)]
-    pub(crate) commands: BookCommands,
+    pub(crate) commands: RegistryCommands,
 }
 
 #[derive(Args, Clone)]

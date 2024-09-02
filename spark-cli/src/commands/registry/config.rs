@@ -1,9 +1,9 @@
 use crate::utils::{setup, validate_contract_id};
 use clap::Args;
-use spark_registry_sdk::OrderbookContract;
+use spark_registry_sdk::MarketRegistryContract;
 
 #[derive(Args, Clone)]
-#[command(about = "Query the orderbook for its configurable variables")]
+#[command(about = "Query the MarketRegistry for its configurable variables")]
 pub(crate) struct ConfigCommand {
     /// The contract id of the market
     #[clap(long)]
@@ -21,7 +21,7 @@ impl ConfigCommand {
         let contract_id = validate_contract_id(&self.contract_id)?;
 
         // Connect to the deployed contract via the rpc
-        let contract = OrderbookContract::new(contract_id, wallet).await;
+        let contract = MarketRegistryContract::new(contract_id, wallet).await;
 
         let (owner, version) = contract.config().await?.value;
 

@@ -4,7 +4,7 @@ pub enum AuthError {
     Unauthorized: (),
 }
 
-pub enum OrderbookError {
+pub enum MarketRegistryError {
     MarketAlreadyRegistered: (),
     MarketNotRegistered: (),
 }

@@ -28,8 +28,8 @@
       "metadataTypeId": 4
     },
     {
-      "type": "enum errors::OrderbookError",
-      "concreteTypeId": "3eb547542e0a8ac0ab5f91b2d15e72cf26f90968c806b45aa65ce22c3efa1f4d",
+      "type": "enum errors::MarketRegistryError",
+      "concreteTypeId": "b264f9929edaded198c8f74b64111f328a2b6d8aed859ae00d025e0f17a2a0f8",
       "metadataTypeId": 5
     },
     {
@@ -141,7 +141,7 @@
       ]
     },
     {
-      "type": "enum errors::OrderbookError",
+      "type": "enum errors::MarketRegistryError",
       "metadataTypeId": 5,
       "components": [
         {
@@ -359,8 +359,8 @@
       "concreteTypeId": "06c3d78f1057db580eb36dc2fc04ebd7407f4a4e954417b6761844fe38ee1a5d"
     },
     {
-      "logId": "4518596228011428544",
-      "concreteTypeId": "3eb547542e0a8ac0ab5f91b2d15e72cf26f90968c806b45aa65ce22c3efa1f4d"
+      "logId": "12854673644547923665",
+      "concreteTypeId": "b264f9929edaded198c8f74b64111f328a2b6d8aed859ae00d025e0f17a2a0f8"
     },
     {
       "logId": "16526329487357911494",

@@ -10,28 +10,29 @@ use rand::Rng;
 use std::path::PathBuf;
 
 abigen!(Contract(
-    name = "Orderbook",
+    name = "MarketRegistry",
     abi = "market-registry/out/release/market-registry-abi.json"
 ));
 
-const ORDERBOOK_CONTRACT_BINARY_PATH: &str = "../market-registry/out/release/market-registry.bin";
-const ORDERBOOK_CONTRACT_STORAGE_PATH: &str =
+const MARKETREGISTRY_CONTRACT_BINARY_PATH: &str =
+    "../market-registry/out/release/market-registry.bin";
+const MARKETREGISTRY_CONTRACT_STORAGE_PATH: &str =
     "../market-registry/out/release/market-registry-storage_slots.json";
 
-pub struct OrderbookContract {
-    instance: Orderbook<WalletUnlocked>,
+pub struct MarketRegistryContract {
+    instance: MarketRegistry<WalletUnlocked>,
 }
 
-impl OrderbookContract {
+impl MarketRegistryContract {
     pub async fn deploy(owner: WalletUnlocked, version: u32) -> anyhow::Result<Self> {
         let mut rng = rand::thread_rng();
         let salt = rng.gen::<[u8; 32]>();
 
         let root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         let storage_configuration = StorageConfiguration::default()
-            .add_slot_overrides_from_file(root.join(ORDERBOOK_CONTRACT_STORAGE_PATH));
+            .add_slot_overrides_from_file(root.join(MARKETREGISTRY_CONTRACT_STORAGE_PATH));
 
-        let configurables = OrderbookConfigurables::default()
+        let configurables = MarketRegistryConfigurables::default()
             .with_OWNER(owner.address().into())
             .unwrap()
             .with_VERSION(version)
@@ -42,27 +43,27 @@ impl OrderbookContract {
             .with_configurables(configurables);
 
         let contract_id = Contract::load_from(
-            root.join(ORDERBOOK_CONTRACT_BINARY_PATH),
+            root.join(MARKETREGISTRY_CONTRACT_BINARY_PATH),
             contract_configuration,
         )?
         .with_salt(salt)
         .deploy(&owner, TxPolicies::default())
         .await?;
 
-        let orderbook = Orderbook::new(contract_id.clone(), owner.clone());
+        let market_registry = MarketRegistry::new(contract_id.clone(), owner.clone());
 
         Ok(Self {
-            instance: orderbook,
+            instance: market_registry,
         })
     }
 
     pub async fn new(contract_id: ContractId, wallet: WalletUnlocked) -> Self {
         let _self = Self {
-            instance: Orderbook::new(contract_id, wallet),
+            instance: MarketRegistry::new(contract_id, wallet),
         };
         assert!(
             _self.contract_version().await.unwrap() & 0xFF0000 == Self::sdk_version() & 0xFF0000,
-            "Orderbook contract version mismatch with SDK version"
+            "MarketRegistry contract version mismatch with SDK version"
         );
         _self
     }

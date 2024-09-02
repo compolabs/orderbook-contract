@@ -225,13 +225,13 @@ Matcher Fee for the market
     --rpc "testnet.fuel.network" \
     --contract-id 0x67632a67764130dc9d14e4213c5a5e1ccfe51f184e8789fa68c7f34447c671a7
 
-## Deploy Orderbook
+## Deploy Market Registry Contract
 
 ./target/release/spark-cli book deploy \
     --rpc "testnet.fuel.network" 
 
 Output:
-Orderbook deployed to: 0x0713334e61ed73ba9421a3a49891953f9ccb7353828566b569752a82a39803e8
+MarketRegistry deployed to: 0x0713334e61ed73ba9421a3a49891953f9ccb7353828566b569752a82a39803e8
 Deployment cost: 0
 Owner address: fuel173lqaa6y4jxfjd2suq730uwys3zfg4f6zt9vzx4cc45v3xvlmwlszdvdpz
                0xf47e0ef744ac8c993550e03d17f1c4844494553a12cac11ab8c568c8999fdbbf
