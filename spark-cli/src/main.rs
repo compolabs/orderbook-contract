@@ -3,10 +3,10 @@ mod utils;
 
 use clap::Parser;
 use commands::{
-    book::cli::BookCommands,
     cli::{Cli, Command},
     core::cli::CoreCommands,
     info::cli::InfoCommands,
+    registry::cli::RegistryCommands,
 };
 use dotenv::dotenv;
 
@@ -21,11 +21,11 @@ async fn main() -> anyhow::Result<()> {
 
     match cli.command {
         Command::Book(args) => match args.commands {
-            BookCommands::Config(args) => args.run().await,
-            BookCommands::Deploy(args) => args.run().await,
-            BookCommands::Markets(args) => args.run().await,
-            BookCommands::Register(args) => args.run().await,
-            BookCommands::Unregister(args) => args.run().await,
+            RegistryCommands::Config(args) => args.run().await,
+            RegistryCommands::Deploy(args) => args.run().await,
+            RegistryCommands::Markets(args) => args.run().await,
+            RegistryCommands::Register(args) => args.run().await,
+            RegistryCommands::Unregister(args) => args.run().await,
         },
         Command::Core(args) => match args.commands {
             CoreCommands::Cancel(args) => args.run().await,

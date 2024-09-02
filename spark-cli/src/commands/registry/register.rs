@@ -1,16 +1,16 @@
 use crate::utils::{setup, validate_contract_id};
 use clap::Args;
 use fuels::accounts::ViewOnlyAccount;
-use spark_registry_sdk::OrderbookContract;
+use spark_registry_sdk::MarketRegistryContract;
 
 #[derive(Args, Clone)]
-#[command(about = "Unregisters a market in orderbook")]
-pub(crate) struct UnregisterCommand {
+#[command(about = "Registers a market in the market registry")]
+pub(crate) struct RegisterCommand {
     /// The contract id of the market
     #[clap(long)]
     pub(crate) market: String,
 
-    /// The contract id of the orderbook
+    /// The contract id of the market registry
     #[clap(long)]
     pub(crate) contract_id: String,
 
@@ -20,7 +20,7 @@ pub(crate) struct UnregisterCommand {
     pub(crate) rpc: String,
 }
 
-impl UnregisterCommand {
+impl RegisterCommand {
     pub(crate) async fn run(&self) -> anyhow::Result<()> {
         let wallet = setup(&self.rpc).await?;
         let contract_id = validate_contract_id(&self.contract_id)?;
@@ -32,9 +32,9 @@ impl UnregisterCommand {
             .await?;
 
         // Connect to the deployed contract via the rpc
-        let contract = OrderbookContract::new(contract_id, wallet.clone()).await;
+        let contract = MarketRegistryContract::new(contract_id, wallet.clone()).await;
 
-        let _ = contract.unregister_market(market).await?;
+        let _ = contract.register_market(market).await?;
 
         // Balance post-call
         let new_balance = wallet
