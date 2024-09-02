@@ -462,6 +462,88 @@ impl MarketInfo for Contract {
     }
 }
 
+fn only_owner() {
+    require(msg_sender().unwrap() == OWNER, AuthError::Unauthorized);
+}
+
+fn get_asset_type(asset_id: AssetId) -> AssetType {
+    if asset_id == BASE_ASSET {
+        AssetType::Base
+    } else if asset_id == QUOTE_ASSET {
+        AssetType::Quote
+    } else {
+        require(false, AssetError::InvalidAsset);
+        AssetType::Quote
+    }
+}
+fn get_asset_id(asset_type: AssetType) -> AssetId {
+    if asset_type == AssetType::Base {
+        BASE_ASSET
+    } else if asset_type == AssetType::Quote {
+        QUOTE_ASSET
+    } else {
+        require(false, AssetError::InvalidAsset);
+        QUOTE_ASSET
+    }
+}
+
+fn quote_of_base_amount(amount: u64, price: u64) -> u64 {
+    convert_asset_amount(amount, price, true)
+}
+
+fn base_of_quote_amount(amount: u64, price: u64) -> u64 {
+    convert_asset_amount(amount, price, false)
+}
+
+fn convert_asset_amount(amount: u64, price: u64, base_to_quote: bool) -> u64 {
+    let (op1, op2) = (price, 10_u64.pow(BASE_ASSET_DECIMALS + PRICE_DECIMALS - QUOTE_ASSET_DECIMALS));
+    if base_to_quote {
+        amount.mul_div(op1, op2)
+    } else {
+        amount.mul_div(op2, op1)
+    }
+}
+
+fn lock_order_amount(order: Order) -> u64 {
+    // For asset_type base only
+    if order.order_type == OrderType::Buy {
+        let amount = quote_of_base_amount(order.amount, order.price);
+        amount + order.max_protocol_fee_of_amount(amount) + order.matcher_fee
+    } else {
+        order.amount
+    }
+}
+
+#[storage(read)]
+fn protocol_fee_user(user: Identity) -> (u64, u64) {
+    let volume = storage.user_volumes.get(user).try_read().unwrap_or(UserVolume::new()).get(storage.epoch.read());
+    let protocol_fee = storage.protocol_fee.get_volume_protocol_fee(volume);
+    (protocol_fee.maker_fee, protocol_fee.taker_fee)
+}
+
+#[storage(read)]
+fn protocol_fee_user_amount(amount: u64, user: Identity) -> (u64, u64) {
+    let protocol_fee = protocol_fee_user(user);
+    (
+        amount * protocol_fee.0 / HUNDRED_PERCENT,
+        amount * protocol_fee.1 / HUNDRED_PERCENT,
+    )
+}
+
+#[storage(write)]
+fn extend_epoch() {
+    let epoch_duration = storage.epoch_duration.read();
+    let epoch = storage.epoch.read() + epoch_duration;
+
+    if epoch <= block_timestamp() {
+        storage.epoch.write(epoch);
+        log(SetEpochEvent {
+            epoch,
+            epoch_duration,
+        });
+    }
+}
+
 #[storage(read, write)]
 fn next_order_height() -> u64 {
     let order_height = storage.order_height.read();
@@ -594,58 +676,6 @@ fn cancel_order_internal(order_id: b256) {
     );
 
     log(CancelOrderEvent { order_id });
-}
-
-fn get_asset_type(asset_id: AssetId) -> AssetType {
-    if asset_id == BASE_ASSET {
-        AssetType::Base
-    } else if asset_id == QUOTE_ASSET {
-        AssetType::Quote
-    } else {
-        require(false, AssetError::InvalidAsset);
-        AssetType::Quote
-    }
-}
-
-fn get_asset_id(asset_type: AssetType) -> AssetId {
-    if asset_type == AssetType::Base {
-        BASE_ASSET
-    } else if asset_type == AssetType::Quote {
-        QUOTE_ASSET
-    } else {
-        require(false, AssetError::InvalidAsset);
-        QUOTE_ASSET
-    }
-}
-
-#[storage(write)]
-fn extend_epoch() {
-    let epoch_duration = storage.epoch_duration.read();
-    let epoch = storage.epoch.read() + epoch_duration;
-
-    if epoch <= block_timestamp() {
-        storage.epoch.write(epoch);
-        log(SetEpochEvent {
-            epoch,
-            epoch_duration,
-        });
-    }
-}
-
-#[storage(read)]
-fn protocol_fee_user(user: Identity) -> (u64, u64) {
-    let volume = storage.user_volumes.get(user).try_read().unwrap_or(UserVolume::new()).get(storage.epoch.read());
-    let protocol_fee = storage.protocol_fee.get_volume_protocol_fee(volume);
-    (protocol_fee.maker_fee, protocol_fee.taker_fee)
-}
-
-#[storage(read)]
-fn protocol_fee_user_amount(amount: u64, user: Identity) -> (u64, u64) {
-    let protocol_fee = protocol_fee_user(user);
-    (
-        amount * protocol_fee.0 / HUNDRED_PERCENT,
-        amount * protocol_fee.1 / HUNDRED_PERCENT,
-    )
 }
 
 #[storage(read, write)]
@@ -1013,35 +1043,4 @@ fn emit_match_events(
 #[storage(read, write)]
 fn log_order_change_info(order_id: b256, change_info: OrderChangeInfo) {
     storage.order_change_info.get(order_id).push(change_info);
-}
-
-fn quote_of_base_amount(amount: u64, price: u64) -> u64 {
-    convert_asset_amount(amount, price, true)
-}
-
-fn base_of_quote_amount(amount: u64, price: u64) -> u64 {
-    convert_asset_amount(amount, price, false)
-}
-
-fn convert_asset_amount(amount: u64, price: u64, base_to_quote: bool) -> u64 {
-    let (op1, op2) = (price, 10_u64.pow(BASE_ASSET_DECIMALS + PRICE_DECIMALS - QUOTE_ASSET_DECIMALS));
-    if base_to_quote {
-        amount.mul_div(op1, op2)
-    } else {
-        amount.mul_div(op2, op1)
-    }
-}
-
-pub fn lock_order_amount(order: Order) -> u64 {
-    // For asset_type base only
-    if order.order_type == OrderType::Buy {
-        let amount = quote_of_base_amount(order.amount, order.price);
-        amount + order.max_protocol_fee_of_amount(amount) + order.matcher_fee
-    } else {
-        order.amount
-    }
-}
-
-fn only_owner() {
-    require(msg_sender().unwrap() == OWNER, AuthError::Unauthorized);
 }
