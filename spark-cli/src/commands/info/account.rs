@@ -50,7 +50,6 @@ impl AccountCommand {
             .await?;
         println!("\nContract base asset balance: {}", balance);
 
-        // TODO: replace println with tracing
         println!("\n{:#?}", account);
 
         Ok(())

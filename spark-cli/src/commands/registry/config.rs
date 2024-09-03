@@ -25,7 +25,6 @@ impl ConfigCommand {
 
         let (owner, version) = contract.config().await?.value;
 
-        // TODO: replace println with tracing
         println!("\nOwner: 0x{}", owner);
         println!(
             "Version: {} ({})",

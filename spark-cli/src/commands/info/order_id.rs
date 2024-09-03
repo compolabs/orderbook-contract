@@ -50,13 +50,6 @@ impl OrderIdCommand {
         let wallet = setup(&self.rpc).await?;
         let contract_id = validate_contract_id(&self.contract_id)?;
 
-        /*let asset_type = match self.asset_type.as_str() {
-            "base" => AssetType::Base,
-            "quote" => AssetType::Quote,
-            _ => anyhow::bail!("Invalid asset type [base|quote]"),
-        };*/
-
-        // TODO: cli parsing
         let order_type = match self.order_type {
             OrderType::Buy => ContractOrderType::Buy,
             OrderType::Sell => ContractOrderType::Sell,
@@ -87,8 +80,6 @@ impl OrderIdCommand {
             .await?
             .value;
 
-        // TODO: replace println with tracing
-        // TODO: hack to display, turn into hex manually?
         println!("\nOrder ID: {}", ContractId::from(hash.0));
 
         Ok(())

@@ -72,7 +72,6 @@ impl DeployCommand {
             .get_asset_balance(&wallet.provider().unwrap().base_asset_id())
             .await?;
 
-        // TODO: replace println with tracing
         println!(
             "\nMarket version {} ({}) deployed to: 0x{}",
             contract.contract_str_version().await?,

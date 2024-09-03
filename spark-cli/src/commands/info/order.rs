@@ -35,10 +35,8 @@ impl OrderCommand {
 
         let order = contract.order(order_id).await?.value;
 
-        // TODO: replace println with tracing
         match order {
             Some(order) => {
-                // TODO: print line-by-line instead of debug?
                 println!("{:#?}", order);
             }
             None => println!("No order found for id: {}", self.order_id),

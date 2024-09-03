@@ -1372,7 +1372,6 @@ mod revert {
             },
             OrderConfig {
                 amount: 2 * base_amount,
-                /*asset_type: AssetType::Base,*/
                 order_type: OrderType::Buy,
                 price: price2,
             },

@@ -58,7 +58,6 @@ impl DepositCommand {
             .await?;
         let new_asset_balance = wallet.get_asset_balance(&asset).await?;
 
-        // TODO: replace println with tracing
         println!("\nContract call cost: {}", balance - new_balance);
         println!(
             "Deposited {} amount of asset {}",

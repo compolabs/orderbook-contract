@@ -33,7 +33,6 @@ impl ConfigCommand {
             version,
         ) = contract.config().await?.value;
 
-        // TODO: replace println with tracing
         println!("\nBase Asset: 0x{}", base_asset);
         println!("Base Asset Decimals: {}", base_asset_decimals);
         println!("Quote Asset: 0x{}", quote_asset);

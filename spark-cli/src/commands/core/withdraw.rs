@@ -57,7 +57,6 @@ impl WithdrawCommand {
             .await?;
         let new_asset_balance = wallet.get_asset_balance(&asset).await?;
 
-        // TODO: replace println with tracing
         println!("Contract call cost: {}", balance - new_balance);
         println!(
             "Withdrawn {} amount of {:?} asset",

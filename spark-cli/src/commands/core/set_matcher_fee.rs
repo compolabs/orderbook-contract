@@ -40,7 +40,6 @@ impl SetMatcherFeeCommand {
             .get_asset_balance(&wallet.provider().unwrap().base_asset_id())
             .await?;
 
-        // TODO: replace println with tracing
         println!("\nThe matcher fee has been set to: {}", self.amount);
         println!("Contract call cost: {}", balance - new_balance);
 
