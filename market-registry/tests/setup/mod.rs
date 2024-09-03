@@ -1,10 +1,6 @@
-use fuels::{
-    accounts::ViewOnlyAccount,
-    prelude::{
-        launch_custom_provider_and_get_wallets, Address, AssetConfig, AssetId, WalletUnlocked,
-        WalletsConfig,
-    },
-    types::Identity,
+use fuels::prelude::{
+    launch_custom_provider_and_get_wallets, Address, AssetConfig, AssetId, WalletUnlocked,
+    WalletsConfig,
 };
 use spark_registry_sdk::MarketRegistryContract;
 
