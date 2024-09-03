@@ -1420,37 +1420,37 @@
     {
       "name": "BASE_ASSET",
       "concreteTypeId": "c0710b6731b1dd59799cf6bef33eee3b3b04a2e40e80a0724090215bbf2ca974",
-      "offset": 88904
+      "offset": 88576
     },
     {
       "name": "BASE_ASSET_DECIMALS",
       "concreteTypeId": "d7649d428b9ff33d188ecbf38a7e4d8fd167fa01b2e10fe9a8f9308e52f1d7cc",
-      "offset": 88936
+      "offset": 88608
     },
     {
       "name": "QUOTE_ASSET",
       "concreteTypeId": "c0710b6731b1dd59799cf6bef33eee3b3b04a2e40e80a0724090215bbf2ca974",
-      "offset": 88992
+      "offset": 88664
     },
     {
       "name": "QUOTE_ASSET_DECIMALS",
       "concreteTypeId": "d7649d428b9ff33d188ecbf38a7e4d8fd167fa01b2e10fe9a8f9308e52f1d7cc",
-      "offset": 89024
+      "offset": 88696
     },
     {
       "name": "OWNER",
       "concreteTypeId": "ab7cd04e05be58e3fc15d424c2c4a57f824a2a2d97d67252440a3925ebdc1335",
-      "offset": 88944
+      "offset": 88616
     },
     {
       "name": "PRICE_DECIMALS",
       "concreteTypeId": "d7649d428b9ff33d188ecbf38a7e4d8fd167fa01b2e10fe9a8f9308e52f1d7cc",
-      "offset": 88984
+      "offset": 88656
     },
     {
       "name": "VERSION",
       "concreteTypeId": "d7649d428b9ff33d188ecbf38a7e4d8fd167fa01b2e10fe9a8f9308e52f1d7cc",
-      "offset": 89032
+      "offset": 88704
     }
   ]
 }
