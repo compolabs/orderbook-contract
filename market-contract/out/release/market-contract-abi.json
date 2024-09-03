@@ -944,6 +944,24 @@
       "output": "2e38e77b22c314a449e91fafed92a43826ac6aa403ae6a8acb6cf58239fbaf5d",
       "attributes": [
         {
+          "name": "doc-comment",
+          "arguments": [
+            " @notice Cancels an existing order with the specified order ID."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " @param order_id The unique identifier of the order to be canceled."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " @return None - The function does not return a value."
+          ]
+        },
+        {
           "name": "storage",
           "arguments": [
             "read",
@@ -957,6 +975,30 @@
       "name": "deposit",
       "output": "2e38e77b22c314a449e91fafed92a43826ac6aa403ae6a8acb6cf58239fbaf5d",
       "attributes": [
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " @notice Deposits a specified amount of an asset into the caller's account."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " @notice The function requires that the sender sends a non-zero amount of the specified asset."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " @param None - The function doesn't take any input parameters; it uses context information."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " @return None - The function does not return a value."
+          ]
+        },
         {
           "name": "payable",
           "arguments": []
@@ -1001,6 +1043,84 @@
       "output": "7c5ee1cecf5f8eacd1284feb5f0bf2bdea533a51e2f0c9aabe9236d335989f3b",
       "attributes": [
         {
+          "name": "doc-comment",
+          "arguments": [
+            " @notice Attempts to fulfill a single order by matching it against multiple orders from a provided list."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " @dev This function creates a new order with the given parameters and iterates through the list of existing orders,"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            "      attempting to match the new order with existing orders. It handles full and partial matches according to the specified limit type:"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            "      - `GTC` (Good-Til-Canceled): The order remains active until it is either fully filled or canceled."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            "      - `IOC` (Immediate-Or-Cancel): The order can be partially filled immediately, and any unfilled portion is canceled."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            "      - `FOK` (Fill-Or-Kill): The order must be fully filled immediately, or the entire transaction fails."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " @param amount The amount of the asset to be fulfilled in the new order."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " @param order_type The type of the order being fulfilled (e.g., buy or sell)."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " @param limit_type The limit type for the new order: `GTC`, `IOC`, or `FOK`."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " @param price The price at which the new order is to be fulfilled."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " @param slippage The maximum allowable slippage (as a percentage) for the price during the matching process."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " @param orders A vector of order IDs representing the existing orders to match against the new order."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " @return b256 The unique identifier of the newly created order. If the order is partially matched and canceled (in the case of `IOC`), the ID corresponds to the canceled order."
+          ]
+        },
+        {
           "name": "payable",
           "arguments": []
         },
@@ -1024,6 +1144,24 @@
       "output": "2e38e77b22c314a449e91fafed92a43826ac6aa403ae6a8acb6cf58239fbaf5d",
       "attributes": [
         {
+          "name": "doc-comment",
+          "arguments": [
+            " @notice Attempts to match multiple orders provided in a list."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " @param orders A vector containing the unique identifiers of the orders to be matched."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " @return None - The function does not return a value."
+          ]
+        },
+        {
           "name": "storage",
           "arguments": [
             "read",
@@ -1046,6 +1184,30 @@
       "name": "match_order_pair",
       "output": "2e38e77b22c314a449e91fafed92a43826ac6aa403ae6a8acb6cf58239fbaf5d",
       "attributes": [
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " @notice Matches two orders identified by their respective order IDs."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " @param order0_id The unique identifier of the first order to be matched."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " @param order1_id The unique identifier of the second order to be matched."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " @return None - The function does not return a value."
+          ]
+        },
         {
           "name": "storage",
           "arguments": [
@@ -1074,6 +1236,36 @@
       "output": "7c5ee1cecf5f8eacd1284feb5f0bf2bdea533a51e2f0c9aabe9236d335989f3b",
       "attributes": [
         {
+          "name": "doc-comment",
+          "arguments": [
+            " @notice Opens a new order with a specified amount, order type, and price."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " @param amount The amount of the asset to be used in the order."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " @param order_type The type of the order being created (e.g., buy or sell)."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " @param price The price at which the order should be placed."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " @return b256 The unique identifier of the newly opened order."
+          ]
+        },
+        {
           "name": "storage",
           "arguments": [
             "read",
@@ -1097,6 +1289,48 @@
       "output": "2e38e77b22c314a449e91fafed92a43826ac6aa403ae6a8acb6cf58239fbaf5d",
       "attributes": [
         {
+          "name": "doc-comment",
+          "arguments": [
+            " @notice Sets the current epoch and its duration."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " @dev This function allows the contract owner to set a new epoch and its duration."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            "      It ensures that the new epoch is not in the past and that the epoch plus its duration extends beyond the current time."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            "      The function is restricted to the contract owner and logs an event after the epoch is set."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " @param epoch The new epoch value to be set. Must be greater than or equal to the current epoch."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " @param epoch_duration The duration of the epoch in seconds. The epoch plus its duration must extend beyond the current time."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " @return None - The function does not return a value."
+          ]
+        },
+        {
           "name": "storage",
           "arguments": [
             "write"
@@ -1114,6 +1348,42 @@
       "name": "set_matcher_fee",
       "output": "2e38e77b22c314a449e91fafed92a43826ac6aa403ae6a8acb6cf58239fbaf5d",
       "attributes": [
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " @notice Sets the matcher fee to a specified amount."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " @dev This function allows the contract owner to update the matcher fee."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            "      It checks that the new fee amount is different from the current one to avoid redundant updates."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            "      The function is restricted to the contract owner and logs an event after the matcher fee is set."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " @param amount The new matcher fee amount to be set. It must be different from the current matcher fee."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " @return None - The function does not return a value."
+          ]
+        },
         {
           "name": "storage",
           "arguments": [
@@ -1133,6 +1403,48 @@
       "name": "set_protocol_fee",
       "output": "2e38e77b22c314a449e91fafed92a43826ac6aa403ae6a8acb6cf58239fbaf5d",
       "attributes": [
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " @notice Sets the protocol fees based on volume thresholds."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " @dev This function allows the contract owner to set a list of protocol fees."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            "      It ensures that the first fee in the list has a volume threshold of zero and that the fees are sorted by volume threshold."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            "      The function is restricted to the contract owner and logs an event after the protocol fees are set."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " @param protocol_fee A vector of `ProtocolFee` structures that define the fee rates and their corresponding volume thresholds."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            "                     The first element must have a volume threshold of zero, and the list must be sorted by volume threshold."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " @return None - The function does not return a value."
+          ]
+        },
         {
           "name": "storage",
           "arguments": [
@@ -1155,6 +1467,30 @@
       "name": "withdraw",
       "output": "2e38e77b22c314a449e91fafed92a43826ac6aa403ae6a8acb6cf58239fbaf5d",
       "attributes": [
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " @notice Withdraws a specified amount of a given asset from the caller's account."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " @param amount The amount of the asset to be withdrawn. Must be greater than zero."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " @param asset_type The type of the asset to be withdrawn."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " @return None - The function does not return a value."
+          ]
+        },
         {
           "name": "storage",
           "arguments": [
