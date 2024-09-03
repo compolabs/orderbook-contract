@@ -45,7 +45,6 @@ impl CancelCommand {
             .get_asset_balance(&wallet.provider().unwrap().base_asset_id())
             .await?;
 
-        // TODO: replace println with tracing
         println!("\nContract call cost: {}", balance - new_balance);
 
         Ok(())

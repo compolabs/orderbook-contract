@@ -39,15 +39,10 @@ impl OpenCommand {
         let wallet = setup(&self.rpc).await?;
         let contract_id = validate_contract_id(&self.contract_id)?;
 
-        // TODO: cli parsing
         let order_type = match self.order_type {
             OrderType::Buy => ContractOrderType::Buy,
             OrderType::Sell => ContractOrderType::Sell,
         };
-        /*let asset_type = match self.asset_type {
-            AssetType::Base => ContractAssetType::Base,
-            AssetType::Quote => ContractAssetType::Quote,
-        };*/
 
         // Initial balance prior to contract call - used to calculate contract interaction cost
         let balance = wallet
@@ -58,12 +53,7 @@ impl OpenCommand {
         let contract = MarketContract::new(contract_id, wallet.clone()).await;
 
         let order_id = contract
-            .open_order(
-                self.amount,
-                /*asset_type.clone(),*/
-                order_type.clone(),
-                self.price,
-            )
+            .open_order(self.amount, order_type.clone(), self.price)
             .await?
             .value;
 
@@ -72,9 +62,7 @@ impl OpenCommand {
             .get_asset_balance(&wallet.provider().unwrap().base_asset_id())
             .await?;
 
-        // TODO: replace println with tracing
         println!("\nContract call cost: {}", balance - new_balance);
-        // TODO: hack to display, turn into hex manually?
         println!("Order ID: {}", ContractId::from(order_id.0));
 
         Ok(())

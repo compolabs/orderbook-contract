@@ -50,9 +50,7 @@ impl UserOrdersCommand {
             anyhow::bail!("User has no open orders");
         }
 
-        // TODO: replace println with tracing
         for order in orders {
-            // TODO: print line-by-line instead of debug?
             println!("{:?}", Address::new(order.0));
         }
 

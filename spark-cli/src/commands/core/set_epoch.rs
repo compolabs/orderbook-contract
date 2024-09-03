@@ -44,7 +44,6 @@ impl SetEpochCommand {
             .get_asset_balance(&wallet.provider().unwrap().base_asset_id())
             .await?;
 
-        // TODO: replace println with tracing
         println!(
             "\nThe epoch and duration have been set to: {}, {}",
             self.epoch, self.epoch_duration

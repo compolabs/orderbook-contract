@@ -41,7 +41,6 @@ impl MarketsCommand {
 
         let markets = contract.markets(asset_ids).await?.value;
 
-        // TODO: replace println with tracing
         println!("\nMarkets: {:?}", markets);
 
         Ok(())

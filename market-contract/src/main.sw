@@ -1,6 +1,5 @@
 contract;
 
-// TODO: compiler regression, order matters or it won't compile
 mod errors;
 mod data_structures;
 mod events;
@@ -763,7 +762,7 @@ fn remove_order(user: Identity, order_id: b256) {
             .get(user)
             .remove(order_id),
         OrderError::FailedToRemove(order_id),
-    ); // TODO: Different error
+    );
     if order_count == 1 {
         // There's only 1 element so no swapping. Pop it from the end
         require(

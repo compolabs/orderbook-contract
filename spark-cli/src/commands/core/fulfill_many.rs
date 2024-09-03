@@ -64,11 +64,6 @@ impl FulfillManyCommand {
             order_ids.push(Bits256::from_hex_str(&order).expect("Invalid order_id"));
         }
 
-        // TODO: cli parsing
-        /*let asset_type = match self.asset_type {
-            AssetType::Base => ContractAssetType::Base,
-            AssetType::Quote => ContractAssetType::Quote,
-        };*/
         let limit_type = match self.limit_type {
             LimitType::IOC => ContractLimitType::IOC,
             LimitType::FOK => ContractLimitType::FOK,
@@ -89,7 +84,6 @@ impl FulfillManyCommand {
         let order_id = contract
             .fulfill_many(
                 self.amount,
-                /*asset_type.clone(),*/
                 order_type.clone(),
                 limit_type.clone(),
                 self.price,
@@ -104,9 +98,7 @@ impl FulfillManyCommand {
             .get_asset_balance(&wallet.provider().unwrap().base_asset_id())
             .await?;
 
-        // TODO: replace println with tracing
         println!("\nContract call cost: {}", balance - new_balance);
-        // TODO: hack to display, turn into hex manually?
         println!("Order ID: {}", ContractId::from(order_id.0));
 
         Ok(())
