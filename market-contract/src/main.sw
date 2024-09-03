@@ -83,6 +83,10 @@ storage {
 }
 
 impl Market for Contract {
+    /// @notice Deposits a specified amount of an asset into the caller's account.
+    /// @notice The function requires that the sender sends a non-zero amount of the specified asset.
+    /// @param None - The function doesn't take any input parameters; it uses context information.
+    /// @return None - The function does not return a value.
     #[payable]
     #[storage(read, write)]
     fn deposit() {
@@ -106,6 +110,10 @@ impl Market for Contract {
         });
     }
 
+    /// @notice Withdraws a specified amount of a given asset from the caller's account.
+    /// @param amount The amount of the asset to be withdrawn. Must be greater than zero.
+    /// @param asset_type The type of the asset to be withdrawn.
+    /// @return None - The function does not return a value.
     #[storage(read, write)]
     fn withdraw(amount: u64, asset_type: AssetType) {
         reentrancy_guard();
@@ -129,6 +137,11 @@ impl Market for Contract {
         });
     }
 
+    /// @notice Opens a new order with a specified amount, order type, and price.
+    /// @param amount The amount of the asset to be used in the order.
+    /// @param order_type The type of the order being created (e.g., buy or sell).
+    /// @param price The price at which the order should be placed.
+    /// @return b256 The unique identifier of the newly opened order.
     #[storage(read, write)]
     fn open_order(amount: u64, order_type: OrderType, price: u64) -> b256 {
         reentrancy_guard();
@@ -145,6 +158,9 @@ impl Market for Contract {
         )
     }
 
+    /// @notice Cancels an existing order with the specified order ID.
+    /// @param order_id The unique identifier of the order to be canceled.
+    /// @return None - The function does not return a value.
     #[storage(read, write)]
     fn cancel_order(order_id: b256) {
         reentrancy_guard();
@@ -152,6 +168,10 @@ impl Market for Contract {
         cancel_order_internal(order_id);
     }
 
+    /// @notice Matches two orders identified by their respective order IDs.
+    /// @param order0_id The unique identifier of the first order to be matched.
+    /// @param order1_id The unique identifier of the second order to be matched.
+    /// @return None - The function does not return a value.
     #[storage(read, write)]
     fn match_order_pair(order0_id: b256, order1_id: b256) {
         reentrancy_guard();
@@ -176,6 +196,9 @@ impl Market for Contract {
         );
     }
 
+    /// @notice Attempts to match multiple orders provided in a list.
+    /// @param orders A vector containing the unique identifiers of the orders to be matched.
+    /// @return None - The function does not return a value.
     #[storage(read, write)]
     fn match_order_many(orders: Vec<b256>) {
         reentrancy_guard();
@@ -246,6 +269,19 @@ impl Market for Contract {
         require(full_matched > 0, MatchError::CantMatchMany);
     }
 
+    /// @notice Attempts to fulfill a single order by matching it against multiple orders from a provided list.
+    /// @dev This function creates a new order with the given parameters and iterates through the list of existing orders,
+    ///      attempting to match the new order with existing orders. It handles full and partial matches according to the specified limit type:
+    ///      - `GTC` (Good-Til-Canceled): The order remains active until it is either fully filled or canceled.
+    ///      - `IOC` (Immediate-Or-Cancel): The order can be partially filled immediately, and any unfilled portion is canceled.
+    ///      - `FOK` (Fill-Or-Kill): The order must be fully filled immediately, or the entire transaction fails.
+    /// @param amount The amount of the asset to be fulfilled in the new order.
+    /// @param order_type The type of the order being fulfilled (e.g., buy or sell).
+    /// @param limit_type The limit type for the new order: `GTC`, `IOC`, or `FOK`.
+    /// @param price The price at which the new order is to be fulfilled.
+    /// @param slippage The maximum allowable slippage (as a percentage) for the price during the matching process.
+    /// @param orders A vector of order IDs representing the existing orders to match against the new order.
+    /// @return b256 The unique identifier of the newly created order. If the order is partially matched and canceled (in the case of `IOC`), the ID corresponds to the canceled order.
     #[payable]
     #[storage(read, write)]
     fn fulfill_order_many(
@@ -317,6 +353,13 @@ impl Market for Contract {
         id0
     }
 
+    /// @notice Sets the current epoch and its duration.
+    /// @dev This function allows the contract owner to set a new epoch and its duration.
+    ///      It ensures that the new epoch is not in the past and that the epoch plus its duration extends beyond the current time.
+    ///      The function is restricted to the contract owner and logs an event after the epoch is set.
+    /// @param epoch The new epoch value to be set. Must be greater than or equal to the current epoch.
+    /// @param epoch_duration The duration of the epoch in seconds. The epoch plus its duration must extend beyond the current time.
+    /// @return None - The function does not return a value.
     #[storage(write)]
     fn set_epoch(epoch: u64, epoch_duration: u64) {
         only_owner();
@@ -338,6 +381,13 @@ impl Market for Contract {
         });
     }
 
+    /// @notice Sets the protocol fees based on volume thresholds.
+    /// @dev This function allows the contract owner to set a list of protocol fees.
+    ///      It ensures that the first fee in the list has a volume threshold of zero and that the fees are sorted by volume threshold.
+    ///      The function is restricted to the contract owner and logs an event after the protocol fees are set.
+    /// @param protocol_fee A vector of `ProtocolFee` structures that define the fee rates and their corresponding volume thresholds.
+    ///                     The first element must have a volume threshold of zero, and the list must be sorted by volume threshold.
+    /// @return None - The function does not return a value.
     #[storage(write)]
     fn set_protocol_fee(protocol_fee: Vec<ProtocolFee>) {
         only_owner();
@@ -361,6 +411,12 @@ impl Market for Contract {
         log(SetProtocolFeeEvent { protocol_fee });
     }
 
+    /// @notice Sets the matcher fee to a specified amount.
+    /// @dev This function allows the contract owner to update the matcher fee.
+    ///      It checks that the new fee amount is different from the current one to avoid redundant updates.
+    ///      The function is restricted to the contract owner and logs an event after the matcher fee is set.
+    /// @param amount The new matcher fee amount to be set. It must be different from the current matcher fee.
+    /// @return None - The function does not return a value.
     #[storage(read, write)]
     fn set_matcher_fee(amount: u64) {
         only_owner();
