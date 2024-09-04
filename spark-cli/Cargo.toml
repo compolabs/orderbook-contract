@@ -1,5 +1,6 @@
 [package]
 name = "spark-cli"
+description = "Spark Rust CLI for Market & Orderbook contract interactions"
 version = { workspace = true }
 authors = { workspace = true }
 edition = { workspace = true }

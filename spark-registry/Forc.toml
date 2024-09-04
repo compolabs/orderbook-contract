@@ -1,5 +1,5 @@
 [project]
-authors = ["Dmitriy"]
+authors = ["ComposabilityLabs"]
 entry = "main.sw"
 license = "Apache-2.0"
 name = "spark-registry"
