@@ -3,8 +3,9 @@ resolver = "1"
 members = [
     "spark-cli", 
     "spark-market-sdk", 
-    "market-contract",
-    "market-registry"
+    "spark-market",
+    "spark-registry-sdk",
+    "spark-registry"
 ]
 
 [workspace.package]

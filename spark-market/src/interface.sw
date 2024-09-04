@@ -10,7 +10,7 @@ use ::data_structures::{
     protocol_fee::ProtocolFee,
 };
 
-abi Market {
+abi SparkMarket {
     #[payable]
     #[storage(read, write)]
     fn deposit();

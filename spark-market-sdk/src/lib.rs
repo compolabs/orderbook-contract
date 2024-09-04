@@ -11,19 +11,19 @@ use rand::Rng;
 use std::path::PathBuf;
 
 abigen!(Contract(
-    name = "Market",
-    abi = "market-contract/out/release/market-contract-abi.json"
+    name = "SparkMarket",
+    abi = "spark-market/out/release/spark-market-abi.json"
 ));
 
-const MARKET_CONTRACT_BINARY_PATH: &str = "../market-contract/out/release/market-contract.bin";
+const MARKET_CONTRACT_BINARY_PATH: &str = "../spark-market/out/release/spark-market.bin";
 const MARKET_CONTRACT_STORAGE_PATH: &str =
-    "../market-contract/out/release/market-contract-storage_slots.json";
+    "../spark-market/out/release/spark-market-storage_slots.json";
 
-pub struct MarketContract {
-    instance: Market<WalletUnlocked>,
+pub struct SparkMarketContract {
+    instance: SparkMarket<WalletUnlocked>,
 }
 
-impl MarketContract {
+impl SparkMarketContract {
     pub async fn deploy(
         base_asset: AssetId,
         base_decimals: u32,
@@ -40,7 +40,7 @@ impl MarketContract {
         let storage_configuration = StorageConfiguration::default()
             .add_slot_overrides_from_file(root.join(MARKET_CONTRACT_STORAGE_PATH));
 
-        let configurables = MarketConfigurables::default()
+        let configurables = SparkMarketConfigurables::default()
             .with_BASE_ASSET(base_asset)
             .unwrap()
             .with_BASE_ASSET_DECIMALS(base_decimals)
@@ -68,14 +68,14 @@ impl MarketContract {
         .deploy(&owner, TxPolicies::default())
         .await?;
 
-        let market = Market::new(contract_id.clone(), owner.clone());
+        let market = SparkMarket::new(contract_id.clone(), owner.clone());
 
         Ok(Self { instance: market })
     }
 
     pub async fn new(contract_id: ContractId, wallet: WalletUnlocked) -> Self {
         let _self = Self {
-            instance: Market::new(contract_id, wallet),
+            instance: SparkMarket::new(contract_id, wallet),
         };
         assert!(
             _self.contract_version().await.unwrap() & 0xFF0000 == Self::sdk_version() & 0xFF0000,
@@ -84,7 +84,7 @@ impl MarketContract {
         _self
     }
 
-    pub fn get_instance(&self) -> &Market<WalletUnlocked> {
+    pub fn get_instance(&self) -> &SparkMarket<WalletUnlocked> {
         &self.instance
     }
 

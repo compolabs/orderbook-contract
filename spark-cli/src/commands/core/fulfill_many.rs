@@ -5,8 +5,8 @@ use fuels::{
     types::{Bits256, ContractId},
 };
 use spark_market_sdk::{
-    /*AssetType as ContractAssetType,*/ LimitType as ContractLimitType, MarketContract,
-    OrderType as ContractOrderType,
+    /*AssetType as ContractAssetType,*/ LimitType as ContractLimitType,
+    OrderType as ContractOrderType, SparkMarketContract,
 };
 
 #[derive(Args, Clone)]
@@ -79,7 +79,7 @@ impl FulfillManyCommand {
             .await?;
 
         // Connect to the deployed contract via the rpc
-        let contract = MarketContract::new(contract_id, wallet.clone()).await;
+        let contract = SparkMarketContract::new(contract_id, wallet.clone()).await;
 
         let order_id = contract
             .fulfill_many(

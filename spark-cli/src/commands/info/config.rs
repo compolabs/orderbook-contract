@@ -1,6 +1,6 @@
 use crate::utils::{setup, validate_contract_id};
 use clap::Args;
-use spark_market_sdk::MarketContract;
+use spark_market_sdk::SparkMarketContract;
 
 #[derive(Args, Clone)]
 #[command(about = "Query the market for its configurable variables")]
@@ -21,7 +21,7 @@ impl ConfigCommand {
         let contract_id = validate_contract_id(&self.contract_id)?;
 
         // Connect to the deployed contract via the rpc
-        let contract = MarketContract::new(contract_id, wallet).await;
+        let contract = SparkMarketContract::new(contract_id, wallet).await;
 
         let (
             base_asset,

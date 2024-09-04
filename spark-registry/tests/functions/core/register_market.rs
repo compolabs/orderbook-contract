@@ -2,7 +2,7 @@ mod success {
 
     use crate::setup::{random_asset_id, setup};
     use fuels::types::ContractId;
-    use spark_market_sdk::MarketContract;
+    use spark_market_sdk::SparkMarketContract;
 
     #[tokio::test]
     async fn succeeds_for_admin() -> anyhow::Result<()> {
@@ -10,7 +10,7 @@ mod success {
         let base_asset = random_asset_id(20);
         let quote_asset = random_asset_id(21);
 
-        let market = MarketContract::deploy(
+        let market = SparkMarketContract::deploy(
             base_asset,
             1,
             quote_asset,
@@ -42,7 +42,7 @@ mod revert {
 
     use crate::setup::{random_asset_id, setup};
     use fuels::types::ContractId;
-    use spark_market_sdk::MarketContract;
+    use spark_market_sdk::SparkMarketContract;
 
     #[tokio::test]
     #[should_panic(expected = "Unauthorized")]
@@ -51,7 +51,7 @@ mod revert {
         let base_asset = random_asset_id(20);
         let quote_asset = random_asset_id(21);
 
-        let market = MarketContract::deploy(
+        let market = SparkMarketContract::deploy(
             base_asset,
             1,
             quote_asset,
@@ -83,7 +83,7 @@ mod revert {
         let base_asset = random_asset_id(20);
         let quote_asset = random_asset_id(21);
 
-        let market = MarketContract::deploy(
+        let market = SparkMarketContract::deploy(
             base_asset,
             1,
             quote_asset,

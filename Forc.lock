@@ -3,7 +3,7 @@ name = "core"
 source = "path+from-root-EF1196EF955CE54B"
 
 [[package]]
-name = "market-contract"
+name = "spark-market"
 source = "member"
 dependencies = [
     "std",
@@ -11,7 +11,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "market-registry"
+name = "spark-registry"
 source = "member"
 dependencies = ["std"]
 

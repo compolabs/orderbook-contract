@@ -1,7 +1,7 @@
 use crate::utils::{setup, validate_contract_id, AccountType, OrderType};
 use clap::Args;
 use fuels::types::{Address, ContractId, Identity};
-use spark_market_sdk::{/*AssetType,*/ MarketContract, OrderType as ContractOrderType};
+use spark_market_sdk::{OrderType as ContractOrderType, /*AssetType,*/ SparkMarketContract};
 use std::str::FromStr;
 
 #[derive(Args, Clone)]
@@ -56,7 +56,7 @@ impl OrderIdCommand {
         };
 
         // Connect to the deployed contract via the rpc
-        let contract = MarketContract::new(contract_id, wallet).await;
+        let contract = SparkMarketContract::new(contract_id, wallet).await;
 
         let account = match &self.account_type {
             AccountType::Address => {

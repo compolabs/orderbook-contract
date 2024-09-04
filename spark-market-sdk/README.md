@@ -3,18 +3,18 @@
 The Spark Market Contract SDK designed for Spark Market contract communication.
 There are a set of transactional methods such as `deploy`, asset deposit/withdraw for order provision, order submittion/cancellation and a set of getter methods for order information. Given below a detailed explanation of every contract method.
 
-## MarketContract Type
+## SparkMarketContract Type
 
 The sdk object as contract instance wrapper.
 
 ```rust
-pub struct MarketContract {
+pub struct SparkMarketContract {
     instance: Market<WalletUnlocked>,
 }
 ```
 
 
-## Transactional MarketContract Common Methods
+## Transactional SparkMarketContract Common Methods
 
 ### Asset Deposit
 
@@ -24,7 +24,7 @@ pub async fn deposit(&self, amount: u64, asset: AssetId) -> anyhow::Result<CallR
 
 Deposits assets to market caller account. It is a payble method. Caller should have at least `amount` of `asset` on his account before transfer it to market.
 
-`self` The MarketContract instance
+`self` The SparkMarketContract instance
 `amount` The amount to deposit
 `asset` The asset for deposit either `base_asset` or `quote_asset`
 
@@ -39,7 +39,7 @@ pub async fn withdraw(&self, amount: u64, asset: AssetId) -> anyhow::Result<Call
 
 Withdraws assets from market caller account.
 
-`self` The MarketContract instance
+`self` The SparkMarketContract instance
 `amount` The amount to withdraw
 `asset` The asset for withdraw either `base_asset` or `quote_asset`
 
@@ -59,7 +59,7 @@ pub async fn open_order(
 
 Opens GoodTillCancel order from market caller account.
 
-`self` The MarketContract instance
+`self` The SparkMarketContract instance
 `amount` The order amount in `base_asset` numbers
 `order_type` The order type, either sell or buy
 `price` The order price in 10.pow of `quote_decimals` multiplied by 10.pow of `price_decimals`
@@ -83,7 +83,7 @@ Returns a new order id
 
 Opens ImmediateOrCancel or FillOrKill order from market caller account.
 
-`self` The MarketContract instance
+`self` The SparkMarketContract instance
 `amount` The order amount in `base_asset` numbers
 `order_type` The order type, either sell or buy
 `limit_type` The limit type IOC or FOK
@@ -102,7 +102,7 @@ pub async fn cancel_order(&self, order_id: Bits256) -> anyhow::Result<CallRespon
 
 Cancels order and refunds matcher fee from market caller account.
 
-`self` The MarketContract instance
+`self` The SparkMarketContract instance
 `order_id` The order id to cancel
 
 Returns a call result
@@ -120,7 +120,7 @@ pub async fn match_order_pair(
 
 Matches GoodTillCancel order pair, should be different direction.
 
-`self` The MarketContract instance
+`self` The SparkMarketContract instance
 `order_id0` The first order id for matching
 `order_id1` The second order id for matching
 
@@ -135,14 +135,14 @@ pub async fn match_order_many(&self, orders: Vec<Bits256>) -> anyhow::Result<Cal
 
 Matches GoodTillCancel orders, should be different direction, at least one pair should match for method succeed.
 
-`self` The MarketContract instance
+`self` The SparkMarketContract instance
 `orders` The order id for matching
 
 Returns a call result
 
 
 
-## Transactional MarketContract Owner Methods
+## Transactional SparkMarketContract Owner Methods
 
 ### Contract Deployment
 
@@ -168,7 +168,7 @@ Deploys a new market contract with given asset ids and its decimals.
 `owner` The owner of the market contract that manages protocol fees
 `fuel_asset` The asset id used for fee payment
 
-Returns a new instance of MarketContract type.
+Returns a new instance of SparkMarketContract type.
 
 
 ### Set Protocol Fee
@@ -185,7 +185,7 @@ pub async fn set_protocol_fee(&self, protocol_fee: Vec<ProtocolFee>) -> anyhow::
 
 Owner sets protocol fee as percent of trade volume.
 
-`self` The MarketContract instance
+`self` The SparkMarketContract instance
 `amount` The protocol fee amount, (10_000 == 100%) 
 
 Returns a call result
@@ -199,7 +199,7 @@ pub async fn set_matcher_fee(&self, amount: u32) -> anyhow::Result<CallResponse<
 
 Owner sets fixed matcher reward for single order match.
 
-`self` The MarketContract instance
+`self` The SparkMarketContract instance
 `amount` The matcher fee amount in quote token
 
 Returns a call result
@@ -213,7 +213,7 @@ pub async fn set_epoch(&self, epoch: u64, epoch_duration) -> anyhow::Result<Call
 
 Owner resets epoch for cumulative trade volumes.
 
-`self` The MarketContract instance
+`self` The SparkMarketContract instance
 `epoch` The epoch timestamp
 `epoch_duration` The epoch duration in seconds
 
@@ -222,7 +222,7 @@ Returns a call result
 
 
 
-## MarketContract Getter Methods
+## SparkMarketContract Getter Methods
 
 ### Account Info
 
@@ -232,7 +232,7 @@ pub async fn account(&self, user: Identity) -> anyhow::Result<CallResponse<Optio
 
 Retrieves user account inforamtion.
 
-`self` The MarketContract instance
+`self` The SparkMarketContract instance
 `user` The user address
 
 Returns an optional Account type result
@@ -259,7 +259,7 @@ pub async fn get_epoch(&self) -> anyhow::Result<CallResponse<(u64, u64)>>
 
 Retrieves epoch and its duration.
 
-`self` The MarketContract instance
+`self` The SparkMarketContract instance
 
 Returns epoch and epoch duration
 
@@ -273,7 +273,7 @@ pub async fn protocol_fee(&self) -> anyhow::Result<CallResponse<Vec<ProtocolFee>
 
 Retrieves protocol fee stucture vector.
 
-`self` The MarketContract instance
+`self` The SparkMarketContract instance
 
 Returns protocol fee percent, 10_000 == 100%
 
@@ -286,7 +286,7 @@ pub async fn protocol_fee_user(&self, user: Identity) -> anyhow::Result<CallResp
 
 Retrieves user maker and taker protocol fees.
 
-`self` The MarketContract instance
+`self` The SparkMarketContract instance
 `user` The user address
 
 Returns protocol maker & taker fee percents, 10_000 == 100%
@@ -300,7 +300,7 @@ pub async fn protocol_fee_user_amount(&self, amount: u64, user: Identity) -> any
 
 Calculates protocol fee amount that needs to be extra order size submission.
 
-`self` The MarketContract instance
+`self` The SparkMarketContract instance
 `amount` The order size to be submitted
 `user` The user address
 
@@ -315,7 +315,7 @@ pub async fn matcher_fee(&self) -> anyhow::Result<CallResponse<u32>>
 
 Retrieves matcher fee set by Market owner.
 
-`self` The MarketContract instance
+`self` The SparkMarketContract instance
 
 Returns matcher fee amount
 
@@ -328,7 +328,7 @@ pub async fn order(&self, order: Bits256) -> anyhow::Result<CallResponse<Option<
 
 Retrieves matcher fee set by Market owner.
 
-`self` The MarketContract instance
+`self` The SparkMarketContract instance
 `order` Order id
 
 Returns optional order information if order was submitted and wasn't fully matched
@@ -356,7 +356,7 @@ pub async fn user_orders(&self, user: Identity) -> anyhow::Result<CallResponse<V
 
 Retrieves user order ids.
 
-`self` The MarketContract instance
+`self` The SparkMarketContract instance
 `user` The user address
 
 Returns order ids

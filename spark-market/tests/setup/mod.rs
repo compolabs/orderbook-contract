@@ -6,7 +6,7 @@ use fuels::{
     },
     types::Identity,
 };
-use spark_market_sdk::{Account, Balance, MarketContract};
+use spark_market_sdk::{Account, Balance, SparkMarketContract};
 
 pub(crate) struct Assets {
     pub(crate) base: Asset,
@@ -75,7 +75,7 @@ pub(crate) async fn setup(
     base_decimals: u32,
     quote_decimals: u32,
     price_decimals: u32,
-) -> anyhow::Result<(MarketContract, User, User, User, User, Assets)> {
+) -> anyhow::Result<(SparkMarketContract, User, User, User, User, Assets)> {
     let number_of_wallets = 4;
     let coins_per_wallet = 1;
     let amount_per_coin = 1_000_000_000_000;
@@ -123,7 +123,7 @@ pub(crate) async fn setup(
         },
     };
 
-    let contract = MarketContract::deploy(
+    let contract = SparkMarketContract::deploy(
         assets.base.id,
         assets.base.decimals,
         assets.quote.id,
@@ -142,7 +142,7 @@ pub(crate) async fn setup(
     Ok((contract, owner, user0, user1, matcher, assets))
 }
 
-/// From market-contract/src/math.sw
+/// From spark-market/src/math.sw
 /// Converts between base and quote amounts with the appropriate scaling based on decimals.
 ///
 /// # Parameters:

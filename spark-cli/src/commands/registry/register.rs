@@ -1,7 +1,7 @@
 use crate::utils::{setup, validate_contract_id};
 use clap::Args;
 use fuels::accounts::ViewOnlyAccount;
-use spark_registry_sdk::MarketRegistryContract;
+use spark_registry_sdk::SparkRegistryContract;
 
 #[derive(Args, Clone)]
 #[command(about = "Registers a market in the market registry")]
@@ -32,7 +32,7 @@ impl RegisterCommand {
             .await?;
 
         // Connect to the deployed contract via the rpc
-        let contract = MarketRegistryContract::new(contract_id, wallet.clone()).await;
+        let contract = SparkRegistryContract::new(contract_id, wallet.clone()).await;
 
         let _ = contract.register_market(market).await?;
 

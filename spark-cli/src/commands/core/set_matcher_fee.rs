@@ -1,7 +1,7 @@
 use crate::utils::{setup, validate_contract_id};
 use clap::Args;
 use fuels::accounts::ViewOnlyAccount;
-use spark_market_sdk::MarketContract;
+use spark_market_sdk::SparkMarketContract;
 
 #[derive(Args, Clone)]
 #[command(about = "Change the matcher fee for the market")]
@@ -31,7 +31,7 @@ impl SetMatcherFeeCommand {
             .await?;
 
         // Connect to the deployed contract via the rpc
-        let contract = MarketContract::new(contract_id, wallet.clone()).await;
+        let contract = SparkMarketContract::new(contract_id, wallet.clone()).await;
 
         let _ = contract.set_matcher_fee(self.amount).await?;
 
