@@ -2,7 +2,7 @@ use fuels::prelude::{
     launch_custom_provider_and_get_wallets, Address, AssetConfig, AssetId, WalletUnlocked,
     WalletsConfig,
 };
-use spark_registry_sdk::MarketRegistryContract;
+use spark_registry_sdk::SparkRegistryContract;
 
 pub(crate) struct User {
     pub(crate) wallet: WalletUnlocked,
@@ -18,7 +18,7 @@ pub(crate) fn random_asset_id(random: u8) -> AssetId {
     AssetId::new([random; 32])
 }
 
-pub(crate) async fn setup() -> anyhow::Result<(MarketRegistryContract, User, User)> {
+pub(crate) async fn setup() -> anyhow::Result<(SparkRegistryContract, User, User)> {
     let number_of_wallets = 2;
     let coins_per_wallet = 1;
     let amount_per_coin = 100_000_000;
@@ -43,7 +43,7 @@ pub(crate) async fn setup() -> anyhow::Result<(MarketRegistryContract, User, Use
     let owner = wallets.pop().unwrap();
     let user = wallets.pop().unwrap();
 
-    let contract = MarketRegistryContract::deploy(owner.clone(), 0xFAFBFC).await?;
+    let contract = SparkRegistryContract::deploy(owner.clone(), 0xFAFBFC).await?;
 
     let owner = User { wallet: owner };
     let non_owner = User { wallet: user };

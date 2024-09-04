@@ -1,7 +1,7 @@
 use crate::utils::setup;
 use clap::Args;
 use fuels::accounts::ViewOnlyAccount;
-use spark_registry_sdk::MarketRegistryContract;
+use spark_registry_sdk::SparkRegistryContract;
 
 #[derive(Args, Clone)]
 #[command(about = "Deploys the MarketRegistry to a network")]
@@ -21,10 +21,10 @@ impl DeployCommand {
             .get_asset_balance(&wallet.provider().unwrap().base_asset_id())
             .await?;
 
-        let version = MarketRegistryContract::sdk_version();
+        let version = SparkRegistryContract::sdk_version();
 
         // Deploy the contract
-        let contract = MarketRegistryContract::deploy(wallet.clone(), version).await?;
+        let contract = SparkRegistryContract::deploy(wallet.clone(), version).await?;
 
         // Balance post-deployment
         let new_balance = wallet

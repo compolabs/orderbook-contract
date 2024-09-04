@@ -31,7 +31,7 @@ use ::events::{
     TradeOrderEvent,
     WithdrawEvent,
 };
-use ::interface::{Market, MarketInfo};
+use ::interface::{SparkMarket, MarketInfo};
 
 use std::{
     asset::transfer,
@@ -81,7 +81,7 @@ storage {
     order_height: u64 = 0,
 }
 
-impl Market for Contract {
+impl SparkMarket for Contract {
     /// @notice Deposits a specified amount of an asset into the caller's account.
     /// @notice The function requires that the sender sends a non-zero amount of the specified asset.
     /// @param None - The function doesn't take any input parameters; it uses context information.

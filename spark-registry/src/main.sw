@@ -21,7 +21,7 @@ abi MarketInfo {
     fn config() -> (AssetId, u32, AssetId, u32, Identity, u32, u32);
 }
 
-abi MarketRegistry {
+abi SparkRegistry {
     #[storage(read, write)]
     fn register_market(market: ContractId);
 
@@ -34,7 +34,7 @@ abi MarketRegistry {
     fn config() -> (Address, u32);
 }
 
-impl MarketRegistry for Contract {
+impl SparkRegistry for Contract {
     /// @notice Registers a new market with the given contract ID.
     /// @dev This function allows the contract owner to register a new market. It retrieves the base and quote assets associated with the market,
     ///      generates a unique market ID, and checks if the market is already registered. If the market is not registered, it is stored in the

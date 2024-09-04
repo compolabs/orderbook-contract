@@ -3761,28 +3761,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "market-contract"
-version = "0.2.1"
-dependencies = [
- "anyhow",
- "fuels",
- "rand",
- "spark-market-sdk",
- "tokio",
-]
-
-[[package]]
-name = "market-registry"
-version = "0.2.1"
-dependencies = [
- "anyhow",
- "fuels",
- "spark-market-sdk",
- "spark-registry-sdk",
- "tokio",
-]
-
-[[package]]
 name = "match_cfg"
 version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5413,12 +5391,34 @@ dependencies = [
 ]
 
 [[package]]
+name = "spark-market"
+version = "0.2.1"
+dependencies = [
+ "anyhow",
+ "fuels",
+ "rand",
+ "spark-market-sdk",
+ "tokio",
+]
+
+[[package]]
 name = "spark-market-sdk"
 version = "0.2.1"
 dependencies = [
  "anyhow",
  "fuels",
  "rand",
+ "tokio",
+]
+
+[[package]]
+name = "spark-registry"
+version = "0.2.1"
+dependencies = [
+ "anyhow",
+ "fuels",
+ "spark-market-sdk",
+ "spark-registry-sdk",
  "tokio",
 ]
 

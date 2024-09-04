@@ -2,7 +2,7 @@ use crate::utils::{setup, validate_contract_id, /*AssetType,*/ OrderType};
 use clap::Args;
 use fuels::{accounts::ViewOnlyAccount, types::ContractId};
 use spark_market_sdk::{
-    /*AssetType as ContractAssetType,*/ MarketContract, OrderType as ContractOrderType,
+    OrderType as ContractOrderType, /*AssetType as ContractAssetType,*/ SparkMarketContract,
 };
 
 #[derive(Args, Clone)]
@@ -50,7 +50,7 @@ impl OpenCommand {
             .await?;
 
         // Connect to the deployed contract via the rpc
-        let contract = MarketContract::new(contract_id, wallet.clone()).await;
+        let contract = SparkMarketContract::new(contract_id, wallet.clone()).await;
 
         let order_id = contract
             .open_order(self.amount, order_type.clone(), self.price)

@@ -1,5 +1,5 @@
 [package]
-name = "market-registry"
+name = "spark-market"
 version = { workspace = true }
 authors = { workspace = true }
 edition = { workspace = true }
@@ -9,8 +9,8 @@ rust-version = { workspace = true }
 [dependencies]
 anyhow = { workspace = true }
 fuels = { workspace = true }
+rand = "0.8.5"
 spark-market-sdk = { path = "../spark-market-sdk" }
-spark-registry-sdk = { path = "../spark-registry-sdk" }
 tokio = { workspace = true }
 
 [[test]]
