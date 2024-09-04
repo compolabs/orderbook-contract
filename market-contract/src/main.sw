@@ -145,16 +145,7 @@ impl Market for Contract {
     fn open_order(amount: u64, order_type: OrderType, price: u64) -> b256 {
         reentrancy_guard();
 
-        let asset_type = AssetType::Base;
-        open_order_internal(
-            amount,
-            asset_type,
-            order_type,
-            price,
-            storage
-                .matcher_fee
-                .read(),
-        )
+        open_order_internal(amount, order_type, price, storage.matcher_fee.read())
     }
 
     /// @notice Cancels an existing order with the specified order ID.
@@ -296,8 +287,7 @@ impl Market for Contract {
         require(orders.len() > 0, ValueError::InvalidArrayLength);
         require(slippage <= HUNDRED_PERCENT, ValueError::InvalidSlippage);
 
-        let asset_type = AssetType::Base;
-        let id0 = open_order_internal(amount, asset_type, order_type, price, 0);
+        let id0 = open_order_internal(amount, order_type, price, 0);
         let len = orders.len();
         let mut idx1 = 0;
         let mut matched = MatchResult::ZeroMatch;
@@ -309,11 +299,10 @@ impl Market for Contract {
             let order1 = storage.orders.get(id1).try_read();
             if order1.is_some() {
                 let order1 = order1.unwrap();
-                if asset_type == AssetType::Base
-                    && order_type == OrderType::Sell
-                        || asset_type == AssetType::Quote
-                        && order_type == OrderType::Buy
-                    || distance(price, order1.price) <= slippage
+                if (order_type == OrderType::Sell
+                        && distance(price, order1.price) <= slippage)
+                        || (order_type == OrderType::Buy
+                            && distance(price, order1.price) <= slippage)
                 {
                     let (match_result, partial_order_id) = match_order_internal(id0, order0, limit_type, id1, order1, LimitType::GTC);
                     match match_result {
@@ -336,6 +325,7 @@ impl Market for Contract {
             }
             idx1 += 1;
         }
+
         require(
             !(matched == MatchResult::ZeroMatch),
             MatchError::CantFulfillMany,
@@ -507,7 +497,6 @@ impl MarketInfo for Contract {
             order_type,
             owner,
             price,
-            PRICE_DECIMALS,
             block_height,
             order_height,
             0,
@@ -544,10 +533,6 @@ fn get_asset_id(asset_type: AssetType) -> AssetId {
 
 fn quote_of_base_amount(amount: u64, price: u64) -> u64 {
     convert_asset_amount(amount, price, true)
-}
-
-fn base_of_quote_amount(amount: u64, price: u64) -> u64 {
-    convert_asset_amount(amount, price, false)
 }
 
 fn convert_asset_amount(amount: u64, price: u64, base_to_quote: bool) -> u64 {
@@ -609,7 +594,6 @@ fn next_order_height() -> u64 {
 #[storage(read, write)]
 fn open_order_internal(
     amount: u64,
-    asset_type: AssetType,
     order_type: OrderType,
     price: u64,
     matcher_fee: u64,
@@ -619,13 +603,13 @@ fn open_order_internal(
     let user = msg_sender().unwrap();
     let (protocol_maker_fee, protocol_taker_fee) = protocol_fee_user(user);
 
+    let asset_type = AssetType::Base;
     let mut order = Order::new(
         amount,
         asset_type,
         order_type,
         user,
         price,
-        PRICE_DECIMALS,
         block_height(),
         next_order_height(),
         matcher_fee,
@@ -736,12 +720,7 @@ fn cancel_order_internal(order_id: b256) {
 #[storage(read, write)]
 fn increase_user_volume(user: Identity, volume: u64) {
     extend_epoch();
-    storage
-        .user_volumes
-        .get(user)
-        .try_read()
-        .unwrap_or(UserVolume::new())
-        .update(storage.epoch.read(), volume);
+    let _ = storage.user_volumes.get(user).try_read().unwrap_or(UserVolume::new()).update(storage.epoch.read(), volume);
 }
 
 #[storage(read, write)]

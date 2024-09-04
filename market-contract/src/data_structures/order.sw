@@ -28,7 +28,6 @@ impl Order {
         order_type: OrderType,
         owner: Identity,
         price: u64,
-        price_decimals: u32,
         block_height: u32,
         order_height: u64,
         matcher_fee: u64,
