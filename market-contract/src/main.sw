@@ -795,7 +795,7 @@ fn execute_trade(
     let s_order_protocol_fee = s_order.protocol_fee_of_amount(b_order, s_trade_volume);
     let b_order_protocol_fee = b_order.protocol_fee_of_amount(s_order, s_trade_volume);
 
-    // Seller and buyer have the same owner
+    // The seller and buyer are the same entity (same owner)
     if s_order.owner == b_order.owner {
         let mut account = storage.account.get(s_order.owner).read();
         // Unlock the locked base asset
@@ -809,6 +809,7 @@ fn execute_trade(
         );
         storage.account.insert(s_order.owner, account);
     } else {
+        // The seller and buyer are different entities (different owners)
         let mut s_account = storage.account.get(s_order.owner).read();
         let mut b_account = storage.account.get(b_order.owner).read();
         // Exchange trade funds between the seller and buyer
@@ -830,13 +831,15 @@ fn execute_trade(
         storage.account.insert(b_order.owner, b_account);
     }
 
-    // Deal between the seller and matcher
+    // Handle the matcher's fee related to the seller
     if s_order_matcher_fee > 0 {
+        // If the seller is the matcher
         if s_order.owner == matcher {
             let mut account = storage.account.get(s_order.owner).read();
             account.unlock_amount(s_order_matcher_fee, !asset_type);
             storage.account.insert(s_order.owner, account);
         } else {
+            // If the matcher is a different entity, transfer the matcher's fee from seller to matcher
             let mut s_account = storage.account.get(s_order.owner).read();
             let mut m_account = storage.account.get(matcher).try_read().unwrap_or(Account::new());
             s_account.transfer_locked_amount(m_account, s_order_matcher_fee, !asset_type);
@@ -845,13 +848,15 @@ fn execute_trade(
         }
     }
 
-    // Deal between the buyer and matcher
+    // Handle the matcher's fee related to the buyer
     if b_order_matcher_fee > 0 {
+        // If the buyer is the matcher
         if b_order.owner == matcher {
             let mut account = storage.account.get(b_order.owner).read();
             account.unlock_amount(b_order_matcher_fee, !asset_type);
             storage.account.insert(b_order.owner, account);
         } else {
+            // If the matcher is a different entity, transfer the matcher's fee from buyer to matcher
             let mut b_account = storage.account.get(b_order.owner).read();
             let mut m_account = storage.account.get(matcher).try_read().unwrap_or(Account::new());
             b_account.transfer_locked_amount(m_account, b_order_matcher_fee, !asset_type);
@@ -860,13 +865,15 @@ fn execute_trade(
         }
     }
 
-    // Deal between the seller and protocol owner
+    // Handle the protocol fee related to the seller
     if s_order_protocol_fee > 0 {
+        // If the seller is the protocol owner
         if s_order.owner == OWNER {
             let mut account = storage.account.get(s_order.owner).read();
             account.unlock_amount(s_order_protocol_fee, !asset_type);
             storage.account.insert(s_order.owner, account);
         } else {
+            // If the protocol owner is a different entity, transfer the protocol fee from seller to protocol owner
             let mut s_account = storage.account.get(s_order.owner).read();
             let mut o_account = storage.account.get(OWNER).try_read().unwrap_or(Account::new());
             s_account.transfer_locked_amount(o_account, s_order_protocol_fee, !asset_type);
@@ -875,13 +882,15 @@ fn execute_trade(
         }
     }
 
-    // Deal between the buyer and protocol owner
+    // Handle the protocol fee related to the buyer
     if b_order_protocol_fee > 0 {
+        // If the buyer is the protocol owner
         if b_order.owner == OWNER {
             let mut account = storage.account.get(b_order.owner).read();
             account.unlock_amount(b_order_protocol_fee, !asset_type);
             storage.account.insert(b_order.owner, account);
         } else {
+            // If the protocol owner is a different entity, transfer the protocol fee from buyer to protocol owner
             let mut b_account = storage.account.get(b_order.owner).read();
             let mut o_account = storage.account.get(OWNER).try_read().unwrap_or(Account::new());
             b_account.transfer_locked_amount(o_account, b_order_protocol_fee, !asset_type);
