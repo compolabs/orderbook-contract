@@ -209,7 +209,7 @@ impl Market for Contract {
             let id0 = orders.get(idx0).unwrap();
             let order0 = storage.orders.get(id0).try_read();
             if order0.is_none() {
-                // the order already matched/cancelled or bad id
+                // The order is already matched, canceled, or has an invalid ID
                 idx0 += 1;
                 continue;
             }
@@ -217,12 +217,12 @@ impl Market for Contract {
             let id1 = orders.get(idx1).unwrap();
             let order1 = storage.orders.get(id1).try_read();
             if order1.is_none() {
-                // the order already matched/cancelled or bad id
+                // The order is already matched, canceled, or has an invalid ID
                 idx1 += 1;
                 continue;
             }
 
-            // try match
+            // Attempt to match the orders
             let (match_result, partial_order_id) = match_order_internal(
                 id0,
                 order0
@@ -236,11 +236,11 @@ impl Market for Contract {
 
             match match_result {
                 MatchResult::ZeroMatch => {
-                    // the case when the 1st & 2nd orders play in same direction
+                    // This case occurs when both orders move in the same direction
                     if idx0 < idx1 { idx1 += 1; } else { idx0 += 1; }
                 }
                 MatchResult::PartialMatch => {
-                    // the case when the one of the orders is partially completed
+                    // This case occurs when one of the orders is partially filled
                     if partial_order_id == id0 {
                         idx1 += 1;
                     } else {
@@ -249,7 +249,7 @@ impl Market for Contract {
                     full_matched += 1;
                 }
                 MatchResult::FullMatch => {
-                    // the case when orders are completed
+                    // This case occurs when both orders are fully filled
                     idx0 = min(idx0, idx1) + 1;
                     idx1 = idx0 + 1;
                     full_matched += 2;
@@ -690,7 +690,7 @@ fn cancel_order_internal(order_id: b256) {
     // Safe to read() because user is the owner of the order
     let mut account = storage.account.get(user).read();
 
-    // Order is about to be cancelled, unlock liliquid funds
+    // Order is about to be cancelled, unlock illiquid funds
     account.unlock_amount(
         lock_order_amount(order),
         match order.order_type {
@@ -743,7 +743,7 @@ fn remove_order(user: Identity, order_id: b256) {
         OrderError::FailedToRemove(order_id),
     );
     if order_count == 1 {
-        // There's only 1 element so no swapping. Pop it from the end
+        // There is only one element, so no need to swap. Pop it from the end.
         require(
             storage
                 .user_orders
@@ -753,10 +753,10 @@ fn remove_order(user: Identity, order_id: b256) {
             OrderError::FailedToRemove(order_id),
         );
     } else {
-        // The order ID at the end is about to have its index changed via swap_remove()
+        // The order ID at the end will have its index updated via swap_remove().
         let last_element = storage.user_orders.get(user).last().unwrap().read();
 
-        // Remove the current order by replacing it with the order at the end of storage vec
+        // Remove the current order by replacing it with the order at the end of the storage vector.
         require(
             storage
                 .user_orders
@@ -765,7 +765,7 @@ fn remove_order(user: Identity, order_id: b256) {
             OrderError::FailedToRemove(order_id),
         );
 
-        // Last element has been shifted so update its index
+        // The last element has been moved, so update its index.
         storage
             .user_order_indexes
             .get(user)
@@ -781,27 +781,27 @@ fn execute_trade(
     matcher: Identity,
 ) -> (u64, u64, u64) {
     let asset_type = s_order.asset_type;
-    // it is a trade volume
+    // The volume of the trade for the seller
     let s_trade_volume = quote_of_base_amount(trade_size, s_order.price);
-    // it is trade volume reserved by buyer for trade_size
+    // The volume of the trade reserved by the buyer for the trade size
     let b_trade_volume = quote_of_base_amount(trade_size, b_order.price);
-    // delta trade volume
+    // The difference in trade volumes between the buyer and seller
     let d_trade_volume = b_trade_volume - s_trade_volume;
-    // s_order.matcher_fee part for trade_size <= s_order.amount
+    // The matcher's fee for the seller's order based on the trade size (<= s_order.amount)
     let s_order_matcher_fee = s_order.matcher_fee_of_amount(trade_size);
-    // b_order.matcher_fee part for trade_size <= b_order.amount
+    // The matcher's fee for the buyer's order based on the trade size (<= b_order.amount)
     let b_order_matcher_fee = b_order.matcher_fee_of_amount(trade_size);
-    // s_order.protocol_fee part for trade_size <= b_order.amount with maker/taker condition
+    // The protocol fee for the seller's order based on the trade size and maker/taker conditions
     let s_order_protocol_fee = s_order.protocol_fee_of_amount(b_order, s_trade_volume);
     let b_order_protocol_fee = b_order.protocol_fee_of_amount(s_order, s_trade_volume);
 
-    // seller - buyer deal
+    // Seller and buyer have the same owner
     if s_order.owner == b_order.owner {
         let mut account = storage.account.get(s_order.owner).read();
-        // unlock locked base asset
+        // Unlock the locked base asset
         account.unlock_amount(trade_size, asset_type);
-        // unlock locked quote asset
-        // if b_price > s_price unlock extra funds and its extra protocol fee
+        // Unlock the locked quote asset
+        // If the buyer's price is greater than the seller's price, unlock extra funds and their protocol fees
         account.unlock_amount(
             b_trade_volume + b_order
                 .max_protocol_fee_of_amount(d_trade_volume) - s_order_protocol_fee - s_order_matcher_fee,
@@ -811,26 +811,27 @@ fn execute_trade(
     } else {
         let mut s_account = storage.account.get(s_order.owner).read();
         let mut b_account = storage.account.get(b_order.owner).read();
-        // exchange trade funds
+        // Exchange trade funds between the seller and buyer
         s_account.transfer_locked_amount(b_account, trade_size, asset_type);
         b_account.transfer_locked_amount(s_account, s_trade_volume, !asset_type);
-        // lock protocol and matcher_fee for seller
+        // Lock the protocol and matcher fees for the seller
         let lock_fee = s_order_protocol_fee + s_order_matcher_fee;
         if lock_fee > 0 {
-            s_account.lock_amount(s_order_protocol_fee + s_order_matcher_fee, !asset_type);
+            s_account.lock_amount(lock_fee, !asset_type);
         }
+        // Unlock excess funds for the buyer
         let unlock_fee = d_trade_volume + b_order.max_protocol_fee_of_amount(b_trade_volume) - b_order_protocol_fee;
         if unlock_fee > 0 {
             b_account.unlock_amount(unlock_fee, !asset_type);
         }
 
-        // store accounts
+        // Store the updated accounts
         storage.account.insert(s_order.owner, s_account);
         storage.account.insert(b_order.owner, b_account);
     }
 
-    // seller - matcher deal
-    if (s_order_matcher_fee > 0) {
+    // Deal between the seller and matcher
+    if s_order_matcher_fee > 0 {
         if s_order.owner == matcher {
             let mut account = storage.account.get(s_order.owner).read();
             account.unlock_amount(s_order_matcher_fee, !asset_type);
@@ -844,8 +845,8 @@ fn execute_trade(
         }
     }
 
-    // buyer - matcher deal
-    if (b_order_matcher_fee > 0) {
+    // Deal between the buyer and matcher
+    if b_order_matcher_fee > 0 {
         if b_order.owner == matcher {
             let mut account = storage.account.get(b_order.owner).read();
             account.unlock_amount(b_order_matcher_fee, !asset_type);
@@ -859,8 +860,8 @@ fn execute_trade(
         }
     }
 
-    // seller - owner deal
-    if (s_order_protocol_fee > 0) {
+    // Deal between the seller and protocol owner
+    if s_order_protocol_fee > 0 {
         if s_order.owner == OWNER {
             let mut account = storage.account.get(s_order.owner).read();
             account.unlock_amount(s_order_protocol_fee, !asset_type);
@@ -874,8 +875,8 @@ fn execute_trade(
         }
     }
 
-    // buyer - owner deal
-    if (b_order_protocol_fee > 0) {
+    // Deal between the buyer and protocol owner
+    if b_order_protocol_fee > 0 {
         if b_order.owner == OWNER {
             let mut account = storage.account.get(b_order.owner).read();
             account.unlock_amount(b_order_protocol_fee, !asset_type);
