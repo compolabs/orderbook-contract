@@ -1,7 +1,7 @@
 use crate::utils::{setup, validate_contract_id};
 use clap::Args;
 use fuels::accounts::ViewOnlyAccount;
-use spark_market_sdk::{MarketContract, ProtocolFee};
+use spark_market_sdk::{ProtocolFee, SparkMarketContract};
 
 #[derive(Args, Clone)]
 #[command(about = "Change the protocol fee")]
@@ -47,7 +47,7 @@ impl SetProtocolFeeCommand {
             .await?;
 
         // Connect to the deployed contract via the rpc
-        let contract = MarketContract::new(contract_id, wallet.clone()).await;
+        let contract = SparkMarketContract::new(contract_id, wallet.clone()).await;
 
         let _ = contract.set_protocol_fee(protocol_fee).await?;
 

@@ -1,0 +1,19 @@
+[package]
+name = "spark-market"
+version = { workspace = true }
+authors = { workspace = true }
+edition = { workspace = true }
+license = { workspace = true }
+rust-version = { workspace = true }
+
+[dependencies]
+anyhow = { workspace = true }
+fuels = { workspace = true }
+rand = "0.8.5"
+spark-market-sdk = { path = "../spark-market-sdk" }
+tokio = { workspace = true }
+
+[[test]]
+harness = true
+name = "integration_tests"
+path = "tests/harness.rs"

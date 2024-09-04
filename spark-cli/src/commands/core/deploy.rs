@@ -1,7 +1,7 @@
 use crate::utils::setup;
 use clap::Args;
 use fuels::{accounts::ViewOnlyAccount, types::AssetId};
-use spark_market_sdk::MarketContract;
+use spark_market_sdk::SparkMarketContract;
 use std::str::FromStr;
 
 #[derive(Args, Clone)]
@@ -53,10 +53,10 @@ impl DeployCommand {
             .get_asset_balance(&wallet.provider().unwrap().base_asset_id())
             .await?;
 
-        let version = MarketContract::sdk_version();
+        let version = SparkMarketContract::sdk_version();
 
         // Deploy the contract
-        let contract = MarketContract::deploy(
+        let contract = SparkMarketContract::deploy(
             base_asset,
             self.base_decimals,
             quote_asset,
@@ -72,7 +72,6 @@ impl DeployCommand {
             .get_asset_balance(&wallet.provider().unwrap().base_asset_id())
             .await?;
 
-        // TODO: replace println with tracing
         println!(
             "\nMarket version {} ({}) deployed to: 0x{}",
             contract.contract_str_version().await?,

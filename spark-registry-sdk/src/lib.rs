@@ -10,29 +10,29 @@ use rand::Rng;
 use std::path::PathBuf;
 
 abigen!(Contract(
-    name = "MarketRegistry",
-    abi = "market-registry/out/release/market-registry-abi.json"
+    name = "SparkRegistry",
+    abi = "spark-registry/out/release/spark-registry-abi.json"
 ));
 
-const MARKETREGISTRY_CONTRACT_BINARY_PATH: &str =
-    "../market-registry/out/release/market-registry.bin";
-const MARKETREGISTRY_CONTRACT_STORAGE_PATH: &str =
-    "../market-registry/out/release/market-registry-storage_slots.json";
+const SPARK_REGISTRY_CONTRACT_BINARY_PATH: &str =
+    "../spark-registry/out/release/spark-registry.bin";
+const SPARK_REGISTRY_CONTRACT_STORAGE_PATH: &str =
+    "../spark-registry/out/release/spark-registry-storage_slots.json";
 
-pub struct MarketRegistryContract {
-    instance: MarketRegistry<WalletUnlocked>,
+pub struct SparkRegistryContract {
+    instance: SparkRegistry<WalletUnlocked>,
 }
 
-impl MarketRegistryContract {
+impl SparkRegistryContract {
     pub async fn deploy(owner: WalletUnlocked, version: u32) -> anyhow::Result<Self> {
         let mut rng = rand::thread_rng();
         let salt = rng.gen::<[u8; 32]>();
 
         let root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         let storage_configuration = StorageConfiguration::default()
-            .add_slot_overrides_from_file(root.join(MARKETREGISTRY_CONTRACT_STORAGE_PATH));
+            .add_slot_overrides_from_file(root.join(SPARK_REGISTRY_CONTRACT_STORAGE_PATH));
 
-        let configurables = MarketRegistryConfigurables::default()
+        let configurables = SparkRegistryConfigurables::default()
             .with_OWNER(owner.address().into())
             .unwrap()
             .with_VERSION(version)
@@ -43,14 +43,14 @@ impl MarketRegistryContract {
             .with_configurables(configurables);
 
         let contract_id = Contract::load_from(
-            root.join(MARKETREGISTRY_CONTRACT_BINARY_PATH),
+            root.join(SPARK_REGISTRY_CONTRACT_BINARY_PATH),
             contract_configuration,
         )?
         .with_salt(salt)
         .deploy(&owner, TxPolicies::default())
         .await?;
 
-        let market_registry = MarketRegistry::new(contract_id.clone(), owner.clone());
+        let market_registry = SparkRegistry::new(contract_id.clone(), owner.clone());
 
         Ok(Self {
             instance: market_registry,
@@ -59,11 +59,11 @@ impl MarketRegistryContract {
 
     pub async fn new(contract_id: ContractId, wallet: WalletUnlocked) -> Self {
         let _self = Self {
-            instance: MarketRegistry::new(contract_id, wallet),
+            instance: SparkRegistry::new(contract_id, wallet),
         };
         assert!(
             _self.contract_version().await.unwrap() & 0xFF0000 == Self::sdk_version() & 0xFF0000,
-            "MarketRegistry contract version mismatch with SDK version"
+            "SparkRegistry contract version mismatch with SDK version"
         );
         _self
     }

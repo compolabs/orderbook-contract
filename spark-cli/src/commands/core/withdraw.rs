@@ -1,7 +1,7 @@
 use crate::utils::{setup, validate_contract_id, AssetType};
 use clap::Args;
 use fuels::accounts::ViewOnlyAccount;
-use spark_market_sdk::{AssetType as ContractAssetType, MarketContract};
+use spark_market_sdk::{AssetType as ContractAssetType, SparkMarketContract};
 
 #[derive(Args, Clone)]
 #[command(about = "Deposits an asset from the wallet to the market")]
@@ -40,7 +40,7 @@ impl WithdrawCommand {
             .await?;
 
         // Connect to the deployed contract via the rpc
-        let contract = MarketContract::new(contract_id, wallet.clone()).await;
+        let contract = SparkMarketContract::new(contract_id, wallet.clone()).await;
         let config = contract.config().await?.value;
         let asset = if asset_type == ContractAssetType::Base {
             config.0
@@ -57,7 +57,6 @@ impl WithdrawCommand {
             .await?;
         let new_asset_balance = wallet.get_asset_balance(&asset).await?;
 
-        // TODO: replace println with tracing
         println!("Contract call cost: {}", balance - new_balance);
         println!(
             "Withdrawn {} amount of {:?} asset",

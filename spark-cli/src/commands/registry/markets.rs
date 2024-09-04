@@ -1,7 +1,7 @@
 use crate::utils::{setup, validate_contract_id};
 use clap::Args;
 use fuels::types::AssetId;
-use spark_registry_sdk::MarketRegistryContract;
+use spark_registry_sdk::SparkRegistryContract;
 use std::str::FromStr;
 
 #[derive(Args, Clone)]
@@ -37,11 +37,10 @@ impl MarketsCommand {
         ));
 
         // Connect to the deployed contract via the rpc
-        let contract = MarketRegistryContract::new(contract_id, wallet).await;
+        let contract = SparkRegistryContract::new(contract_id, wallet).await;
 
         let markets = contract.markets(asset_ids).await?.value;
 
-        // TODO: replace println with tracing
         println!("\nMarkets: {:?}", markets);
 
         Ok(())

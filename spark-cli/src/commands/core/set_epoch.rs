@@ -1,7 +1,7 @@
 use crate::utils::{setup, validate_contract_id};
 use clap::Args;
 use fuels::accounts::ViewOnlyAccount;
-use spark_market_sdk::MarketContract;
+use spark_market_sdk::SparkMarketContract;
 
 #[derive(Args, Clone)]
 #[command(about = "Change the epoch and epoch duration for the market")]
@@ -35,7 +35,7 @@ impl SetEpochCommand {
             .await?;
 
         // Connect to the deployed contract via the rpc
-        let contract = MarketContract::new(contract_id, wallet.clone()).await;
+        let contract = SparkMarketContract::new(contract_id, wallet.clone()).await;
 
         let _ = contract.set_epoch(self.epoch, self.epoch_duration).await?;
 
@@ -44,7 +44,6 @@ impl SetEpochCommand {
             .get_asset_balance(&wallet.provider().unwrap().base_asset_id())
             .await?;
 
-        // TODO: replace println with tracing
         println!(
             "\nThe epoch and duration have been set to: {}, {}",
             self.epoch, self.epoch_duration

@@ -1,7 +1,7 @@
 use crate::utils::{setup, validate_contract_id, AccountType, OrderType};
 use clap::Args;
 use fuels::types::{Address, ContractId, Identity};
-use spark_market_sdk::{/*AssetType,*/ MarketContract, OrderType as ContractOrderType};
+use spark_market_sdk::{OrderType as ContractOrderType, /*AssetType,*/ SparkMarketContract};
 use std::str::FromStr;
 
 #[derive(Args, Clone)]
@@ -50,20 +50,13 @@ impl OrderIdCommand {
         let wallet = setup(&self.rpc).await?;
         let contract_id = validate_contract_id(&self.contract_id)?;
 
-        /*let asset_type = match self.asset_type.as_str() {
-            "base" => AssetType::Base,
-            "quote" => AssetType::Quote,
-            _ => anyhow::bail!("Invalid asset type [base|quote]"),
-        };*/
-
-        // TODO: cli parsing
         let order_type = match self.order_type {
             OrderType::Buy => ContractOrderType::Buy,
             OrderType::Sell => ContractOrderType::Sell,
         };
 
         // Connect to the deployed contract via the rpc
-        let contract = MarketContract::new(contract_id, wallet).await;
+        let contract = SparkMarketContract::new(contract_id, wallet).await;
 
         let account = match &self.account_type {
             AccountType::Address => {
@@ -87,8 +80,6 @@ impl OrderIdCommand {
             .await?
             .value;
 
-        // TODO: replace println with tracing
-        // TODO: hack to display, turn into hex manually?
         println!("\nOrder ID: {}", ContractId::from(hash.0));
 
         Ok(())

@@ -1,9 +1,9 @@
 [[package]]
 name = "core"
-source = "path+from-root-D19F39D92CA9923C"
+source = "path+from-root-EF1196EF955CE54B"
 
 [[package]]
-name = "market-contract"
+name = "spark-market"
 source = "member"
 dependencies = [
     "std",
@@ -11,7 +11,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "market-registry"
+name = "spark-registry"
 source = "member"
 dependencies = ["std"]
 
@@ -22,7 +22,7 @@ dependencies = ["std"]
 
 [[package]]
 name = "std"
-source = "git+https://github.com/fuellabs/sway?tag=v0.63.1#169f91ae0a6a698bd1cb459c4c203bab646a38ec"
+source = "git+https://github.com/fuellabs/sway?tag=v0.63.3#f55c81cce61aac31913ac0e87306cbaed7da679a"
 dependencies = ["core"]
 
 [[package]]

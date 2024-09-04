@@ -3,15 +3,15 @@
 The Spark MarketRegistry Contract SDK is designed for interacting with the Spark MarketRegistry contract.
 There are a set of transactional methods such as `deploy`, register/unregister owner methods and `markets` getter method. Given below a detailed explanation of every contract method.
 
-## MarketRegistryContract Type
+## SparkRegistryContract Type
 
 ```rust
-pub struct MarketRegistryContract {
+pub struct SparkRegistryContract {
     instance: MarketRegistry<WalletUnlocked>,
 }
 ```
 
-## Transactional MarketContract Owner Methods
+## Transactional SparkMarketContract Owner Methods
 
 ### Contract Deployment
 
@@ -23,7 +23,7 @@ Deploys a new market registry contract with given owner.
 
 `owner` The owner of the market registry contract that manages market list.
 
-Returns a new instance of MarketRegistryContract type.
+Returns a new instance of SparkRegistryContract type.
 
 
 ### Register new Market
@@ -34,7 +34,7 @@ pub async fn register_market(&self, market: ContractId) -> anyhow::Result<CallRe
 
 Registers a new market by owner.
 
-`self` The MarketContract instance.
+`self` The SparkMarketContract instance.
 `market` The market contract id.
 
 Returns a call result
@@ -48,13 +48,13 @@ pub async fn unregister_market(&self, market: ContractId) -> anyhow::Result<Call
 
 Unregisters a market by owner.
 
-`self` The MarketContract instance.
+`self` The SparkMarketContract instance.
 `market` The market contract id.
 
 Returns a call result
 
 
-## MarketRegistryContract Getter Methods
+## SparkRegistryContract Getter Methods
 
 ### Markets Info
 
@@ -67,7 +67,7 @@ pub async fn markets(
 
 Retrieves user account inforamtion.
 
-`self` The MarketContract instance.
+`self` The SparkMarketContract instance.
 `assets` The asset pair array [(base_asst_id, quote_asset_id)].
 
 Returns an asset pair and optional market contract id array

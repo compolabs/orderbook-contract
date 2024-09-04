@@ -1,0 +1,8 @@
+[project]
+authors = ["ComposabilityLabs"]
+entry = "main.sw"
+license = "Apache-2.0"
+name = "spark-market"
+
+[dependencies]
+sway_libs = { git = "https://github.com/FuelLabs/sway-libs", branch = "master" }

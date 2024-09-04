@@ -1,7 +1,7 @@
 use crate::utils::{setup, validate_contract_id};
 use clap::Args;
 use fuels::{accounts::ViewOnlyAccount, types::Bits256};
-use spark_market_sdk::MarketContract;
+use spark_market_sdk::SparkMarketContract;
 
 #[derive(Args, Clone)]
 #[command(about = "Matches many orders")]
@@ -40,7 +40,7 @@ impl MatchManyCommand {
             .await?;
 
         // Connect to the deployed contract via the rpc
-        let contract = MarketContract::new(contract_id, wallet.clone()).await;
+        let contract = SparkMarketContract::new(contract_id, wallet.clone()).await;
 
         let _ = contract.match_order_many(order_ids).await?;
 
