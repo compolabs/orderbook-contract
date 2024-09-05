@@ -5391,35 +5391,25 @@ dependencies = [
 
 [[package]]
 name = "spark-cli"
-version = "0.3.0"
+version = "0.3.1"
 dependencies = [
  "anyhow",
  "clap",
  "dotenv",
  "fuels",
- "spark-market-sdk 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "spark-registry-sdk 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "spark-market-sdk 0.3.0",
+ "spark-registry-sdk 0.3.0",
  "tokio",
 ]
 
 [[package]]
 name = "spark-market"
-version = "0.3.0"
+version = "0.3.1"
 dependencies = [
  "anyhow",
  "fuels",
  "rand",
- "spark-market-sdk 0.3.0",
- "tokio",
-]
-
-[[package]]
-name = "spark-market-sdk"
-version = "0.3.0"
-dependencies = [
- "anyhow",
- "fuels",
- "rand",
+ "spark-market-sdk 0.3.1",
  "tokio",
 ]
 
@@ -5436,19 +5426,31 @@ dependencies = [
 ]
 
 [[package]]
-name = "spark-registry"
-version = "0.3.0"
+name = "spark-market-sdk"
+version = "0.3.1"
 dependencies = [
  "anyhow",
  "fuels",
- "spark-market-sdk 0.3.0",
- "spark-registry-sdk 0.3.0",
+ "rand",
+ "tokio",
+]
+
+[[package]]
+name = "spark-registry"
+version = "0.3.1"
+dependencies = [
+ "anyhow",
+ "fuels",
+ "spark-market-sdk 0.3.1",
+ "spark-registry-sdk 0.3.1",
  "tokio",
 ]
 
 [[package]]
 name = "spark-registry-sdk"
 version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b4664c6e3614ccbf3d92140ed5a0783809b46d5375c16eeb2a883046e94ad94e"
 dependencies = [
  "anyhow",
  "fuels",
@@ -5458,9 +5460,7 @@ dependencies = [
 
 [[package]]
 name = "spark-registry-sdk"
-version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b4664c6e3614ccbf3d92140ed5a0783809b46d5375c16eeb2a883046e94ad94e"
+version = "0.3.1"
 dependencies = [
  "anyhow",
  "fuels",
