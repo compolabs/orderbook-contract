@@ -1092,19 +1092,19 @@
         {
           "name": "doc-comment",
           "arguments": [
-            "      - `GTC` (Good-Til-Canceled): The order remains active until it is either fully filled or canceled."
+            "      - GTC (Good-Til-Canceled): The order remains active until it is either fully filled or canceled."
           ]
         },
         {
           "name": "doc-comment",
           "arguments": [
-            "      - `IOC` (Immediate-Or-Cancel): The order can be partially filled immediately, and any unfilled portion is canceled."
+            "      - IOC (Immediate-Or-Cancel): The order can be partially filled immediately, and any unfilled portion is canceled."
           ]
         },
         {
           "name": "doc-comment",
           "arguments": [
-            "      - `FOK` (Fill-Or-Kill): The order must be fully filled immediately, or the entire transaction fails."
+            "      - FOK (Fill-Or-Kill): The order must be fully filled immediately, or the entire transaction fails."
           ]
         },
         {
@@ -1122,7 +1122,7 @@
         {
           "name": "doc-comment",
           "arguments": [
-            " @param limit_type The limit type for the new order: `GTC`, `IOC`, or `FOK`."
+            " @param limit_type The limit type for the new order: GTC, IOC, or FOK."
           ]
         },
         {
@@ -1146,7 +1146,7 @@
         {
           "name": "doc-comment",
           "arguments": [
-            " @return b256 The unique identifier of the newly created order. If the order is partially matched and canceled (in the case of `IOC`), the ID corresponds to the canceled order."
+            " @return b256 The unique identifier of the newly created order. If the order is partially matched and canceled (in the case of IOC), the ID corresponds to the canceled order."
           ]
         },
         {
@@ -1505,7 +1505,7 @@
         {
           "name": "doc-comment",
           "arguments": [
-            " @param protocol_fee A vector of `ProtocolFee` structures that define the fee rates and their corresponding volume thresholds."
+            " @param protocol_fee A vector of ProtocolFee structures that define the fee rates and their corresponding volume thresholds."
           ]
         },
         {
