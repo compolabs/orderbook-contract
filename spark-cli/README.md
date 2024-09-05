@@ -1,5 +1,4 @@
 Note: Work in progress, incomplete, use as guide only, only tested in testnet
-Note: Fuels SDK version 0.56.0 does not currently work with testnet so the repo is using 0.65.0
 
 Inside the spark project (CLI) run the following commands
 

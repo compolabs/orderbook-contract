@@ -4,10 +4,23 @@ use std::str::FromStr;
 
 pub(crate) async fn setup(rpc: &str) -> anyhow::Result<WalletUnlocked> {
     let provider = Provider::connect(rpc).await?;
-    let secret = std::env::var("WALLET_SECRET")?;
-    let wallet = WalletUnlocked::new_from_private_key(secret.parse()?, Some(provider));
 
-    Ok(wallet)
+    // First, try to get the private key from environment
+    if let Ok(secret) = std::env::var("WALLET_SECRET") {
+        let wallet = WalletUnlocked::new_from_private_key(secret.parse()?, Some(provider));
+        return Ok(wallet);
+    }
+
+    // If no private key is provided, try to get the mnemonic phrase from environment
+    if let Ok(mnemonic) = std::env::var("MNEMONIC") {
+        let wallet = WalletUnlocked::new_from_mnemonic_phrase(&mnemonic, Some(provider.clone()))?;
+        return Ok(wallet);
+    }
+
+    // If neither WALLET_SECRET nor MNEMONIC are provided, return an error
+    Err(anyhow::anyhow!(
+        "No valid private key or mnemonic found in environment"
+    ))
 }
 
 pub(crate) fn validate_contract_id(contract_id: &str) -> anyhow::Result<ContractId> {
