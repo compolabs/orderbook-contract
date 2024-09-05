@@ -54,7 +54,13 @@ mod success {
             .decode_logs_with_type::<CancelOrderEvent>()
             .unwrap();
         let event = log.first().unwrap();
-        assert_eq!(*event, CancelOrderEvent { order_id: id });
+        assert_eq!(
+            *event,
+            CancelOrderEvent {
+                order_id: id,
+                user: owner.identity()
+            }
+        );
 
         let user_account = contract.account(owner.identity()).await?.value;
         let expected_account = create_account(deposit_amount, 0, 0, 0);
@@ -159,7 +165,13 @@ mod success {
                 .decode_logs_with_type::<CancelOrderEvent>()
                 .unwrap();
             let event = log.first().unwrap();
-            assert_eq!(*event, CancelOrderEvent { order_id: id });
+            assert_eq!(
+                *event,
+                CancelOrderEvent {
+                    order_id: id,
+                    user: owner.identity()
+                }
+            );
 
             let user_account = contract.account(owner.identity()).await?.value;
             let expected_account = create_account(deposit_amount, 0, 0, 0);
@@ -241,7 +253,13 @@ mod success {
             .decode_logs_with_type::<CancelOrderEvent>()
             .unwrap();
         let event = log.first().unwrap();
-        assert_eq!(*event, CancelOrderEvent { order_id: id });
+        assert_eq!(
+            *event,
+            CancelOrderEvent {
+                order_id: id,
+                user: owner.identity()
+            }
+        );
 
         let user_account = contract.account(owner.identity()).await?.value;
         let expected_account = create_account(0, deposit_amount, 0, 0);
@@ -355,7 +373,13 @@ mod success {
                 .decode_logs_with_type::<CancelOrderEvent>()
                 .unwrap();
             let event = log.first().unwrap();
-            assert_eq!(*event, CancelOrderEvent { order_id: id });
+            assert_eq!(
+                *event,
+                CancelOrderEvent {
+                    order_id: id,
+                    user: owner.identity()
+                }
+            );
 
             let user_account = contract.account(owner.identity()).await?.value;
             let expected_account = create_account(0, deposit_amount, 0, 0);

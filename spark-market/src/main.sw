@@ -31,7 +31,7 @@ use ::events::{
     TradeOrderEvent,
     WithdrawEvent,
 };
-use ::interface::{SparkMarket, MarketInfo};
+use ::interface::{SparkMarket, SparkMarketInfo};
 
 use std::{
     asset::transfer,
@@ -421,7 +421,7 @@ impl SparkMarket for Contract {
     }
 }
 
-impl MarketInfo for Contract {
+impl SparkMarketInfo for Contract {
     #[storage(read)]
     fn account(user: Identity) -> Account {
         storage.account.get(user).try_read().unwrap_or(Account::new())
@@ -714,7 +714,7 @@ fn cancel_order_internal(order_id: b256) {
         ),
     );
 
-    log(CancelOrderEvent { order_id });
+    log(CancelOrderEvent { order_id, user });
 }
 
 #[storage(read, write)]
