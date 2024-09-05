@@ -17,7 +17,7 @@ storage {
     markets: StorageMap<b256, ContractId> = StorageMap {},
 }
 
-abi MarketInfo {
+abi SparkMarketInfo {
     fn config() -> (AssetId, u32, AssetId, u32, Identity, u32, u32);
 }
 
@@ -125,7 +125,7 @@ impl SparkRegistry for Contract {
 }
 
 fn market_assets(market: ContractId) -> (AssetId, AssetId) {
-    let (base, _, quote, _, _, _, _) = abi(MarketInfo, market.into()).config();
+    let (base, _, quote, _, _, _, _) = abi(SparkMarketInfo, market.into()).config();
     (base, quote)
 }
 
