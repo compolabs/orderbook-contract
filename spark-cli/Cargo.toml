@@ -6,14 +6,19 @@ authors = { workspace = true }
 edition = { workspace = true }
 license = { workspace = true }
 rust-version = { workspace = true }
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+repository = "https://github.com/ComposabilityLabs/spark-cli"
+readme = "README.md"
+keywords = ["fuel", "cli", "spark", "market", "orderbook"]
 
 [dependencies]
 anyhow = { workspace = true }
 clap = { version = "4.5.16", features = ["derive"] }
 dotenv = "0.15.0"
 fuels = { workspace = true }
-spark-market-sdk = { path = "../spark-market-sdk" }
-spark-registry-sdk = { path = "../spark-registry-sdk" }
+spark-market-sdk = { version = "0.3.0" }
+spark-registry-sdk = { version = "0.3.0" }
 tokio = { workspace = true }
+
+[[bin]]
+name = "spark-cli"
+path = "src/main.rs"

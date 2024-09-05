@@ -14,8 +14,7 @@ abigen!(Contract(
     abi = "spark-registry/out/release/spark-registry-abi.json"
 ));
 
-const SPARK_REGISTRY_CONTRACT_BINARY_PATH: &str =
-    "spark-registry/out/release/spark-registry.bin";
+const SPARK_REGISTRY_CONTRACT_BINARY_PATH: &str = "spark-registry/out/release/spark-registry.bin";
 const SPARK_REGISTRY_CONTRACT_STORAGE_PATH: &str =
     "spark-registry/out/release/spark-registry-storage_slots.json";
 
