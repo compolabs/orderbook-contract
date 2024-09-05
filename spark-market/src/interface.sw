@@ -51,7 +51,7 @@ abi SparkMarket {
     fn set_matcher_fee(amount: u64);
 }
 
-abi MarketInfo {
+abi SparkMarketInfo {
     #[storage(read)]
     fn account(user: Identity) -> Account;
 

@@ -9,6 +9,7 @@ use ::data_structures::{
 
 pub struct CancelOrderEvent {
     pub order_id: b256,
+    pub user: Identity,
 }
 
 pub struct DepositEvent {
