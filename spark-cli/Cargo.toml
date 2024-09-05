@@ -8,7 +8,7 @@ license = { workspace = true }
 rust-version = { workspace = true }
 repository = "https://github.com/compolabs/orderbook-contract"
 readme = "README.md"
-keywords = ["fuel", "spark", "cli", "orderbook"]
+keywords = ["fuel", "sdk", "spark", "cli", "orderbook"]
 
 [dependencies]
 anyhow = { workspace = true }
