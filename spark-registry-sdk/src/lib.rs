@@ -15,9 +15,9 @@ abigen!(Contract(
 ));
 
 const SPARK_REGISTRY_CONTRACT_BINARY_PATH: &str =
-    "../spark-registry/out/release/spark-registry.bin";
+    "spark-registry/out/release/spark-registry.bin";
 const SPARK_REGISTRY_CONTRACT_STORAGE_PATH: &str =
-    "../spark-registry/out/release/spark-registry-storage_slots.json";
+    "spark-registry/out/release/spark-registry-storage_slots.json";
 
 pub struct SparkRegistryContract {
     instance: SparkRegistry<WalletUnlocked>,
