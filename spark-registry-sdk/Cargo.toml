@@ -5,14 +5,17 @@ authors = { workspace = true }
 edition = { workspace = true }
 license = { workspace = true }
 rust-version = { workspace = true }
+description = "SDK for interacting with the Spark Registry"
+repository = "https://github.com/ComposabilityLabs/spark-registry-sdk"
+readme = "README.md"
+keywords = ["fuel", "sdk", "spark", "registry"]
+categories = ["fuel", "blockchain", "utilities"]
 include = [
     "../spark-registry/out/release/*",
     "src/lib.rs",
     "Cargo.toml",
     "README.md"
 ]
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 anyhow = { workspace = true }
