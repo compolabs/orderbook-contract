@@ -5,6 +5,12 @@ authors = { workspace = true }
 edition = { workspace = true }
 license = { workspace = true }
 rust-version = { workspace = true }
+include = [
+    "spark-market/out/release/*",
+    "src/lib.rs",
+    "Cargo.toml",
+    "README.md"
+]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
