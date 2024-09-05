@@ -3,7 +3,7 @@ use fuels::{
         abigen, AssetId, CallParameters, Contract, ContractId, LoadConfiguration,
         StorageConfiguration, TxPolicies, VariableOutputPolicy, WalletUnlocked,
     },
-    programs::{calls::Execution, responses::CallResponse},
+    programs::{responses::CallResponse},
     types::{bech32::Bech32ContractId, Bits256, Bytes32, Identity},
 };
 
@@ -248,7 +248,7 @@ impl SparkMarketContract {
             .instance
             .methods()
             .account(user)
-            .simulate(Execution::StateReadOnly)
+            .simulate()
             .await?)
     }
 
@@ -257,7 +257,7 @@ impl SparkMarketContract {
             .instance
             .methods()
             .protocol_fee()
-            .simulate(Execution::StateReadOnly)
+            .simulate()
             .await?)
     }
 
@@ -269,7 +269,7 @@ impl SparkMarketContract {
             .instance
             .methods()
             .protocol_fee_user(user)
-            .simulate(Execution::StateReadOnly)
+            .simulate()
             .await?)
     }
 
@@ -282,7 +282,7 @@ impl SparkMarketContract {
             .instance
             .methods()
             .protocol_fee_user_amount(amount, user)
-            .simulate(Execution::StateReadOnly)
+            .simulate()
             .await?)
     }
 
@@ -291,7 +291,7 @@ impl SparkMarketContract {
             .instance
             .methods()
             .matcher_fee()
-            .simulate(Execution::StateReadOnly)
+            .simulate()
             .await?)
     }
 
@@ -300,7 +300,7 @@ impl SparkMarketContract {
             .instance
             .methods()
             .get_epoch()
-            .simulate(Execution::StateReadOnly)
+            .simulate()
             .await?)
     }
 
@@ -322,7 +322,7 @@ impl SparkMarketContract {
             .instance
             .methods()
             .order(order)
-            .simulate(Execution::StateReadOnly)
+            .simulate()
             .await?)
     }
 
@@ -331,7 +331,7 @@ impl SparkMarketContract {
             .instance
             .methods()
             .user_orders(user)
-            .simulate(Execution::StateReadOnly)
+            .simulate()
             .await?)
     }
 
@@ -343,7 +343,7 @@ impl SparkMarketContract {
             .instance
             .methods()
             .order_change_info(order_id)
-            .simulate(Execution::StateReadOnly)
+            .simulate()
             .await?)
     }
 
@@ -354,7 +354,7 @@ impl SparkMarketContract {
             .instance
             .methods()
             .config()
-            .simulate(Execution::StateReadOnly)
+            .simulate()
             .await?)
     }
 
@@ -370,7 +370,7 @@ impl SparkMarketContract {
             .instance
             .methods()
             .order_id(order_type, owner, price, block_height, order_height)
-            .simulate(Execution::StateReadOnly)
+            .simulate()
             .await?)
     }
 }

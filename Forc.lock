@@ -1,6 +1,6 @@
 [[package]]
 name = "core"
-source = "path+from-root-EF1196EF955CE54B"
+source = "path+from-root-2AB5BCE55EAAEFF4"
 
 [[package]]
 name = "spark-market"
@@ -22,12 +22,12 @@ dependencies = ["std"]
 
 [[package]]
 name = "std"
-source = "git+https://github.com/fuellabs/sway?tag=v0.63.3#f55c81cce61aac31913ac0e87306cbaed7da679a"
+source = "git+https://github.com/fuellabs/sway?tag=v0.62.0#efda0397c7bee77de73bd726ec0b732d57614973"
 dependencies = ["core"]
 
 [[package]]
 name = "sway_libs"
-source = "git+https://github.com/FuelLabs/sway-libs?branch=master#b03cc281241b36945da0fa3bd816862219334c25"
+source = "git+https://github.com/FuelLabs/sway-libs?branch=master#d77ab39d050f051b189620b8d6474aea7d271fbf"
 dependencies = [
     "standards",
     "std",
