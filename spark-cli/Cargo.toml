@@ -6,9 +6,9 @@ authors = { workspace = true }
 edition = { workspace = true }
 license = { workspace = true }
 rust-version = { workspace = true }
-repository = "https://github.com/ComposabilityLabs/spark-cli"
+repository = "https://github.com/compolabs/orderbook-contract"
 readme = "README.md"
-keywords = ["fuel", "cli", "spark", "market", "orderbook"]
+keywords = ["fuel", "spark", "cli", "orderbook"]
 
 [dependencies]
 anyhow = { workspace = true }

@@ -6,9 +6,9 @@ edition = { workspace = true }
 license = { workspace = true }
 rust-version = { workspace = true }
 description = "SDK for interacting with the Spark Market"
-repository = "https://github.com/ComposabilityLabs/spark-market-sdk"
+repository = "https://github.com/compolabs/orderbook-contract"
 readme = "README.md"
-keywords = ["fuel", "sdk", "spark", "dex"]
+keywords = ["fuel", "sdk", "spark", "market", "orderbook"]
 include = [
     "spark-market/out/release/*",
     "src/lib.rs",

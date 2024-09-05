@@ -6,9 +6,9 @@ edition = { workspace = true }
 license = { workspace = true }
 rust-version = { workspace = true }
 description = "SDK for interacting with the Spark Registry"
-repository = "https://github.com/ComposabilityLabs/spark-registry-sdk"
+repository = "https://github.com/compolabs/orderbook-contract"
 readme = "README.md"
-keywords = ["fuel", "sdk", "spark", "registry"]
+keywords = ["fuel", "sdk", "spark", "registry", "orderbook"]
 include = [
     "spark-registry/out/release/*",
     "src/lib.rs",
