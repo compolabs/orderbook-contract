@@ -13,8 +13,8 @@ pub(crate) struct Cli {
 #[derive(Clone, Subcommand)]
 pub(crate) enum Command {
     ///
-    #[clap(short_flag = 'B')]
-    Book(Book),
+    #[clap(short_flag = 'R')]
+    Registry(Registry),
 
     ///
     #[clap(short_flag = 'C')]
@@ -26,7 +26,7 @@ pub(crate) enum Command {
 }
 
 #[derive(Args, Clone)]
-pub(crate) struct Book {
+pub(crate) struct Registry {
     #[clap(subcommand)]
     pub(crate) commands: RegistryCommands,
 }

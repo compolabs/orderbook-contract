@@ -20,7 +20,7 @@ async fn main() -> anyhow::Result<()> {
     let cli = Cli::parse();
 
     match cli.command {
-        Command::Book(args) => match args.commands {
+        Command::Registry(args) => match args.commands {
             RegistryCommands::Config(args) => args.run().await,
             RegistryCommands::Deploy(args) => args.run().await,
             RegistryCommands::Markets(args) => args.run().await,

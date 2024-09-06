@@ -171,7 +171,7 @@ spark-cli core set-protocol-fee \
     --fee "2,7,500000000000" \
     --fee "1,5,1000000000000" \
     --rpc "testnet.fuel.network" \
-    --contract-id 0x19aace5264843a3cd3f7a67da3835e4aa9a2e3d935961bf54b35dd5a45c305a5
+    --contract-id 0xab74b4bf2fb3f699e20c1312b29d24b5368bac0e8b04d0c732a674a91854c6e8
 ```
 
 ## Set Matcher Fee
@@ -182,7 +182,7 @@ Sets a matcher fee for the market
 spark-cli core set-matcher-fee \
     --amount 1000 \
     --rpc "testnet.fuel.network" \
-    --contract-id 0x19aace5264843a3cd3f7a67da3835e4aa9a2e3d935961bf54b35dd5a45c305a5
+    --contract-id 0xab74b4bf2fb3f699e20c1312b29d24b5368bac0e8b04d0c732a674a91854c6e8
 ```
 
 ## Set Epoch
@@ -306,10 +306,10 @@ spark-cli info user-orders \
     --contract-id 0x19aace5264843a3cd3f7a67da3835e4aa9a2e3d935961bf54b35dd5a45c305a5
 ```
 
-## Deploy Orderbook
+## Deploy Market Registry
 
 ```
-spark-cli book deploy \
+spark-cli registry deploy \
     --rpc "testnet.fuel.network" 
 ```
 
@@ -322,7 +322,7 @@ Owner address: fuel173lqaa6y4jxfjd2suq730uwys3zfg4f6zt9vzx4cc45v3xvlmwlszdvdpz
 ## Register a market
 
 ```
-spark-cli book register \
+spark-cli registry register \
     --market 0x19aace5264843a3cd3f7a67da3835e4aa9a2e3d935961bf54b35dd5a45c305a5 \
     --rpc "testnet.fuel.network" \
     --contract-id 0x0911d52d95a71dd484690636fb81db8596f54ee18fe5eb7e33842025d1dd80de
@@ -331,7 +331,7 @@ spark-cli book register \
 ## Unregister a market
 
 ```
-spark-cli book unregister \
+spark-cli registry unregister \
     --market 0x19aace5264843a3cd3f7a67da3835e4aa9a2e3d935961bf54b35dd5a45c305a5 \
     --rpc "testnet.fuel.network" \
     --contract-id 0x0911d52d95a71dd484690636fb81db8596f54ee18fe5eb7e33842025d1dd80de
@@ -340,7 +340,7 @@ spark-cli book unregister \
 ## Get registered markets by assets
 
 ```
-spark-cli book markets \
+spark-cli registry markets \
     --base 0x38e4ca985b22625fff93205e997bfc5cc8453a953da638ad297ca60a9f2600bc \
     --quote 0x336b7c06352a4b736ff6f688ba6885788b3df16e136e95310ade51aa32dc6f05 \
     --rpc "testnet.fuel.network" \
@@ -350,7 +350,7 @@ spark-cli book markets \
 ## Config
 
 ```
-spark-cli book config \
+spark-cli registry config \
     --rpc "testnet.fuel.network" \
     --contract-id 0x0911d52d95a71dd484690636fb81db8596f54ee18fe5eb7e33842025d1dd80de
 ```
