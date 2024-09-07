@@ -171,7 +171,7 @@ spark-cli core set-protocol-fee \
     --fee "2,7,500000000000" \
     --fee "1,5,1000000000000" \
     --rpc "testnet.fuel.network" \
-    --contract-id 0xab74b4bf2fb3f699e20c1312b29d24b5368bac0e8b04d0c732a674a91854c6e8
+    --contract-id 0x19aace5264843a3cd3f7a67da3835e4aa9a2e3d935961bf54b35dd5a45c305a5
 ```
 
 ## Set Matcher Fee
@@ -182,7 +182,7 @@ Sets a matcher fee for the market
 spark-cli core set-matcher-fee \
     --amount 1000 \
     --rpc "testnet.fuel.network" \
-    --contract-id 0xab74b4bf2fb3f699e20c1312b29d24b5368bac0e8b04d0c732a674a91854c6e8
+    --contract-id 0x19aace5264843a3cd3f7a67da3835e4aa9a2e3d935961bf54b35dd5a45c305a5
 ```
 
 ## Set Epoch
