@@ -14,7 +14,7 @@ Run from project root folder
 cargo install spark-cli
 ```
 
-Create `.env` file in the project root and initialize `WALLET_SECRET=` with Fuel private key value there
+Create `.env` file in the project root and initialize `WALLET_SECRET=` with Fuel private key value, or initialize `MNEMONIC=` to use a 12 word mnemonic.
 
 ## Deploy
 
