@@ -12,15 +12,15 @@ use dotenv::dotenv;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    dotenv().ok(); // TODO: check this works against std::env
+    let version: String = env!("CARGO_PKG_VERSION").into();
+    println!("Spark CLI v{}", version);
 
-    // TODO: document local provider rpc in each command
-    // Provider::connect(format!("127.0.0.1:{port}")).await?;
+    dotenv().ok();
 
     let cli = Cli::parse();
 
     match cli.command {
-        Command::Book(args) => match args.commands {
+        Command::Registry(args) => match args.commands {
             RegistryCommands::Config(args) => args.run().await,
             RegistryCommands::Deploy(args) => args.run().await,
             RegistryCommands::Markets(args) => args.run().await,
