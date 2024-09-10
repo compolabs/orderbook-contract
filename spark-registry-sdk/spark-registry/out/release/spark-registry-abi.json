@@ -297,7 +297,7 @@
         {
           "name": "doc-comment",
           "arguments": [
-            " @return A tuple containing the owner's Address and the contract's version number as a u32."
+            " @return A tuple containing the owner's 'Address' and the contract's version number as a 'u32'."
           ]
         }
       ]
@@ -344,25 +344,25 @@
         {
           "name": "doc-comment",
           "arguments": [
-            "      If a market is not registered, None is returned for the contract ID."
+            "      If a market is not registered, 'None' is returned for the contract ID."
           ]
         },
         {
           "name": "doc-comment",
           "arguments": [
-            " @param market_assets A vector of tuples, where each tuple contains a base AssetId and a quote AssetId."
+            " @param market_assets A vector of tuples, where each tuple contains a base 'AssetId' and a quote 'AssetId'."
           ]
         },
         {
           "name": "doc-comment",
           "arguments": [
-            " @return A vector of tuples, where each tuple contains the base AssetId, the quote AssetId, and an Option<ContractId> representing the market's contract ID."
+            " @return A vector of tuples, where each tuple contains the base 'AssetId', the quote 'AssetId', and an 'Option<ContractId>' representing the market's contract ID."
           ]
         },
         {
           "name": "doc-comment",
           "arguments": [
-            "         The Option<ContractId> is None if the market is not registered."
+            "         The 'Option<ContractId>' is 'None' if the market is not registered."
           ]
         },
         {
@@ -409,13 +409,13 @@
         {
           "name": "doc-comment",
           "arguments": [
-            "      contract's storage and a MarketRegisterEvent is logged. The function enforces that only the contract owner can call it."
+            "      contract's storage and a 'MarketRegisterEvent' is logged. The function enforces that only the contract owner can call it."
           ]
         },
         {
           "name": "doc-comment",
           "arguments": [
-            " @param market The ContractId of the market to be registered."
+            " @param market The 'ContractId' of the market to be registered."
           ]
         },
         {
@@ -469,13 +469,13 @@
         {
           "name": "doc-comment",
           "arguments": [
-            "      contract's storage and a MarketUnregisterEvent is logged. The function enforces that only the contract owner can call it."
+            "      contract's storage and a 'MarketUnregisterEvent' is logged. The function enforces that only the contract owner can call it."
           ]
         },
         {
           "name": "doc-comment",
           "arguments": [
-            " @param market The ContractId of the market to be unregistered."
+            " @param market The 'ContractId' of the market to be unregistered."
           ]
         },
         {

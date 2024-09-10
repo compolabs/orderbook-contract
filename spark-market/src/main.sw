@@ -262,16 +262,16 @@ impl SparkMarket for Contract {
     /// @notice Attempts to fulfill a single order by matching it against multiple orders from a provided list.
     /// @dev This function creates a new order with the given parameters and iterates through the list of existing orders,
     ///      attempting to match the new order with existing orders. It handles full and partial matches according to the specified limit type:
-    ///      - GTC (Good-Til-Canceled): The order remains active until it is either fully filled or canceled.
-    ///      - IOC (Immediate-Or-Cancel): The order can be partially filled immediately, and any unfilled portion is canceled.
-    ///      - FOK (Fill-Or-Kill): The order must be fully filled immediately, or the entire transaction fails.
+    ///      - 'GTC' (Good-Til-Canceled): The order remains active until it is either fully filled or canceled.
+    ///      - 'IOC' (Immediate-Or-Cancel): The order can be partially filled immediately, and any unfilled portion is canceled.
+    ///      - 'FOK' (Fill-Or-Kill): The order must be fully filled immediately, or the entire transaction fails.
     /// @param amount The amount of the asset to be fulfilled in the new order.
     /// @param order_type The type of the order being fulfilled (e.g., buy or sell).
-    /// @param limit_type The limit type for the new order: GTC, IOC, or FOK.
+    /// @param limit_type The limit type for the new order: 'GTC', 'IOC', or 'FOK'.
     /// @param price The price at which the new order is to be fulfilled.
     /// @param slippage The maximum allowable slippage (as a percentage) for the price during the matching process.
     /// @param orders A vector of order IDs representing the existing orders to match against the new order.
-    /// @return b256 The unique identifier of the newly created order. If the order is partially matched and canceled (in the case of IOC), the ID corresponds to the canceled order.
+    /// @return b256 The unique identifier of the newly created order. If the order is partially matched and canceled (in the case of 'IOC'), the ID corresponds to the canceled order.
     #[payable]
     #[storage(read, write)]
     fn fulfill_order_many(
@@ -374,7 +374,7 @@ impl SparkMarket for Contract {
     /// @dev This function allows the contract owner to set a list of protocol fees.
     ///      It ensures that the first fee in the list has a volume threshold of zero and that the fees are sorted by volume threshold.
     ///      The function is restricted to the contract owner and logs an event after the protocol fees are set.
-    /// @param protocol_fee A vector of ProtocolFee structures that define the fee rates and their corresponding volume thresholds.
+    /// @param protocol_fee A vector of 'ProtocolFee' structures that define the fee rates and their corresponding volume thresholds.
     ///                     The first element must have a volume threshold of zero, and the list must be sorted by volume threshold.
     /// @return None - The function does not return a value.
     #[storage(write)]

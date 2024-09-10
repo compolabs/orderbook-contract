@@ -15,9 +15,9 @@ abigen!(Contract(
     abi = "spark-market/out/release/spark-market-abi.json"
 ));
 
-const MARKET_CONTRACT_BINARY_PATH: &str = "../spark-market/out/release/spark-market.bin";
+const MARKET_CONTRACT_BINARY_PATH: &str = "spark-market/out/release/spark-market.bin";
 const MARKET_CONTRACT_STORAGE_PATH: &str =
-    "../spark-market/out/release/spark-market-storage_slots.json";
+    "spark-market/out/release/spark-market-storage_slots.json";
 
 pub struct SparkMarketContract {
     instance: SparkMarket<WalletUnlocked>,
