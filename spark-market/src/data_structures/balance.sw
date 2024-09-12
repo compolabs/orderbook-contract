@@ -4,8 +4,8 @@ use ::data_structures::asset_type::AssetType;
 use ::errors::AccountError;
 
 pub struct Balance {
-    base: u64,
-    quote: u64,
+    pub base: u64,
+    pub quote: u64,
 }
 
 impl Balance {

@@ -28,6 +28,8 @@ mod success {
         // Precondition enforces deposited account
         assert_eq!(user_account, expected_account);
 
+        let expected_account = create_account(0, 0, 0, 0);
+
         let response = contract.withdraw(deposit_amount, AssetType::Base).await?;
 
         let log = response.decode_logs_with_type::<WithdrawEvent>().unwrap();
@@ -38,12 +40,13 @@ mod success {
                 amount: deposit_amount,
                 asset: assets.base.id,
                 user: owner.identity(),
+                liquid_base: expected_account.liquid.base,
+                liquid_quote: expected_account.liquid.quote,
             }
         );
 
         let new_balance = owner.balance(&assets.base.id).await;
         let user_account = contract.account(owner.identity()).await?.value;
-        let expected_account = create_account(0, 0, 0, 0);
 
         assert_eq!(new_balance, user_balance + deposit_amount);
         assert_eq!(user_account, expected_account);
@@ -76,6 +79,8 @@ mod success {
             // Assert the deposit is what is expected
             assert_eq!(user_account, expected_account);
 
+            let expected_account = create_account(0, 0, 0, 0);
+
             // Perform withdrawal
             let response = contract.withdraw(deposit_amount, AssetType::Base).await?;
 
@@ -87,12 +92,13 @@ mod success {
                     amount: deposit_amount,
                     asset: assets.base.id,
                     user: owner.identity(),
+                    liquid_base: expected_account.liquid.base,
+                    liquid_quote: expected_account.liquid.quote,
                 }
             );
 
             let new_balance = owner.balance(&assets.base.id).await;
             let user_account = contract.account(owner.identity()).await?.value;
-            let expected_account = create_account(0, 0, 0, 0);
 
             // Assert the withdrawal is correct
             assert_eq!(new_balance, user_balance + deposit_amount);
@@ -122,6 +128,8 @@ mod success {
         // Precondition enforces deposited account
         assert_eq!(user_account, expected_account);
 
+        let expected_account = create_account(0, 0, 0, 0);
+
         let response = contract.withdraw(deposit_amount, AssetType::Quote).await?;
 
         let log = response.decode_logs_with_type::<WithdrawEvent>().unwrap();
@@ -132,12 +140,13 @@ mod success {
                 amount: deposit_amount,
                 asset: assets.quote.id,
                 user: owner.identity(),
+                liquid_base: expected_account.liquid.base,
+                liquid_quote: expected_account.liquid.quote,
             }
         );
 
         let new_balance = owner.balance(&assets.quote.id).await;
         let user_account = contract.account(owner.identity()).await?.value;
-        let expected_account = create_account(0, 0, 0, 0);
 
         assert_eq!(new_balance, user_balance + deposit_amount);
         assert_eq!(user_account, expected_account);
@@ -171,6 +180,8 @@ mod success {
             // Assert the deposit is what is expected
             assert_eq!(user_account, expected_account);
 
+            let expected_account = create_account(0, 0, 0, 0);
+
             // Perform withdrawal
             let response = contract.withdraw(deposit_amount, AssetType::Quote).await?;
 
@@ -182,12 +193,13 @@ mod success {
                     amount: deposit_amount,
                     asset: assets.quote.id,
                     user: owner.identity(),
+                    liquid_base: expected_account.liquid.base,
+                    liquid_quote: expected_account.liquid.quote,
                 }
             );
 
             let new_balance = owner.balance(&assets.quote.id).await;
             let user_account = contract.account(owner.identity()).await?.value;
-            let expected_account = create_account(0, 0, 0, 0);
 
             // Assert the withdrawal is correct
             assert_eq!(new_balance, user_balance + deposit_amount);

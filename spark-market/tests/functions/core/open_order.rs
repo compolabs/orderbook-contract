@@ -76,6 +76,8 @@ mod success {
                 order_id: expected_id,
                 price,
                 user: owner.identity(),
+                liquid_base: expected_account.liquid.base,
+                liquid_quote: expected_account.liquid.quote,
             }
         );
 
@@ -167,6 +169,8 @@ mod success {
                 order_id: expected_id,
                 price,
                 user: owner.identity(),
+                liquid_base: expected_account.liquid.base,
+                liquid_quote: expected_account.liquid.quote,
             }
         );
 
@@ -262,6 +266,8 @@ mod success {
                 order_id: expected_id,
                 price,
                 user: _user.identity(),
+                liquid_base: expected_account.liquid.base,
+                liquid_quote: expected_account.liquid.quote,
             }
         );
 

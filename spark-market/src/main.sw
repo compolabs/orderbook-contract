@@ -23,7 +23,6 @@ use ::errors::{AccountError, AssetError, AuthError, MatchError, OrderError, Valu
 use ::events::{
     CancelOrderEvent,
     DepositEvent,
-    MatchOrderEvent,
     OpenOrderEvent,
     SetEpochEvent,
     SetMatcherRewardEvent,
@@ -106,6 +105,8 @@ impl SparkMarket for Contract {
             amount,
             asset,
             user,
+            liquid_base: account.liquid.base,
+            liquid_quote: account.liquid.quote,
         });
     }
 
@@ -133,6 +134,8 @@ impl SparkMarket for Contract {
             amount,
             asset,
             user,
+            liquid_base: account.liquid.base,
+            liquid_quote: account.liquid.quote,
         });
     }
 
@@ -671,6 +674,8 @@ fn open_order_internal(
         order_id,
         price,
         user,
+        liquid_base: account.liquid.base,
+        liquid_quote: account.liquid.quote,
     });
     order_id
 }
@@ -714,7 +719,12 @@ fn cancel_order_internal(order_id: b256) {
         ),
     );
 
-    log(CancelOrderEvent { order_id, user });
+    log(CancelOrderEvent {
+        order_id,
+        user,
+        liquid_base: account.liquid.base,
+        liquid_quote: account.liquid.quote,
+    });
 }
 
 #[storage(read, write)]
@@ -940,6 +950,15 @@ fn match_order_internal(
     // Determine trade amounts based on the minimum available
     let trade_size = min(s_order.amount, b_order.amount);
 
+    // Execute the trade and update balances
+    let (trade_volume, s_order_matcher_fee, b_order_matcher_fee) = execute_trade(s_order, b_order, trade_size, matcher);
+
+    increase_user_volume(s_order.owner, trade_volume);
+    increase_user_volume(b_order.owner, trade_volume);
+
+    let s_account = storage.account.get(s_order.owner).read();
+    let b_account = storage.account.get(b_order.owner).read();
+
     // Emit events for a matched order scenario
     emit_match_events(
         s_id,
@@ -952,16 +971,12 @@ fn match_order_internal(
         trade_size,
         matcher,
         trade_price,
+        s_account,
+        b_account,
     );
 
-    // Execute the trade and update balances
-    let (trade_volume, s_order_matcher_fee, b_order_matcher_fee) = execute_trade(s_order, b_order, trade_size, matcher);
-
-    increase_user_volume(s_order.owner, trade_volume);
-    increase_user_volume(b_order.owner, trade_volume);
-
     // Handle partial or full order fulfillment
-    update_order_storage(
+    let (match_result, partial_order_id) = update_order_storage(
         trade_size,
         s_order,
         s_id,
@@ -969,7 +984,8 @@ fn match_order_internal(
         b_order,
         b_id,
         b_order_matcher_fee,
-    )
+    );
+    (match_result, partial_order_id)
 }
 
 #[storage(read, write)]
@@ -1019,6 +1035,8 @@ fn emit_match_events(
     amount1: u64,
     matcher: Identity,
     match_price: u64,
+    s_account: Account,
+    b_account: Account,
 ) {
     // Emit events for the first order
     log_order_change_info(
@@ -1034,15 +1052,6 @@ fn emit_match_events(
                 .amount - amount0,
         ),
     );
-    log(MatchOrderEvent {
-        order_id: id0,
-        asset: get_asset_id(order0.asset_type),
-        order_matcher: matcher,
-        owner: order0.owner,
-        counterparty: order1.owner,
-        match_size: amount0,
-        match_price: match_price,
-    });
 
     // Emit events for the second order
     log_order_change_info(
@@ -1058,15 +1067,6 @@ fn emit_match_events(
                 .amount - amount1,
         ),
     );
-    log(MatchOrderEvent {
-        order_id: id1,
-        asset: get_asset_id(order1.asset_type),
-        order_matcher: matcher,
-        owner: order1.owner,
-        counterparty: order0.owner,
-        match_size: amount1,
-        match_price: match_price,
-    });
 
     // Emit event for the trade execution
     log(TradeOrderEvent {
@@ -1081,6 +1081,10 @@ fn emit_match_events(
         tx_id: tx_id(),
         order_seller: order0.owner,
         order_buyer: order1.owner,
+        s_account_liquid_base: s_account.liquid.base,
+        s_account_liquid_quote: s_account.liquid.quote,
+        b_account_liquid_base: b_account.liquid.base,
+        b_account_liquid_quote: b_account.liquid.quote,
     });
 }
 

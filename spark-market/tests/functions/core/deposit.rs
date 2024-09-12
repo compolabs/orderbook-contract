@@ -40,6 +40,8 @@ mod success {
                 amount: deposit_amount,
                 asset: assets.base.id,
                 user: owner.identity(),
+                liquid_base: expected_account.liquid.base,
+                liquid_quote: expected_account.liquid.quote,
             }
         );
 
@@ -86,6 +88,8 @@ mod success {
                     amount: deposit_amount,
                     asset: assets.base.id,
                     user: owner.identity(),
+                    liquid_base: expected_account.liquid.base,
+                    liquid_quote: expected_account.liquid.quote,
                 }
             );
 
@@ -130,6 +134,8 @@ mod success {
                 amount: deposit_amount,
                 asset: assets.quote.id,
                 user: owner.identity(),
+                liquid_base: expected_account.liquid.base,
+                liquid_quote: expected_account.liquid.quote,
             }
         );
 
@@ -177,6 +183,8 @@ mod success {
                     amount: deposit_amount,
                     asset: assets.quote.id,
                     user: owner.identity(),
+                    liquid_base: expected_account.liquid.base,
+                    liquid_quote: expected_account.liquid.quote,
                 }
             );
 
