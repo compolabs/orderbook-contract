@@ -3,7 +3,7 @@ use fuels::{
         abigen, AssetId, CallParameters, Contract, ContractId, LoadConfiguration,
         StorageConfiguration, TxPolicies, VariableOutputPolicy, WalletUnlocked,
     },
-    programs::{calls::Execution, responses::CallResponse},
+    programs::responses::CallResponse,
     types::{bech32::Bech32ContractId, Bits256, Bytes32, Identity},
 };
 
@@ -244,21 +244,11 @@ impl SparkMarketContract {
     }
 
     pub async fn account(&self, user: Identity) -> anyhow::Result<CallResponse<Account>> {
-        Ok(self
-            .instance
-            .methods()
-            .account(user)
-            .simulate(Execution::StateReadOnly)
-            .await?)
+        Ok(self.instance.methods().account(user).simulate().await?)
     }
 
     pub async fn protocol_fee(&self) -> anyhow::Result<CallResponse<Vec<ProtocolFee>>> {
-        Ok(self
-            .instance
-            .methods()
-            .protocol_fee()
-            .simulate(Execution::StateReadOnly)
-            .await?)
+        Ok(self.instance.methods().protocol_fee().simulate().await?)
     }
 
     pub async fn protocol_fee_user(
@@ -269,7 +259,7 @@ impl SparkMarketContract {
             .instance
             .methods()
             .protocol_fee_user(user)
-            .simulate(Execution::StateReadOnly)
+            .simulate()
             .await?)
     }
 
@@ -282,26 +272,16 @@ impl SparkMarketContract {
             .instance
             .methods()
             .protocol_fee_user_amount(amount, user)
-            .simulate(Execution::StateReadOnly)
+            .simulate()
             .await?)
     }
 
     pub async fn matcher_fee(&self) -> anyhow::Result<CallResponse<u64>> {
-        Ok(self
-            .instance
-            .methods()
-            .matcher_fee()
-            .simulate(Execution::StateReadOnly)
-            .await?)
+        Ok(self.instance.methods().matcher_fee().simulate().await?)
     }
 
     pub async fn get_epoch(&self) -> anyhow::Result<CallResponse<(u64, u64)>> {
-        Ok(self
-            .instance
-            .methods()
-            .get_epoch()
-            .simulate(Execution::StateReadOnly)
-            .await?)
+        Ok(self.instance.methods().get_epoch().simulate().await?)
     }
 
     pub async fn set_epoch(
@@ -318,21 +298,11 @@ impl SparkMarketContract {
     }
 
     pub async fn order(&self, order: Bits256) -> anyhow::Result<CallResponse<Option<Order>>> {
-        Ok(self
-            .instance
-            .methods()
-            .order(order)
-            .simulate(Execution::StateReadOnly)
-            .await?)
+        Ok(self.instance.methods().order(order).simulate().await?)
     }
 
     pub async fn user_orders(&self, user: Identity) -> anyhow::Result<CallResponse<Vec<Bits256>>> {
-        Ok(self
-            .instance
-            .methods()
-            .user_orders(user)
-            .simulate(Execution::StateReadOnly)
-            .await?)
+        Ok(self.instance.methods().user_orders(user).simulate().await?)
     }
 
     pub async fn order_change_info(
@@ -343,19 +313,14 @@ impl SparkMarketContract {
             .instance
             .methods()
             .order_change_info(order_id)
-            .simulate(Execution::StateReadOnly)
+            .simulate()
             .await?)
     }
 
     pub async fn config(
         &self,
     ) -> anyhow::Result<CallResponse<(AssetId, u32, AssetId, u32, Identity, u32, u32)>> {
-        Ok(self
-            .instance
-            .methods()
-            .config()
-            .simulate(Execution::StateReadOnly)
-            .await?)
+        Ok(self.instance.methods().config().simulate().await?)
     }
 
     pub async fn order_id(
@@ -370,7 +335,7 @@ impl SparkMarketContract {
             .instance
             .methods()
             .order_id(order_type, owner, price, block_height, order_height)
-            .simulate(Execution::StateReadOnly)
+            .simulate()
             .await?)
     }
 }

@@ -3,7 +3,7 @@ use fuels::{
         abigen, AssetId, Bech32ContractId, Contract, ContractId, LoadConfiguration,
         StorageConfiguration, TxPolicies, WalletUnlocked,
     },
-    programs::{calls::Execution, responses::CallResponse},
+    programs::responses::CallResponse,
     types::{Address, Bytes32},
 };
 use rand::Rng;
@@ -135,23 +135,13 @@ impl SparkRegistryContract {
     }
 
     pub async fn config(&self) -> anyhow::Result<CallResponse<(Address, u32)>> {
-        Ok(self
-            .instance
-            .methods()
-            .config()
-            .simulate(Execution::StateReadOnly)
-            .await?)
+        Ok(self.instance.methods().config().simulate().await?)
     }
 
     pub async fn markets(
         &self,
         assets: Vec<(AssetId, AssetId)>,
     ) -> anyhow::Result<CallResponse<Vec<(AssetId, AssetId, Option<ContractId>)>>> {
-        Ok(self
-            .instance
-            .methods()
-            .markets(assets)
-            .simulate(Execution::StateReadOnly)
-            .await?)
+        Ok(self.instance.methods().markets(assets).simulate().await?)
     }
 }
