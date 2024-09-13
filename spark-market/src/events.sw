@@ -7,15 +7,12 @@ use ::data_structures::{
     protocol_fee::ProtocolFee,
 };
 
-pub struct CancelOrderEvent {
-    pub order_id: b256,
-    pub user: Identity,
-}
-
 pub struct DepositEvent {
     pub amount: u64,
     pub asset: AssetId,
     pub user: Identity,
+    pub liquid_base: u64,
+    pub liquid_quote: u64,
 }
 
 pub struct OpenOrderEvent {
@@ -25,29 +22,15 @@ pub struct OpenOrderEvent {
     pub order_id: b256,
     pub price: u64,
     pub user: Identity,
+    pub liquid_base: u64,
+    pub liquid_quote: u64,
 }
 
-pub struct SetEpochEvent {
-    pub epoch: u64,
-    pub epoch_duration: u64,
-}
-
-pub struct SetProtocolFeeEvent {
-    pub protocol_fee: Vec<ProtocolFee>,
-}
-
-pub struct SetMatcherRewardEvent {
-    pub amount: u64,
-}
-
-pub struct MatchOrderEvent {
+pub struct CancelOrderEvent {
     pub order_id: b256,
-    pub asset: AssetId,
-    pub order_matcher: Identity,
-    pub owner: Identity,
-    pub counterparty: Identity,
-    pub match_size: u64,
-    pub match_price: u64,
+    pub user: Identity,
+    pub liquid_base: u64,
+    pub liquid_quote: u64,
 }
 
 pub struct TradeOrderEvent {
@@ -62,10 +45,29 @@ pub struct TradeOrderEvent {
     pub tx_id: b256,
     pub order_seller: Identity,
     pub order_buyer: Identity,
+    pub s_account_liquid_base: u64,
+    pub s_account_liquid_quote: u64,
+    pub b_account_liquid_base: u64,
+    pub b_account_liquid_quote: u64,
 }
 
 pub struct WithdrawEvent {
     pub amount: u64,
     pub asset: AssetId,
     pub user: Identity,
+    pub liquid_base: u64,
+    pub liquid_quote: u64,
+}
+
+pub struct SetEpochEvent {
+    pub epoch: u64,
+    pub epoch_duration: u64,
+}
+
+pub struct SetProtocolFeeEvent {
+    pub protocol_fee: Vec<ProtocolFee>,
+}
+
+pub struct SetMatcherRewardEvent {
+    pub amount: u64,
 }

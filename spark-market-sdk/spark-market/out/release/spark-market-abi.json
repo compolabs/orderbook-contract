@@ -115,49 +115,44 @@
       "metadataTypeId": 27
     },
     {
-      "type": "struct events::MatchOrderEvent",
-      "concreteTypeId": "1f8647a46c73c952a719dd380c2aa8f67c2ba78a07c43225e26166d5d6b70886",
-      "metadataTypeId": 28
-    },
-    {
       "type": "struct events::OpenOrderEvent",
       "concreteTypeId": "6c6a47ac80e7110dd8666e169f0fffe2d1378df88cf8960bb9dfe14a84ac3495",
-      "metadataTypeId": 29
+      "metadataTypeId": 28
     },
     {
       "type": "struct events::SetEpochEvent",
       "concreteTypeId": "4fb77907614eb05d769b487a16469bfaac5278323bc54bddccd790cc4e00428e",
-      "metadataTypeId": 30
+      "metadataTypeId": 29
     },
     {
       "type": "struct events::SetMatcherRewardEvent",
       "concreteTypeId": "090412be710caebee4e019479841ea0100912819a3e1c52ba39b1faa7b778c83",
-      "metadataTypeId": 31
+      "metadataTypeId": 30
     },
     {
       "type": "struct events::SetProtocolFeeEvent",
       "concreteTypeId": "957dde23e9fbd44b1bada18eae8b84f6d868be2fe55b721ce24b54cdcdafda79",
-      "metadataTypeId": 32
+      "metadataTypeId": 31
     },
     {
       "type": "struct events::TradeOrderEvent",
       "concreteTypeId": "fe08cb2392b6eb92ee6b7868e2877ca0630f87f543acc63897f7d806229379d5",
-      "metadataTypeId": 33
+      "metadataTypeId": 32
     },
     {
       "type": "struct events::WithdrawEvent",
       "concreteTypeId": "9787083b0003f388ec6bf30609ff6a10c76fada67314a162841a445b07a17168",
-      "metadataTypeId": 34
+      "metadataTypeId": 33
     },
     {
       "type": "struct std::asset_id::AssetId",
       "concreteTypeId": "c0710b6731b1dd59799cf6bef33eee3b3b04a2e40e80a0724090215bbf2ca974",
-      "metadataTypeId": 36
+      "metadataTypeId": 35
     },
     {
       "type": "struct std::vec::Vec<b256>",
       "concreteTypeId": "32559685d0c9845f059bf9d472a0a38cf77d36c23dfcffe5489e86a65cdd9198",
-      "metadataTypeId": 39,
+      "metadataTypeId": 38,
       "typeArguments": [
         "7c5ee1cecf5f8eacd1284feb5f0bf2bdea533a51e2f0c9aabe9236d335989f3b"
       ]
@@ -165,7 +160,7 @@
     {
       "type": "struct std::vec::Vec<struct data_structures::order_change::OrderChangeInfo>",
       "concreteTypeId": "742fbfc9dbc675c4bb942c1c3d87581f5da5c5a8b0fc21e0d1f8d873328d5e5a",
-      "metadataTypeId": 39,
+      "metadataTypeId": 38,
       "typeArguments": [
         "29bc325768e93baaa35ac6e466461baa03f97fb67a0a328521afacca7d3bf987"
       ]
@@ -173,7 +168,7 @@
     {
       "type": "struct std::vec::Vec<struct data_structures::protocol_fee::ProtocolFee>",
       "concreteTypeId": "4b03eb3d5d8751745804ec649d33055ca43456407d3991177f51a1397cd4da50",
-      "metadataTypeId": 39,
+      "metadataTypeId": 38,
       "typeArguments": [
         "009d87c3f03cbc1373d98411934ee7648a3922e9adcbafd190ce4d1618b6e5a2"
       ]
@@ -262,7 +257,7 @@
       "components": [
         {
           "name": "__tuple_element",
-          "typeId": 36
+          "typeId": 35
         },
         {
           "name": "__tuple_element",
@@ -270,7 +265,7 @@
         },
         {
           "name": "__tuple_element",
-          "typeId": 36
+          "typeId": 35
         },
         {
           "name": "__tuple_element",
@@ -496,11 +491,11 @@
       "components": [
         {
           "name": "Address",
-          "typeId": 35
+          "typeId": 34
         },
         {
           "name": "ContractId",
-          "typeId": 37
+          "typeId": 36
         }
       ]
     },
@@ -672,6 +667,14 @@
         {
           "name": "user",
           "typeId": 16
+        },
+        {
+          "name": "liquid_base",
+          "typeId": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0"
+        },
+        {
+          "name": "liquid_quote",
+          "typeId": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0"
         }
       ]
     },
@@ -685,51 +688,25 @@
         },
         {
           "name": "asset",
-          "typeId": 36
+          "typeId": 35
         },
         {
           "name": "user",
           "typeId": 16
-        }
-      ]
-    },
-    {
-      "type": "struct events::MatchOrderEvent",
-      "metadataTypeId": 28,
-      "components": [
-        {
-          "name": "order_id",
-          "typeId": "7c5ee1cecf5f8eacd1284feb5f0bf2bdea533a51e2f0c9aabe9236d335989f3b"
         },
         {
-          "name": "asset",
-          "typeId": 36
-        },
-        {
-          "name": "order_matcher",
-          "typeId": 16
-        },
-        {
-          "name": "owner",
-          "typeId": 16
-        },
-        {
-          "name": "counterparty",
-          "typeId": 16
-        },
-        {
-          "name": "match_size",
+          "name": "liquid_base",
           "typeId": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0"
         },
         {
-          "name": "match_price",
+          "name": "liquid_quote",
           "typeId": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0"
         }
       ]
     },
     {
       "type": "struct events::OpenOrderEvent",
-      "metadataTypeId": 29,
+      "metadataTypeId": 28,
       "components": [
         {
           "name": "amount",
@@ -737,7 +714,7 @@
         },
         {
           "name": "asset",
-          "typeId": 36
+          "typeId": 35
         },
         {
           "name": "order_type",
@@ -754,12 +731,20 @@
         {
           "name": "user",
           "typeId": 16
+        },
+        {
+          "name": "liquid_base",
+          "typeId": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0"
+        },
+        {
+          "name": "liquid_quote",
+          "typeId": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0"
         }
       ]
     },
     {
       "type": "struct events::SetEpochEvent",
-      "metadataTypeId": 30,
+      "metadataTypeId": 29,
       "components": [
         {
           "name": "epoch",
@@ -773,7 +758,7 @@
     },
     {
       "type": "struct events::SetMatcherRewardEvent",
-      "metadataTypeId": 31,
+      "metadataTypeId": 30,
       "components": [
         {
           "name": "amount",
@@ -783,11 +768,11 @@
     },
     {
       "type": "struct events::SetProtocolFeeEvent",
-      "metadataTypeId": 32,
+      "metadataTypeId": 31,
       "components": [
         {
           "name": "protocol_fee",
-          "typeId": 39,
+          "typeId": 38,
           "typeArguments": [
             {
               "name": "",
@@ -799,7 +784,7 @@
     },
     {
       "type": "struct events::TradeOrderEvent",
-      "metadataTypeId": 33,
+      "metadataTypeId": 32,
       "components": [
         {
           "name": "base_sell_order_id",
@@ -844,12 +829,28 @@
         {
           "name": "order_buyer",
           "typeId": 16
+        },
+        {
+          "name": "s_account_liquid_base",
+          "typeId": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0"
+        },
+        {
+          "name": "s_account_liquid_quote",
+          "typeId": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0"
+        },
+        {
+          "name": "b_account_liquid_base",
+          "typeId": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0"
+        },
+        {
+          "name": "b_account_liquid_quote",
+          "typeId": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0"
         }
       ]
     },
     {
       "type": "struct events::WithdrawEvent",
-      "metadataTypeId": 34,
+      "metadataTypeId": 33,
       "components": [
         {
           "name": "amount",
@@ -857,17 +858,25 @@
         },
         {
           "name": "asset",
-          "typeId": 36
+          "typeId": 35
         },
         {
           "name": "user",
           "typeId": 16
+        },
+        {
+          "name": "liquid_base",
+          "typeId": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0"
+        },
+        {
+          "name": "liquid_quote",
+          "typeId": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0"
         }
       ]
     },
     {
       "type": "struct std::address::Address",
-      "metadataTypeId": 35,
+      "metadataTypeId": 34,
       "components": [
         {
           "name": "bits",
@@ -877,7 +886,7 @@
     },
     {
       "type": "struct std::asset_id::AssetId",
-      "metadataTypeId": 36,
+      "metadataTypeId": 35,
       "components": [
         {
           "name": "bits",
@@ -887,7 +896,7 @@
     },
     {
       "type": "struct std::contract_id::ContractId",
-      "metadataTypeId": 37,
+      "metadataTypeId": 36,
       "components": [
         {
           "name": "bits",
@@ -897,7 +906,7 @@
     },
     {
       "type": "struct std::vec::RawVec",
-      "metadataTypeId": 38,
+      "metadataTypeId": 37,
       "components": [
         {
           "name": "ptr",
@@ -914,11 +923,11 @@
     },
     {
       "type": "struct std::vec::Vec",
-      "metadataTypeId": 39,
+      "metadataTypeId": 38,
       "components": [
         {
           "name": "buf",
-          "typeId": 38,
+          "typeId": 37,
           "typeArguments": [
             {
               "name": "",
@@ -1727,16 +1736,12 @@
       "concreteTypeId": "6c6a47ac80e7110dd8666e169f0fffe2d1378df88cf8960bb9dfe14a84ac3495"
     },
     {
-      "logId": "2271581833574730066",
-      "concreteTypeId": "1f8647a46c73c952a719dd380c2aa8f67c2ba78a07c43225e26166d5d6b70886"
+      "logId": "5744192922338635869",
+      "concreteTypeId": "4fb77907614eb05d769b487a16469bfaac5278323bc54bddccd790cc4e00428e"
     },
     {
       "logId": "18305104039093136274",
       "concreteTypeId": "fe08cb2392b6eb92ee6b7868e2877ca0630f87f543acc63897f7d806229379d5"
-    },
-    {
-      "logId": "5744192922338635869",
-      "concreteTypeId": "4fb77907614eb05d769b487a16469bfaac5278323bc54bddccd790cc4e00428e"
     },
     {
       "logId": "15838754841496526215",
@@ -1760,37 +1765,37 @@
     {
       "name": "BASE_ASSET",
       "concreteTypeId": "c0710b6731b1dd59799cf6bef33eee3b3b04a2e40e80a0724090215bbf2ca974",
-      "offset": 88792
+      "offset": 88640
     },
     {
       "name": "BASE_ASSET_DECIMALS",
       "concreteTypeId": "d7649d428b9ff33d188ecbf38a7e4d8fd167fa01b2e10fe9a8f9308e52f1d7cc",
-      "offset": 88824
+      "offset": 88672
     },
     {
       "name": "QUOTE_ASSET",
       "concreteTypeId": "c0710b6731b1dd59799cf6bef33eee3b3b04a2e40e80a0724090215bbf2ca974",
-      "offset": 88880
+      "offset": 88728
     },
     {
       "name": "QUOTE_ASSET_DECIMALS",
       "concreteTypeId": "d7649d428b9ff33d188ecbf38a7e4d8fd167fa01b2e10fe9a8f9308e52f1d7cc",
-      "offset": 88912
+      "offset": 88760
     },
     {
       "name": "OWNER",
       "concreteTypeId": "ab7cd04e05be58e3fc15d424c2c4a57f824a2a2d97d67252440a3925ebdc1335",
-      "offset": 88832
+      "offset": 88680
     },
     {
       "name": "PRICE_DECIMALS",
       "concreteTypeId": "d7649d428b9ff33d188ecbf38a7e4d8fd167fa01b2e10fe9a8f9308e52f1d7cc",
-      "offset": 88872
+      "offset": 88720
     },
     {
       "name": "VERSION",
       "concreteTypeId": "d7649d428b9ff33d188ecbf38a7e4d8fd167fa01b2e10fe9a8f9308e52f1d7cc",
-      "offset": 88920
+      "offset": 88768
     }
   ]
 }
