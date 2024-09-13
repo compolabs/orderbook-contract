@@ -1736,12 +1736,12 @@
       "concreteTypeId": "6c6a47ac80e7110dd8666e169f0fffe2d1378df88cf8960bb9dfe14a84ac3495"
     },
     {
-      "logId": "18305104039093136274",
-      "concreteTypeId": "fe08cb2392b6eb92ee6b7868e2877ca0630f87f543acc63897f7d806229379d5"
-    },
-    {
       "logId": "5744192922338635869",
       "concreteTypeId": "4fb77907614eb05d769b487a16469bfaac5278323bc54bddccd790cc4e00428e"
+    },
+    {
+      "logId": "18305104039093136274",
+      "concreteTypeId": "fe08cb2392b6eb92ee6b7868e2877ca0630f87f543acc63897f7d806229379d5"
     },
     {
       "logId": "15838754841496526215",
