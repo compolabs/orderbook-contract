@@ -1,6 +1,7 @@
 library;
 
 use ::data_structures::{
+    account::Account,
     asset_type::AssetType,
     limit_type::LimitType,
     order_type::OrderType,
@@ -11,8 +12,7 @@ pub struct DepositEvent {
     pub amount: u64,
     pub asset: AssetId,
     pub user: Identity,
-    pub liquid_base: u64,
-    pub liquid_quote: u64,
+    pub balance: Account,
 }
 
 pub struct OpenOrderEvent {
@@ -22,15 +22,13 @@ pub struct OpenOrderEvent {
     pub order_id: b256,
     pub price: u64,
     pub user: Identity,
-    pub liquid_base: u64,
-    pub liquid_quote: u64,
+    pub balance: Account,
 }
 
 pub struct CancelOrderEvent {
     pub order_id: b256,
     pub user: Identity,
-    pub liquid_base: u64,
-    pub liquid_quote: u64,
+    pub balance: Account,
 }
 
 pub struct TradeOrderEvent {
@@ -45,18 +43,15 @@ pub struct TradeOrderEvent {
     pub tx_id: b256,
     pub order_seller: Identity,
     pub order_buyer: Identity,
-    pub s_account_liquid_base: u64,
-    pub s_account_liquid_quote: u64,
-    pub b_account_liquid_base: u64,
-    pub b_account_liquid_quote: u64,
+    pub s_balance: Account,
+    pub b_balance: Account,
 }
 
 pub struct WithdrawEvent {
     pub amount: u64,
     pub asset: AssetId,
     pub user: Identity,
-    pub liquid_base: u64,
-    pub liquid_quote: u64,
+    pub balance: Account,
 }
 
 pub struct SetEpochEvent {
