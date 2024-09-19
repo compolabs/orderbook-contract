@@ -5,6 +5,10 @@ mod success {
 
     use super::*;
     use crate::setup::create_account;
+    use fuels::{
+        prelude::{CallParameters, VariableOutputPolicy},
+        programs::calls::CallHandler,
+    };
     use spark_market_sdk::{AssetType, WithdrawEvent};
 
     #[tokio::test]
@@ -50,6 +54,52 @@ mod success {
 
         assert_eq!(new_balance, user_balance + deposit_amount);
         assert_eq!(user_account, expected_account);
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn base_asset_multicall() -> anyhow::Result<()> {
+        let defaults = Defaults::default();
+        let (contract, owner, _user, _, _, assets) = setup(
+            defaults.base_decimals,
+            defaults.quote_decimals,
+            defaults.price_decimals,
+        )
+        .await?;
+
+        let deposit_amount = owner.balance(&assets.base.id).await;
+        assert!(deposit_amount != 0);
+
+        let _ = contract.deposit(deposit_amount, assets.base.id).await?;
+
+        let user_balance = owner.balance(&assets.base.id).await;
+        let user_account = contract.account(owner.identity()).await?.value;
+        let expected_account = create_account(deposit_amount, 0, 0, 0);
+
+        // Precondition enforces deposited account
+        assert_eq!(user_account, expected_account);
+        assert_eq!(user_balance, 0);
+
+        let mut multi_call_handler = CallHandler::new_multi_call(owner.wallet.clone())
+            .with_variable_output_policy(VariableOutputPolicy::Exactly(1));
+        // Witdraw [all] and deposit [all - keep]
+        let keep = 100;
+        multi_call_handler = multi_call_handler
+            .add_call(
+                contract
+                    .get_instance()
+                    .methods()
+                    .withdraw(deposit_amount, AssetType::Base),
+            )
+            .add_call(contract.get_instance().methods().deposit().call_params(
+                CallParameters::new(deposit_amount - keep, assets.base.id, 0),
+            )?);
+        //let (_, _): ((), ()) = multi_call_handler.call().await?.value;
+        let _ = multi_call_handler.submit().await?;
+
+        let user_balance = owner.balance(&assets.base.id).await;
+        assert_eq!(user_balance, keep);
 
         Ok(())
     }
