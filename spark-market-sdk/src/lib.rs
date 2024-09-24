@@ -3,7 +3,10 @@ use fuels::{
         abigen, AssetId, CallParameters, Contract, ContractId, LoadConfiguration,
         StorageConfiguration, TxPolicies, VariableOutputPolicy, WalletUnlocked,
     },
-    programs::{calls::Execution, responses::CallResponse},
+    programs::{
+        calls::{CallHandler, ContractCall, Execution},
+        responses::CallResponse,
+    },
     types::{bech32::Bech32ContractId, Bits256, Bytes32, Identity},
 };
 
@@ -136,15 +139,25 @@ impl SparkMarketContract {
     }
 
     pub async fn deposit(&self, amount: u64, asset: AssetId) -> anyhow::Result<CallResponse<()>> {
-        let call_params = CallParameters::new(amount, asset, 1_000_000);
-
         Ok(self
-            .instance
-            .methods()
-            .deposit()
-            .call_params(call_params)?
+            .deposit_call_handler(amount, asset)
+            .await
             .call()
             .await?)
+    }
+
+    pub async fn deposit_call_handler(
+        &self,
+        amount: u64,
+        asset: AssetId,
+    ) -> CallHandler<WalletUnlocked, ContractCall, ()> {
+        let call_params = CallParameters::new(amount, asset, 1_000_000);
+
+        self.instance
+            .methods()
+            .deposit()
+            .call_params(call_params)
+            .unwrap()
     }
 
     pub async fn withdraw(
@@ -153,12 +166,19 @@ impl SparkMarketContract {
         asset_type: AssetType,
     ) -> anyhow::Result<CallResponse<()>> {
         Ok(self
-            .instance
-            .methods()
-            .withdraw(amount, asset_type)
+            .withdraw_call_handler(amount, asset_type)
+            .await
             .with_variable_output_policy(VariableOutputPolicy::Exactly(1))
             .call()
             .await?)
+    }
+
+    pub async fn withdraw_call_handler(
+        &self,
+        amount: u64,
+        asset_type: AssetType,
+    ) -> CallHandler<WalletUnlocked, ContractCall, ()> {
+        self.instance.methods().withdraw(amount, asset_type)
     }
 
     pub async fn open_order(
@@ -168,21 +188,37 @@ impl SparkMarketContract {
         price: u64,
     ) -> anyhow::Result<CallResponse<Bits256>> {
         Ok(self
-            .instance
-            .methods()
-            .open_order(amount, order_type, price)
+            .open_order_call_handler(amount, order_type, price)
+            .await
             .call()
             .await?)
     }
 
+    pub async fn open_order_call_handler(
+        &self,
+        amount: u64,
+        order_type: OrderType,
+        price: u64,
+    ) -> CallHandler<WalletUnlocked, ContractCall, Bits256> {
+        self.instance
+            .methods()
+            .open_order(amount, order_type, price)
+    }
+
     pub async fn cancel_order(&self, order_id: Bits256) -> anyhow::Result<CallResponse<()>> {
         Ok(self
-            .instance
-            .methods()
-            .cancel_order(order_id)
+            .cancel_order_call_handler(order_id)
+            .await
             .with_variable_output_policy(VariableOutputPolicy::Exactly(1))
             .call()
             .await?)
+    }
+
+    pub async fn cancel_order_call_handler(
+        &self,
+        order_id: Bits256,
+    ) -> CallHandler<WalletUnlocked, ContractCall, ()> {
+        self.instance.methods().cancel_order(order_id)
     }
 
     pub async fn match_order_pair(
@@ -191,22 +227,37 @@ impl SparkMarketContract {
         order_id1: Bits256,
     ) -> anyhow::Result<CallResponse<()>> {
         Ok(self
-            .instance
-            .methods()
-            .match_order_pair(order_id0, order_id1)
+            .match_order_pair_call_handler(order_id0, order_id1)
+            .await
             .with_variable_output_policy(VariableOutputPolicy::Exactly(1))
             .call()
             .await?)
     }
 
+    pub async fn match_order_pair_call_handler(
+        &self,
+        order_id0: Bits256,
+        order_id1: Bits256,
+    ) -> CallHandler<WalletUnlocked, ContractCall, ()> {
+        self.instance
+            .methods()
+            .match_order_pair(order_id0, order_id1)
+    }
+
     pub async fn match_order_many(&self, orders: Vec<Bits256>) -> anyhow::Result<CallResponse<()>> {
         Ok(self
-            .instance
-            .methods()
-            .match_order_many(orders)
+            .match_order_many_call_handler(orders)
+            .await
             .with_variable_output_policy(VariableOutputPolicy::Exactly(1))
             .call()
             .await?)
+    }
+
+    pub async fn match_order_many_call_handler(
+        &self,
+        orders: Vec<Bits256>,
+    ) -> CallHandler<WalletUnlocked, ContractCall, ()> {
+        self.instance.methods().match_order_many(orders)
     }
 
     pub async fn fulfill_many(
@@ -219,12 +270,25 @@ impl SparkMarketContract {
         orders: Vec<Bits256>,
     ) -> anyhow::Result<CallResponse<Bits256>> {
         Ok(self
-            .instance
-            .methods()
-            .fulfill_order_many(amount, order_type, limit_type, price, slippage, orders)
+            .fulfill_many_call_handler(amount, order_type, limit_type, price, slippage, orders)
+            .await
             .with_variable_output_policy(VariableOutputPolicy::Exactly(1))
             .call()
             .await?)
+    }
+
+    pub async fn fulfill_many_call_handler(
+        &self,
+        amount: u64,
+        order_type: OrderType,
+        limit_type: LimitType,
+        price: u64,
+        slippage: u64,
+        orders: Vec<Bits256>,
+    ) -> CallHandler<WalletUnlocked, ContractCall, Bits256> {
+        self.instance
+            .methods()
+            .fulfill_order_many(amount, order_type, limit_type, price, slippage, orders)
     }
 
     pub async fn set_protocol_fee(
