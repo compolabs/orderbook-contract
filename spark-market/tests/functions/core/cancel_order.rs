@@ -449,8 +449,6 @@ mod revert {
         // Revert
         contract
             .with_account(&user.wallet)
-            .await
-            .unwrap()
             .cancel_order(id)
             .await
             .unwrap();

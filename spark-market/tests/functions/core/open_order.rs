@@ -213,8 +213,6 @@ mod success {
         let balance = _user.wallet.get_asset_balance(&assets.base.id).await?;
         let _ = contract
             .with_account(&_user.wallet)
-            .await
-            .unwrap()
             .deposit(deposit_amount, asset)
             .await?;
         let new_balance = _user.wallet.get_asset_balance(&assets.base.id).await?;
@@ -227,8 +225,6 @@ mod success {
 
         let response = contract
             .with_account(&_user.wallet)
-            .await
-            .unwrap()
             .open_order(order_amount, order_type.clone(), price)
             .await?;
 
@@ -324,8 +320,6 @@ mod revert {
         // Revert
         contract
             .with_account(&user.wallet)
-            .await
-            .unwrap()
             .open_order(order_amount, order_type, price)
             .await
             .unwrap();
