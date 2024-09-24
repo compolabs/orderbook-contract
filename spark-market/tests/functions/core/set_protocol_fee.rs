@@ -76,8 +76,6 @@ mod revert {
 
         contract
             .with_account(&user.wallet)
-            .await
-            .unwrap()
             .set_protocol_fee(protocol_fee.clone())
             .await
             .unwrap();

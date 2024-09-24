@@ -60,12 +60,10 @@ mod success {
 
         contract
             .with_account(&user0.wallet)
-            .await?
             .deposit(base_deposit, assets.base.id)
             .await?;
         contract
             .with_account(&user0.wallet)
-            .await?
             .deposit(quote_deposit, assets.quote.id)
             .await?;
 
@@ -74,7 +72,6 @@ mod success {
             order_ids.push(
                 contract
                     .with_account(&user0.wallet)
-                    .await?
                     .open_order(config.amount, config.order_type, config.price)
                     .await?
                     .value,
@@ -146,12 +143,10 @@ mod success {
 
         contract
             .with_account(&user0.wallet)
-            .await?
             .deposit(base_deposit, assets.base.id)
             .await?;
         contract
             .with_account(&user0.wallet)
-            .await?
             .deposit(quote_deposit, assets.quote.id)
             .await?;
 
@@ -160,7 +155,6 @@ mod success {
             order_ids.push(
                 contract
                     .with_account(&user0.wallet)
-                    .await?
                     .open_order(config.amount, config.order_type, config.price)
                     .await?
                     .value,
@@ -234,12 +228,10 @@ mod success {
 
         contract
             .with_account(&user0.wallet)
-            .await?
             .deposit(base_deposit, assets.base.id)
             .await?;
         contract
             .with_account(&user0.wallet)
-            .await?
             .deposit(quote_deposit, assets.quote.id)
             .await?;
 
@@ -248,7 +240,6 @@ mod success {
             order_ids.push(
                 contract
                     .with_account(&user0.wallet)
-                    .await?
                     .open_order(config.amount, config.order_type, config.price)
                     .await?
                     .value,
@@ -314,12 +305,10 @@ mod success {
             // user0 deposits and opens 6 orders
             contract
                 .with_account(&user0.wallet)
-                .await?
                 .deposit(base_deposit, assets.base.id)
                 .await?;
             contract
                 .with_account(&user0.wallet)
-                .await?
                 .deposit(quote_deposit, assets.quote.id)
                 .await?;
 
@@ -328,7 +317,6 @@ mod success {
                 order_ids.push(
                     contract
                         .with_account(&user0.wallet)
-                        .await?
                         .open_order(config.amount, config.order_type.clone(), config.price)
                         .await?
                         .value,
@@ -338,12 +326,10 @@ mod success {
             // user1 deposits and opens 6 orders
             contract
                 .with_account(&user1.wallet)
-                .await?
                 .deposit(base_deposit, assets.base.id)
                 .await?;
             contract
                 .with_account(&user1.wallet)
-                .await?
                 .deposit(quote_deposit, assets.quote.id)
                 .await?;
 
@@ -351,7 +337,6 @@ mod success {
                 order_ids.push(
                     contract
                         .with_account(&user1.wallet)
-                        .await?
                         .open_order(config.amount, config.order_type.clone(), config.price)
                         .await?
                         .value,
@@ -435,12 +420,10 @@ mod success {
 
         contract
             .with_account(&user0.wallet)
-            .await?
             .deposit(base_deposit, assets.base.id)
             .await?;
         contract
             .with_account(&user0.wallet)
-            .await?
             .deposit(quote_deposit, assets.quote.id)
             .await?;
 
@@ -449,7 +432,6 @@ mod success {
             order_ids.push(
                 contract
                     .with_account(&user0.wallet)
-                    .await?
                     .open_order(config.amount, config.order_type, config.price)
                     .await?
                     .value,
@@ -465,7 +447,6 @@ mod success {
 
         contract
             .with_account(&matcher.wallet)
-            .await?
             .match_order_many(order_ids.clone())
             .await?;
 
@@ -540,8 +521,6 @@ mod revert {
 
         contract
             .with_account(&user0.wallet)
-            .await
-            .unwrap()
             .deposit(base_deposit, assets.base.id)
             .await
             .unwrap();
@@ -551,8 +530,6 @@ mod revert {
             order_ids.push(
                 contract
                     .with_account(&user0.wallet)
-                    .await
-                    .unwrap()
                     .open_order(config.amount, config.order_type, config.price)
                     .await
                     .unwrap()

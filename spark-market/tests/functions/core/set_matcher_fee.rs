@@ -60,8 +60,6 @@ mod revert {
         // Reverts
         contract
             .with_account(&user.wallet)
-            .await
-            .unwrap()
             .set_matcher_fee(new_fee)
             .await
             .unwrap();

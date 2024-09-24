@@ -22,24 +22,20 @@ mod success_same_asset_type {
         let quote_amount = price / to_quote_scale * base_amount;
         contract
             .with_account(&user0.wallet)
-            .await?
             .deposit(base_amount, assets.base.id)
             .await?;
         contract
             .with_account(&user1.wallet)
-            .await?
             .deposit(quote_amount, assets.quote.id)
             .await?;
 
         let id0 = contract
             .with_account(&user0.wallet)
-            .await?
             .open_order(base_amount, OrderType::Sell, price)
             .await?
             .value;
         let id1 = contract
             .with_account(&user1.wallet)
-            .await?
             .open_order(base_amount, OrderType::Buy, price)
             .await?
             .value;
@@ -90,12 +86,10 @@ mod success_same_asset_type {
         let quote_amount = price / to_quote_scale * base_amount;
         contract
             .with_account(&user0.wallet)
-            .await?
             .deposit(base_amount, assets.base.id)
             .await?;
         contract
             .with_account(&user0.wallet)
-            .await?
             .deposit(quote_amount, assets.quote.id)
             .await?;
 
@@ -108,13 +102,11 @@ mod success_same_asset_type {
 
         let id0 = contract
             .with_account(&user0.wallet)
-            .await?
             .open_order(base_amount, OrderType::Sell, price)
             .await?
             .value;
         let id1 = contract
             .with_account(&user0.wallet)
-            .await?
             .open_order(base_amount, OrderType::Buy, price)
             .await?
             .value;
@@ -157,24 +149,20 @@ mod success_same_asset_type {
         let buy_quote_amount = buy_price / to_quote_scale * base_amount;
         contract
             .with_account(&user0.wallet)
-            .await?
             .deposit(base_amount, assets.base.id)
             .await?;
         contract
             .with_account(&user1.wallet)
-            .await?
             .deposit(buy_quote_amount, assets.quote.id)
             .await?;
 
         let id0 = contract
             .with_account(&user0.wallet)
-            .await?
             .open_order(base_amount, OrderType::Sell, sell_price)
             .await?
             .value;
         let id1 = contract
             .with_account(&user1.wallet)
-            .await?
             .open_order(base_amount, OrderType::Buy, buy_price)
             .await?
             .value;
@@ -228,24 +216,20 @@ mod success_same_asset_type {
         let buy_quote_amount = price / to_quote_scale * buy_base_amount;
         contract
             .with_account(&user0.wallet)
-            .await?
             .deposit(sell_base_amount, assets.base.id)
             .await?;
         contract
             .with_account(&user1.wallet)
-            .await?
             .deposit(sell_quote_amount, assets.quote.id)
             .await?;
 
         let id0 = contract
             .with_account(&user0.wallet)
-            .await?
             .open_order(sell_base_amount, OrderType::Sell, price)
             .await?
             .value;
         let id1 = contract
             .with_account(&user1.wallet)
-            .await?
             .open_order(buy_base_amount, OrderType::Buy, price)
             .await?
             .value;
@@ -307,24 +291,20 @@ mod success_same_asset_type {
         let quote_amount = price / to_quote_scale * base_amount + matcher_fee;
         contract
             .with_account(&user0.wallet)
-            .await?
             .deposit(base_amount, assets.base.id)
             .await?;
         contract
             .with_account(&user1.wallet)
-            .await?
             .deposit(quote_amount, assets.quote.id)
             .await?;
 
         let id0 = contract
             .with_account(&user0.wallet)
-            .await?
             .open_order(base_amount, OrderType::Sell, price)
             .await?
             .value;
         let id1 = contract
             .with_account(&user1.wallet)
-            .await?
             .open_order(base_amount, OrderType::Buy, price)
             .await?
             .value;
@@ -348,7 +328,6 @@ mod success_same_asset_type {
 
         contract
             .with_account(&matcher.wallet)
-            .await?
             .match_order_pair(id0, id1)
             .await?;
 
@@ -389,24 +368,20 @@ mod success_same_asset_type {
         let quote_amount = price / to_quote_scale * base_amount + matcher_fee;
         contract
             .with_account(&user0.wallet)
-            .await?
             .deposit(base_amount, assets.base.id)
             .await?;
         contract
             .with_account(&user0.wallet)
-            .await?
             .deposit(quote_amount, assets.quote.id)
             .await?;
 
         let id0 = contract
             .with_account(&user0.wallet)
-            .await?
             .open_order(base_amount, OrderType::Sell, price)
             .await?
             .value;
         let id1 = contract
             .with_account(&user0.wallet)
-            .await?
             .open_order(base_amount, OrderType::Buy, price)
             .await?
             .value;
@@ -422,7 +397,6 @@ mod success_same_asset_type {
 
         contract
             .with_account(&user0.wallet)
-            .await?
             .match_order_pair(id0, id1)
             .await?;
 
@@ -462,24 +436,20 @@ mod success_same_asset_type {
         let quote_amount = quote_amount + taker_protocol_fee;
         contract
             .with_account(&user0.wallet)
-            .await?
             .deposit(base_amount, assets.base.id)
             .await?;
         contract
             .with_account(&user1.wallet)
-            .await?
             .deposit(quote_amount, assets.quote.id)
             .await?;
 
         let id0 = contract
             .with_account(&user0.wallet)
-            .await?
             .open_order(base_amount, OrderType::Sell, price)
             .await?
             .value;
         let id1 = contract
             .with_account(&user1.wallet)
-            .await?
             .open_order(base_amount, OrderType::Buy, price)
             .await?
             .value;
@@ -508,7 +478,6 @@ mod success_same_asset_type {
 
         contract
             .with_account(&matcher.wallet)
-            .await?
             .match_order_pair(id0, id1)
             .await?;
 
@@ -556,24 +525,20 @@ mod success_same_asset_type {
         let quote_amount = quote_amount + taker_protocol_fee;
         contract
             .with_account(&user0.wallet)
-            .await?
             .deposit(base_amount, assets.base.id)
             .await?;
         contract
             .with_account(&user0.wallet)
-            .await?
             .deposit(quote_amount, assets.quote.id)
             .await?;
 
         let id0 = contract
             .with_account(&user0.wallet)
-            .await?
             .open_order(base_amount, OrderType::Sell, price)
             .await?
             .value;
         let id1 = contract
             .with_account(&user0.wallet)
-            .await?
             .open_order(base_amount, OrderType::Buy, price)
             .await?
             .value;
@@ -596,7 +561,6 @@ mod success_same_asset_type {
 
         contract
             .with_account(&matcher.wallet)
-            .await?
             .match_order_pair(id0, id1)
             .await?;
 
@@ -637,31 +601,23 @@ mod revert {
         let quote_amount = buy_price / to_quote_scale * base_amount;
         contract
             .with_account(&user0.wallet)
-            .await
-            .unwrap()
             .deposit(base_amount, assets.base.id)
             .await
             .unwrap();
         contract
             .with_account(&user1.wallet)
-            .await
-            .unwrap()
             .deposit(quote_amount, assets.quote.id)
             .await
             .unwrap();
 
         let id0 = contract
             .with_account(&user0.wallet)
-            .await
-            .unwrap()
             .open_order(base_amount, OrderType::Sell, sell_price)
             .await
             .unwrap()
             .value;
         let id1 = contract
             .with_account(&user1.wallet)
-            .await
-            .unwrap()
             .open_order(base_amount, OrderType::Buy, buy_price)
             .await
             .unwrap()

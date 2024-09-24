@@ -93,8 +93,6 @@ mod revert {
         // Attempt to set the epoch with a non-owner user
         contract
             .with_account(&user.wallet)
-            .await
-            .unwrap()
             .set_epoch(new_epoch, epoch_duration)
             .await
             .unwrap();
