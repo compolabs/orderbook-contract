@@ -61,8 +61,7 @@ mod success {
             CancelOrderEvent {
                 order_id: id,
                 user: owner.identity(),
-                liquid_base: expected_account.liquid.base,
-                liquid_quote: expected_account.liquid.quote,
+                balance: expected_account.clone(),
             }
         );
 
@@ -175,8 +174,7 @@ mod success {
                 CancelOrderEvent {
                     order_id: id,
                     user: owner.identity(),
-                    liquid_base: expected_account.liquid.base,
-                    liquid_quote: expected_account.liquid.quote,
+                    balance: expected_account.clone(),
                 }
             );
 
@@ -266,8 +264,7 @@ mod success {
             CancelOrderEvent {
                 order_id: id,
                 user: owner.identity(),
-                liquid_base: expected_account.liquid.base,
-                liquid_quote: expected_account.liquid.quote,
+                balance: expected_account.clone(),
             }
         );
 
@@ -389,8 +386,7 @@ mod success {
                 CancelOrderEvent {
                     order_id: id,
                     user: owner.identity(),
-                    liquid_base: expected_account.liquid.base,
-                    liquid_quote: expected_account.liquid.quote,
+                    balance: expected_account.clone(),
                 }
             );
 

@@ -105,8 +105,7 @@ impl SparkMarket for Contract {
             amount,
             asset,
             user,
-            liquid_base: account.liquid.base,
-            liquid_quote: account.liquid.quote,
+            balance: account,
         });
     }
 
@@ -134,8 +133,7 @@ impl SparkMarket for Contract {
             amount,
             asset,
             user,
-            liquid_base: account.liquid.base,
-            liquid_quote: account.liquid.quote,
+            balance: account,
         });
     }
 
@@ -674,8 +672,7 @@ fn open_order_internal(
         order_id,
         price,
         user,
-        liquid_base: account.liquid.base,
-        liquid_quote: account.liquid.quote,
+        balance: account,
     });
     order_id
 }
@@ -722,8 +719,7 @@ fn cancel_order_internal(order_id: b256) {
     log(CancelOrderEvent {
         order_id,
         user,
-        liquid_base: account.liquid.base,
-        liquid_quote: account.liquid.quote,
+        balance: account,
     });
 }
 
@@ -1081,10 +1077,8 @@ fn emit_match_events(
         tx_id: tx_id(),
         order_seller: order0.owner,
         order_buyer: order1.owner,
-        s_account_liquid_base: s_account.liquid.base,
-        s_account_liquid_quote: s_account.liquid.quote,
-        b_account_liquid_base: b_account.liquid.base,
-        b_account_liquid_quote: b_account.liquid.quote,
+        s_balance: s_account,
+        b_balance: b_account,
     });
 }
 
