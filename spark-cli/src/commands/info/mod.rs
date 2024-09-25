@@ -8,4 +8,5 @@ pub(crate) mod order_id;
 pub(crate) mod protocol_fee;
 pub(crate) mod protocol_fee_user;
 pub(crate) mod protocol_fee_user_amount;
+pub(crate) mod store_order_change_info;
 pub(crate) mod user_orders;

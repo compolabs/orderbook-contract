@@ -38,6 +38,7 @@ async fn main() -> anyhow::Result<()> {
             CoreCommands::SetEpoch(args) => args.run().await,
             CoreCommands::SetProtocolFee(args) => args.run().await,
             CoreCommands::SetMatcherFee(args) => args.run().await,
+            CoreCommands::SetStoreOrderChangeInfo(args) => args.run().await,
             CoreCommands::Withdraw(args) => args.run().await,
         },
         Command::Info(args) => match args.commands {
@@ -50,6 +51,7 @@ async fn main() -> anyhow::Result<()> {
             InfoCommands::MatcherFee(args) => args.run().await,
             InfoCommands::OrderId(args) => args.run().await,
             InfoCommands::Order(args) => args.run().await,
+            InfoCommands::StoreOrderChangeInfo(args) => args.run().await,
             InfoCommands::UserOrders(args) => args.run().await,
         },
     }
