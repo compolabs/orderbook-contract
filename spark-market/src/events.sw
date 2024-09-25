@@ -66,3 +66,7 @@ pub struct SetProtocolFeeEvent {
 pub struct SetMatcherRewardEvent {
     pub amount: u64,
 }
+
+pub struct SetStoreOrderChangeInfoEvent {
+    pub store: bool,
+}

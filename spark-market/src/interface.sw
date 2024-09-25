@@ -49,6 +49,9 @@ abi SparkMarket {
 
     #[storage(read, write)]
     fn set_matcher_fee(amount: u64);
+
+    #[storage(read, write)]
+    fn set_store_order_change_info(store: bool);
 }
 
 abi SparkMarketInfo {
@@ -88,4 +91,7 @@ abi SparkMarketInfo {
         block_height: u32,
         order_height: u64,
     ) -> b256;
+
+    #[storage(read)]
+    fn store_order_change_info() -> bool;
 }

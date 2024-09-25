@@ -27,6 +27,7 @@ use ::events::{
     SetEpochEvent,
     SetMatcherRewardEvent,
     SetProtocolFeeEvent,
+    SetStoreOrderChangeInfoEvent,
     TradeOrderEvent,
     WithdrawEvent,
 };
@@ -78,6 +79,8 @@ storage {
     epoch_duration: u64 = 2629800,
     // Order height
     order_height: u64 = 0,
+    // Disable storing an order change info
+    store_order_change_info: bool = true,
 }
 
 impl SparkMarket for Contract {
@@ -420,6 +423,22 @@ impl SparkMarket for Contract {
 
         log(SetMatcherRewardEvent { amount });
     }
+
+    /// @notice Sets the matcher fee to a specified amount.
+    /// @dev This function allows the contract owner to enable or disable storing of order change info.
+    #[storage(read, write)]
+    fn set_store_order_change_info(store: bool) {
+        only_owner();
+        require(
+            store != storage
+                .store_order_change_info
+                .read(),
+            ValueError::InvalidValueSame,
+        );
+        storage.store_order_change_info.write(store);
+
+        log(SetStoreOrderChangeInfoEvent { store });
+    }
 }
 
 impl SparkMarketInfo for Contract {
@@ -504,6 +523,11 @@ impl SparkMarketInfo for Contract {
             0,
             0,
         ).id()
+    }
+
+    #[storage(read)]
+    fn store_order_change_info() -> bool {
+        storage.store_order_change_info.read()
     }
 }
 
@@ -1084,5 +1108,7 @@ fn emit_match_events(
 
 #[storage(read, write)]
 fn log_order_change_info(order_id: b256, change_info: OrderChangeInfo) {
-    storage.order_change_info.get(order_id).push(change_info);
+    if storage.store_order_change_info.read() {
+        storage.order_change_info.get(order_id).push(change_info);
+    }
 }

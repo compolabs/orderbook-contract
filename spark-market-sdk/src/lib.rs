@@ -307,6 +307,18 @@ impl SparkMarketContract {
             .await?)
     }
 
+    pub async fn set_store_order_change_info(
+        &self,
+        store: bool,
+    ) -> anyhow::Result<CallResponse<()>> {
+        Ok(self
+            .instance
+            .methods()
+            .set_store_order_change_info(store)
+            .call()
+            .await?)
+    }
+
     pub async fn account(&self, user: Identity) -> anyhow::Result<CallResponse<Account>> {
         Ok(self
             .instance
@@ -355,6 +367,15 @@ impl SparkMarketContract {
             .instance
             .methods()
             .matcher_fee()
+            .simulate(Execution::StateReadOnly)
+            .await?)
+    }
+
+    pub async fn store_order_change_info(&self) -> anyhow::Result<CallResponse<bool>> {
+        Ok(self
+            .instance
+            .methods()
+            .store_order_change_info()
             .simulate(Execution::StateReadOnly)
             .await?)
     }

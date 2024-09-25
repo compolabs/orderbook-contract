@@ -7,4 +7,5 @@ mod open_order;
 mod set_epoch;
 mod set_matcher_fee;
 mod set_protocol_fee;
+mod set_store_order_change_info;
 mod withdraw;
