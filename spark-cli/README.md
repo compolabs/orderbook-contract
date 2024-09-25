@@ -335,7 +335,7 @@ spark-cli registry deploy \
 ```
 
 Output:
-SparkRegistry deployed to: 0x0911d52d95a71dd484690636fb81db8596f54ee18fe5eb7e33842025d1dd80de
+SparkRegistry deployed to: 0x0f5232e0d927f7a477baa7e6f0380c50f8b3de5c0d6ae42bb29ba8a767e5ff1a
 Deployment cost: 0
 Owner address: fuel173lqaa6y4jxfjd2suq730uwys3zfg4f6zt9vzx4cc45v3xvlmwlszdvdpz
                0xf47e0ef744ac8c993550e03d17f1c4844494553a12cac11ab8c568c8999fdbbf
@@ -346,7 +346,7 @@ Owner address: fuel173lqaa6y4jxfjd2suq730uwys3zfg4f6zt9vzx4cc45v3xvlmwlszdvdpz
 spark-cli registry register \
     --market 0xb1ed073b4dccbff48e2ac1b52a49454e6a2921aa54effee89eb958dc5ddbffbe \
     --rpc "testnet.fuel.network" \
-    --contract-id 0x0911d52d95a71dd484690636fb81db8596f54ee18fe5eb7e33842025d1dd80de
+    --contract-id 0x0f5232e0d927f7a477baa7e6f0380c50f8b3de5c0d6ae42bb29ba8a767e5ff1a
 ```
 
 ## Unregister a market
@@ -355,7 +355,7 @@ spark-cli registry register \
 spark-cli registry unregister \
     --market 0xb1ed073b4dccbff48e2ac1b52a49454e6a2921aa54effee89eb958dc5ddbffbe \
     --rpc "testnet.fuel.network" \
-    --contract-id 0x0911d52d95a71dd484690636fb81db8596f54ee18fe5eb7e33842025d1dd80de
+    --contract-id 0x0f5232e0d927f7a477baa7e6f0380c50f8b3de5c0d6ae42bb29ba8a767e5ff1a
 ```
 
 ## Get registered markets by assets
@@ -365,7 +365,7 @@ spark-cli registry markets \
     --base 0x38e4ca985b22625fff93205e997bfc5cc8453a953da638ad297ca60a9f2600bc \
     --quote 0x336b7c06352a4b736ff6f688ba6885788b3df16e136e95310ade51aa32dc6f05 \
     --rpc "testnet.fuel.network" \
-    --contract-id 0x0911d52d95a71dd484690636fb81db8596f54ee18fe5eb7e33842025d1dd80de
+    --contract-id 0x0f5232e0d927f7a477baa7e6f0380c50f8b3de5c0d6ae42bb29ba8a767e5ff1a
 ```
 
 ## Config
@@ -373,5 +373,5 @@ spark-cli registry markets \
 ```
 spark-cli registry config \
     --rpc "testnet.fuel.network" \
-    --contract-id 0x0911d52d95a71dd484690636fb81db8596f54ee18fe5eb7e33842025d1dd80de
+    --contract-id 0x0f5232e0d927f7a477baa7e6f0380c50f8b3de5c0d6ae42bb29ba8a767e5ff1a
 ```
