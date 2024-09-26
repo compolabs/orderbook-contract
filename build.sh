@@ -6,4 +6,4 @@ cp -r ./spark-market/out ./spark-market-sdk/spark-market/
 cp -r ./spark-registry/out ./spark-registry-sdk/spark-registry/
 
 cargo clean
-cargo build
+cargo build --release
