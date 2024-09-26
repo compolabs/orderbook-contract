@@ -9,4 +9,5 @@ pub(crate) mod open_order;
 pub(crate) mod set_epoch;
 pub(crate) mod set_matcher_fee;
 pub(crate) mod set_protocol_fee;
+pub(crate) mod set_store_order_change_info;
 pub(crate) mod withdraw;

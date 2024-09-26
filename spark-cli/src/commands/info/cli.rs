@@ -2,7 +2,8 @@ use crate::commands::info::{
     account::AccountCommand, config::ConfigCommand, epoch::EpochCommand,
     matcher_fee::MatcherFeeCommand, order::OrderCommand, order_id::OrderIdCommand,
     protocol_fee::ProtocolFeeCommand, protocol_fee_user::ProtocolFeeUserCommand,
-    protocol_fee_user_amount::ProtocolFeeUserAmountCommand, user_orders::UserOrdersCommand,
+    protocol_fee_user_amount::ProtocolFeeUserAmountCommand,
+    store_order_change_info::StoreOrderChangeInfoCommand, user_orders::UserOrdersCommand,
 };
 use clap::Subcommand;
 
@@ -43,6 +44,10 @@ pub(crate) enum InfoCommands {
     /// Query order information
     #[clap(short_flag = 'O')]
     Order(OrderCommand),
+
+    /// Query orders associated with an
+    #[clap(short_flag = 'S')]
+    StoreOrderChangeInfo(StoreOrderChangeInfoCommand),
 
     /// Query orders associated with an
     #[clap(short_flag = 'U')]
