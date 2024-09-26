@@ -1,5 +1,6 @@
 mod cancel_order;
 mod deposit;
+mod deposit_withdraw_script_test;
 mod fulfill_order_many;
 mod match_order_many;
 mod match_order_pair;

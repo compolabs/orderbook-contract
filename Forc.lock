@@ -3,6 +3,11 @@ name = "core"
 source = "path+from-root-C485BFF5467B6B6C"
 
 [[package]]
+name = "deposit-withdraw-script"
+source = "member"
+dependencies = ["std"]
+
+[[package]]
 name = "spark-market"
 source = "member"
 dependencies = [
