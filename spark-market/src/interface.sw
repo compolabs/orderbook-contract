@@ -15,8 +15,15 @@ abi SparkMarket {
     #[storage(read, write)]
     fn deposit();
 
+    #[payable]
+    #[storage(read, write)]
+    fn deposit_for(user: Identity);
+
     #[storage(read, write)]
     fn withdraw(amount: u64, asset_type: AssetType);
+
+    #[storage(read, write)]
+    fn withdraw_to_market(amount: u64, asset_type: AssetType, market: ContractId);
 
     #[storage(read, write)]
     fn open_order(amount: u64, order_type: OrderType, price: u64) -> b256;

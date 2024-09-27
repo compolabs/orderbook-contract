@@ -3,6 +3,7 @@ library;
 pub enum AssetError {
     InvalidAsset: (),
     InvalidFeeAsset: (),
+    InvalidMarketAsset: (),
 }
 
 pub enum ValueError {
@@ -14,6 +15,7 @@ pub enum ValueError {
     InvalidFeeSorting: (),
     InvalidFeeZeroBased: (),
     InvalidValueSame: (),
+    InvalidMarketSame: (),
 }
 
 pub enum OrderError {
