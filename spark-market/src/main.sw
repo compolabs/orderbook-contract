@@ -23,6 +23,7 @@ use ::errors::{AccountError, AssetError, AuthError, MatchError, OrderError, Valu
 use ::events::{
     CancelOrderEvent,
     DepositEvent,
+    DepositForEvent,
     OpenOrderEvent,
     SetEpochEvent,
     SetMatcherRewardEvent,
@@ -30,6 +31,7 @@ use ::events::{
     SetStoreOrderChangeInfoEvent,
     TradeOrderEvent,
     WithdrawEvent,
+    WithdrawToMarketEvent,
 };
 use ::interface::{SparkMarket, SparkMarketInfo};
 
@@ -93,22 +95,37 @@ impl SparkMarket for Contract {
     fn deposit() {
         reentrancy_guard();
 
-        let amount = msg_amount();
-        require(amount > 0, ValueError::InvalidAmount);
-
-        let asset = msg_asset_id();
-        let asset_type = get_asset_type(asset);
         let user = msg_sender().unwrap();
 
-        let mut account = storage.account.get(user).try_read().unwrap_or(Account::new());
-        account.liquid.credit(amount, asset_type);
-        storage.account.insert(user, account);
+        let (amount, asset, account) = deposit_internal(user);
 
         log(DepositEvent {
             amount,
             asset,
             user,
-            balance: account,
+            account,
+        });
+    }
+
+    /// @notice Deposits a specified amount of an asset into the user specified account.
+    /// @notice The function requires that the sender sends a non-zero amount of the specified asset.
+    /// @param user - The deposit's account.
+    /// @return None - The function does not return a value.
+    #[payable]
+    #[storage(read, write)]
+    fn deposit_for(user: Identity) {
+        reentrancy_guard();
+
+        let caller = msg_sender().unwrap();
+
+        let (amount, asset, account) = deposit_internal(user);
+
+        log(DepositForEvent {
+            amount,
+            asset,
+            user,
+            account,
+            caller,
         });
     }
 
@@ -119,16 +136,7 @@ impl SparkMarket for Contract {
     #[storage(read, write)]
     fn withdraw(amount: u64, asset_type: AssetType) {
         reentrancy_guard();
-
-        require(amount > 0, ValueError::InvalidAmount);
-
-        let user = msg_sender().unwrap();
-        let mut account = storage.account.get(user).try_read().unwrap_or(Account::new());
-
-        account.liquid.debit(amount, asset_type);
-        storage.account.insert(user, account);
-
-        let asset = get_asset_id(asset_type);
+        let (asset, user, account) = withdraw_internal(amount, asset_type);
 
         transfer(user, asset, amount);
 
@@ -136,7 +144,42 @@ impl SparkMarket for Contract {
             amount,
             asset,
             user,
-            balance: account,
+            account,
+        });
+    }
+
+    /// @notice Withdraws a specified amount of a given asset from the caller's account.
+    /// Then deposits amount to the another market for caller's account.
+    /// @param amount The amount of the asset to be withdrawn. Must be greater than zero.
+    /// @param asset_type The type of the asset to be withdrawn.
+    /// @param market The market ContractId.
+    /// @return None - The function does not return a value.
+    #[storage(read, write)]
+    fn withdraw_to_market(amount: u64, asset_type: AssetType, market: ContractId) {
+        reentrancy_guard();
+
+        require(market != ContractId::this(), ValueError::InvalidMarketSame);
+
+        let (asset, user, account) = withdraw_internal(amount, asset_type);
+        let (base, _, quote, _, _, _, _) = abi(SparkMarketInfo, market.into()).config();
+        require(
+            asset == base || asset == quote,
+            AssetError::InvalidMarketAsset,
+        );
+
+        abi(SparkMarket, market
+            .into())
+            .deposit_for {
+                asset_id: asset.into(),
+                coins: amount,
+            }(user);
+
+        log(WithdrawToMarketEvent {
+            amount,
+            asset,
+            user,
+            account,
+            market,
         });
     }
 
@@ -607,6 +650,35 @@ fn extend_epoch() {
             epoch_duration,
         });
     }
+}
+
+#[payable]
+#[storage(read, write)]
+fn deposit_internal(user: Identity) -> (u64, AssetId, Account) {
+    let amount = msg_amount();
+    require(amount > 0, ValueError::InvalidAmount);
+
+    let asset = msg_asset_id();
+    let asset_type = get_asset_type(asset);
+
+    let mut account = storage.account.get(user).try_read().unwrap_or(Account::new());
+    account.liquid.credit(amount, asset_type);
+    storage.account.insert(user, account);
+    (amount, asset, account)
+}
+
+#[storage(read, write)]
+fn withdraw_internal(amount: u64, asset_type: AssetType) -> (AssetId, Identity, Account) {
+    require(amount > 0, ValueError::InvalidAmount);
+
+    let user = msg_sender().unwrap();
+    let mut account = storage.account.get(user).try_read().unwrap_or(Account::new());
+
+    account.liquid.debit(amount, asset_type);
+    storage.account.insert(user, account);
+
+    let asset = get_asset_id(asset_type);
+    (asset, user, account)
 }
 
 #[storage(read, write)]

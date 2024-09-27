@@ -4,7 +4,7 @@ use fuels::{
         launch_custom_provider_and_get_wallets, Address, AssetConfig, AssetId, WalletUnlocked,
         WalletsConfig,
     },
-    types::Identity,
+    types::{bech32::Bech32ContractId, Identity},
 };
 use spark_market_sdk::{Account, Balance, SparkMarketContract};
 
@@ -50,6 +50,19 @@ impl User {
 
     pub(crate) async fn balance(&self, asset: &AssetId) -> u64 {
         self.wallet.get_asset_balance(asset).await.unwrap()
+    }
+
+    pub(crate) async fn contract_balance(
+        &self,
+        contract_id: &Bech32ContractId,
+        asset_id: AssetId,
+    ) -> u64 {
+        self.wallet
+            .try_provider()
+            .unwrap()
+            .get_contract_asset_balance(contract_id, asset_id)
+            .await
+            .unwrap()
     }
 }
 
@@ -140,6 +153,18 @@ pub(crate) async fn setup(
     let matcher = User { wallet: matcher };
 
     Ok((contract, owner, user0, user1, matcher, assets))
+}
+
+pub(crate) async fn clone_market(
+    owner: WalletUnlocked,
+    market: &SparkMarketContract,
+) -> anyhow::Result<SparkMarketContract> {
+    let config = market.config().await?.value;
+    let contract = SparkMarketContract::deploy(
+        config.0, config.1, config.2, config.3, owner, config.5, config.6,
+    )
+    .await?;
+    Ok(contract)
 }
 
 /// From spark-market/src/math.sw

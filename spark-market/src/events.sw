@@ -12,7 +12,15 @@ pub struct DepositEvent {
     pub amount: u64,
     pub asset: AssetId,
     pub user: Identity,
-    pub balance: Account,
+    pub account: Account,
+}
+
+pub struct DepositForEvent {
+    pub amount: u64,
+    pub asset: AssetId,
+    pub user: Identity,
+    pub account: Account,
+    pub caller: Identity,
 }
 
 pub struct OpenOrderEvent {
@@ -46,12 +54,19 @@ pub struct TradeOrderEvent {
     pub s_balance: Account,
     pub b_balance: Account,
 }
-
 pub struct WithdrawEvent {
     pub amount: u64,
     pub asset: AssetId,
     pub user: Identity,
-    pub balance: Account,
+    pub account: Account,
+}
+
+pub struct WithdrawToMarketEvent {
+    pub amount: u64,
+    pub asset: AssetId,
+    pub user: Identity,
+    pub account: Account,
+    pub market: ContractId,
 }
 
 pub struct SetEpochEvent {

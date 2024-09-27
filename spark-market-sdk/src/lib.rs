@@ -160,6 +160,34 @@ impl SparkMarketContract {
             .unwrap()
     }
 
+    pub async fn deposit_for(
+        &self,
+        amount: u64,
+        asset: AssetId,
+        user: Identity,
+    ) -> anyhow::Result<CallResponse<()>> {
+        Ok(self
+            .deposit_for_call_handler(amount, asset, user)
+            .await
+            .call()
+            .await?)
+    }
+
+    pub async fn deposit_for_call_handler(
+        &self,
+        amount: u64,
+        asset: AssetId,
+        user: Identity,
+    ) -> CallHandler<WalletUnlocked, ContractCall, ()> {
+        let call_params = CallParameters::new(amount, asset, 1_000_000);
+
+        self.instance
+            .methods()
+            .deposit_for(user)
+            .call_params(call_params)
+            .unwrap()
+    }
+
     pub async fn withdraw(
         &self,
         amount: u64,
@@ -179,6 +207,32 @@ impl SparkMarketContract {
         asset_type: AssetType,
     ) -> CallHandler<WalletUnlocked, ContractCall, ()> {
         self.instance.methods().withdraw(amount, asset_type)
+    }
+
+    pub async fn withdraw_to_market(
+        &self,
+        amount: u64,
+        asset_type: AssetType,
+        market: &Bech32ContractId,
+    ) -> anyhow::Result<CallResponse<()>> {
+        Ok(self
+            .withdraw_to_market_call_handler(amount, asset_type, market)
+            .await
+            .with_variable_output_policy(VariableOutputPolicy::Exactly(1))
+            .call()
+            .await?)
+    }
+
+    pub async fn withdraw_to_market_call_handler(
+        &self,
+        amount: u64,
+        asset_type: AssetType,
+        market: &Bech32ContractId,
+    ) -> CallHandler<WalletUnlocked, ContractCall, ()> {
+        self.instance
+            .methods()
+            .withdraw_to_market(amount, asset_type, market)
+            .with_contract_ids(&[market.clone()])
     }
 
     pub async fn open_order(
