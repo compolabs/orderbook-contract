@@ -382,7 +382,9 @@ impl SparkMarket for Contract {
             MatchError::CantFulfillFOK,
         );
 
-        if matched == MatchResult::PartialMatch {
+        if matched == MatchResult::PartialMatch
+            && limit_type == LimitType::IOC
+        {
             cancel_order_internal(id0);
         }
 
