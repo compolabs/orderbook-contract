@@ -5,12 +5,12 @@ mod success {
 
     use super::*;
     use crate::setup::create_account;
-    use spark_market_sdk::DepositEvent;
+    use spark_market_sdk::DepositForEvent;
 
     #[tokio::test]
     async fn base_asset() -> anyhow::Result<()> {
         let defaults = Defaults::default();
-        let (contract, owner, _user, _, _, assets) = setup(
+        let (contract, owner, user, _, _, assets) = setup(
             defaults.base_decimals,
             defaults.quote_decimals,
             defaults.price_decimals,
@@ -22,29 +22,32 @@ mod success {
 
         // Precondition enforces empty account
         assert_eq!(
-            contract.account(owner.identity()).await?.value,
+            contract.account(user.identity()).await?.value,
             expected_account
         );
         let expected_account = create_account(deposit_amount, 0, 0, 0);
 
         let user_balance = owner.balance(&assets.base.id).await;
-        let response = contract.deposit(deposit_amount, assets.base.id).await?;
+        let response = contract
+            .deposit_for(deposit_amount, assets.base.id, user.identity())
+            .await?;
         let new_balance = owner.balance(&assets.base.id).await;
         assert_eq!(new_balance, user_balance - deposit_amount);
 
-        let log = response.decode_logs_with_type::<DepositEvent>().unwrap();
+        let log = response.decode_logs_with_type::<DepositForEvent>().unwrap();
         let event = log.first().unwrap();
         assert_eq!(
             *event,
-            DepositEvent {
+            DepositForEvent {
                 amount: deposit_amount,
                 asset: assets.base.id,
-                user: owner.identity(),
+                user: user.identity(),
                 account: expected_account.clone(),
+                caller: owner.identity(),
             }
         );
 
-        let user_account = contract.account(owner.identity()).await?.value;
+        let user_account = contract.account(user.identity()).await?.value;
 
         assert_eq!(user_account, expected_account);
 
@@ -57,7 +60,7 @@ mod success {
         let defaults = Defaults::default();
 
         for _ in 0..100 {
-            let (contract, owner, _user, _, _, assets) = setup(
+            let (contract, owner, user, _, _, assets) = setup(
                 defaults.base_decimals,
                 defaults.quote_decimals,
                 defaults.price_decimals,
@@ -75,23 +78,26 @@ mod success {
             let expected_account = create_account(deposit_amount, 0, 0, 0);
 
             let user_balance = owner.balance(&assets.base.id).await;
-            let response = contract.deposit(deposit_amount, assets.base.id).await?;
+            let response = contract
+                .deposit_for(deposit_amount, assets.base.id, user.identity())
+                .await?;
             let new_balance = owner.balance(&assets.base.id).await;
             assert_eq!(new_balance, user_balance - deposit_amount);
 
-            let log = response.decode_logs_with_type::<DepositEvent>().unwrap();
+            let log = response.decode_logs_with_type::<DepositForEvent>().unwrap();
             let event = log.first().unwrap();
             assert_eq!(
                 *event,
-                DepositEvent {
+                DepositForEvent {
                     amount: deposit_amount,
                     asset: assets.base.id,
-                    user: owner.identity(),
+                    user: user.identity(),
                     account: expected_account.clone(),
+                    caller: owner.identity(),
                 }
             );
 
-            let user_account = contract.account(owner.identity()).await?.value;
+            let user_account = contract.account(user.identity()).await?.value;
 
             assert_eq!(user_account, expected_account);
         }
@@ -102,7 +108,7 @@ mod success {
     #[tokio::test]
     async fn quote_asset() -> anyhow::Result<()> {
         let defaults = Defaults::default();
-        let (contract, owner, _user, _, _, assets) = setup(
+        let (contract, owner, user, _, _, assets) = setup(
             defaults.base_decimals,
             defaults.quote_decimals,
             defaults.price_decimals,
@@ -120,23 +126,26 @@ mod success {
         let expected_account = create_account(0, deposit_amount, 0, 0);
 
         let user_balance = owner.balance(&assets.quote.id).await;
-        let response = contract.deposit(deposit_amount, assets.quote.id).await?;
+        let response = contract
+            .deposit_for(deposit_amount, assets.quote.id, user.identity())
+            .await?;
         let new_balance = owner.balance(&assets.quote.id).await;
         assert_eq!(new_balance, user_balance - deposit_amount);
 
-        let log = response.decode_logs_with_type::<DepositEvent>().unwrap();
+        let log = response.decode_logs_with_type::<DepositForEvent>().unwrap();
         let event = log.first().unwrap();
         assert_eq!(
             *event,
-            DepositEvent {
+            DepositForEvent {
                 amount: deposit_amount,
                 asset: assets.quote.id,
-                user: owner.identity(),
+                user: user.identity(),
                 account: expected_account.clone(),
+                caller: owner.identity(),
             }
         );
 
-        let user_account = contract.account(owner.identity()).await?.value;
+        let user_account = contract.account(user.identity()).await?.value;
 
         assert_eq!(user_account, expected_account);
 
@@ -144,12 +153,12 @@ mod success {
     }
 
     #[tokio::test(flavor = "multi_thread")]
-    #[ignore]
+    //#[ignore]
     async fn fuzz_quote_asset() -> anyhow::Result<()> {
         let defaults = Defaults::default();
 
         for _ in 0..100 {
-            let (contract, owner, _user, _, _, assets) = setup(
+            let (contract, owner, user, _, _, assets) = setup(
                 defaults.base_decimals,
                 defaults.quote_decimals,
                 defaults.price_decimals,
@@ -168,23 +177,26 @@ mod success {
             let expected_account = create_account(0, deposit_amount, 0, 0);
 
             let user_balance = owner.balance(&assets.quote.id).await;
-            let response = contract.deposit(deposit_amount, assets.quote.id).await?;
+            let response = contract
+                .deposit_for(deposit_amount, assets.quote.id, user.identity())
+                .await?;
             let new_balance = owner.balance(&assets.quote.id).await;
             assert_eq!(new_balance, user_balance - deposit_amount);
 
-            let log = response.decode_logs_with_type::<DepositEvent>().unwrap();
+            let log = response.decode_logs_with_type::<DepositForEvent>().unwrap();
             let event = log.first().unwrap();
             assert_eq!(
                 *event,
-                DepositEvent {
+                DepositForEvent {
                     amount: deposit_amount,
                     asset: assets.quote.id,
-                    user: owner.identity(),
+                    user: user.identity(),
                     account: expected_account.clone(),
+                    caller: owner.identity(),
                 }
             );
 
-            let user_account = contract.account(owner.identity()).await?.value;
+            let user_account = contract.account(user.identity()).await?.value;
 
             assert_eq!(user_account, expected_account);
         }
@@ -213,7 +225,7 @@ mod revert {
 
         // Revert
         contract
-            .deposit(deposit_amount, assets.random.id)
+            .deposit_for(deposit_amount, assets.random.id, _user.identity())
             .await
             .unwrap();
     }

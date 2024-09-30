@@ -1,5 +1,6 @@
 mod cancel_order;
 mod deposit;
+mod deposit_for;
 mod fulfill_order_many;
 mod match_order_many;
 mod match_order_pair;
@@ -9,3 +10,4 @@ mod set_matcher_fee;
 mod set_protocol_fee;
 mod set_store_order_change_info;
 mod withdraw;
+mod withdraw_to_market;
