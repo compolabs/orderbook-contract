@@ -31,6 +31,22 @@ Deposits assets to market caller account. It is a payble method. Caller should h
 Returns a call result
 
 
+### Asset Deposit For an user
+
+```rust
+pub async fn deposit_for(&self, amount: u64, asset: AssetId, user: Identity) -> anyhow::Result<CallResponse<()>>
+```
+
+Deposits assets to market `user` account. It is a payble method. Caller should have at least `amount` of `asset` on his account before transfer it to market.
+
+`self` The SparkMarketContract instance
+`amount` The amount to deposit
+`asset` The asset for deposit either `base_asset` or `quote_asset`
+`user` The user account to deposit for
+
+Returns a call result
+
+
 ### Asset Withdraw
 
 ```rust
@@ -42,6 +58,22 @@ Withdraws assets from market caller account.
 `self` The SparkMarketContract instance
 `amount` The amount to withdraw
 `asset` The asset for withdraw either `base_asset` or `quote_asset`
+
+Returns a call result
+
+
+### Asset Withdraw To Market
+
+```rust
+pub async fn withdraw_to_market(&self, amount: u64, asset_type: AssetType, market: &Bech32ContractId) -> anyhow::Result<CallResponse<()>>
+```
+
+Withdraws user assets from market to another market user account.
+
+`self` The SparkMarketContract instance
+`amount` The amount to withdraw
+`asset` The asset for withdraw either `base_asset` or `quote_asset`
+`market` The market for withdraw to
 
 Returns a call result
 

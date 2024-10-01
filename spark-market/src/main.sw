@@ -751,7 +751,7 @@ fn open_order_internal(
 
     let asset = get_asset_id(asset_type);
 
-    log_order_change_info(
+    store_order_change_info(
         order_id,
         OrderChangeInfo::new(
             OrderChangeType::OrderOpened,
@@ -802,7 +802,7 @@ fn cancel_order_internal(order_id: b256) {
     remove_order(user, order_id);
     storage.account.insert(user, account);
 
-    log_order_change_info(
+    store_order_change_info(
         order_id,
         OrderChangeInfo::new(
             OrderChangeType::OrderCancelled,
@@ -1133,7 +1133,7 @@ fn emit_match_events(
     b_account: Account,
 ) {
     // Emit events for the first order
-    log_order_change_info(
+    store_order_change_info(
         id0,
         OrderChangeInfo::new(
             OrderChangeType::OrderMatched,
@@ -1148,7 +1148,7 @@ fn emit_match_events(
     );
 
     // Emit events for the second order
-    log_order_change_info(
+    store_order_change_info(
         id1,
         OrderChangeInfo::new(
             OrderChangeType::OrderMatched,
@@ -1181,7 +1181,7 @@ fn emit_match_events(
 }
 
 #[storage(read, write)]
-fn log_order_change_info(order_id: b256, change_info: OrderChangeInfo) {
+fn store_order_change_info(order_id: b256, change_info: OrderChangeInfo) {
     if storage.store_order_change_info.read() {
         storage.order_change_info.get(order_id).push(change_info);
     }
