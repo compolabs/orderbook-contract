@@ -4,8 +4,8 @@ use fuels::accounts::ViewOnlyAccount;
 use spark_market_sdk::{AssetType as ContractAssetType, SparkMarketContract};
 
 #[derive(Args, Clone)]
-#[command(about = "Withdraws an asset from the market to the caller")]
-pub(crate) struct WithdrawCommand {
+#[command(about = "Withdraws an asset from the market to another market caller account")]
+pub(crate) struct WithdrawToMarketCommand {
     /// The amount to withdraw
     #[clap(long)]
     pub(crate) amount: u64,
@@ -14,7 +14,11 @@ pub(crate) struct WithdrawCommand {
     #[clap(long)]
     pub(crate) asset_type: AssetType,
 
-    /// The contract id of the market
+    /// The contract id of the deposit market
+    #[clap(long)]
+    pub(crate) market_id: String,
+
+    /// The contract id of the withdraw market
     #[clap(long)]
     pub(crate) contract_id: String,
 
@@ -24,10 +28,11 @@ pub(crate) struct WithdrawCommand {
     pub(crate) rpc: String,
 }
 
-impl WithdrawCommand {
+impl WithdrawToMarketCommand {
     pub(crate) async fn run(&self) -> anyhow::Result<()> {
         let wallet = setup(&self.rpc).await?;
         let contract_id = validate_contract_id(&self.contract_id)?;
+        let market_id = validate_contract_id(&self.market_id)?;
 
         let asset_type = match self.asset_type {
             AssetType::Base => ContractAssetType::Base,
@@ -49,7 +54,9 @@ impl WithdrawCommand {
         };
         let asset_balance = wallet.get_asset_balance(&asset).await?;
 
-        let _ = contract.withdraw(self.amount, asset_type.clone()).await?;
+        let _ = contract
+            .withdraw_to_market(self.amount, asset_type.clone(), &market_id.into())
+            .await?;
 
         // Balance post-call
         let new_balance = wallet
@@ -59,9 +66,10 @@ impl WithdrawCommand {
 
         println!("Contract call cost: {}", balance - new_balance);
         println!(
-            "Withdrawn {} amount of {:?} asset",
+            "Withdrawn {} amount of {:?} asset to {:?}",
             new_asset_balance - asset_balance,
-            asset_type.clone()
+            asset_type.clone(),
+            market_id,
         );
 
         Ok(())

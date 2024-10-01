@@ -31,6 +31,7 @@ async fn main() -> anyhow::Result<()> {
             CoreCommands::Cancel(args) => args.run().await,
             CoreCommands::Deploy(args) => args.run().await,
             CoreCommands::Deposit(args) => args.run().await,
+            CoreCommands::DepositFor(args) => args.run().await,
             CoreCommands::FulfillMany(args) => args.run().await,
             CoreCommands::Open(args) => args.run().await,
             CoreCommands::MatchMany(args) => args.run().await,
@@ -40,6 +41,7 @@ async fn main() -> anyhow::Result<()> {
             CoreCommands::SetMatcherFee(args) => args.run().await,
             CoreCommands::SetStoreOrderChangeInfo(args) => args.run().await,
             CoreCommands::Withdraw(args) => args.run().await,
+            CoreCommands::WithdrawToMarket(args) => args.run().await,
         },
         Command::Info(args) => match args.commands {
             InfoCommands::Account(args) => args.run().await,
