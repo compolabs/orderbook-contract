@@ -71,7 +71,7 @@ spark-cli core deposit \
 ```
 spark-cli core deposit \
     --asset-type quote \
-    --amount 7000 \
+    --amount 10000 \
     --rpc "testnet.fuel.network" \
     --contract-id 0xbc69e42348c9a992100970e8469247b58a517c2f7dd373741c6707cda35ccfc6
 ```
@@ -150,8 +150,8 @@ spark-cli core cancel \
 
 ```
 spark-cli core match-pair \
-    --orders bc079871bc5cbac3f4c4561c0f01da1175128aa44884418586c2bfb17382d070 \
-    --orders 50454d56b6049ee9ad3781e55f9631f5c90f908afb719be581dfeefa5dc48932 \
+    --orders 5b7f3d4ecc2990e1137227409d7428df6256a9b356d216187a7ee19ae2412f3e \
+    --orders c32520c590b0bc24b6878b0ca41beffa47629eff028e015c2e0c473b42c63a77 \
     --rpc "testnet.fuel.network" \
     --contract-id 0xbc69e42348c9a992100970e8469247b58a517c2f7dd373741c6707cda35ccfc6
 ```
@@ -214,7 +214,7 @@ Sets a epoch and duration for the market
 
 ```
 spark-cli core set-epoch \
-    --epoch 4611686020152825242 \
+    --epoch 4611686020155120000 \
     --epoch-duration 2332800 \
     --rpc "testnet.fuel.network" \
     --contract-id 0xbc69e42348c9a992100970e8469247b58a517c2f7dd373741c6707cda35ccfc6
