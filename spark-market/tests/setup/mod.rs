@@ -7,6 +7,7 @@ use fuels::{
     types::{bech32::Bech32ContractId, Identity},
 };
 use spark_market_sdk::{Account, Balance, SparkMarketContract};
+use std::time::{SystemTime, UNIX_EPOCH};
 
 pub(crate) struct Assets {
     pub(crate) base: Asset,
@@ -206,4 +207,28 @@ pub fn convert(
             .try_into()
             .unwrap_or(0)
     }
+}
+
+// TAI is currently 37 seconds ahead of UTC
+const TAI_OFFSET: u64 = 37;
+const TAI64_EPOCH_OFFSET: u64 = 1 << 62; // 2^62
+
+// Convert Unix timestamp to TAI64
+fn unix_to_tai64(unix_timestamp: u64) -> u64 {
+    // Calculate the TAI timestamp
+    let tai_seconds = unix_timestamp + TAI_OFFSET;
+
+    // Convert to TAI64 format
+    tai_seconds + TAI64_EPOCH_OFFSET
+}
+
+pub fn now_tai64() -> u64 {
+    // Get the current Unix timestamp
+    let current_timestamp = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_secs();
+
+    // Convert the Unix timestamp to TAI64
+    unix_to_tai64(current_timestamp)
 }

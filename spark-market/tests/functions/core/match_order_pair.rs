@@ -1,4 +1,4 @@
-use crate::setup::{create_account, setup, Defaults};
+use crate::setup::{create_account, now_tai64, setup, Defaults};
 use spark_market_sdk::{OrderType, ProtocolFee};
 
 mod success_same_asset_type {
@@ -419,12 +419,11 @@ mod success_same_asset_type {
         )
         .await?;
 
-        let protocol_fee = vec![ProtocolFee {
-            maker_fee: 10,
-            taker_fee: 15,
-            volume_threshold: 0,
-        }];
-        let _ = contract.set_protocol_fee(protocol_fee.clone()).await?;
+        let tai64_epoch = now_tai64();
+        // Define the new epoch duration (e.g., 1 day)
+        let epoch_duration = 60 * 60 * 24 * 30;
+        // Increase the epoch and duration
+        let _ = contract.set_epoch(tai64_epoch, epoch_duration).await?;
 
         let to_quote_scale =
             10_u64.pow(defaults.price_decimals + defaults.base_decimals - defaults.quote_decimals);
@@ -434,6 +433,38 @@ mod success_same_asset_type {
         let maker_protocol_fee = quote_amount * 10 / 10_000;
         let taker_protocol_fee = quote_amount * 15 / 10_000;
         let quote_amount = quote_amount + taker_protocol_fee;
+
+        let protocol_fee = vec![
+            ProtocolFee {
+                maker_fee: 10,
+                taker_fee: 15,
+                volume_threshold: 0,
+            },
+            ProtocolFee {
+                maker_fee: 8,
+                taker_fee: 12,
+                volume_threshold: quote_amount - taker_protocol_fee,
+            },
+        ];
+
+        let _ = contract.set_protocol_fee(protocol_fee.clone()).await?;
+
+        assert_eq!(
+            contract
+                .protocol_fee_user(user0.address().into())
+                .await?
+                .value,
+            (protocol_fee[0].maker_fee, protocol_fee[0].taker_fee)
+        );
+
+        assert_eq!(
+            contract
+                .protocol_fee_user(user1.address().into())
+                .await?
+                .value,
+            (protocol_fee[0].maker_fee, protocol_fee[0].taker_fee)
+        );
+
         contract
             .with_account(&user0.wallet)
             .deposit(base_amount, assets.base.id)
@@ -492,6 +523,21 @@ mod success_same_asset_type {
         assert_eq!(
             contract.account(owner.identity()).await?.value,
             expected_account
+        );
+
+        assert_eq!(
+            contract
+                .protocol_fee_user(user0.address().into())
+                .await?
+                .value,
+            (protocol_fee[1].maker_fee, protocol_fee[1].taker_fee)
+        );
+        assert_eq!(
+            contract
+                .protocol_fee_user(user1.address().into())
+                .await?
+                .value,
+            (protocol_fee[1].maker_fee, protocol_fee[1].taker_fee)
         );
 
         Ok(())

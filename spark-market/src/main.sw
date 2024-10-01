@@ -641,14 +641,15 @@ fn protocol_fee_user_amount(amount: u64, user: Identity) -> (u64, u64) {
 }
 
 #[storage(write)]
-fn extend_epoch() {
+fn extend_epoch_if_finished() {
     let epoch_duration = storage.epoch_duration.read();
     let epoch = storage.epoch.read() + epoch_duration;
+    let timestamp = block_timestamp();
 
-    if epoch <= block_timestamp() {
-        storage.epoch.write(epoch);
+    if epoch <= timestamp {
+        storage.epoch.write(timestamp);
         log(SetEpochEvent {
-            epoch,
+            epoch: timestamp,
             epoch_duration,
         });
     }
@@ -823,8 +824,18 @@ fn cancel_order_internal(order_id: b256) {
 
 #[storage(read, write)]
 fn increase_user_volume(user: Identity, volume: u64) {
-    extend_epoch();
-    let _ = storage.user_volumes.get(user).try_read().unwrap_or(UserVolume::new()).update(storage.epoch.read(), volume);
+    extend_epoch_if_finished();
+    storage
+        .user_volumes
+        .insert(
+            user,
+            storage
+                .user_volumes
+                .get(user)
+                .try_read()
+                .unwrap_or(UserVolume::new())
+                .update(storage.epoch.read(), volume),
+        );
 }
 
 #[storage(read, write)]
