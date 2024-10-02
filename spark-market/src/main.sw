@@ -319,7 +319,6 @@ impl SparkMarket for Contract {
     /// @param slippage The maximum allowable slippage (as a percentage) for the price during the matching process.
     /// @param orders A vector of order IDs representing the existing orders to match against the new order.
     /// @return b256 The unique identifier of the newly created order. If the order is partially matched and canceled (in the case of 'IOC'), the ID corresponds to the canceled order.
-    #[payable]
     #[storage(read, write)]
     fn fulfill_order_many(
         amount: u64,

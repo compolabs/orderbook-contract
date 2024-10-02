@@ -37,7 +37,6 @@ abi SparkMarket {
     #[storage(read, write)]
     fn match_order_many(orders: Vec<b256>);
 
-    #[payable]
     #[storage(read, write)]
     fn fulfill_order_many(
         amount: u64,
