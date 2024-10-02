@@ -621,6 +621,99 @@ mod success_same_asset_type {
 
         Ok(())
     }
+
+    #[tokio::test]
+    async fn match_same_base_asset_type_orders_same_price_with_protocol_fee_same_user_owner_matcher(
+    ) -> anyhow::Result<()> {
+        let defaults = Defaults::default();
+        let (contract, owner, _, _, _, assets) = setup(
+            defaults.base_decimals,
+            defaults.quote_decimals,
+            defaults.price_decimals,
+        )
+        .await?;
+
+        let protocol_fee = vec![
+            ProtocolFee {
+                maker_fee: 10,
+                taker_fee: 15,
+                volume_threshold: 0,
+            },
+            ProtocolFee {
+                maker_fee: 8,
+                taker_fee: 13,
+                volume_threshold: 10000000000,
+            },
+            ProtocolFee {
+                maker_fee: 6,
+                taker_fee: 11,
+                volume_threshold: 50000000000,
+            },
+            ProtocolFee {
+                maker_fee: 4,
+                taker_fee: 9,
+                volume_threshold: 100000000000,
+            },
+            ProtocolFee {
+                maker_fee: 2,
+                taker_fee: 7,
+                volume_threshold: 500000000000,
+            },
+            ProtocolFee {
+                maker_fee: 1,
+                taker_fee: 5,
+                volume_threshold: 1000000000000,
+            },
+        ];
+        let matcher_fee = 1_000;
+        let _ = contract.set_protocol_fee(protocol_fee.clone()).await?;
+        let _ = contract.set_matcher_fee(matcher_fee).await?;
+
+        let to_quote_scale =
+            10_u64.pow(defaults.price_decimals + defaults.base_decimals - defaults.quote_decimals);
+        let price = 70000000000000;
+        let base_amount = 10_u64; // 0.0000001 BTC
+        let deposit_quote_amount = 10_000;
+        let quote_amount = price / to_quote_scale * base_amount;
+        let taker_protocol_fee = quote_amount * 15 / 10_000;
+        let quote_amount = quote_amount + taker_protocol_fee + matcher_fee;
+        contract.deposit(base_amount, assets.base.id).await?;
+        contract
+            .deposit(deposit_quote_amount, assets.quote.id)
+            .await?;
+
+        let id0 = contract
+            .open_order(base_amount, OrderType::Sell, price)
+            .await?
+            .value;
+        let id1 = contract
+            .open_order(base_amount, OrderType::Buy, price)
+            .await?
+            .value;
+
+        let expected_account = create_account(
+            0,
+            deposit_quote_amount - quote_amount,
+            base_amount,
+            quote_amount,
+        );
+
+        assert_eq!(
+            contract.account(owner.identity()).await?.value,
+            expected_account
+        );
+
+        let expected_account = create_account(base_amount, deposit_quote_amount, 0, 0);
+
+        contract.match_order_pair(id0, id1).await?;
+
+        assert_eq!(
+            contract.account(owner.identity()).await?.value,
+            expected_account
+        );
+
+        Ok(())
+    }
 }
 
 mod revert {
