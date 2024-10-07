@@ -30,10 +30,10 @@ impl Hash for AssetType {
     fn hash(self, ref mut state: Hasher) {
         match self {
             Self::Base => {
-                1_u8.hash(state);
+                0_u8.hash(state);
             }
             Self::Quote => {
-                2_u8.hash(state);
+                1_u8.hash(state);
             }
         }
     }

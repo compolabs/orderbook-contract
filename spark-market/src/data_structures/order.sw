@@ -1,9 +1,9 @@
 library;
 
 use ::data_structures::asset_type::AssetType;
-use ::data_structures::math::{HUNDRED_PERCENT, max, min};
 use ::data_structures::order_type::OrderType;
 use ::errors::{AssetError, OrderError};
+use ::math::{HUNDRED_PERCENT, max, min};
 
 use std::hash::{Hash, sha256};
 use std::contract_id::ContractId;
@@ -92,5 +92,9 @@ impl Order {
 
     pub fn matcher_fee_of_amount(self, amount: u64) -> u64 {
         self.matcher_fee * amount / self.amount
+    }
+
+    pub fn is_maker(self, counterparty: Self) -> bool {
+        self.block_height < counterparty.block_height
     }
 }

@@ -19,7 +19,7 @@ mod success {
                 assets.base.decimals,
                 assets.quote.id,
                 assets.quote.decimals,
-                owner.address().into(),
+                Some(owner.address().into()),
                 defaults.price_decimals,
                 0xFAFBFC,
             )

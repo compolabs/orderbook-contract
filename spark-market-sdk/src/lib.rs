@@ -52,7 +52,7 @@ impl SparkMarketContract {
             .unwrap()
             .with_QUOTE_ASSET_DECIMALS(quote_decimals)
             .unwrap()
-            .with_OWNER(owner.address().into())
+            .with_OWNER(State::Initialized(owner.address().into()))
             .unwrap()
             .with_PRICE_DECIMALS(price_decimals)
             .unwrap()
@@ -488,7 +488,8 @@ impl SparkMarketContract {
 
     pub async fn config(
         &self,
-    ) -> anyhow::Result<CallResponse<(AssetId, u32, AssetId, u32, Identity, u32, u32)>> {
+    ) -> anyhow::Result<CallResponse<(AssetId, u32, AssetId, u32, Option<Identity>, u32, u32)>>
+    {
         Ok(self
             .instance
             .methods()

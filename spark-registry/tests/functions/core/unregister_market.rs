@@ -55,7 +55,7 @@ mod revert {
     use spark_market_sdk::SparkMarketContract;
 
     #[tokio::test]
-    #[should_panic(expected = "Unauthorized")]
+    #[should_panic(expected = "NotOwner")]
     async fn reverts_when_non_owner() {
         let (contract, admin, user) = setup().await.unwrap();
         let base_asset = random_asset_id(20);

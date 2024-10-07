@@ -53,6 +53,7 @@ pub struct TradeOrderEvent {
     pub order_buyer: Identity,
     pub s_balance: Account,
     pub b_balance: Account,
+    pub seller_is_maker: bool,
 }
 pub struct WithdrawEvent {
     pub amount: u64,

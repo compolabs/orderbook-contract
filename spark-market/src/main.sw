@@ -1,6 +1,7 @@
 contract;
 
 mod errors;
+mod math;
 mod data_structures;
 mod events;
 mod interface;
@@ -11,7 +12,6 @@ use ::data_structures::{
     balance::Balance,
     limit_type::LimitType,
     match_result::MatchResult,
-    math::*,
     order::Order,
     order_change::OrderChangeInfo,
     order_change::OrderChangeType,
@@ -19,7 +19,7 @@ use ::data_structures::{
     protocol_fee::*,
     user_volume::UserVolume,
 };
-use ::errors::{AccountError, AssetError, AuthError, MatchError, OrderError, ValueError};
+use ::errors::{AccountError, AssetError, AuthError, MatchError, MathError, OrderError, ValueError};
 use ::events::{
     CancelOrderEvent,
     DepositEvent,
@@ -34,6 +34,7 @@ use ::events::{
     WithdrawToMarketEvent,
 };
 use ::interface::{SparkMarket, SparkMarketInfo};
+use ::math::{distance, HUNDRED_PERCENT, lts, min};
 
 use std::{
     asset::transfer,
@@ -41,55 +42,75 @@ use std::{
     block::timestamp as block_timestamp,
     call_frames::msg_asset_id,
     context::msg_amount,
+    error_signals::FAILED_REQUIRE_SIGNAL,
     hash::Hash,
     storage::storage_vec::*,
     tx::tx_id,
 };
 
 use sway_libs::reentrancy::*;
+use standards::src5::{AccessError, SRC5, State};
 
 configurable {
     BASE_ASSET: AssetId = AssetId::zero(),
     BASE_ASSET_DECIMALS: u32 = 9,
     QUOTE_ASSET: AssetId = AssetId::zero(),
     QUOTE_ASSET_DECIMALS: u32 = 9,
-    OWNER: Identity = Identity::Address(Address::zero()),
+    OWNER: State = State::Uninitialized,
     PRICE_DECIMALS: u32 = 9,
     VERSION: u32 = 0,
 }
 
 storage {
-    // Balance of each user
+    /// Balance of each user.
     account: StorageMap<Identity, Account> = StorageMap {},
-    // All of the currently open orders
+    /// All of the currently open orders.
     orders: StorageMap<b256, Order> = StorageMap {},
-    // Internal handling of indexes for user_orders
+    /// Internal handling of indexes for user_orders.
     user_order_indexes: StorageMap<Identity, StorageMap<b256, u64>> = StorageMap {},
-    // Indexing orders by user
+    /// Indexing orders by user.
     user_orders: StorageMap<Identity, StorageVec<b256>> = StorageMap {},
-    // Temporary order change log structure for indexer debug
+    /// Temporary order change log structure for indexer debug.
     order_change_info: StorageMap<b256, StorageVec<OrderChangeInfo>> = StorageMap {},
-    // Protocol fee
+    /// Protocol fee.
     protocol_fee: StorageVec<ProtocolFee> = StorageVec {},
-    // The reward to the matcher for single order match
+    /// The reward to the matcher for single order match.
     matcher_fee: u64 = 0,
-    // User trade volumes
+    /// User trade volumes.
     user_volumes: StorageMap<Identity, UserVolume> = StorageMap {},
-    // Epoch
+    /// Epoch.
     epoch: u64 = 0,
-    // Epoch duration 1 month (86400 * 365.25 / 12)
+    /// Epoch duration 1 month (86400 * 365.25 / 12).
     epoch_duration: u64 = 2629800,
-    // Order height
+    /// Order height.
     order_height: u64 = 0,
-    // Disable storing an order change info
+    /// Disable storing an order change info.
     store_order_change_info: bool = true,
 }
 
+impl SRC5 for Contract {
+    /// Returns the owner.
+    ///
+    /// # Returns
+    ///
+    /// * [State] - Represents the state of ownership for this contract.
+    #[storage(read)]
+    fn owner() -> State {
+        OWNER
+    }
+}
+
 impl SparkMarket for Contract {
-    /// @notice Deposits a specified amount of an asset into the caller's account.
-    /// @notice The function requires that the sender sends a non-zero amount of the specified asset.
-    /// @param None - The function doesn't take any input parameters; it uses context information.
-    /// @return None - The function does not return a value.
+    /// Deposits a specified amount of an asset into the caller's account.
+    ///
+    /// ### Additional Information
+    ///
+    /// The function requires that the sender sends a non-zero amount of the specified asset.
+    ///
+    /// ### Reverts
+    ///
+    /// * When `msg_amount` == 0.
+    /// * When `msg_asset` is neither BASE_ASSET nor QUOTE_ASSET.
     #[payable]
     #[storage(read, write)]
     fn deposit() {
@@ -107,10 +128,20 @@ impl SparkMarket for Contract {
         });
     }
 
-    /// @notice Deposits a specified amount of an asset into the user specified account.
-    /// @notice The function requires that the sender sends a non-zero amount of the specified asset.
-    /// @param user - The deposit's account.
-    /// @return None - The function does not return a value.
+    /// Deposits a specified amount of an asset into the user specified account.
+    ///
+    /// ### Additional Information
+    ///
+    /// The function requires that the sender sends a non-zero amount of the specified asset.
+    ///
+    /// ### Arguments
+    ///
+    /// * `user`: [Identity] - The deposit's account.
+    ///
+    /// ### Reverts
+    ///
+    /// * When `msg_amount` == 0.
+    /// * When `msg_asset` is neither BASE_ASSET nor QUOTE_ASSET.
     #[payable]
     #[storage(read, write)]
     fn deposit_for(user: Identity) {
@@ -129,10 +160,17 @@ impl SparkMarket for Contract {
         });
     }
 
-    /// @notice Withdraws a specified amount of a given asset from the caller's account.
-    /// @param amount The amount of the asset to be withdrawn. Must be greater than zero.
-    /// @param asset_type The type of the asset to be withdrawn.
-    /// @return None - The function does not return a value.
+    /// Withdraws a specified amount of a given asset from the caller's account.
+    ///
+    /// ### Arguments
+    ///
+    /// * `amount`: [u64] - The amount of the asset to be withdrawn. Must be greater than zero.
+    /// * `asset_type`: [AssetType] - The type of the asset to be withdrawn.
+    ///
+    /// ### Reverts
+    ///
+    /// * When `amount` == 0 or `amount` exeeds user unlocked asset amount.
+    /// * When `asset_type` is neither BASE_ASSET nor QUOTE_ASSET.
     #[storage(read, write)]
     fn withdraw(amount: u64, asset_type: AssetType) {
         reentrancy_guard();
@@ -148,12 +186,23 @@ impl SparkMarket for Contract {
         });
     }
 
-    /// @notice Withdraws a specified amount of a given asset from the caller's account.
+    /// Withdraws a specified amount of a given asset from the caller's account.
+    ///
+    /// ### Additional Information
+    ///
     /// Then deposits amount to the another market for caller's account.
-    /// @param amount The amount of the asset to be withdrawn. Must be greater than zero.
-    /// @param asset_type The type of the asset to be withdrawn.
-    /// @param market The market ContractId.
-    /// @return None - The function does not return a value.
+    ///
+    /// ### Arguments
+    ///
+    /// * `amount`: [u64] - The amount of the asset to be withdrawn. Must be greater than zero.
+    /// * `asset_type`: [AssetType] - The type of the asset to be withdrawn.
+    /// * `market`: [ContractId] - The market ContractId.
+    ///
+    /// ### Reverts
+    ///
+    /// * When `amount` == 0 or `amount` exeeds user unlocked asset amount.
+    /// * When `asset_type` is neither BASE_ASSET nor QUOTE_ASSET.
+    /// * When asset_id of `asset_type` is not present in `market` as base or quote asset.
     #[storage(read, write)]
     fn withdraw_to_market(amount: u64, asset_type: AssetType, market: ContractId) {
         reentrancy_guard();
@@ -183,11 +232,22 @@ impl SparkMarket for Contract {
         });
     }
 
-    /// @notice Opens a new order with a specified amount, order type, and price.
-    /// @param amount The amount of the asset to be used in the order.
-    /// @param order_type The type of the order being created (e.g., buy or sell).
-    /// @param price The price at which the order should be placed.
-    /// @return b256 The unique identifier of the newly opened order.
+    /// Opens a new order with a specified amount, order type, and price.
+    ///
+    /// ### Arguments
+    ///
+    /// * `amount`: [u64] - The amount of the asset to be used in the order.
+    /// * `order_type`: [OrderType] - The type of the order being created (e.g., buy or sell).
+    /// * `price`: [u64] - The price at which the order should be placed.
+    ///
+    /// ### Returns
+    ///
+    /// * [b256] - The unique identifier of the newly opened order.
+    ///
+    /// ### Reverts
+    ///
+    /// * When `amount` == 0 or `amount` exeeds user unlocked asset amount.
+    /// * When `price` == 0.
     #[storage(read, write)]
     fn open_order(amount: u64, order_type: OrderType, price: u64) -> b256 {
         reentrancy_guard();
@@ -195,9 +255,16 @@ impl SparkMarket for Contract {
         open_order_internal(amount, order_type, price, storage.matcher_fee.read())
     }
 
-    /// @notice Cancels an existing order with the specified order ID.
-    /// @param order_id The unique identifier of the order to be canceled.
-    /// @return None - The function does not return a value.
+    /// Cancels an existing order with the specified order ID.
+    ///
+    /// ### Arguments
+    ///
+    /// * `order_id`: [b256] - The unique identifier of the order to be canceled.
+    ///
+    /// ### Reverts
+    ///
+    /// * When an order with `order_id` doesn't exist in the storage (not opened/matched/cancelled).
+    /// * When a caller is not an owner of the order.
     #[storage(read, write)]
     fn cancel_order(order_id: b256) {
         reentrancy_guard();
@@ -205,10 +272,18 @@ impl SparkMarket for Contract {
         cancel_order_internal(order_id);
     }
 
-    /// @notice Matches two orders identified by their respective order IDs.
-    /// @param order0_id The unique identifier of the first order to be matched.
-    /// @param order1_id The unique identifier of the second order to be matched.
-    /// @return None - The function does not return a value.
+    /// Matches two orders identified by their respective order IDs.
+    ///
+    /// ### Arguments
+    ///
+    /// * `order0_id`: [b256] - The unique identifier of the first order to be matched.
+    /// * `order1_id`: [b256] - The unique identifier of the second order to be matched.
+    ///
+    /// ### Reverts
+    ///
+    /// * When orders with `order0_id` or `order1_id` not found.
+    /// * When orders are in same direction ([sell, sell] or [buy, buy]).
+    /// * When order buy price lower than order sell price.
     #[storage(read, write)]
     fn match_order_pair(order0_id: b256, order1_id: b256) {
         reentrancy_guard();
@@ -233,9 +308,16 @@ impl SparkMarket for Contract {
         );
     }
 
-    /// @notice Attempts to match multiple orders provided in a list.
-    /// @param orders A vector containing the unique identifiers of the orders to be matched.
-    /// @return None - The function does not return a value.
+    /// Attempts to match multiple orders provided in a list.
+    ///
+    /// ### Arguments
+    ///
+    /// * `orders`: [Vec<b256>] - A vector containing the unique identifiers of the orders to be matched.
+    ///
+    /// ### Reverts
+    ///
+    /// * When order vector length is less than 2.
+    /// * When no any orders can be matched.
     #[storage(read, write)]
     fn match_order_many(orders: Vec<b256>) {
         reentrancy_guard();
@@ -306,19 +388,33 @@ impl SparkMarket for Contract {
         require(full_matched > 0, MatchError::CantMatchMany);
     }
 
-    /// @notice Attempts to fulfill a single order by matching it against multiple orders from a provided list.
-    /// @dev This function creates a new order with the given parameters and iterates through the list of existing orders,
-    ///      attempting to match the new order with existing orders. It handles full and partial matches according to the specified limit type:
+    /// Attempts to fulfill a single order by matching it against multiple orders from a provided list.
+    ///
+    /// ### Additional Information
+    ///
+    /// This function creates a new order with the given parameters and iterates through the list of existing orders,
+    /// attempting to match the new order with existing orders. It handles full and partial matches according to the specified limit type:
     ///      - 'GTC' (Good-Til-Canceled): The order remains active until it is either fully filled or canceled.
     ///      - 'IOC' (Immediate-Or-Cancel): The order can be partially filled immediately, and any unfilled portion is canceled.
     ///      - 'FOK' (Fill-Or-Kill): The order must be fully filled immediately, or the entire transaction fails.
-    /// @param amount The amount of the asset to be fulfilled in the new order.
-    /// @param order_type The type of the order being fulfilled (e.g., buy or sell).
-    /// @param limit_type The limit type for the new order: 'GTC', 'IOC', or 'FOK'.
-    /// @param price The price at which the new order is to be fulfilled.
-    /// @param slippage The maximum allowable slippage (as a percentage) for the price during the matching process.
-    /// @param orders A vector of order IDs representing the existing orders to match against the new order.
-    /// @return b256 The unique identifier of the newly created order. If the order is partially matched and canceled (in the case of 'IOC'), the ID corresponds to the canceled order.
+    ///
+    /// ### Arguments
+    ///
+    /// * `amount`: [u64] - The amount of the asset to be fulfilled in the new order.
+    /// * `order_type`: [OrderType] - The type of the order being fulfilled (e.g., buy or sell).
+    /// * `limit_type`: [LimitType] - The limit type for the new order: 'GTC', 'IOC', or 'FOK'.
+    /// * `price`: [u64] - The price at which the new order is to be fulfilled.
+    /// * `slippage`: [u64] - The maximum allowable slippage (as a percentage) for the price during the matching process.
+    /// * `orders`: [Vec<b256>] - A vector of order IDs representing the existing orders to match against the new order.
+    ///
+    /// ### Returns
+    ///
+    /// * [b256] - The unique identifier of the newly created order. If the order is partially matched and canceled (in the case of 'IOC'), the ID corresponds to the canceled order.
+    ///
+    /// ### Reverts
+    ///
+    /// * When order vector length is less than 1.
+    /// * When no any orders can be fulfilled.
     #[storage(read, write)]
     fn fulfill_order_many(
         amount: u64,
@@ -390,13 +486,24 @@ impl SparkMarket for Contract {
         id0
     }
 
-    /// @notice Sets the current epoch and its duration.
-    /// @dev This function allows the contract owner to set a new epoch and its duration.
-    ///      It ensures that the new epoch is not in the past and that the epoch plus its duration extends beyond the current time.
-    ///      The function is restricted to the contract owner and logs an event after the epoch is set.
-    /// @param epoch The new epoch value to be set. Must be greater than or equal to the current epoch.
-    /// @param epoch_duration The duration of the epoch in seconds. The epoch plus its duration must extend beyond the current time.
-    /// @return None - The function does not return a value.
+    /// Sets the current epoch and its duration.
+    ///
+    /// ### Additional Information
+    ///
+    /// This function allows the contract owner to set a new epoch and its duration.
+    /// It ensures that the new epoch is not in the past and that the epoch plus its duration extends beyond the current time.
+    /// The function is restricted to the contract owner and logs an event after the epoch is set.
+    ///
+    /// ### Arguments
+    ///
+    /// * `epoch`: [u64] - The new epoch value to be set. Must be greater than or equal to the current epoch.
+    /// * `epoch_duration`: [u64] - The duration of the epoch in seconds. The epoch plus its duration must extend beyond the current time.
+    ///
+    /// ### Reverts
+    ///
+    /// * When called by non-owner.
+    /// * When epoch start less than current epoch start.
+    /// * When epoch end less than current time.
     #[storage(write)]
     fn set_epoch(epoch: u64, epoch_duration: u64) {
         only_owner();
@@ -418,13 +525,24 @@ impl SparkMarket for Contract {
         });
     }
 
-    /// @notice Sets the protocol fees based on volume thresholds.
-    /// @dev This function allows the contract owner to set a list of protocol fees.
-    ///      It ensures that the first fee in the list has a volume threshold of zero and that the fees are sorted by volume threshold.
-    ///      The function is restricted to the contract owner and logs an event after the protocol fees are set.
-    /// @param protocol_fee A vector of 'ProtocolFee' structures that define the fee rates and their corresponding volume thresholds.
-    ///                     The first element must have a volume threshold of zero, and the list must be sorted by volume threshold.
-    /// @return None - The function does not return a value.
+    /// Sets the protocol fees based on volume thresholds.
+    ///
+    /// ### Additional Information
+    ///
+    /// This function allows the contract owner to set a list of protocol fees.
+    /// It ensures that the first fee in the list has a volume threshold of zero and that the fees are sorted by volume threshold.
+    /// The function is restricted to the contract owner and logs an event after the protocol fees are set.
+    ///
+    /// ### Arguments
+    ///
+    /// * `protocol_fee`: [Vec<ProtocolFee>] - A vector of 'ProtocolFee' structures that define the fee rates and their corresponding volume thresholds.
+    ///    The first element must have a volume threshold of zero, and the list must be sorted by volume threshold.
+    ///
+    /// ### Reverts
+    ///
+    /// * When called by non-owner.
+    /// * When `protocol_fee` vector length is zero.
+    /// * When `protocol_fee` vector contains non-sorted volumes or volume duplicates.
     #[storage(write)]
     fn set_protocol_fee(protocol_fee: Vec<ProtocolFee>) {
         only_owner();
@@ -440,7 +558,7 @@ impl SparkMarket for Contract {
         }
         require(
             protocol_fee
-                .is_volume_threshold_sorted(),
+                .is_volume_threshold_valid(),
             ValueError::InvalidFeeSorting,
         );
         storage.protocol_fee.store_vec(protocol_fee);
@@ -448,12 +566,22 @@ impl SparkMarket for Contract {
         log(SetProtocolFeeEvent { protocol_fee });
     }
 
-    /// @notice Sets the matcher fee to a specified amount.
-    /// @dev This function allows the contract owner to update the matcher fee.
-    ///      It checks that the new fee amount is different from the current one to avoid redundant updates.
-    ///      The function is restricted to the contract owner and logs an event after the matcher fee is set.
-    /// @param amount The new matcher fee amount to be set. It must be different from the current matcher fee.
-    /// @return None - The function does not return a value.
+    /// Sets the matcher fee to a specified amount.
+    ///
+    /// ### Additional Information
+    ///
+    /// This function allows the contract owner to update the matcher fee.
+    /// It checks that the new fee amount is different from the current one to avoid redundant updates.
+    /// The function is restricted to the contract owner and logs an event after the matcher fee is set.
+    ///
+    /// ### Arguments
+    ///
+    /// * `amount`: [u64] The new matcher fee amount to be set. It must be different from the current matcher fee.
+    ///
+    /// ### Reverts
+    ///
+    /// * When called by non-owner.
+    /// * When `set_matcher_fee` is same as set before.
     #[storage(read, write)]
     fn set_matcher_fee(amount: u64) {
         only_owner();
@@ -468,8 +596,20 @@ impl SparkMarket for Contract {
         log(SetMatcherRewardEvent { amount });
     }
 
-    /// @notice Sets the matcher fee to a specified amount.
-    /// @dev This function allows the contract owner to enable or disable storing of order change info.
+    /// Sets the matcher fee to a specified amount.
+    ///
+    /// ### Additional Information
+    ///
+    /// This function allows the contract owner to enable or disable storing of order change info.
+    ///
+    /// ### Arguments
+    ///
+    /// * `store`: [bool] The new store boolean value.
+    ///
+    /// ### Reverts
+    ///
+    /// * When called by non-owner.
+    /// * When `store` is same as set before.
     #[storage(read, write)]
     fn set_store_order_change_info(store: bool) {
         only_owner();
@@ -486,63 +626,152 @@ impl SparkMarket for Contract {
 }
 
 impl SparkMarketInfo for Contract {
+    /// Get the user account information.
+    ///
+    /// ### Arguments
+    ///
+    /// * `user`: [Identity] The user id to retrive info.
+    ///
+    /// ### Returns
+    ///
+    /// * [Account] - An user account information.
     #[storage(read)]
     fn account(user: Identity) -> Account {
         storage.account.get(user).try_read().unwrap_or(Account::new())
     }
 
+    /// Get the epoch start time and its duration.
+    ///
+    /// ### Returns
+    ///
+    /// * [u64, u64] - An epoch and duration.
     #[storage(read)]
     fn get_epoch() -> (u64, u64) {
         (storage.epoch.read(), storage.epoch_duration.read())
     }
 
+    /// Get the matcher fee in `QUOTE_ASSET` units.
+    ///
+    /// ### Returns
+    ///
+    /// * [u64] - A matcher fee.
     #[storage(read)]
     fn matcher_fee() -> u64 {
         storage.matcher_fee.read()
     }
 
+    /// Get the protocol fee array.
+    ///
+    /// ### Returns
+    ///
+    /// * [Vec<ProtocolFee>] - A protocol fee vector.
     #[storage(read)]
     fn protocol_fee() -> Vec<ProtocolFee> {
         storage.protocol_fee.load_vec()
     }
 
+    /// Get the user protocol fee of its current volume.
+    ///
+    /// ### Arguments
+    ///
+    /// * `user`: [Identity] The user id to retrive info.
+    ///
+    /// ### Returns
+    ///
+    /// * [(u64, u64)] - A maker and taker user fee percent (10_000 == 100%).
     #[storage(read)]
     fn protocol_fee_user(user: Identity) -> (u64, u64) {
         protocol_fee_user(user)
     }
 
+    /// Get the user protocol fee of its current volume and of amount.
+    ///
+    /// ### Arguments
+    ///
+    /// * `amount`: [u64] The amount of the order in `QUOTE_ASSET` units.
+    /// * `user`: [Identity] The user id to retrive info.
+    ///
+    /// ### Returns
+    ///
+    /// * [(u64, u64)] - A maker and taket user fee amount of `amount`.
     #[storage(read)]
     fn protocol_fee_user_amount(amount: u64, user: Identity) -> (u64, u64) {
         protocol_fee_user_amount(amount, user)
     }
 
+    /// Get the order info.
+    ///
+    /// ### Arguments
+    ///
+    /// * `order`: [b256] The order_id.
+    ///
+    /// ### Returns
+    ///
+    /// * [Option<Order>] - The Some<Order> struct of found by id otherwise None.
     #[storage(read)]
     fn order(order: b256) -> Option<Order> {
         storage.orders.get(order).try_read()
     }
 
+    /// Get user order list.
+    ///
+    /// ### Arguments
+    ///
+    /// * `user`: [Identity] The user identity.
+    ///
+    /// ### Returns
+    ///
+    /// * [Vec<b256>] - The vector of user order ids.
     #[storage(read)]
     fn user_orders(user: Identity) -> Vec<b256> {
         storage.user_orders.get(user).load_vec()
     }
 
+    /// Get order change list.
+    ///
+    /// ### Arguments
+    ///
+    /// * `order_id`: [b256] The order id.
+    ///
+    /// ### Returns
+    ///
+    /// * [Vec<OrderChangeInfo>] - The vector of order change info.
     #[storage(read)]
     fn order_change_info(order_id: b256) -> Vec<OrderChangeInfo> {
         storage.order_change_info.get(order_id).load_vec()
     }
 
-    fn config() -> (AssetId, u32, AssetId, u32, Identity, u32, u32) {
+    /// Get contract configurables.
+    ///
+    /// ### Returns
+    ///
+    /// * [AssetId, u32, AssetId, u32, Option<Identity>, u32, u32)] - The BASE_ASSET, BASE_ASSET_DECIMALS,
+    ///     QUOTE_ASSET, QUOTE_ASSET_DECIMALS, OWNER.owner(), PRICE_DECIMALS, VERSION.
+    fn config() -> (AssetId, u32, AssetId, u32, Option<Identity>, u32, u32) {
         (
             BASE_ASSET,
             BASE_ASSET_DECIMALS,
             QUOTE_ASSET,
             QUOTE_ASSET_DECIMALS,
-            OWNER,
+            OWNER.owner(),
             PRICE_DECIMALS,
             VERSION,
         )
     }
 
+    /// Generate order id.
+    ///
+    /// ### Arguments
+    ///
+    /// * `order_type`: [OrderType] The order type.
+    /// * `owner`: [Identity] The order owner.
+    /// * `price`: [u64] The order price.
+    /// * `block_height`: [u32] The order submission block number.
+    /// * `order_height`: [u64] The order height (auto-incremented number).
+    ///
+    /// ### Returns
+    ///
+    /// * [b256] - The order id.
     fn order_id(
         order_type: OrderType,
         owner: Identity,
@@ -569,6 +798,11 @@ impl SparkMarketInfo for Contract {
         ).id()
     }
 
+    /// Get order change info flag.
+    ///
+    /// ### Returns
+    ///
+    /// * [bool] - The True if order change info stores otherwise false.
     #[storage(read)]
     fn store_order_change_info() -> bool {
         storage.store_order_change_info.read()
@@ -576,7 +810,21 @@ impl SparkMarketInfo for Contract {
 }
 
 fn only_owner() {
-    require(msg_sender().unwrap() == OWNER, AuthError::Unauthorized);
+    require(
+        OWNER
+            .is_initialized() && msg_sender()
+            .unwrap() == OWNER
+            .owner()
+            .unwrap(),
+        AccessError::NotOwner,
+    );
+}
+
+fn owner_identity() -> Identity {
+    match OWNER {
+        State::Initialized(identity) => identity,
+        _ => Identity::Address(Address::zero()),
+    }
 }
 
 fn get_asset_type(asset_id: AssetId) -> AssetType {
@@ -585,18 +833,14 @@ fn get_asset_type(asset_id: AssetId) -> AssetType {
     } else if asset_id == QUOTE_ASSET {
         AssetType::Quote
     } else {
-        require(false, AssetError::InvalidAsset);
-        AssetType::Quote
+        log(AssetError::InvalidAsset);
+        revert(FAILED_REQUIRE_SIGNAL);
     }
 }
 fn get_asset_id(asset_type: AssetType) -> AssetId {
-    if asset_type == AssetType::Base {
-        BASE_ASSET
-    } else if asset_type == AssetType::Quote {
-        QUOTE_ASSET
-    } else {
-        require(false, AssetError::InvalidAsset);
-        QUOTE_ASSET
+    match asset_type {
+        AssetType::Base => BASE_ASSET,
+        AssetType::Quote => QUOTE_ASSET,
     }
 }
 
@@ -606,10 +850,17 @@ fn quote_of_base_amount(amount: u64, price: u64) -> u64 {
 
 fn convert_asset_amount(amount: u64, price: u64, base_to_quote: bool) -> u64 {
     let (op1, op2) = (price, 10_u64.pow(BASE_ASSET_DECIMALS + PRICE_DECIMALS - QUOTE_ASSET_DECIMALS));
-    if base_to_quote {
+    let mul_div = if base_to_quote {
         amount.mul_div(op1, op2)
     } else {
         amount.mul_div(op2, op1)
+    };
+    match mul_div {
+        Ok(result) => result,
+        Err(_) => {
+            log(MathError::Overflow);
+            revert(FAILED_REQUIRE_SIGNAL);
+        }
     }
 }
 
@@ -697,8 +948,6 @@ fn open_order_internal(
     price: u64,
     matcher_fee: u64,
 ) -> b256 {
-    require(amount > 0, ValueError::InvalidAmount);
-
     let user = msg_sender().unwrap();
     let (protocol_maker_fee, protocol_taker_fee) = protocol_fee_user(user);
 
@@ -979,37 +1228,39 @@ fn execute_trade(
         }
     }
 
+    let owner = owner_identity();
+
     // Handle the protocol fee related to the seller
     if s_order_protocol_fee > 0 {
         // If the seller is the protocol owner
-        if s_order.owner == OWNER {
+        if s_order.owner == owner {
             let mut account = storage.account.get(s_order.owner).read();
             account.unlock_amount(s_order_protocol_fee, !asset_type);
             storage.account.insert(s_order.owner, account);
         } else {
             // If the protocol owner is a different entity, transfer the protocol fee from seller to protocol owner
             let mut s_account = storage.account.get(s_order.owner).read();
-            let mut o_account = storage.account.get(OWNER).try_read().unwrap_or(Account::new());
+            let mut o_account = storage.account.get(owner).try_read().unwrap_or(Account::new());
             s_account.transfer_locked_amount(o_account, s_order_protocol_fee, !asset_type);
             storage.account.insert(s_order.owner, s_account);
-            storage.account.insert(OWNER, o_account);
+            storage.account.insert(owner, o_account);
         }
     }
 
     // Handle the protocol fee related to the buyer
     if b_order_protocol_fee > 0 {
         // If the buyer is the protocol owner
-        if b_order.owner == OWNER {
+        if b_order.owner == owner {
             let mut account = storage.account.get(b_order.owner).read();
             account.unlock_amount(b_order_protocol_fee, !asset_type);
             storage.account.insert(b_order.owner, account);
         } else {
             // If the protocol owner is a different entity, transfer the protocol fee from buyer to protocol owner
             let mut b_account = storage.account.get(b_order.owner).read();
-            let mut o_account = storage.account.get(OWNER).try_read().unwrap_or(Account::new());
+            let mut o_account = storage.account.get(owner).try_read().unwrap_or(Account::new());
             b_account.transfer_locked_amount(o_account, b_order_protocol_fee, !asset_type);
             storage.account.insert(b_order.owner, b_account);
-            storage.account.insert(OWNER, o_account);
+            storage.account.insert(owner, o_account);
         }
     }
     (s_trade_volume, s_order_matcher_fee, b_order_matcher_fee)
@@ -1129,14 +1380,14 @@ fn update_order_storage(
 
 #[storage(read, write)]
 fn emit_match_events(
-    id0: b256,
-    order0: Order,
-    limit0: LimitType,
-    amount0: u64,
-    id1: b256,
-    order1: Order,
-    limit1: LimitType,
-    amount1: u64,
+    s_id: b256,
+    s_order: Order,
+    s_limit: LimitType,
+    s_amount: u64,
+    b_id: b256,
+    b_order: Order,
+    b_limit: LimitType,
+    b_amount: u64,
     matcher: Identity,
     match_price: u64,
     s_account: Account,
@@ -1144,49 +1395,50 @@ fn emit_match_events(
 ) {
     // Emit events for the first order
     store_order_change_info(
-        id0,
+        s_id,
         OrderChangeInfo::new(
             OrderChangeType::OrderMatched,
             block_height(),
             matcher,
             tx_id(),
-            order0
+            s_order
                 .amount,
-            order0
-                .amount - amount0,
+            s_order
+                .amount - s_amount,
         ),
     );
 
     // Emit events for the second order
     store_order_change_info(
-        id1,
+        b_id,
         OrderChangeInfo::new(
             OrderChangeType::OrderMatched,
             block_height(),
             matcher,
             tx_id(),
-            order1
+            b_order
                 .amount,
-            order1
-                .amount - amount1,
+            b_order
+                .amount - b_amount,
         ),
     );
 
     // Emit event for the trade execution
     log(TradeOrderEvent {
-        base_sell_order_id: id0,
-        base_buy_order_id: id1,
-        base_sell_order_limit: limit0,
-        base_buy_order_limit: limit1,
+        base_sell_order_id: s_id,
+        base_buy_order_id: b_id,
+        base_sell_order_limit: s_limit,
+        base_buy_order_limit: b_limit,
         order_matcher: matcher,
-        trade_size: amount0,
+        trade_size: s_amount,
         trade_price: match_price,
         block_height: block_height(),
         tx_id: tx_id(),
-        order_seller: order0.owner,
-        order_buyer: order1.owner,
+        order_seller: s_order.owner,
+        order_buyer: b_order.owner,
         s_balance: s_account,
         b_balance: b_account,
+        seller_is_maker: s_order.is_maker(b_order),
     });
 }
 
