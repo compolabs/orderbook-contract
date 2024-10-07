@@ -268,7 +268,7 @@ Retrieves contract configurables
 
 `self` The SparkMarketContract instance
 
-Returns base / quote aset ids and them decimals, owner identity, price decimals and version.
+Returns base / quote asset ids and its decimals, owner identity, price decimals and version.
 
 
 ### Account Info

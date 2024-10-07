@@ -780,10 +780,6 @@ impl SparkMarketInfo for Contract {
         order_height: u64,
     ) -> b256 {
         let asset_type = AssetType::Base;
-        require(
-            asset_type == AssetType::Base || asset_type == AssetType::Quote,
-            AssetError::InvalidAsset,
-        );
         Order::new(
             1,
             asset_type,
