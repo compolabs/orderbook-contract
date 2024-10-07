@@ -6,6 +6,7 @@ source = "path+from-root-C485BFF5467B6B6C"
 name = "spark-market"
 source = "member"
 dependencies = [
+    "standards git+https://github.com/FuelLabs/sway-standards?tag=v0.6.1#792639cdf391565e6e6a02482ea8a46d9604a6f5",
     "std",
     "sway_libs",
 ]
@@ -13,11 +14,19 @@ dependencies = [
 [[package]]
 name = "spark-registry"
 source = "member"
-dependencies = ["std"]
+dependencies = [
+    "standards git+https://github.com/FuelLabs/sway-standards?tag=v0.6.1#792639cdf391565e6e6a02482ea8a46d9604a6f5",
+    "std",
+]
 
 [[package]]
 name = "standards"
 source = "git+https://github.com/FuelLabs/sway-standards?tag=v0.6.0#65e09f95ea8b9476b171a66c8a47108f352fa32c"
+dependencies = ["std"]
+
+[[package]]
+name = "standards"
+source = "git+https://github.com/FuelLabs/sway-standards?tag=v0.6.1#792639cdf391565e6e6a02482ea8a46d9604a6f5"
 dependencies = ["std"]
 
 [[package]]
@@ -27,8 +36,8 @@ dependencies = ["core"]
 
 [[package]]
 name = "sway_libs"
-source = "git+https://github.com/FuelLabs/sway-libs?branch=master#50107770ff892d0d997c33dd469b6913b3d49fec"
+source = "git+https://github.com/FuelLabs/sway-libs?tag=v0.24.0#e19f96f85ae12426d20adc176b70aa38fd9a2a5b"
 dependencies = [
-    "standards",
+    "standards git+https://github.com/FuelLabs/sway-standards?tag=v0.6.0#65e09f95ea8b9476b171a66c8a47108f352fa32c",
     "std",
 ]

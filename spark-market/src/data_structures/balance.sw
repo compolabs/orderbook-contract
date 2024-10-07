@@ -38,7 +38,7 @@ impl Balance {
                     AccountError::InsufficientBalance((self.quote, amount, false)),
                 );
                 self.quote -= amount;
-            }
+            },
         };
     }
 }

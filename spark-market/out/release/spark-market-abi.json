@@ -8,8 +8,8 @@
       "concreteTypeId": "2e38e77b22c314a449e91fafed92a43826ac6aa403ae6a8acb6cf58239fbaf5d"
     },
     {
-      "type": "(struct std::asset_id::AssetId, u32, struct std::asset_id::AssetId, u32, enum std::identity::Identity, u32, u32)",
-      "concreteTypeId": "2af57fa7b0f9eb46500ad6f44107b87602c8b010f49ac4c18ebef66289467acb",
+      "type": "(struct std::asset_id::AssetId, u32, struct std::asset_id::AssetId, u32, enum std::option::Option<enum std::identity::Identity>, u32, u32)",
+      "concreteTypeId": "3e7a6a4509a70e0325e037e535f071faad89d32fab90574bdc42fdd96ebba3d5",
       "metadataTypeId": 4
     },
     {
@@ -61,24 +61,39 @@
       "metadataTypeId": 12
     },
     {
+      "type": "enum errors::MathError",
+      "concreteTypeId": "60f84769b56edc1bfc54f08c4393c6d30612549f4952a1b7d4e08b1eeced9039",
+      "metadataTypeId": 13
+    },
+    {
       "type": "enum errors::OrderError",
       "concreteTypeId": "0ddf63471f7b27c54c55fd3d75fe37594fb1b07a496dba57eb8fc56497e9d9c1",
-      "metadataTypeId": 13
+      "metadataTypeId": 14
     },
     {
       "type": "enum errors::ValueError",
       "concreteTypeId": "380bd4d6b96f9eaa3a3d8db8bb9753399443715fb3fd65460cc28d6ab4d3659b",
-      "metadataTypeId": 14
+      "metadataTypeId": 15
+    },
+    {
+      "type": "enum standards::src5::AccessError",
+      "concreteTypeId": "3f702ea3351c9c1ece2b84048006c8034a24cbc2bad2e740d0412b4172951d3d",
+      "metadataTypeId": 16
+    },
+    {
+      "type": "enum standards::src5::State",
+      "concreteTypeId": "192bc7098e2fe60635a9918afb563e4e5419d386da2bdbf0d716b4bc8549802c",
+      "metadataTypeId": 17
     },
     {
       "type": "enum std::identity::Identity",
       "concreteTypeId": "ab7cd04e05be58e3fc15d424c2c4a57f824a2a2d97d67252440a3925ebdc1335",
-      "metadataTypeId": 15
+      "metadataTypeId": 18
     },
     {
       "type": "enum std::option::Option<struct data_structures::order::Order>",
       "concreteTypeId": "af7345d115f618be19cd709b6734bdd5fd52bb0c27617a74a9564e4cea947d01",
-      "metadataTypeId": 16,
+      "metadataTypeId": 19,
       "typeArguments": [
         "d0d7221d2233a12a685667b843d8aab0c0b82407fc47b719c07aeb77dfcaed6a"
       ]
@@ -86,97 +101,97 @@
     {
       "type": "enum sway_libs::reentrancy::errors::ReentrancyError",
       "concreteTypeId": "4d216c57b3357523323f59401c7355785b41bdf832f6e1106272186b94797038",
-      "metadataTypeId": 17
+      "metadataTypeId": 20
     },
     {
       "type": "struct data_structures::account::Account",
       "concreteTypeId": "10410fea5a6cba4a6b6079f9d804c0daf23980a360d009048ecb36118036c28e",
-      "metadataTypeId": 20
+      "metadataTypeId": 23
     },
     {
       "type": "struct data_structures::order::Order",
       "concreteTypeId": "d0d7221d2233a12a685667b843d8aab0c0b82407fc47b719c07aeb77dfcaed6a",
-      "metadataTypeId": 22
+      "metadataTypeId": 25
     },
     {
       "type": "struct data_structures::order_change::OrderChangeInfo",
       "concreteTypeId": "29bc325768e93baaa35ac6e466461baa03f97fb67a0a328521afacca7d3bf987",
-      "metadataTypeId": 23
+      "metadataTypeId": 26
     },
     {
       "type": "struct data_structures::protocol_fee::ProtocolFee",
       "concreteTypeId": "009d87c3f03cbc1373d98411934ee7648a3922e9adcbafd190ce4d1618b6e5a2",
-      "metadataTypeId": 24
+      "metadataTypeId": 27
     },
     {
       "type": "struct events::CancelOrderEvent",
       "concreteTypeId": "cbadef79adf1e6906cac7404759d7d55a9eaa9f1e6d479ecbbfa76f727486081",
-      "metadataTypeId": 25
+      "metadataTypeId": 28
     },
     {
       "type": "struct events::DepositEvent",
       "concreteTypeId": "aeb9b947da259c606e2c25be1150e2150f609fe5f2ec593c9a7ebb771e4e7065",
-      "metadataTypeId": 26
+      "metadataTypeId": 29
     },
     {
       "type": "struct events::DepositForEvent",
       "concreteTypeId": "a816e8c32cd06727c61df456d4cf8d2fcb9bef4cd1381a945ff36176f8132a6a",
-      "metadataTypeId": 27
+      "metadataTypeId": 30
     },
     {
       "type": "struct events::OpenOrderEvent",
       "concreteTypeId": "6c6a47ac80e7110dd8666e169f0fffe2d1378df88cf8960bb9dfe14a84ac3495",
-      "metadataTypeId": 28
+      "metadataTypeId": 31
     },
     {
       "type": "struct events::SetEpochEvent",
       "concreteTypeId": "4fb77907614eb05d769b487a16469bfaac5278323bc54bddccd790cc4e00428e",
-      "metadataTypeId": 29
+      "metadataTypeId": 32
     },
     {
       "type": "struct events::SetMatcherRewardEvent",
       "concreteTypeId": "090412be710caebee4e019479841ea0100912819a3e1c52ba39b1faa7b778c83",
-      "metadataTypeId": 30
+      "metadataTypeId": 33
     },
     {
       "type": "struct events::SetProtocolFeeEvent",
       "concreteTypeId": "957dde23e9fbd44b1bada18eae8b84f6d868be2fe55b721ce24b54cdcdafda79",
-      "metadataTypeId": 31
+      "metadataTypeId": 34
     },
     {
       "type": "struct events::SetStoreOrderChangeInfoEvent",
       "concreteTypeId": "34a2b5822332a827c494d0a8cfc543cb5e50d6e02ac23d9886c94f9a7572d18c",
-      "metadataTypeId": 32
+      "metadataTypeId": 35
     },
     {
       "type": "struct events::TradeOrderEvent",
       "concreteTypeId": "fe08cb2392b6eb92ee6b7868e2877ca0630f87f543acc63897f7d806229379d5",
-      "metadataTypeId": 33
+      "metadataTypeId": 36
     },
     {
       "type": "struct events::WithdrawEvent",
       "concreteTypeId": "9787083b0003f388ec6bf30609ff6a10c76fada67314a162841a445b07a17168",
-      "metadataTypeId": 34
+      "metadataTypeId": 37
     },
     {
       "type": "struct events::WithdrawToMarketEvent",
       "concreteTypeId": "ae2f6315bc0c35670e520b82df972bee3ba559d15fb2ef3864cfe265f3802fb6",
-      "metadataTypeId": 35
+      "metadataTypeId": 38
     },
     {
       "type": "struct std::asset_id::AssetId",
       "concreteTypeId": "c0710b6731b1dd59799cf6bef33eee3b3b04a2e40e80a0724090215bbf2ca974",
-      "metadataTypeId": 37
+      "metadataTypeId": 40
     },
     {
       "type": "struct std::contract_id::ContractId",
       "concreteTypeId": "29c10735d33b5159f0c71ee1dbd17b36a3e69e41f00fab0d42e1bd9f428d8a54",
-      "metadataTypeId": 38
+      "metadataTypeId": 41
     },
     {
       "type": "struct std::vec::Vec<b256>",
       "concreteTypeId": "32559685d0c9845f059bf9d472a0a38cf77d36c23dfcffe5489e86a65cdd9198",
-      "metadataTypeId": 40,
+      "metadataTypeId": 43,
       "typeArguments": [
         "7c5ee1cecf5f8eacd1284feb5f0bf2bdea533a51e2f0c9aabe9236d335989f3b"
       ]
@@ -184,7 +199,7 @@
     {
       "type": "struct std::vec::Vec<struct data_structures::order_change::OrderChangeInfo>",
       "concreteTypeId": "742fbfc9dbc675c4bb942c1c3d87581f5da5c5a8b0fc21e0d1f8d873328d5e5a",
-      "metadataTypeId": 40,
+      "metadataTypeId": 43,
       "typeArguments": [
         "29bc325768e93baaa35ac6e466461baa03f97fb67a0a328521afacca7d3bf987"
       ]
@@ -192,7 +207,7 @@
     {
       "type": "struct std::vec::Vec<struct data_structures::protocol_fee::ProtocolFee>",
       "concreteTypeId": "4b03eb3d5d8751745804ec649d33055ca43456407d3991177f51a1397cd4da50",
-      "metadataTypeId": 40,
+      "metadataTypeId": 43,
       "typeArguments": [
         "009d87c3f03cbc1373d98411934ee7648a3922e9adcbafd190ce4d1618b6e5a2"
       ]
@@ -281,7 +296,7 @@
       "components": [
         {
           "name": "__tuple_element",
-          "typeId": 37
+          "typeId": 40
         },
         {
           "name": "__tuple_element",
@@ -289,7 +304,7 @@
         },
         {
           "name": "__tuple_element",
-          "typeId": 37
+          "typeId": 40
         },
         {
           "name": "__tuple_element",
@@ -297,7 +312,13 @@
         },
         {
           "name": "__tuple_element",
-          "typeId": 15
+          "typeId": 19,
+          "typeArguments": [
+            {
+              "name": "",
+              "typeId": 18
+            }
+          ]
         },
         {
           "name": "__tuple_element",
@@ -434,8 +455,18 @@
       ]
     },
     {
-      "type": "enum errors::OrderError",
+      "type": "enum errors::MathError",
       "metadataTypeId": 13,
+      "components": [
+        {
+          "name": "Overflow",
+          "typeId": "2e38e77b22c314a449e91fafed92a43826ac6aa403ae6a8acb6cf58239fbaf5d"
+        }
+      ]
+    },
+    {
+      "type": "enum errors::OrderError",
+      "metadataTypeId": 14,
       "components": [
         {
           "name": "OrderDuplicate",
@@ -473,7 +504,7 @@
     },
     {
       "type": "enum errors::ValueError",
-      "metadataTypeId": 14,
+      "metadataTypeId": 15,
       "components": [
         {
           "name": "InvalidAmount",
@@ -514,22 +545,50 @@
       ]
     },
     {
+      "type": "enum standards::src5::AccessError",
+      "metadataTypeId": 16,
+      "components": [
+        {
+          "name": "NotOwner",
+          "typeId": "2e38e77b22c314a449e91fafed92a43826ac6aa403ae6a8acb6cf58239fbaf5d"
+        }
+      ]
+    },
+    {
+      "type": "enum standards::src5::State",
+      "metadataTypeId": 17,
+      "components": [
+        {
+          "name": "Uninitialized",
+          "typeId": "2e38e77b22c314a449e91fafed92a43826ac6aa403ae6a8acb6cf58239fbaf5d"
+        },
+        {
+          "name": "Initialized",
+          "typeId": 18
+        },
+        {
+          "name": "Revoked",
+          "typeId": "2e38e77b22c314a449e91fafed92a43826ac6aa403ae6a8acb6cf58239fbaf5d"
+        }
+      ]
+    },
+    {
       "type": "enum std::identity::Identity",
-      "metadataTypeId": 15,
+      "metadataTypeId": 18,
       "components": [
         {
           "name": "Address",
-          "typeId": 36
+          "typeId": 39
         },
         {
           "name": "ContractId",
-          "typeId": 38
+          "typeId": 41
         }
       ]
     },
     {
       "type": "enum std::option::Option",
-      "metadataTypeId": 16,
+      "metadataTypeId": 19,
       "components": [
         {
           "name": "None",
@@ -537,16 +596,16 @@
         },
         {
           "name": "Some",
-          "typeId": 18
+          "typeId": 21
         }
       ],
       "typeParameters": [
-        18
+        21
       ]
     },
     {
       "type": "enum sway_libs::reentrancy::errors::ReentrancyError",
-      "metadataTypeId": 17,
+      "metadataTypeId": 20,
       "components": [
         {
           "name": "NonReentrant",
@@ -556,29 +615,29 @@
     },
     {
       "type": "generic T",
-      "metadataTypeId": 18
+      "metadataTypeId": 21
     },
     {
       "type": "raw untyped ptr",
-      "metadataTypeId": 19
+      "metadataTypeId": 22
     },
     {
       "type": "struct data_structures::account::Account",
-      "metadataTypeId": 20,
+      "metadataTypeId": 23,
       "components": [
         {
           "name": "liquid",
-          "typeId": 21
+          "typeId": 24
         },
         {
           "name": "locked",
-          "typeId": 21
+          "typeId": 24
         }
       ]
     },
     {
       "type": "struct data_structures::balance::Balance",
-      "metadataTypeId": 21,
+      "metadataTypeId": 24,
       "components": [
         {
           "name": "base",
@@ -592,7 +651,7 @@
     },
     {
       "type": "struct data_structures::order::Order",
-      "metadataTypeId": 22,
+      "metadataTypeId": 25,
       "components": [
         {
           "name": "amount",
@@ -608,7 +667,7 @@
         },
         {
           "name": "owner",
-          "typeId": 15
+          "typeId": 18
         },
         {
           "name": "price",
@@ -638,7 +697,7 @@
     },
     {
       "type": "struct data_structures::order_change::OrderChangeInfo",
-      "metadataTypeId": 23,
+      "metadataTypeId": 26,
       "components": [
         {
           "name": "change_type",
@@ -650,7 +709,7 @@
         },
         {
           "name": "sender",
-          "typeId": 15
+          "typeId": 18
         },
         {
           "name": "tx_id",
@@ -668,7 +727,7 @@
     },
     {
       "type": "struct data_structures::protocol_fee::ProtocolFee",
-      "metadataTypeId": 24,
+      "metadataTypeId": 27,
       "components": [
         {
           "name": "maker_fee",
@@ -686,7 +745,7 @@
     },
     {
       "type": "struct events::CancelOrderEvent",
-      "metadataTypeId": 25,
+      "metadataTypeId": 28,
       "components": [
         {
           "name": "order_id",
@@ -694,17 +753,17 @@
         },
         {
           "name": "user",
-          "typeId": 15
+          "typeId": 18
         },
         {
           "name": "balance",
-          "typeId": 20
+          "typeId": 23
         }
       ]
     },
     {
       "type": "struct events::DepositEvent",
-      "metadataTypeId": 26,
+      "metadataTypeId": 29,
       "components": [
         {
           "name": "amount",
@@ -712,21 +771,21 @@
         },
         {
           "name": "asset",
-          "typeId": 37
+          "typeId": 40
         },
         {
           "name": "user",
-          "typeId": 15
+          "typeId": 18
         },
         {
           "name": "account",
-          "typeId": 20
+          "typeId": 23
         }
       ]
     },
     {
       "type": "struct events::DepositForEvent",
-      "metadataTypeId": 27,
+      "metadataTypeId": 30,
       "components": [
         {
           "name": "amount",
@@ -734,25 +793,25 @@
         },
         {
           "name": "asset",
-          "typeId": 37
+          "typeId": 40
         },
         {
           "name": "user",
-          "typeId": 15
+          "typeId": 18
         },
         {
           "name": "account",
-          "typeId": 20
+          "typeId": 23
         },
         {
           "name": "caller",
-          "typeId": 15
+          "typeId": 18
         }
       ]
     },
     {
       "type": "struct events::OpenOrderEvent",
-      "metadataTypeId": 28,
+      "metadataTypeId": 31,
       "components": [
         {
           "name": "amount",
@@ -760,7 +819,7 @@
         },
         {
           "name": "asset",
-          "typeId": 37
+          "typeId": 40
         },
         {
           "name": "order_type",
@@ -776,17 +835,17 @@
         },
         {
           "name": "user",
-          "typeId": 15
+          "typeId": 18
         },
         {
           "name": "balance",
-          "typeId": 20
+          "typeId": 23
         }
       ]
     },
     {
       "type": "struct events::SetEpochEvent",
-      "metadataTypeId": 29,
+      "metadataTypeId": 32,
       "components": [
         {
           "name": "epoch",
@@ -800,7 +859,7 @@
     },
     {
       "type": "struct events::SetMatcherRewardEvent",
-      "metadataTypeId": 30,
+      "metadataTypeId": 33,
       "components": [
         {
           "name": "amount",
@@ -810,15 +869,15 @@
     },
     {
       "type": "struct events::SetProtocolFeeEvent",
-      "metadataTypeId": 31,
+      "metadataTypeId": 34,
       "components": [
         {
           "name": "protocol_fee",
-          "typeId": 40,
+          "typeId": 43,
           "typeArguments": [
             {
               "name": "",
-              "typeId": 24
+              "typeId": 27
             }
           ]
         }
@@ -826,7 +885,7 @@
     },
     {
       "type": "struct events::SetStoreOrderChangeInfoEvent",
-      "metadataTypeId": 32,
+      "metadataTypeId": 35,
       "components": [
         {
           "name": "store",
@@ -836,7 +895,7 @@
     },
     {
       "type": "struct events::TradeOrderEvent",
-      "metadataTypeId": 33,
+      "metadataTypeId": 36,
       "components": [
         {
           "name": "base_sell_order_id",
@@ -856,7 +915,7 @@
         },
         {
           "name": "order_matcher",
-          "typeId": 15
+          "typeId": 18
         },
         {
           "name": "trade_size",
@@ -876,25 +935,29 @@
         },
         {
           "name": "order_seller",
-          "typeId": 15
+          "typeId": 18
         },
         {
           "name": "order_buyer",
-          "typeId": 15
+          "typeId": 18
         },
         {
           "name": "s_balance",
-          "typeId": 20
+          "typeId": 23
         },
         {
           "name": "b_balance",
-          "typeId": 20
+          "typeId": 23
+        },
+        {
+          "name": "seller_is_maker",
+          "typeId": "b760f44fa5965c2474a3b471467a22c43185152129295af588b022ae50b50903"
         }
       ]
     },
     {
       "type": "struct events::WithdrawEvent",
-      "metadataTypeId": 34,
+      "metadataTypeId": 37,
       "components": [
         {
           "name": "amount",
@@ -902,21 +965,21 @@
         },
         {
           "name": "asset",
-          "typeId": 37
+          "typeId": 40
         },
         {
           "name": "user",
-          "typeId": 15
+          "typeId": 18
         },
         {
           "name": "account",
-          "typeId": 20
+          "typeId": 23
         }
       ]
     },
     {
       "type": "struct events::WithdrawToMarketEvent",
-      "metadataTypeId": 35,
+      "metadataTypeId": 38,
       "components": [
         {
           "name": "amount",
@@ -924,25 +987,25 @@
         },
         {
           "name": "asset",
-          "typeId": 37
+          "typeId": 40
         },
         {
           "name": "user",
-          "typeId": 15
+          "typeId": 18
         },
         {
           "name": "account",
-          "typeId": 20
+          "typeId": 23
         },
         {
           "name": "market",
-          "typeId": 38
+          "typeId": 41
         }
       ]
     },
     {
       "type": "struct std::address::Address",
-      "metadataTypeId": 36,
+      "metadataTypeId": 39,
       "components": [
         {
           "name": "bits",
@@ -952,7 +1015,7 @@
     },
     {
       "type": "struct std::asset_id::AssetId",
-      "metadataTypeId": 37,
+      "metadataTypeId": 40,
       "components": [
         {
           "name": "bits",
@@ -962,7 +1025,7 @@
     },
     {
       "type": "struct std::contract_id::ContractId",
-      "metadataTypeId": 38,
+      "metadataTypeId": 41,
       "components": [
         {
           "name": "bits",
@@ -972,11 +1035,11 @@
     },
     {
       "type": "struct std::vec::RawVec",
-      "metadataTypeId": 39,
+      "metadataTypeId": 42,
       "components": [
         {
           "name": "ptr",
-          "typeId": 19
+          "typeId": 22
         },
         {
           "name": "cap",
@@ -984,20 +1047,20 @@
         }
       ],
       "typeParameters": [
-        18
+        21
       ]
     },
     {
       "type": "struct std::vec::Vec",
-      "metadataTypeId": 40,
+      "metadataTypeId": 43,
       "components": [
         {
           "name": "buf",
-          "typeId": 39,
+          "typeId": 42,
           "typeArguments": [
             {
               "name": "",
-              "typeId": 18
+              "typeId": 21
             }
           ]
         },
@@ -1007,11 +1070,54 @@
         }
       ],
       "typeParameters": [
-        18
+        21
       ]
     }
   ],
   "functions": [
+    {
+      "inputs": [],
+      "name": "owner",
+      "output": "192bc7098e2fe60635a9918afb563e4e5419d386da2bdbf0d716b4bc8549802c",
+      "attributes": [
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " Returns the owner."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " # Returns"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * [State] - Represents the state of ownership for this contract."
+          ]
+        },
+        {
+          "name": "storage",
+          "arguments": [
+            "read"
+          ]
+        }
+      ]
+    },
     {
       "inputs": [
         {
@@ -1025,19 +1131,61 @@
         {
           "name": "doc-comment",
           "arguments": [
-            " @notice Cancels an existing order with the specified order ID."
+            " Cancels an existing order with the specified order ID."
           ]
         },
         {
           "name": "doc-comment",
           "arguments": [
-            " @param order_id The unique identifier of the order to be canceled."
+            ""
           ]
         },
         {
           "name": "doc-comment",
           "arguments": [
-            " @return None - The function does not return a value."
+            " ### Arguments"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * `order_id`: [b256] - The unique identifier of the order to be canceled."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " ### Reverts"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * When an order with `order_id` doesn't exist in the storage (not opened/matched/cancelled)."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * When a caller is not an owner of the order."
           ]
         },
         {
@@ -1057,25 +1205,61 @@
         {
           "name": "doc-comment",
           "arguments": [
-            " @notice Deposits a specified amount of an asset into the caller's account."
+            " Deposits a specified amount of an asset into the caller's account."
           ]
         },
         {
           "name": "doc-comment",
           "arguments": [
-            " @notice The function requires that the sender sends a non-zero amount of the specified asset."
+            ""
           ]
         },
         {
           "name": "doc-comment",
           "arguments": [
-            " @param None - The function doesn't take any input parameters; it uses context information."
+            " ### Additional Information"
           ]
         },
         {
           "name": "doc-comment",
           "arguments": [
-            " @return None - The function does not return a value."
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " The function requires that the sender sends a non-zero amount of the specified asset."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " ### Reverts"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * When `msg_amount` == 0."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * When `msg_asset` is neither BASE_ASSET nor QUOTE_ASSET."
           ]
         },
         {
@@ -1104,25 +1288,85 @@
         {
           "name": "doc-comment",
           "arguments": [
-            " @notice Deposits a specified amount of an asset into the user specified account."
+            " Deposits a specified amount of an asset into the user specified account."
           ]
         },
         {
           "name": "doc-comment",
           "arguments": [
-            " @notice The function requires that the sender sends a non-zero amount of the specified asset."
+            ""
           ]
         },
         {
           "name": "doc-comment",
           "arguments": [
-            " @param user - The deposit's account."
+            " ### Additional Information"
           ]
         },
         {
           "name": "doc-comment",
           "arguments": [
-            " @return None - The function does not return a value."
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " The function requires that the sender sends a non-zero amount of the specified asset."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " ### Arguments"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * `user`: [Identity] - The deposit's account."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " ### Reverts"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * When `msg_amount` == 0."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * When `msg_asset` is neither BASE_ASSET nor QUOTE_ASSET."
           ]
         },
         {
@@ -1171,19 +1415,37 @@
         {
           "name": "doc-comment",
           "arguments": [
-            " @notice Attempts to fulfill a single order by matching it against multiple orders from a provided list."
+            " Attempts to fulfill a single order by matching it against multiple orders from a provided list."
           ]
         },
         {
           "name": "doc-comment",
           "arguments": [
-            " @dev This function creates a new order with the given parameters and iterates through the list of existing orders,"
+            ""
           ]
         },
         {
           "name": "doc-comment",
           "arguments": [
-            "      attempting to match the new order with existing orders. It handles full and partial matches according to the specified limit type:"
+            " ### Additional Information"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " This function creates a new order with the given parameters and iterates through the list of existing orders,"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " attempting to match the new order with existing orders. It handles full and partial matches according to the specified limit type:"
           ]
         },
         {
@@ -1207,43 +1469,109 @@
         {
           "name": "doc-comment",
           "arguments": [
-            " @param amount The amount of the asset to be fulfilled in the new order."
+            ""
           ]
         },
         {
           "name": "doc-comment",
           "arguments": [
-            " @param order_type The type of the order being fulfilled (e.g., buy or sell)."
+            " ### Arguments"
           ]
         },
         {
           "name": "doc-comment",
           "arguments": [
-            " @param limit_type The limit type for the new order: 'GTC', 'IOC', or 'FOK'."
+            ""
           ]
         },
         {
           "name": "doc-comment",
           "arguments": [
-            " @param price The price at which the new order is to be fulfilled."
+            " * `amount`: [u64] - The amount of the asset to be fulfilled in the new order."
           ]
         },
         {
           "name": "doc-comment",
           "arguments": [
-            " @param slippage The maximum allowable slippage (as a percentage) for the price during the matching process."
+            " * `order_type`: [OrderType] - The type of the order being fulfilled (e.g., buy or sell)."
           ]
         },
         {
           "name": "doc-comment",
           "arguments": [
-            " @param orders A vector of order IDs representing the existing orders to match against the new order."
+            " * `limit_type`: [LimitType] - The limit type for the new order: 'GTC', 'IOC', or 'FOK'."
           ]
         },
         {
           "name": "doc-comment",
           "arguments": [
-            " @return b256 The unique identifier of the newly created order. If the order is partially matched and canceled (in the case of 'IOC'), the ID corresponds to the canceled order."
+            " * `price`: [u64] - The price at which the new order is to be fulfilled."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * `slippage`: [u64] - The maximum allowable slippage (as a percentage) for the price during the matching process."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * `orders`: [Vec<b256>] - A vector of order IDs representing the existing orders to match against the new order."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " ### Returns"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * [b256] - The unique identifier of the newly created order. If the order is partially matched and canceled (in the case of 'IOC'), the ID corresponds to the canceled order."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " ### Reverts"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * When order vector length is less than 1."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * When no any orders can be fulfilled."
           ]
         },
         {
@@ -1268,19 +1596,61 @@
         {
           "name": "doc-comment",
           "arguments": [
-            " @notice Attempts to match multiple orders provided in a list."
+            " Attempts to match multiple orders provided in a list."
           ]
         },
         {
           "name": "doc-comment",
           "arguments": [
-            " @param orders A vector containing the unique identifiers of the orders to be matched."
+            ""
           ]
         },
         {
           "name": "doc-comment",
           "arguments": [
-            " @return None - The function does not return a value."
+            " ### Arguments"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * `orders`: [Vec<b256>] - A vector containing the unique identifiers of the orders to be matched."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " ### Reverts"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * When order vector length is less than 2."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * When no any orders can be matched."
           ]
         },
         {
@@ -1309,25 +1679,73 @@
         {
           "name": "doc-comment",
           "arguments": [
-            " @notice Matches two orders identified by their respective order IDs."
+            " Matches two orders identified by their respective order IDs."
           ]
         },
         {
           "name": "doc-comment",
           "arguments": [
-            " @param order0_id The unique identifier of the first order to be matched."
+            ""
           ]
         },
         {
           "name": "doc-comment",
           "arguments": [
-            " @param order1_id The unique identifier of the second order to be matched."
+            " ### Arguments"
           ]
         },
         {
           "name": "doc-comment",
           "arguments": [
-            " @return None - The function does not return a value."
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * `order0_id`: [b256] - The unique identifier of the first order to be matched."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * `order1_id`: [b256] - The unique identifier of the second order to be matched."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " ### Reverts"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * When orders with `order0_id` or `order1_id` not found."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * When orders are in same direction ([sell, sell] or [buy, buy])."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * When order buy price lower than order sell price."
           ]
         },
         {
@@ -1360,31 +1778,97 @@
         {
           "name": "doc-comment",
           "arguments": [
-            " @notice Opens a new order with a specified amount, order type, and price."
+            " Opens a new order with a specified amount, order type, and price."
           ]
         },
         {
           "name": "doc-comment",
           "arguments": [
-            " @param amount The amount of the asset to be used in the order."
+            ""
           ]
         },
         {
           "name": "doc-comment",
           "arguments": [
-            " @param order_type The type of the order being created (e.g., buy or sell)."
+            " ### Arguments"
           ]
         },
         {
           "name": "doc-comment",
           "arguments": [
-            " @param price The price at which the order should be placed."
+            ""
           ]
         },
         {
           "name": "doc-comment",
           "arguments": [
-            " @return b256 The unique identifier of the newly opened order."
+            " * `amount`: [u64] - The amount of the asset to be used in the order."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * `order_type`: [OrderType] - The type of the order being created (e.g., buy or sell)."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * `price`: [u64] - The price at which the order should be placed."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " ### Returns"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * [b256] - The unique identifier of the newly opened order."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " ### Reverts"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * When `amount` == 0 or `amount` exeeds user unlocked asset amount."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * When `price` == 0."
           ]
         },
         {
@@ -1413,43 +1897,109 @@
         {
           "name": "doc-comment",
           "arguments": [
-            " @notice Sets the current epoch and its duration."
+            " Sets the current epoch and its duration."
           ]
         },
         {
           "name": "doc-comment",
           "arguments": [
-            " @dev This function allows the contract owner to set a new epoch and its duration."
+            ""
           ]
         },
         {
           "name": "doc-comment",
           "arguments": [
-            "      It ensures that the new epoch is not in the past and that the epoch plus its duration extends beyond the current time."
+            " ### Additional Information"
           ]
         },
         {
           "name": "doc-comment",
           "arguments": [
-            "      The function is restricted to the contract owner and logs an event after the epoch is set."
+            ""
           ]
         },
         {
           "name": "doc-comment",
           "arguments": [
-            " @param epoch The new epoch value to be set. Must be greater than or equal to the current epoch."
+            " This function allows the contract owner to set a new epoch and its duration."
           ]
         },
         {
           "name": "doc-comment",
           "arguments": [
-            " @param epoch_duration The duration of the epoch in seconds. The epoch plus its duration must extend beyond the current time."
+            " It ensures that the new epoch is not in the past and that the epoch plus its duration extends beyond the current time."
           ]
         },
         {
           "name": "doc-comment",
           "arguments": [
-            " @return None - The function does not return a value."
+            " The function is restricted to the contract owner and logs an event after the epoch is set."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " ### Arguments"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * `epoch`: [u64] - The new epoch value to be set. Must be greater than or equal to the current epoch."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * `epoch_duration`: [u64] - The duration of the epoch in seconds. The epoch plus its duration must extend beyond the current time."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " ### Reverts"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * When called by non-owner."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * When epoch start less than current epoch start."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * When epoch end less than current time."
           ]
         },
         {
@@ -1473,37 +2023,97 @@
         {
           "name": "doc-comment",
           "arguments": [
-            " @notice Sets the matcher fee to a specified amount."
+            " Sets the matcher fee to a specified amount."
           ]
         },
         {
           "name": "doc-comment",
           "arguments": [
-            " @dev This function allows the contract owner to update the matcher fee."
+            ""
           ]
         },
         {
           "name": "doc-comment",
           "arguments": [
-            "      It checks that the new fee amount is different from the current one to avoid redundant updates."
+            " ### Additional Information"
           ]
         },
         {
           "name": "doc-comment",
           "arguments": [
-            "      The function is restricted to the contract owner and logs an event after the matcher fee is set."
+            ""
           ]
         },
         {
           "name": "doc-comment",
           "arguments": [
-            " @param amount The new matcher fee amount to be set. It must be different from the current matcher fee."
+            " This function allows the contract owner to update the matcher fee."
           ]
         },
         {
           "name": "doc-comment",
           "arguments": [
-            " @return None - The function does not return a value."
+            " It checks that the new fee amount is different from the current one to avoid redundant updates."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " The function is restricted to the contract owner and logs an event after the matcher fee is set."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " ### Arguments"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * `amount`: [u64] The new matcher fee amount to be set. It must be different from the current matcher fee."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " ### Reverts"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * When called by non-owner."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * When `set_matcher_fee` is same as set before."
           ]
         },
         {
@@ -1528,43 +2138,109 @@
         {
           "name": "doc-comment",
           "arguments": [
-            " @notice Sets the protocol fees based on volume thresholds."
+            " Sets the protocol fees based on volume thresholds."
           ]
         },
         {
           "name": "doc-comment",
           "arguments": [
-            " @dev This function allows the contract owner to set a list of protocol fees."
+            ""
           ]
         },
         {
           "name": "doc-comment",
           "arguments": [
-            "      It ensures that the first fee in the list has a volume threshold of zero and that the fees are sorted by volume threshold."
+            " ### Additional Information"
           ]
         },
         {
           "name": "doc-comment",
           "arguments": [
-            "      The function is restricted to the contract owner and logs an event after the protocol fees are set."
+            ""
           ]
         },
         {
           "name": "doc-comment",
           "arguments": [
-            " @param protocol_fee A vector of 'ProtocolFee' structures that define the fee rates and their corresponding volume thresholds."
+            " This function allows the contract owner to set a list of protocol fees."
           ]
         },
         {
           "name": "doc-comment",
           "arguments": [
-            "                     The first element must have a volume threshold of zero, and the list must be sorted by volume threshold."
+            " It ensures that the first fee in the list has a volume threshold of zero and that the fees are sorted by volume threshold."
           ]
         },
         {
           "name": "doc-comment",
           "arguments": [
-            " @return None - The function does not return a value."
+            " The function is restricted to the contract owner and logs an event after the protocol fees are set."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " ### Arguments"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * `protocol_fee`: [Vec<ProtocolFee>] - A vector of 'ProtocolFee' structures that define the fee rates and their corresponding volume thresholds."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            "    The first element must have a volume threshold of zero, and the list must be sorted by volume threshold."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " ### Reverts"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * When called by non-owner."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * When `protocol_fee` vector length is zero."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * When `protocol_fee` vector contains non-sorted volumes or volume duplicates."
           ]
         },
         {
@@ -1588,13 +2264,85 @@
         {
           "name": "doc-comment",
           "arguments": [
-            " @notice Sets the matcher fee to a specified amount."
+            " Sets the matcher fee to a specified amount."
           ]
         },
         {
           "name": "doc-comment",
           "arguments": [
-            " @dev This function allows the contract owner to enable or disable storing of order change info."
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " ### Additional Information"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " This function allows the contract owner to enable or disable storing of order change info."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " ### Arguments"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * `store`: [bool] The new store boolean value."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " ### Reverts"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * When called by non-owner."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * When `store` is same as set before."
           ]
         },
         {
@@ -1623,25 +2371,67 @@
         {
           "name": "doc-comment",
           "arguments": [
-            " @notice Withdraws a specified amount of a given asset from the caller's account."
+            " Withdraws a specified amount of a given asset from the caller's account."
           ]
         },
         {
           "name": "doc-comment",
           "arguments": [
-            " @param amount The amount of the asset to be withdrawn. Must be greater than zero."
+            ""
           ]
         },
         {
           "name": "doc-comment",
           "arguments": [
-            " @param asset_type The type of the asset to be withdrawn."
+            " ### Arguments"
           ]
         },
         {
           "name": "doc-comment",
           "arguments": [
-            " @return None - The function does not return a value."
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * `amount`: [u64] - The amount of the asset to be withdrawn. Must be greater than zero."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * `asset_type`: [AssetType] - The type of the asset to be withdrawn."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " ### Reverts"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * When `amount` == 0 or `amount` exeeds user unlocked asset amount."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * When `asset_type` is neither BASE_ASSET nor QUOTE_ASSET."
           ]
         },
         {
@@ -1674,7 +2464,25 @@
         {
           "name": "doc-comment",
           "arguments": [
-            " @notice Withdraws a specified amount of a given asset from the caller's account."
+            " Withdraws a specified amount of a given asset from the caller's account."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " ### Additional Information"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
           ]
         },
         {
@@ -1686,25 +2494,73 @@
         {
           "name": "doc-comment",
           "arguments": [
-            " @param amount The amount of the asset to be withdrawn. Must be greater than zero."
+            ""
           ]
         },
         {
           "name": "doc-comment",
           "arguments": [
-            " @param asset_type The type of the asset to be withdrawn."
+            " ### Arguments"
           ]
         },
         {
           "name": "doc-comment",
           "arguments": [
-            " @param market The market ContractId."
+            ""
           ]
         },
         {
           "name": "doc-comment",
           "arguments": [
-            " @return None - The function does not return a value."
+            " * `amount`: [u64] - The amount of the asset to be withdrawn. Must be greater than zero."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * `asset_type`: [AssetType] - The type of the asset to be withdrawn."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * `market`: [ContractId] - The market ContractId."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " ### Reverts"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * When `amount` == 0 or `amount` exeeds user unlocked asset amount."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * When `asset_type` is neither BASE_ASSET nor QUOTE_ASSET."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * When asset_id of `asset_type` is not present in `market` as base or quote asset."
           ]
         },
         {
@@ -1727,6 +2583,60 @@
       "output": "10410fea5a6cba4a6b6079f9d804c0daf23980a360d009048ecb36118036c28e",
       "attributes": [
         {
+          "name": "doc-comment",
+          "arguments": [
+            " Get the user account information."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " ### Arguments"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * `user`: [Identity] The user id to retrive info."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " ### Returns"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * [Account] - An user account information."
+          ]
+        },
+        {
           "name": "storage",
           "arguments": [
             "read"
@@ -1737,14 +2647,81 @@
     {
       "inputs": [],
       "name": "config",
-      "output": "2af57fa7b0f9eb46500ad6f44107b87602c8b010f49ac4c18ebef66289467acb",
-      "attributes": null
+      "output": "3e7a6a4509a70e0325e037e535f071faad89d32fab90574bdc42fdd96ebba3d5",
+      "attributes": [
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " Get contract configurables."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " ### Returns"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * [AssetId, u32, AssetId, u32, Option<Identity>, u32, u32)] - The BASE_ASSET, BASE_ASSET_DECIMALS,"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            "     QUOTE_ASSET, QUOTE_ASSET_DECIMALS, OWNER.owner(), PRICE_DECIMALS, VERSION."
+          ]
+        }
+      ]
     },
     {
       "inputs": [],
       "name": "get_epoch",
       "output": "41bd1a98f0a59642d8f824c805b798a5f268d1f7d05808eb05c4189c493f1be0",
       "attributes": [
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " Get the epoch start time and its duration."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " ### Returns"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * [u64, u64] - An epoch and duration."
+          ]
+        },
         {
           "name": "storage",
           "arguments": [
@@ -1758,6 +2735,36 @@
       "name": "matcher_fee",
       "output": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0",
       "attributes": [
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " Get the matcher fee in `QUOTE_ASSET` units."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " ### Returns"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * [u64] - A matcher fee."
+          ]
+        },
         {
           "name": "storage",
           "arguments": [
@@ -1777,6 +2784,60 @@
       "output": "af7345d115f618be19cd709b6734bdd5fd52bb0c27617a74a9564e4cea947d01",
       "attributes": [
         {
+          "name": "doc-comment",
+          "arguments": [
+            " Get the order info."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " ### Arguments"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * `order`: [b256] The order_id."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " ### Returns"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * [Option<Order>] - The Some<Order> struct of found by id otherwise None."
+          ]
+        },
+        {
           "name": "storage",
           "arguments": [
             "read"
@@ -1794,6 +2855,60 @@
       "name": "order_change_info",
       "output": "742fbfc9dbc675c4bb942c1c3d87581f5da5c5a8b0fc21e0d1f8d873328d5e5a",
       "attributes": [
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " Get order change list."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " ### Arguments"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * `order_id`: [b256] The order id."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " ### Returns"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * [Vec<OrderChangeInfo>] - The vector of order change info."
+          ]
+        },
         {
           "name": "storage",
           "arguments": [
@@ -1827,13 +2942,122 @@
       ],
       "name": "order_id",
       "output": "7c5ee1cecf5f8eacd1284feb5f0bf2bdea533a51e2f0c9aabe9236d335989f3b",
-      "attributes": null
+      "attributes": [
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " Generate order id."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " ### Arguments"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * `order_type`: [OrderType] The order type."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * `owner`: [Identity] The order owner."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * `price`: [u64] The order price."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * `block_height`: [u32] The order submission block number."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * `order_height`: [u64] The order height (auto-incremented number)."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " ### Returns"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * [b256] - The order id."
+          ]
+        }
+      ]
     },
     {
       "inputs": [],
       "name": "protocol_fee",
       "output": "4b03eb3d5d8751745804ec649d33055ca43456407d3991177f51a1397cd4da50",
       "attributes": [
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " Get the protocol fee array."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " ### Returns"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * [Vec<ProtocolFee>] - A protocol fee vector."
+          ]
+        },
         {
           "name": "storage",
           "arguments": [
@@ -1852,6 +3076,60 @@
       "name": "protocol_fee_user",
       "output": "41bd1a98f0a59642d8f824c805b798a5f268d1f7d05808eb05c4189c493f1be0",
       "attributes": [
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " Get the user protocol fee of its current volume."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " ### Arguments"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * `user`: [Identity] The user id to retrive info."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " ### Returns"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * [(u64, u64)] - A maker and taker user fee percent (10_000 == 100%)."
+          ]
+        },
         {
           "name": "storage",
           "arguments": [
@@ -1875,6 +3153,66 @@
       "output": "41bd1a98f0a59642d8f824c805b798a5f268d1f7d05808eb05c4189c493f1be0",
       "attributes": [
         {
+          "name": "doc-comment",
+          "arguments": [
+            " Get the user protocol fee of its current volume and of amount."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " ### Arguments"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * `amount`: [u64] The amount of the order in `QUOTE_ASSET` units."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * `user`: [Identity] The user id to retrive info."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " ### Returns"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * [(u64, u64)] - A maker and taket user fee amount of `amount`."
+          ]
+        },
+        {
           "name": "storage",
           "arguments": [
             "read"
@@ -1887,6 +3225,36 @@
       "name": "store_order_change_info",
       "output": "b760f44fa5965c2474a3b471467a22c43185152129295af588b022ae50b50903",
       "attributes": [
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " Get order change info flag."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " ### Returns"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * [bool] - The True if order change info stores otherwise false."
+          ]
+        },
         {
           "name": "storage",
           "arguments": [
@@ -1905,6 +3273,60 @@
       "name": "user_orders",
       "output": "32559685d0c9845f059bf9d472a0a38cf77d36c23dfcffe5489e86a65cdd9198",
       "attributes": [
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " Get user order list."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " ### Arguments"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * `user`: [Identity] The user identity."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " ### Returns"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * [Vec<b256>] - The vector of user order ids."
+          ]
+        },
         {
           "name": "storage",
           "arguments": [
@@ -1926,6 +3348,10 @@
     {
       "logId": "487470194140633944",
       "concreteTypeId": "06c3d78f1057db580eb36dc2fc04ebd7407f4a4e954417b6761844fe38ee1a5d"
+    },
+    {
+      "logId": "6987413341206404123",
+      "concreteTypeId": "60f84769b56edc1bfc54f08c4393c6d30612549f4952a1b7d4e08b1eeced9039"
     },
     {
       "logId": "15329379498675066312",
@@ -1968,6 +3394,10 @@
       "concreteTypeId": "dbce8f9c6be61d876835d7a0b5794cfc25fc3b171ba3748ec4c8f2e7ce426cf6"
     },
     {
+      "logId": "4571204900286667806",
+      "concreteTypeId": "3f702ea3351c9c1ece2b84048006c8034a24cbc2bad2e740d0412b4172951d3d"
+    },
+    {
       "logId": "649664855397936830",
       "concreteTypeId": "090412be710caebee4e019479841ea0100912819a3e1c52ba39b1faa7b778c83"
     },
@@ -1993,37 +3423,37 @@
     {
       "name": "BASE_ASSET",
       "concreteTypeId": "c0710b6731b1dd59799cf6bef33eee3b3b04a2e40e80a0724090215bbf2ca974",
-      "offset": 97544
+      "offset": 99824
     },
     {
       "name": "BASE_ASSET_DECIMALS",
       "concreteTypeId": "d7649d428b9ff33d188ecbf38a7e4d8fd167fa01b2e10fe9a8f9308e52f1d7cc",
-      "offset": 97576
+      "offset": 99856
     },
     {
       "name": "QUOTE_ASSET",
       "concreteTypeId": "c0710b6731b1dd59799cf6bef33eee3b3b04a2e40e80a0724090215bbf2ca974",
-      "offset": 97632
+      "offset": 99920
     },
     {
       "name": "QUOTE_ASSET_DECIMALS",
       "concreteTypeId": "d7649d428b9ff33d188ecbf38a7e4d8fd167fa01b2e10fe9a8f9308e52f1d7cc",
-      "offset": 97664
+      "offset": 99952
     },
     {
       "name": "OWNER",
-      "concreteTypeId": "ab7cd04e05be58e3fc15d424c2c4a57f824a2a2d97d67252440a3925ebdc1335",
-      "offset": 97584
+      "concreteTypeId": "192bc7098e2fe60635a9918afb563e4e5419d386da2bdbf0d716b4bc8549802c",
+      "offset": 99864
     },
     {
       "name": "PRICE_DECIMALS",
       "concreteTypeId": "d7649d428b9ff33d188ecbf38a7e4d8fd167fa01b2e10fe9a8f9308e52f1d7cc",
-      "offset": 97624
+      "offset": 99912
     },
     {
       "name": "VERSION",
       "concreteTypeId": "d7649d428b9ff33d188ecbf38a7e4d8fd167fa01b2e10fe9a8f9308e52f1d7cc",
-      "offset": 97672
+      "offset": 99960
     }
   ]
 }

@@ -43,3 +43,7 @@ pub enum AuthError {
 pub enum AccountError {
     InsufficientBalance: (u64, u64, bool),
 }
+
+pub enum MathError {
+    Overflow: (),
+}

@@ -57,7 +57,7 @@ mod revert {
     use super::*;
 
     #[tokio::test]
-    #[should_panic(expected = "Unauthorized")]
+    #[should_panic(expected = "NotOwner")]
     async fn reverts_when_non_owner() {
         let defaults = Defaults::default();
         let (contract, _owner, user, _, _, _assets) = setup(

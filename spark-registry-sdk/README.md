@@ -71,3 +71,14 @@ Retrieves user account inforamtion.
 `assets` The asset pair array [(base_asst_id, quote_asset_id)].
 
 Returns an asset pair and optional market contract id array
+
+
+### Config
+
+```rust
+pub fn config() -> (Option<Identity>, u32);
+```
+
+Retrieves contract configurables.
+
+Returns an Option of owner identity and contract version

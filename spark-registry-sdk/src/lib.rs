@@ -4,7 +4,7 @@ use fuels::{
         StorageConfiguration, TxPolicies, WalletUnlocked,
     },
     programs::{calls::Execution, responses::CallResponse},
-    types::{Address, Bytes32},
+    types::{Bytes32, Identity},
 };
 use rand::Rng;
 use std::path::PathBuf;
@@ -32,7 +32,7 @@ impl SparkRegistryContract {
             .add_slot_overrides_from_file(root.join(SPARK_REGISTRY_CONTRACT_STORAGE_PATH));
 
         let configurables = SparkRegistryConfigurables::default()
-            .with_OWNER(owner.address().into())
+            .with_OWNER(State::Initialized(owner.address().into()))
             .unwrap()
             .with_VERSION(version)
             .unwrap();
@@ -134,7 +134,7 @@ impl SparkRegistryContract {
             .await?)
     }
 
-    pub async fn config(&self) -> anyhow::Result<CallResponse<(Address, u32)>> {
+    pub async fn config(&self) -> anyhow::Result<CallResponse<(Option<Identity>, u32)>> {
         Ok(self
             .instance
             .methods()

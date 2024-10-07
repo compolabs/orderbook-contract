@@ -256,6 +256,21 @@ Returns a call result
 
 ## SparkMarketContract Getter Methods
 
+### Configurable Info
+
+```rust
+pub async fn config(
+    &self,
+) -> anyhow::Result<CallResponse<(AssetId, u32, AssetId, u32, Option<Identity>, u32, u32)>>
+```
+
+Retrieves contract configurables
+
+`self` The SparkMarketContract instance
+
+Returns base / quote asset ids and its decimals, owner identity, price decimals and version.
+
+
 ### Account Info
 
 ```rust

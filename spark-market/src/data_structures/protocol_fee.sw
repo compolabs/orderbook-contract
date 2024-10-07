@@ -19,11 +19,11 @@ impl ProtocolFee {
 }
 
 impl Vec<ProtocolFee> {
-    pub fn is_volume_threshold_sorted(self) -> bool {
+    pub fn is_volume_threshold_valid(self) -> bool {
         let mut iter = self.iter();
         let mut item = iter.next();
         let mut prev = 0u64;
-        let mut sorted = true;
+        let mut valid = true;
 
         while item.is_some() {
             let volume_threshold = item.unwrap().volume_threshold;
@@ -34,11 +34,11 @@ impl Vec<ProtocolFee> {
                 prev = volume_threshold;
                 item = iter.next();
             } else {
-                sorted = false;
+                valid = false;
                 break;
             }
         }
-        sorted
+        valid
     }
 }
 
