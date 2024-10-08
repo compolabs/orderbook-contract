@@ -3,6 +3,7 @@ mod utils;
 
 use clap::Parser;
 use commands::{
+    batch::cli::BatchCommands,
     cli::{Cli, Command},
     core::cli::CoreCommands,
     info::cli::InfoCommands,
@@ -20,12 +21,8 @@ async fn main() -> anyhow::Result<()> {
     let cli = Cli::parse();
 
     match cli.command {
-        Command::Registry(args) => match args.commands {
-            RegistryCommands::Config(args) => args.run().await,
-            RegistryCommands::Deploy(args) => args.run().await,
-            RegistryCommands::Markets(args) => args.run().await,
-            RegistryCommands::Register(args) => args.run().await,
-            RegistryCommands::Unregister(args) => args.run().await,
+        Command::Batch(args) => match args.commands {
+            BatchCommands::DeployAll(args) => args.run().await,
         },
         Command::Core(args) => match args.commands {
             CoreCommands::Cancel(args) => args.run().await,
@@ -55,6 +52,13 @@ async fn main() -> anyhow::Result<()> {
             InfoCommands::Order(args) => args.run().await,
             InfoCommands::StoreOrderChangeInfo(args) => args.run().await,
             InfoCommands::UserOrders(args) => args.run().await,
+        },
+        Command::Registry(args) => match args.commands {
+            RegistryCommands::Config(args) => args.run().await,
+            RegistryCommands::Deploy(args) => args.run().await,
+            RegistryCommands::Markets(args) => args.run().await,
+            RegistryCommands::Register(args) => args.run().await,
+            RegistryCommands::Unregister(args) => args.run().await,
         },
     }
 }

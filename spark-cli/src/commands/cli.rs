@@ -1,5 +1,6 @@
 use crate::commands::{
-    core::cli::CoreCommands, info::cli::InfoCommands, registry::cli::RegistryCommands,
+    batch::cli::BatchCommands, core::cli::CoreCommands, info::cli::InfoCommands,
+    registry::cli::RegistryCommands,
 };
 use clap::{Args, Parser, Subcommand};
 
@@ -13,8 +14,8 @@ pub(crate) struct Cli {
 #[derive(Clone, Subcommand)]
 pub(crate) enum Command {
     ///
-    #[clap(short_flag = 'R')]
-    Registry(Registry),
+    #[clap(short_flag = 'B')]
+    Batch(Batch),
 
     ///
     #[clap(short_flag = 'C')]
@@ -23,12 +24,16 @@ pub(crate) enum Command {
     ///
     #[clap(short_flag = 'I')]
     Info(Info),
+
+    ///
+    #[clap(short_flag = 'R')]
+    Registry(Registry),
 }
 
 #[derive(Args, Clone)]
-pub(crate) struct Registry {
+pub(crate) struct Batch {
     #[clap(subcommand)]
-    pub(crate) commands: RegistryCommands,
+    pub(crate) commands: BatchCommands,
 }
 
 #[derive(Args, Clone)]
@@ -41,4 +46,10 @@ pub(crate) struct Core {
 pub(crate) struct Info {
     #[clap(subcommand)]
     pub(crate) commands: InfoCommands,
+}
+
+#[derive(Args, Clone)]
+pub(crate) struct Registry {
+    #[clap(subcommand)]
+    pub(crate) commands: RegistryCommands,
 }

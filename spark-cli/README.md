@@ -22,6 +22,27 @@ ETH address 0xf8f8b6283d7fa5b672b530cbb84fcccb4ff8dc40f8176ef4544ddb1f1952ad07
 BTC address 0x38e4ca985b22625fff93205e997bfc5cc8453a953da638ad297ca60a9f2600bc
 USDC address 0x336b7c06352a4b736ff6f688ba6885788b3df16e136e95310ade51aa32dc6f05
 
+### Batch Deploy
+
+Deploys BTC/USDC, ETH/USDC markets. Setup fees and epoches. Deploy registry and register markets.
+
+```
+spark-cli batch deploy-all \
+    --rpc "testnet.fuel.network"
+```
+
+Sample output:
+Spark CLI v0.6.0
+
+BTC/USDC Market version 0.6.0 (1536) deployed to: 0x006377122bdcdf5b645a773c55140dc9dfb7878a17150116aea9e8420eb02d88
+Deployment cost: 758
+
+ETH/USDC Market version 0.6.0 (1536) deployed to: 0x0fa62a46c633726d31976a20f74ce6693cf9d764bbe2c2128250a17420fb047e
+Deployment cost: 758
+
+MarketRegistry version 0.6.0 (1536) deployed to: 0x5085ba483a9a278130d566c603bb93862b16040b86ad871c568338c87e18490c
+Deployment cost: 934
+
 ### Deploy BTC-USDC market
 
 ```
