@@ -25,7 +25,7 @@ impl ConfigCommand {
 
         let (owner, version) = contract.config().await?.value;
 
-        println!("\nOwner: 0x{}", owner);
+        println!("\nOwner: 0x{:?}", owner);
         println!(
             "Version: {} ({})",
             contract.contract_str_version().await?,
