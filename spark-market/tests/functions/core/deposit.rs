@@ -41,6 +41,7 @@ mod success {
                 asset: assets.base.id,
                 user: owner.identity(),
                 account: expected_account.clone(),
+                caller: owner.identity(),
             }
         );
 
@@ -88,6 +89,7 @@ mod success {
                     asset: assets.base.id,
                     user: owner.identity(),
                     account: expected_account.clone(),
+                    caller: owner.identity(),
                 }
             );
 
@@ -133,6 +135,7 @@ mod success {
                 asset: assets.quote.id,
                 user: owner.identity(),
                 account: expected_account.clone(),
+                caller: owner.identity(),
             }
         );
 
@@ -181,6 +184,7 @@ mod success {
                     asset: assets.quote.id,
                     user: owner.identity(),
                     account: expected_account.clone(),
+                    caller: owner.identity(),
                 }
             );
 

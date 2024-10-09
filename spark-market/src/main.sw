@@ -23,7 +23,6 @@ use ::errors::{AccountError, AssetError, AuthError, MatchError, MathError, Order
 use ::events::{
     CancelOrderEvent,
     DepositEvent,
-    DepositForEvent,
     OpenOrderEvent,
     SetEpochEvent,
     SetMatcherRewardEvent,
@@ -125,6 +124,7 @@ impl SparkMarket for Contract {
             asset,
             user,
             account,
+            caller: user,
         });
     }
 
@@ -151,7 +151,7 @@ impl SparkMarket for Contract {
 
         let (amount, asset, account) = deposit_internal(user);
 
-        log(DepositForEvent {
+        log(DepositEvent {
             amount,
             asset,
             user,

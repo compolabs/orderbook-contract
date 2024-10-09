@@ -13,13 +13,6 @@ pub struct DepositEvent {
     pub asset: AssetId,
     pub user: Identity,
     pub account: Account,
-}
-
-pub struct DepositForEvent {
-    pub amount: u64,
-    pub asset: AssetId,
-    pub user: Identity,
-    pub account: Account,
     pub caller: Identity,
 }
 

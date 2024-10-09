@@ -5,7 +5,7 @@ mod success {
 
     use super::*;
     use crate::setup::create_account;
-    use spark_market_sdk::DepositForEvent;
+    use spark_market_sdk::DepositEvent;
 
     #[tokio::test]
     async fn base_asset() -> anyhow::Result<()> {
@@ -34,11 +34,11 @@ mod success {
         let new_balance = owner.balance(&assets.base.id).await;
         assert_eq!(new_balance, user_balance - deposit_amount);
 
-        let log = response.decode_logs_with_type::<DepositForEvent>().unwrap();
+        let log = response.decode_logs_with_type::<DepositEvent>().unwrap();
         let event = log.first().unwrap();
         assert_eq!(
             *event,
-            DepositForEvent {
+            DepositEvent {
                 amount: deposit_amount,
                 asset: assets.base.id,
                 user: user.identity(),
@@ -84,11 +84,11 @@ mod success {
             let new_balance = owner.balance(&assets.base.id).await;
             assert_eq!(new_balance, user_balance - deposit_amount);
 
-            let log = response.decode_logs_with_type::<DepositForEvent>().unwrap();
+            let log = response.decode_logs_with_type::<DepositEvent>().unwrap();
             let event = log.first().unwrap();
             assert_eq!(
                 *event,
-                DepositForEvent {
+                DepositEvent {
                     amount: deposit_amount,
                     asset: assets.base.id,
                     user: user.identity(),
@@ -132,11 +132,11 @@ mod success {
         let new_balance = owner.balance(&assets.quote.id).await;
         assert_eq!(new_balance, user_balance - deposit_amount);
 
-        let log = response.decode_logs_with_type::<DepositForEvent>().unwrap();
+        let log = response.decode_logs_with_type::<DepositEvent>().unwrap();
         let event = log.first().unwrap();
         assert_eq!(
             *event,
-            DepositForEvent {
+            DepositEvent {
                 amount: deposit_amount,
                 asset: assets.quote.id,
                 user: user.identity(),
@@ -183,11 +183,11 @@ mod success {
             let new_balance = owner.balance(&assets.quote.id).await;
             assert_eq!(new_balance, user_balance - deposit_amount);
 
-            let log = response.decode_logs_with_type::<DepositForEvent>().unwrap();
+            let log = response.decode_logs_with_type::<DepositEvent>().unwrap();
             let event = log.first().unwrap();
             assert_eq!(
                 *event,
-                DepositForEvent {
+                DepositEvent {
                     amount: deposit_amount,
                     asset: assets.quote.id,
                     user: user.identity(),
