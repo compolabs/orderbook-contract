@@ -14,7 +14,7 @@ pub(crate) enum RegistryCommands {
     #[clap(short_flag = 'D')]
     Deploy(DeployCommand),
 
-    /// Unegister a market in the market registry contract
+    /// Unregister a market in the market registry contract
     #[clap(short_flag = 'M')]
     Markets(MarketsCommand),
 
@@ -22,7 +22,7 @@ pub(crate) enum RegistryCommands {
     #[clap(short_flag = 'R')]
     Register(RegisterCommand),
 
-    /// Unegister a market in the market registry contract
+    /// Unregister a market in the market registry contract
     #[clap(short_flag = 'U')]
     Unregister(UnregisterCommand),
 }
