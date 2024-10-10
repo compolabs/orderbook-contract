@@ -5529,6 +5529,7 @@ dependencies = [
  "fuels",
  "rand",
  "spark-market-sdk 0.6.0",
+ "spark-proxy-sdk",
  "tokio",
 ]
 
@@ -5547,6 +5548,25 @@ name = "spark-market-sdk"
 version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d97733bfd2132ff3c15371a7d335f9c4b693ec1f673df7d5debc77e0b0f94392"
+dependencies = [
+ "anyhow",
+ "fuels",
+ "rand",
+ "tokio",
+]
+
+[[package]]
+name = "spark-proxy"
+version = "0.6.0"
+dependencies = [
+ "anyhow",
+ "fuels",
+ "tokio",
+]
+
+[[package]]
+name = "spark-proxy-sdk"
+version = "0.0.1"
 dependencies = [
  "anyhow",
  "fuels",
