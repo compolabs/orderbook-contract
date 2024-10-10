@@ -714,6 +714,193 @@ mod success_same_asset_type {
 
         Ok(())
     }
+
+    #[tokio::test]
+    async fn match_same_base_asset_type_orders_same_price_with_multi_tier_protocol_fee(
+    ) -> anyhow::Result<()> {
+        let defaults = Defaults::default();
+        let (contract, owner, user0, user1, matcher, assets) = setup(
+            defaults.base_decimals,
+            defaults.quote_decimals,
+            defaults.price_decimals,
+        )
+        .await?;
+
+        let tai64_epoch = now_tai64();
+        // Define the new epoch duration (e.g., 1 day)
+        let epoch_duration = 60 * 60 * 24 * 30;
+        // Increase the epoch and duration
+        let _ = contract.set_epoch(tai64_epoch, epoch_duration).await?;
+
+        let to_quote_scale =
+            10_u64.pow(defaults.price_decimals + defaults.base_decimals - defaults.quote_decimals);
+        let price = 70_000 * 10_u64.pow(defaults.price_decimals);
+
+        // Adjust base_amount to ensure the trade crosses a volume threshold
+        let base_amount = 10_u64.pow(8); // 1 BTC
+
+        // Calculate quote_amount based on price and base_amount
+        let quote_amount = price / to_quote_scale * base_amount;
+
+        // New protocol fees
+        let protocol_fee = vec![
+            ProtocolFee {
+                maker_fee: 25,       // 0.25% for maker
+                taker_fee: 40,       // 0.40% for taker
+                volume_threshold: 0, // $0 - $10,000
+            },
+            ProtocolFee {
+                maker_fee: 20,                    // 0.20% for maker
+                taker_fee: 35,                    // 0.35% for taker
+                volume_threshold: 10_000_000_000, // $10,001 - $50,000
+            },
+            ProtocolFee {
+                maker_fee: 14,                    // 0.14% for maker
+                taker_fee: 24,                    // 0.24% for taker
+                volume_threshold: 50_000_000_000, // $50,001 - $100,000
+            },
+            ProtocolFee {
+                maker_fee: 12,                     // 0.12% for maker
+                taker_fee: 22,                     // 0.22% for taker
+                volume_threshold: 100_000_000_000, // $100,001 - $250,000
+            },
+            ProtocolFee {
+                maker_fee: 10,                     // 0.10% for maker
+                taker_fee: 20,                     // 0.20% for taker
+                volume_threshold: 250_000_000_000, // $250,001 - $500,000
+            },
+            ProtocolFee {
+                maker_fee: 8,                      // 0.08% for maker
+                taker_fee: 18,                     // 0.18% for taker
+                volume_threshold: 500_000_000_000, // $500,001 - $1,000,000
+            },
+            ProtocolFee {
+                maker_fee: 6,                        // 0.06% for maker
+                taker_fee: 16,                       // 0.16% for taker
+                volume_threshold: 1_000_000_000_000, // $1,000,001 - $2,500,000
+            },
+            ProtocolFee {
+                maker_fee: 4,                        // 0.04% for maker
+                taker_fee: 14,                       // 0.14% for taker
+                volume_threshold: 2_500_000_000_000, // $2,500,001 - $5,000,000
+            },
+            ProtocolFee {
+                maker_fee: 2,                        // 0.02% for maker
+                taker_fee: 12,                       // 0.12% for taker
+                volume_threshold: 5_000_000_000_000, // $5,000,001 - $10,000,000
+            },
+            ProtocolFee {
+                maker_fee: 0,                         // 0.00% for maker
+                taker_fee: 10,                        // 0.10% for taker
+                volume_threshold: 10_000_000_000_000, // $10,000,001+
+            },
+        ];
+
+        let _ = contract.set_protocol_fee(protocol_fee.clone()).await?;
+
+        // Calculate maker and taker protocol fees according to the initial fee tier
+        let maker_protocol_fee = quote_amount * protocol_fee[0].maker_fee / 10_000;
+        let taker_protocol_fee = quote_amount * protocol_fee[0].taker_fee / 10_000;
+
+        // Adjust quote_amount to include taker_protocol_fee
+        let quote_amount_with_fee = quote_amount + taker_protocol_fee;
+
+        // Check initial protocol fees for users
+        assert_eq!(
+            contract
+                .protocol_fee_user(user0.address().into())
+                .await?
+                .value,
+            (protocol_fee[0].maker_fee, protocol_fee[0].taker_fee)
+        );
+
+        assert_eq!(
+            contract
+                .protocol_fee_user(user1.address().into())
+                .await?
+                .value,
+            (protocol_fee[0].maker_fee, protocol_fee[0].taker_fee)
+        );
+
+        // Users deposit assets
+        contract
+            .with_account(&user0.wallet)
+            .deposit(base_amount, assets.base.id)
+            .await?;
+        contract
+            .with_account(&user1.wallet)
+            .deposit(quote_amount_with_fee, assets.quote.id)
+            .await?;
+
+        // Users open orders
+        let id0 = contract
+            .with_account(&user0.wallet)
+            .open_order(base_amount, OrderType::Sell, price)
+            .await?
+            .value;
+        let id1 = contract
+            .with_account(&user1.wallet)
+            .open_order(base_amount, OrderType::Buy, price)
+            .await?
+            .value;
+
+        let expected_account0 = create_account(0, 0, base_amount, 0);
+        let expected_account1 = create_account(0, 0, 0, quote_amount_with_fee);
+
+        assert_eq!(
+            contract.account(user0.identity()).await?.value,
+            expected_account0
+        );
+        assert_eq!(
+            contract.account(user1.identity()).await?.value,
+            expected_account1
+        );
+
+        // Expected balances after trade execution
+        let expected_account0 = create_account(0, quote_amount - maker_protocol_fee, 0, 0);
+        let expected_account1 = create_account(base_amount, 0, 0, 0);
+
+        let expected_account = create_account(0, maker_protocol_fee + taker_protocol_fee, 0, 0);
+
+        // Execute the trade
+        contract
+            .with_account(&matcher.wallet)
+            .match_order_pair(id0, id1)
+            .await?;
+
+        // Verify balances after trade
+        assert_eq!(
+            contract.account(user0.identity()).await?.value,
+            expected_account0
+        );
+        assert_eq!(
+            contract.account(user1.identity()).await?.value,
+            expected_account1
+        );
+        assert_eq!(
+            contract.account(owner.identity()).await?.value,
+            expected_account
+        );
+
+        // After the trade, users' cumulative volume crosses the threshold
+        // Verify that protocol fees have updated to the next tier
+        assert_eq!(
+            contract
+                .protocol_fee_user(user0.address().into())
+                .await?
+                .value,
+            (protocol_fee[2].maker_fee, protocol_fee[2].taker_fee)
+        );
+        assert_eq!(
+            contract
+                .protocol_fee_user(user1.address().into())
+                .await?
+                .value,
+            (protocol_fee[2].maker_fee, protocol_fee[2].taker_fee)
+        );
+
+        Ok(())
+    }
 }
 
 mod revert {
