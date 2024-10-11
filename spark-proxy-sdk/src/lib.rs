@@ -1,7 +1,7 @@
 use fuels::{
     prelude::{
-        abigen, Bech32ContractId, Contract, ContractId, LoadConfiguration, StorageConfiguration,
-        TxPolicies, WalletUnlocked,
+        abigen, Address, Bech32ContractId, Contract, ContractId, LoadConfiguration,
+        StorageConfiguration, TxPolicies, WalletUnlocked,
     },
     programs::{calls::Execution, responses::CallResponse},
     tx::StorageSlot,
@@ -49,9 +49,29 @@ impl SparkProxyContract {
             target_value1[n] = target_value[n + 24];
         }
 
+        let owner_key0 =
+            Bytes32::from_str("bb79927b15d9259ea316f2ecb2297d6cc8851888a98278c0a2e03e1a091ea754")
+                .unwrap();
+        let owner_key1 =
+            Bytes32::from_str("bb79927b15d9259ea316f2ecb2297d6cc8851888a98278c0a2e03e1a091ea755")
+                .unwrap();
+
+        let owner_value = Bytes32::new(Address::from(owner.address()).into());
+        let mut owner_value0 = Bytes32::new([0u8; 32]);
+        let mut owner_value1 = Bytes32::new([0u8; 32]);
+        owner_value0[7] = 1;
+        for n in 16..32 {
+            owner_value0[n] = owner_value[n - 16];
+        }
+        for n in 0..16 {
+            owner_value1[n] = owner_value[n + 16];
+        }
+
         let storage_slots = [
             StorageSlot::new(target_key0, target_value0),
             StorageSlot::new(target_key1, target_value1),
+            StorageSlot::new(owner_key0, owner_value0),
+            StorageSlot::new(owner_key1, owner_value1),
         ];
         let storage_configuration =
             StorageConfiguration::default().add_slot_overrides(storage_slots);
@@ -111,6 +131,15 @@ impl SparkProxyContract {
             .instance
             .methods()
             .proxy_target()
+            .simulate(Execution::StateReadOnly)
+            .await?)
+    }
+
+    pub async fn proxy_owner(&self) -> anyhow::Result<CallResponse<State>> {
+        Ok(self
+            .instance
+            .methods()
+            .proxy_owner()
             .simulate(Execution::StateReadOnly)
             .await?)
     }

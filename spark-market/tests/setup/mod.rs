@@ -7,7 +7,7 @@ use fuels::{
     types::{bech32::Bech32ContractId, ContractId, Identity},
 };
 use spark_market_sdk::{Account, Balance, SparkMarketContract};
-use spark_proxy_sdk::SparkProxyContract;
+use spark_proxy_sdk::{SparkProxyContract, State};
 use std::time::{SystemTime, UNIX_EPOCH};
 
 pub(crate) struct Assets {
@@ -171,6 +171,10 @@ pub(crate) async fn setup(
                 let proxy = SparkProxyContract::deploy(target, owner.clone()).await?;
 
                 assert_eq!(proxy.proxy_target().await?.value, Some(target));
+                assert_eq!(
+                    proxy.proxy_owner().await?.value,
+                    State::Initialized(Identity::from(Address::from(owner.address())))
+                );
 
                 let target: ContractId = market_setup.0.contract_id().into();
                 let market = SparkMarketContract::new_proxied(
