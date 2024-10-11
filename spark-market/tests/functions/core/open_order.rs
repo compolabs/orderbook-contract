@@ -85,6 +85,7 @@ mod success {
         assert_eq!(orders.pop().unwrap(), id);
         assert_eq!(id, expected_id);
         assert_eq!(stored_id, expected_id);
+        assert_eq!(contract.user_order_height(owner.identity()).await?.value, 1);
 
         let info = contract.order_change_info(stored_id).await?.value;
         assert_eq!(info.len(), 1);

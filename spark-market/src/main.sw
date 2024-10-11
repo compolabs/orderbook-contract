@@ -82,7 +82,7 @@ storage {
     /// Epoch duration 1 month (86400 * 365.25 / 12).
     epoch_duration: u64 = 2629800,
     /// Order height.
-    order_height: u64 = 0,
+    order_heights: StorageMap<Identity, u64> = StorageMap {},
     /// Disable storing an order change info.
     store_order_change_info: bool = true,
 }
@@ -727,6 +727,20 @@ impl SparkMarketInfo for Contract {
         storage.user_orders.get(user).load_vec()
     }
 
+    /// Get user order height.
+    ///
+    /// ### Arguments
+    ///
+    /// * `user`: [Identity] The user identity.
+    ///
+    /// ### Returns
+    ///
+    /// * [u64] - The user order height.
+    #[storage(read)]
+    fn user_order_height(user: Identity) -> u64 {
+        storage.order_heights.get(user).try_read().unwrap_or(0)
+    }
+
     /// Get order change list.
     ///
     /// ### Arguments
@@ -931,9 +945,9 @@ fn withdraw_internal(amount: u64, asset_type: AssetType) -> (AssetId, Identity, 
 }
 
 #[storage(read, write)]
-fn next_order_height() -> u64 {
-    let order_height = storage.order_height.read();
-    storage.order_height.write(order_height + 1);
+fn next_order_height(user: Identity) -> u64 {
+    let order_height = storage.order_heights.get(user).try_read().unwrap_or(0);
+    storage.order_heights.insert(user, order_height + 1);
     order_height
 }
 
@@ -955,7 +969,7 @@ fn open_order_internal(
         user,
         price,
         block_height(),
-        next_order_height(),
+        next_order_height(user),
         matcher_fee,
         protocol_maker_fee,
         protocol_taker_fee,
@@ -1180,9 +1194,9 @@ fn execute_trade(
             s_account.lock_amount(lock_fee, !asset_type);
         }
         // Unlock excess funds for the buyer
-        let unlock_fee = d_trade_volume + b_order.max_protocol_fee_of_amount(b_trade_volume) - b_order_protocol_fee;
-        if unlock_fee > 0 {
-            b_account.unlock_amount(unlock_fee, !asset_type);
+        let unlock_delta = d_trade_volume + b_order.max_protocol_fee_of_amount(b_trade_volume) - b_order_protocol_fee;
+        if unlock_delta > 0 {
+            b_account.unlock_amount(unlock_delta, !asset_type);
         }
 
         // Store the updated accounts
