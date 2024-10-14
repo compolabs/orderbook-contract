@@ -86,6 +86,9 @@ abi SparkMarketInfo {
     fn user_orders(user: Identity) -> Vec<b256>;
 
     #[storage(read)]
+    fn user_order_height(user: Identity) -> u64;
+
+    #[storage(read)]
     fn order_change_info(order_id: b256) -> Vec<OrderChangeInfo>;
 
     fn config() -> (AssetId, u32, AssetId, u32, Option<Identity>, u32, u32);
