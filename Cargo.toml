@@ -4,6 +4,8 @@ members = [
     "spark-cli", 
     "spark-market-sdk", 
     "spark-market",
+    "spark-proxy-sdk", 
+    "spark-proxy",
     "spark-registry-sdk",
     "spark-registry"
 ]

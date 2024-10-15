@@ -1,0 +1,23 @@
+[package]
+name = "spark-proxy-sdk"
+version = "0.0.1"
+authors = { workspace = true }
+edition = { workspace = true }
+license = { workspace = true }
+rust-version = { workspace = true }
+description = "SDK for interacting with the Spark Proxy"
+repository = "https://github.com/compolabs/orderbook-contract"
+readme = "README.md"
+keywords = ["fuel", "sdk", "spark", "proxy", "orderbook"]
+include = [
+    "spark-proxy/out/release/*",
+    "src/lib.rs",
+    "Cargo.toml",
+    "README.md"
+]
+
+[dependencies]
+anyhow = { workspace = true }
+fuels = { workspace = true }
+rand = "0.8.5"
+tokio = { workspace = true }

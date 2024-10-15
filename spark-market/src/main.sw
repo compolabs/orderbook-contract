@@ -50,6 +50,11 @@ use std::{
 use sway_libs::reentrancy::*;
 use standards::src5::{AccessError, SRC5, State};
 
+const ZERO_VALUE = 0;
+const TRUE_VALUE = true;
+// 1 month (86400 * 365.25 / 12)
+const ONE_MONTH_SECONDS = 2629800;
+
 configurable {
     BASE_ASSET: AssetId = AssetId::zero(),
     BASE_ASSET_DECIMALS: u32 = 9,
@@ -74,17 +79,17 @@ storage {
     /// Protocol fee.
     protocol_fee: StorageVec<ProtocolFee> = StorageVec {},
     /// The reward to the matcher for single order match.
-    matcher_fee: u64 = 0,
+    matcher_fee: u64 = ZERO_VALUE,
     /// User trade volumes.
     user_volumes: StorageMap<Identity, UserVolume> = StorageMap {},
     /// Epoch.
-    epoch: u64 = 0,
-    /// Epoch duration 1 month (86400 * 365.25 / 12).
-    epoch_duration: u64 = 2629800,
+    epoch: u64 = ZERO_VALUE,
+    /// Epoch duration.
+    epoch_duration: u64 = ONE_MONTH_SECONDS,
     /// Order height.
     order_heights: StorageMap<Identity, u64> = StorageMap {},
     /// Disable storing an order change info.
-    store_order_change_info: bool = true,
+    store_order_change_info: bool = TRUE_VALUE,
 }
 
 impl SRC5 for Contract {
@@ -252,7 +257,7 @@ impl SparkMarket for Contract {
     fn open_order(amount: u64, order_type: OrderType, price: u64) -> b256 {
         reentrancy_guard();
 
-        open_order_internal(amount, order_type, price, storage.matcher_fee.read())
+        open_order_internal(amount, order_type, price, read_matcher_fee())
     }
 
     /// Cancels an existing order with the specified order ID.
@@ -508,7 +513,7 @@ impl SparkMarket for Contract {
     fn set_epoch(epoch: u64, epoch_duration: u64) {
         only_owner();
 
-        let current_epoch = storage.epoch.read();
+        let current_epoch = read_epoch();
         let now = block_timestamp();
 
         require(
@@ -585,12 +590,7 @@ impl SparkMarket for Contract {
     #[storage(read, write)]
     fn set_matcher_fee(amount: u64) {
         only_owner();
-        require(
-            amount != storage
-                .matcher_fee
-                .read(),
-            ValueError::InvalidValueSame,
-        );
+        require(amount != read_matcher_fee(), ValueError::InvalidValueSame);
         storage.matcher_fee.write(amount);
 
         log(SetMatcherRewardEvent { amount });
@@ -614,9 +614,7 @@ impl SparkMarket for Contract {
     fn set_store_order_change_info(store: bool) {
         only_owner();
         require(
-            store != storage
-                .store_order_change_info
-                .read(),
+            store != read_store_order_change_info(),
             ValueError::InvalidValueSame,
         );
         storage.store_order_change_info.write(store);
@@ -647,7 +645,7 @@ impl SparkMarketInfo for Contract {
     /// * [u64, u64] - An epoch and duration.
     #[storage(read)]
     fn get_epoch() -> (u64, u64) {
-        (storage.epoch.read(), storage.epoch_duration.read())
+        (read_epoch(), read_epoch_duration())
     }
 
     /// Get the matcher fee in `QUOTE_ASSET` units.
@@ -657,7 +655,7 @@ impl SparkMarketInfo for Contract {
     /// * [u64] - A matcher fee.
     #[storage(read)]
     fn matcher_fee() -> u64 {
-        storage.matcher_fee.read()
+        read_matcher_fee()
     }
 
     /// Get the protocol fee array.
@@ -815,7 +813,7 @@ impl SparkMarketInfo for Contract {
     /// * [bool] - The True if order change info stores otherwise false.
     #[storage(read)]
     fn store_order_change_info() -> bool {
-        storage.store_order_change_info.read()
+        read_store_order_change_info()
     }
 }
 
@@ -828,6 +826,26 @@ fn only_owner() {
             .unwrap(),
         AccessError::NotOwner,
     );
+}
+
+#[storage(read)]
+fn read_matcher_fee() -> u64 {
+    storage.matcher_fee.try_read().unwrap_or(ZERO_VALUE)
+}
+
+#[storage(read)]
+fn read_epoch() -> u64 {
+    storage.epoch.try_read().unwrap_or(ZERO_VALUE)
+}
+
+#[storage(read)]
+fn read_epoch_duration() -> u64 {
+    storage.epoch_duration.try_read().unwrap_or(ONE_MONTH_SECONDS)
+}
+
+#[storage(read)]
+fn read_store_order_change_info() -> bool {
+    storage.store_order_change_info.try_read().unwrap_or(TRUE_VALUE)
 }
 
 fn owner_identity() -> Identity {
@@ -886,7 +904,7 @@ fn lock_order_amount(order: Order) -> u64 {
 
 #[storage(read)]
 fn protocol_fee_user(user: Identity) -> (u64, u64) {
-    let volume = storage.user_volumes.get(user).try_read().unwrap_or(UserVolume::new()).get(storage.epoch.read());
+    let volume = storage.user_volumes.get(user).try_read().unwrap_or(UserVolume::new()).get(read_epoch());
     let protocol_fee = storage.protocol_fee.get_volume_protocol_fee(volume);
     (protocol_fee.maker_fee, protocol_fee.taker_fee)
 }
@@ -902,8 +920,8 @@ fn protocol_fee_user_amount(amount: u64, user: Identity) -> (u64, u64) {
 
 #[storage(write)]
 fn extend_epoch_if_finished() {
-    let epoch_duration = storage.epoch_duration.read();
-    let epoch = storage.epoch.read() + epoch_duration;
+    let epoch_duration = read_epoch_duration();
+    let epoch = read_epoch() + epoch_duration;
     let timestamp = block_timestamp();
 
     if epoch <= timestamp {
@@ -1092,7 +1110,7 @@ fn increase_user_volume(user: Identity, volume: u64) {
                 .get(user)
                 .try_read()
                 .unwrap_or(UserVolume::new())
-                .update(storage.epoch.read(), volume),
+                .update(read_epoch(), volume),
         );
 }
 
@@ -1454,7 +1472,7 @@ fn emit_match_events(
 
 #[storage(read, write)]
 fn store_order_change_info(order_id: b256, change_info: OrderChangeInfo) {
-    if storage.store_order_change_info.read() {
+    if read_store_order_change_info() {
         storage.order_change_info.get(order_id).push(change_info);
     }
 }

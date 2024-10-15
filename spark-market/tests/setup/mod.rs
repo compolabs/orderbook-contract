@@ -4,9 +4,10 @@ use fuels::{
         launch_custom_provider_and_get_wallets, Address, AssetConfig, AssetId, WalletUnlocked,
         WalletsConfig,
     },
-    types::{bech32::Bech32ContractId, Identity},
+    types::{bech32::Bech32ContractId, ContractId, Identity},
 };
 use spark_market_sdk::{Account, Balance, SparkMarketContract};
+use spark_proxy_sdk::{SparkProxyContract, State};
 use std::time::{SystemTime, UNIX_EPOCH};
 
 pub(crate) struct Assets {
@@ -85,7 +86,7 @@ pub(crate) fn create_account(
     }
 }
 
-pub(crate) async fn setup(
+async fn setup_market(
     base_decimals: u32,
     quote_decimals: u32,
     price_decimals: u32,
@@ -144,7 +145,7 @@ pub(crate) async fn setup(
         assets.quote.decimals,
         owner.clone(),
         price_decimals,
-        0xFAFBFC,
+        SparkMarketContract::sdk_version(),
     )
     .await?;
 
@@ -154,6 +155,42 @@ pub(crate) async fn setup(
     let matcher = User { wallet: matcher };
 
     Ok((contract, owner, user0, user1, matcher, assets))
+}
+
+pub(crate) async fn setup(
+    base_decimals: u32,
+    quote_decimals: u32,
+    price_decimals: u32,
+) -> anyhow::Result<(SparkMarketContract, User, User, User, User, Assets)> {
+    let setup_result = setup_market(base_decimals, quote_decimals, price_decimals).await;
+    if false {
+        match setup_result {
+            Ok(mut market_setup) => {
+                let target: ContractId = market_setup.0.contract_id().into();
+                let owner = market_setup.1.wallet.clone();
+                let proxy = SparkProxyContract::deploy(target, owner.clone()).await?;
+
+                assert_eq!(proxy.proxy_target().await?.value, Some(target));
+                assert_eq!(
+                    proxy.proxy_owner().await?.value,
+                    State::Initialized(Identity::from(Address::from(owner.address())))
+                );
+
+                let target: ContractId = market_setup.0.contract_id().into();
+                let market = SparkMarketContract::new_proxied(
+                    proxy.contract_id().into(),
+                    target,
+                    owner.clone(),
+                )
+                .await;
+                market_setup.0 = market;
+                Ok(market_setup)
+            }
+            Err(e) => Err(e),
+        }
+    } else {
+        setup_result
+    }
 }
 
 pub(crate) async fn clone_market(

@@ -1,6 +1,7 @@
 mod success {
 
     use crate::setup::{setup, Defaults};
+    use spark_market_sdk::SparkMarketContract;
 
     #[tokio::test]
     async fn returns_config() -> anyhow::Result<()> {
@@ -21,7 +22,7 @@ mod success {
                 assets.quote.decimals,
                 Some(owner.address().into()),
                 defaults.price_decimals,
-                0xFAFBFC,
+                SparkMarketContract::sdk_version(),
             )
         );
 
