@@ -407,3 +407,17 @@ Retrieves user order ids.
 `user` The user address
 
 Returns order ids
+
+
+### User Order Height Info
+
+```rust
+    pub async fn user_order_height(&self, user: Identity) -> anyhow::Result<CallResponse<u64>>
+```
+
+Retrieves user order height.
+
+`self` The SparkMarketContract instance
+`user` The user address
+
+Returns user order height

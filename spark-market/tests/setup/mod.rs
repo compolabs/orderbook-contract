@@ -163,7 +163,7 @@ pub(crate) async fn setup(
     price_decimals: u32,
 ) -> anyhow::Result<(SparkMarketContract, User, User, User, User, Assets)> {
     let setup_result = setup_market(base_decimals, quote_decimals, price_decimals).await;
-    if true {
+    if false {
         match setup_result {
             Ok(mut market_setup) => {
                 let target: ContractId = market_setup.0.contract_id().into();

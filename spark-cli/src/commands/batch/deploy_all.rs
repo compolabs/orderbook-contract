@@ -7,7 +7,7 @@ use std::str::FromStr;
 
 #[derive(Args, Clone)]
 #[command(
-    about = "Deploys the markets to a network and setup them then deploy registry and register markets"
+    about = "Deploys the markets to a network and sets them up, then deploys registry and registers markets"
 )]
 pub(crate) struct DeployAllCommand {
     /// The URL to deploy to
@@ -29,38 +29,61 @@ impl DeployAllCommand {
         let price_decimals = 9;
         let version = SparkMarketContract::sdk_version();
         let matcher_fee = 1_000;
+
+        // multi tier protocol fee structure
         let protocol_fee = vec![
             ProtocolFee {
-                maker_fee: 10,
-                taker_fee: 15,
-                volume_threshold: 0,
+                maker_fee: 25,       // 0.25% maker fee
+                taker_fee: 40,       // 0.40% taker fee
+                volume_threshold: 0, // $0 - $10,000
             },
             ProtocolFee {
-                maker_fee: 8,
-                taker_fee: 13,
-                volume_threshold: 10000000000,
+                maker_fee: 20,                    // 0.20% maker fee
+                taker_fee: 35,                    // 0.35% taker fee
+                volume_threshold: 10_000_000_000, // $10,001 - $50,000
             },
             ProtocolFee {
-                maker_fee: 6,
-                taker_fee: 11,
-                volume_threshold: 50000000000,
+                maker_fee: 14,                    // 0.14% maker fee
+                taker_fee: 24,                    // 0.24% taker fee
+                volume_threshold: 50_000_000_000, // $50,001 - $100,000
             },
             ProtocolFee {
-                maker_fee: 4,
-                taker_fee: 9,
-                volume_threshold: 100000000000,
+                maker_fee: 12,                     // 0.12% maker fee
+                taker_fee: 22,                     // 0.22% taker fee
+                volume_threshold: 100_000_000_000, // $100,001 - $250,000
             },
             ProtocolFee {
-                maker_fee: 2,
-                taker_fee: 7,
-                volume_threshold: 500000000000,
+                maker_fee: 10,                     // 0.10% maker fee
+                taker_fee: 20,                     // 0.20% taker fee
+                volume_threshold: 250_000_000_000, // $250,001 - $500,000
             },
             ProtocolFee {
-                maker_fee: 1,
-                taker_fee: 5,
-                volume_threshold: 1000000000000,
+                maker_fee: 8,                      // 0.08% maker fee
+                taker_fee: 18,                     // 0.18% taker fee
+                volume_threshold: 500_000_000_000, // $500,001 - $1,000,000
+            },
+            ProtocolFee {
+                maker_fee: 6,                        // 0.06% maker fee
+                taker_fee: 16,                       // 0.16% taker fee
+                volume_threshold: 1_000_000_000_000, // $1,000,001 - $2,500,000
+            },
+            ProtocolFee {
+                maker_fee: 4,                        // 0.04% maker fee
+                taker_fee: 14,                       // 0.14% taker fee
+                volume_threshold: 2_500_000_000_000, // $2,500,001 - $5,000,000
+            },
+            ProtocolFee {
+                maker_fee: 2,                        // 0.02% maker fee
+                taker_fee: 12,                       // 0.12% taker fee
+                volume_threshold: 5_000_000_000_000, // $5,000,001 - $10,000,000
+            },
+            ProtocolFee {
+                maker_fee: 0,                         // 0.00% maker fee
+                taker_fee: 10,                        // 0.10% taker fee
+                volume_threshold: 10_000_000_000_000, // $10,000,001+
             },
         ];
+
         let epoch = 4611686020155120000; // 10/01/2024
         let epoch_duration = 2510000; // 30 days
         let mut markets = vec![];
@@ -69,7 +92,7 @@ impl DeployAllCommand {
         let base_asset = AssetId::from_str(&btc).unwrap();
         let base_decimals = 8;
 
-        // Initial balance prior to contract call - used to calculate contract interaction cost
+        // Initial balance prior to contract call
         let balance = wallet
             .get_asset_balance(&wallet.provider().unwrap().base_asset_id())
             .await?;
@@ -107,7 +130,7 @@ impl DeployAllCommand {
         let base_asset = AssetId::from_str(&eth).unwrap();
         let base_decimals = 9;
 
-        // Initial balance prior to contract call - used to calculate contract interaction cost
+        // Initial balance prior to contract call
         let balance = wallet
             .get_asset_balance(&wallet.provider().unwrap().base_asset_id())
             .await?;
@@ -141,7 +164,7 @@ impl DeployAllCommand {
         markets.push(contract.contract_id());
         println!("Deployment cost: {}", balance - new_balance);
 
-        // Last. Deploy Registry contract
+        // Last: Deploy Registry contract
         let version = SparkRegistryContract::sdk_version();
 
         // Deploy the contract

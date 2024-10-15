@@ -528,6 +528,16 @@ impl SparkMarketContract {
             .await?)
     }
 
+    pub async fn user_order_height(&self, user: Identity) -> anyhow::Result<CallResponse<u64>> {
+        Ok(self
+            .instance
+            .methods()
+            .user_order_height(user)
+            .with_contract_ids(&[self.implementation.into()])
+            .simulate(Execution::StateReadOnly)
+            .await?)
+    }
+
     pub async fn order_change_info(
         &self,
         order_id: Bits256,
