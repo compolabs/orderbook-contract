@@ -1,6 +1,12 @@
 contract;
 
-use sway_libs::upgradability::{_proxy_owner, _proxy_target, _set_proxy_target, only_proxy_owner,};
+use sway_libs::upgradability::{
+    _proxy_owner,
+    _proxy_target,
+    _set_proxy_owner,
+    _set_proxy_target,
+    only_proxy_owner,
+};
 use standards::{src14::{SRC14, SRC14Extension}, src5::State};
 use std::execution::run_external;
 
@@ -21,16 +27,30 @@ storage {
     },
 }
 
+abi ProxyOwner {
+    #[storage(read, write)]
+    fn set_proxy_owner(new_proxy_owner: State);
+}
+
 impl SRC14 for Contract {
     #[storage(read, write)]
     fn set_proxy_target(new_target: ContractId) {
-        //only_proxy_owner();
+        only_proxy_owner();
         _set_proxy_target(new_target);
     }
 
     #[storage(read)]
     fn proxy_target() -> Option<ContractId> {
         _proxy_target()
+    }
+}
+
+impl ProxyOwner for Contract {
+    #[storage(read, write)]
+    fn set_proxy_owner(new_proxy_owner: State) {
+        // checking twice because don't control sway_libs
+        only_proxy_owner();
+        _set_proxy_owner(new_proxy_owner);
     }
 }
 

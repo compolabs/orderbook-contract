@@ -5604,6 +5604,7 @@ version = "0.6.1"
 dependencies = [
  "anyhow",
  "fuels",
+ "spark-proxy-sdk",
  "tokio",
 ]
 

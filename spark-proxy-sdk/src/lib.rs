@@ -5,7 +5,7 @@ use fuels::{
     },
     programs::{calls::Execution, responses::CallResponse},
     tx::StorageSlot,
-    types::Bytes32,
+    types::{Bytes32, Identity},
 };
 use rand::Rng;
 use std::path::PathBuf;
@@ -100,10 +100,10 @@ impl SparkProxyContract {
         }
     }
 
-    pub async fn with_account(&self, account: &WalletUnlocked) -> anyhow::Result<Self> {
-        Ok(Self {
+    pub fn with_account(&self, account: &WalletUnlocked) -> Self {
+        Self {
             instance: self.instance.clone().with_account(account.clone()),
-        })
+        }
     }
 
     pub fn id(&self) -> Bytes32 {
@@ -132,6 +132,18 @@ impl SparkProxyContract {
             .methods()
             .proxy_target()
             .simulate(Execution::StateReadOnly)
+            .await?)
+    }
+
+    pub async fn set_proxy_owner(
+        &self,
+        new_proxy_owner: State,
+    ) -> anyhow::Result<CallResponse<()>> {
+        Ok(self
+            .instance
+            .methods()
+            .set_proxy_owner(new_proxy_owner)
+            .call()
             .await?)
     }
 
