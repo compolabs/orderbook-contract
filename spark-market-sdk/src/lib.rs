@@ -417,6 +417,16 @@ impl SparkMarketContract {
             .await?)
     }
 
+    pub async fn set_min_order_size(&self, size: u64) -> anyhow::Result<CallResponse<()>> {
+        Ok(self
+            .instance
+            .methods()
+            .set_min_order_size(size)
+            .with_contract_ids(&[self.implementation.into()])
+            .call()
+            .await?)
+    }
+
     pub async fn account(&self, user: Identity) -> anyhow::Result<CallResponse<Account>> {
         Ok(self
             .instance
@@ -546,6 +556,16 @@ impl SparkMarketContract {
             .instance
             .methods()
             .order_change_info(order_id)
+            .with_contract_ids(&[self.implementation.into()])
+            .simulate(Execution::StateReadOnly)
+            .await?)
+    }
+
+    pub async fn min_order_size(&self) -> anyhow::Result<CallResponse<u64>> {
+        Ok(self
+            .instance
+            .methods()
+            .min_order_size()
             .with_contract_ids(&[self.implementation.into()])
             .simulate(Execution::StateReadOnly)
             .await?)

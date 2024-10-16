@@ -226,7 +226,7 @@ Returns a call result
 ### Set Matcher Fee
 
 ```rust
-pub async fn set_matcher_fee(&self, amount: u32) -> anyhow::Result<CallResponse<()>>
+pub async fn set_matcher_fee(&self, amount: u64) -> anyhow::Result<CallResponse<()>>
 ```
 
 Owner sets fixed matcher reward for single order match.
@@ -248,6 +248,20 @@ Owner resets epoch for cumulative trade volumes.
 `self` The SparkMarketContract instance
 `epoch` The epoch timestamp
 `epoch_duration` The epoch duration in seconds
+
+Returns a call result
+
+
+### Set Minimum Order Size
+
+```rust
+pub async fn set_order_size(&self, amount: u64) -> anyhow::Result<CallResponse<()>>
+```
+
+Owner sets minimum order size in BASE_ASSET units.
+
+`self` The SparkMarketContract instance
+`size` The minimum order size
 
 Returns a call result
 
@@ -357,7 +371,7 @@ Returns calculated protocol fee amount
 ### Matcher Fee Info
 
 ```rust
-pub async fn matcher_fee(&self) -> anyhow::Result<CallResponse<u32>>
+pub async fn matcher_fee(&self) -> anyhow::Result<CallResponse<u64>>
 ```
 
 Retrieves matcher fee set by Market owner.
@@ -421,3 +435,16 @@ Retrieves user order height.
 `user` The user address
 
 Returns user order height
+
+
+### Minimum Order Size Info
+
+```rust
+pub async fn min_order_size(&self) -> anyhow::Result<CallResponse<u64>>
+```
+
+Retrieves minimum order size set by Market owner.
+
+`self` The SparkMarketContract instance
+
+Returns minimum order size

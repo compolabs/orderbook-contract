@@ -1,6 +1,7 @@
 mod account;
 mod config;
 mod matcher_fee;
+mod min_order_size;
 mod order;
 mod order_id;
 mod protocol_fee;

@@ -24,7 +24,6 @@ mod success {
         let contract_id: ContractId = market.contract_id().into();
         contract
             .with_account(&admin.wallet)
-            .await?
             .register_market(contract_id)
             .await?;
         assert_eq!(
@@ -68,8 +67,6 @@ mod revert {
         // Reverts
         contract
             .with_account(&user.wallet)
-            .await
-            .unwrap()
             .register_market(contract_id)
             .await
             .unwrap();
@@ -99,8 +96,6 @@ mod revert {
 
         contract
             .with_account(&admin.wallet)
-            .await
-            .unwrap()
             .register_market(contract_id)
             .await
             .unwrap();
@@ -108,8 +103,6 @@ mod revert {
         // Reverts
         contract
             .with_account(&admin.wallet)
-            .await
-            .unwrap()
             .register_market(contract_id)
             .await
             .unwrap();

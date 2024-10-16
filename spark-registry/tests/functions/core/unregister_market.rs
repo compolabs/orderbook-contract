@@ -25,15 +25,11 @@ mod success {
 
         contract
             .with_account(&admin.wallet)
-            .await
-            .unwrap()
             .register_market(contract_id)
             .await
             .unwrap();
         contract
             .with_account(&admin.wallet)
-            .await
-            .unwrap()
             .unregister_market(contract_id)
             .await
             .unwrap();
@@ -76,16 +72,12 @@ mod revert {
         let contract_id: ContractId = market.contract_id().into();
         contract
             .with_account(&admin.wallet)
-            .await
-            .unwrap()
             .register_market(contract_id)
             .await
             .unwrap();
         // Reverts
         contract
             .with_account(&user.wallet)
-            .await
-            .unwrap()
             .unregister_market(contract_id)
             .await
             .unwrap();
@@ -114,8 +106,6 @@ mod revert {
         // Reverts
         contract
             .with_account(&admin.wallet)
-            .await
-            .unwrap()
             .unregister_market(contract_id)
             .await
             .unwrap();

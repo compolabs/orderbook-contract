@@ -5,7 +5,7 @@ use fuels::{
     },
     programs::{calls::Execution, responses::CallResponse},
     tx::StorageSlot,
-    types::{Bytes32, Identity},
+    types::Bytes32,
 };
 use rand::Rng;
 use std::path::PathBuf;

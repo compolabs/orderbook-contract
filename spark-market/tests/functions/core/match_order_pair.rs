@@ -66,6 +66,80 @@ mod success_same_asset_type {
             expected_account1
         );
 
+        assert!(contract.order(id0).await?.value.is_none());
+        assert!(contract.order(id1).await?.value.is_none());
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn match_same_base_asset_type_orders_same_price_small_diff_size() -> anyhow::Result<()> {
+        let defaults = Defaults::default();
+        let (contract, _, user0, user1, _, assets) = setup(
+            defaults.base_decimals,
+            defaults.quote_decimals,
+            defaults.price_decimals,
+        )
+        .await?;
+
+        let to_quote_scale =
+            10_u64.pow(defaults.price_decimals + defaults.base_decimals - defaults.quote_decimals);
+        let price = 70_000 * 10_u64.pow(defaults.price_decimals);
+        let min_base_amount = 1_000_u64;
+        let base_amount = 100_000_u64; // 0.001 BTC
+        let quote_amount = price / to_quote_scale * (base_amount - min_base_amount);
+
+        let _ = contract.set_min_order_size(min_base_amount + 1).await?;
+
+        contract
+            .with_account(&user0.wallet)
+            .deposit(base_amount, assets.base.id)
+            .await?;
+        contract
+            .with_account(&user1.wallet)
+            .deposit(quote_amount, assets.quote.id)
+            .await?;
+
+        let id0 = contract
+            .with_account(&user0.wallet)
+            .open_order(base_amount, OrderType::Sell, price)
+            .await?
+            .value;
+        let id1 = contract
+            .with_account(&user1.wallet)
+            .open_order(base_amount - min_base_amount, OrderType::Buy, price)
+            .await?
+            .value;
+
+        let expected_account0 = create_account(0, 0, base_amount, 0);
+        let expected_account1 = create_account(0, 0, 0, quote_amount);
+
+        assert_eq!(
+            contract.account(user0.identity()).await?.value,
+            expected_account0
+        );
+        assert_eq!(
+            contract.account(user1.identity()).await?.value,
+            expected_account1
+        );
+
+        let expected_account0 = create_account(min_base_amount, quote_amount, 0, 0);
+        let expected_account1 = create_account(base_amount - min_base_amount, 0, 0, 0);
+
+        contract.match_order_pair(id0, id1).await?;
+
+        assert_eq!(
+            contract.account(user0.identity()).await?.value,
+            expected_account0
+        );
+        assert_eq!(
+            contract.account(user1.identity()).await?.value,
+            expected_account1
+        );
+
+        assert!(contract.order(id0).await?.value.is_none());
+        assert!(contract.order(id1).await?.value.is_none());
+
         Ok(())
     }
 

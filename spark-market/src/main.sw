@@ -26,6 +26,7 @@ use ::events::{
     OpenOrderEvent,
     SetEpochEvent,
     SetMatcherRewardEvent,
+    SetMinOrderSizeEvent,
     SetProtocolFeeEvent,
     SetStoreOrderChangeInfoEvent,
     TradeOrderEvent,
@@ -66,6 +67,16 @@ configurable {
 }
 
 storage {
+    /// The reward to the matcher for single order match.
+    matcher_fee: u64 = ZERO_VALUE,
+    /// Epoch.
+    epoch: u64 = ZERO_VALUE,
+    /// Epoch duration.
+    epoch_duration: u64 = ONE_MONTH_SECONDS,
+    /// Minimum  order size in BASE_ASSET units
+    min_order_size: u64 = ZERO_VALUE,
+    /// Disable storing an order change info.
+    store_order_change_info: bool = TRUE_VALUE,
     /// Balance of each user.
     account: StorageMap<Identity, Account> = StorageMap {},
     /// All of the currently open orders.
@@ -78,18 +89,10 @@ storage {
     order_change_info: StorageMap<b256, StorageVec<OrderChangeInfo>> = StorageMap {},
     /// Protocol fee.
     protocol_fee: StorageVec<ProtocolFee> = StorageVec {},
-    /// The reward to the matcher for single order match.
-    matcher_fee: u64 = ZERO_VALUE,
     /// User trade volumes.
     user_volumes: StorageMap<Identity, UserVolume> = StorageMap {},
-    /// Epoch.
-    epoch: u64 = ZERO_VALUE,
-    /// Epoch duration.
-    epoch_duration: u64 = ONE_MONTH_SECONDS,
     /// Order height.
     order_heights: StorageMap<Identity, u64> = StorageMap {},
-    /// Disable storing an order change info.
-    store_order_change_info: bool = TRUE_VALUE,
 }
 
 impl SRC5 for Contract {
@@ -586,7 +589,7 @@ impl SparkMarket for Contract {
     /// ### Reverts
     ///
     /// * When called by non-owner.
-    /// * When `set_matcher_fee` is same as set before.
+    /// * When `matcher_fee` is same as set before.
     #[storage(read, write)]
     fn set_matcher_fee(amount: u64) {
         only_owner();
@@ -620,6 +623,31 @@ impl SparkMarket for Contract {
         storage.store_order_change_info.write(store);
 
         log(SetStoreOrderChangeInfoEvent { store });
+    }
+
+    /// Sets the minimum of order amount.
+    ///
+    /// ### Additional Information
+    ///
+    /// This function allows the contract owner to update the minimum of an order amount.
+    /// It checks that the new amount is different from the current one to avoid redundant updates.
+    /// The function is restricted to the contract owner and logs an event after the matcher fee is set.
+    ///
+    /// ### Arguments
+    ///
+    /// * `amount`: [u64] The new the minimum of an order amount to be set. It must be different from the current the minimum of an order amount.
+    ///
+    /// ### Reverts
+    ///
+    /// * When called by non-owner.
+    /// * When `min_order_size` is same as set before.
+    #[storage(read, write)]
+    fn set_min_order_size(size: u64) {
+        only_owner();
+        require(size != read_min_order_size(), ValueError::InvalidValueSame);
+        storage.min_order_size.write(size);
+
+        log(SetMinOrderSizeEvent { size });
     }
 }
 
@@ -753,6 +781,16 @@ impl SparkMarketInfo for Contract {
         storage.order_change_info.get(order_id).load_vec()
     }
 
+    /// Get the minimum order size in BASE_ASSET units.
+    ///
+    /// ### Returns
+    ///
+    /// * [u64] - A minimum order type size.
+    #[storage(read)]
+    fn min_order_size() -> u64 {
+        read_min_order_size()
+    }
+
     /// Get contract configurables.
     ///
     /// ### Returns
@@ -829,6 +867,13 @@ fn only_owner() {
 }
 
 #[storage(read)]
+fn read_order(order_id: b256) -> Order {
+    let order = storage.orders.get(order_id).try_read();
+    require(order.is_some(), OrderError::OrderNotFound(order_id));
+    order.unwrap()
+}
+
+#[storage(read)]
 fn read_matcher_fee() -> u64 {
     storage.matcher_fee.try_read().unwrap_or(ZERO_VALUE)
 }
@@ -846,6 +891,11 @@ fn read_epoch_duration() -> u64 {
 #[storage(read)]
 fn read_store_order_change_info() -> bool {
     storage.store_order_change_info.try_read().unwrap_or(TRUE_VALUE)
+}
+
+#[storage(read)]
+fn read_min_order_size() -> u64 {
+    storage.min_order_size.try_read().unwrap_or(ZERO_VALUE)
 }
 
 fn owner_identity() -> Identity {
@@ -979,6 +1029,11 @@ fn open_order_internal(
     let user = msg_sender().unwrap();
     let (protocol_maker_fee, protocol_taker_fee) = protocol_fee_user(user);
 
+    require(
+        valid_order_amount(amount),
+        OrderError::OrderSizeTooSmall(amount),
+    );
+
     let asset_type = AssetType::Base;
     let mut order = Order::new(
         amount,
@@ -1055,15 +1110,18 @@ fn open_order_internal(
 #[storage(read, write)]
 fn cancel_order_internal(order_id: b256) {
     // Order must exist to be cancelled
-    let order = storage.orders.get(order_id).try_read();
-    require(order.is_some(), OrderError::OrderNotFound(order_id));
-
-    let order = order.unwrap();
+    let order = read_order(order_id);
     let user = msg_sender().unwrap();
 
     // Only the owner of the order may cancel their order
     require(user == order.owner, AuthError::Unauthorized);
 
+    cancel_read_order(order_id, order);
+}
+
+#[storage(read, write)]
+fn cancel_read_order(order_id: b256, order: Order) {
+    let user = order.owner;
     // Safe to read() because user is the owner of the order
     let mut account = storage.account.get(user).read();
 
@@ -1096,6 +1154,21 @@ fn cancel_order_internal(order_id: b256) {
         user,
         balance: account,
     });
+}
+
+#[storage(read, write)]
+fn cancel_if_small_order(order_id: b256) -> bool {
+    let order = read_order(order_id);
+    let to_cancel = !valid_order_amount(order.amount);
+    if to_cancel {
+        cancel_read_order(order_id, order);
+    }
+    to_cancel
+}
+
+#[storage(read)]
+fn valid_order_amount(amount: u64) -> bool {
+    amount >= read_min_order_size()
 }
 
 #[storage(read, write)]
@@ -1368,6 +1441,11 @@ fn match_order_internal(
         b_id,
         b_order_matcher_fee,
     );
+    if match_result == MatchResult::PartialMatch
+        && cancel_if_small_order(partial_order_id)
+    {
+        return (MatchResult::FullMatch, b256::zero());
+    }
     (match_result, partial_order_id)
 }
 
