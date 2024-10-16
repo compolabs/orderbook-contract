@@ -2884,7 +2884,7 @@
         {
           "name": "doc-comment",
           "arguments": [
-            " Get the minimum order type size in BASE_ASSET units."
+            " Get the minimum order size in BASE_ASSET units."
           ]
         },
         {

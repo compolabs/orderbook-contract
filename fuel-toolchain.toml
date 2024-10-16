@@ -3,4 +3,4 @@ channel = "latest-x86_64-apple-darwin"
 
 [components]
 forc="0.65.2"
-fuel-core = "0.38.0"
+fuel-core = "0.40.0"
