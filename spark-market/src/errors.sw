@@ -22,7 +22,7 @@ pub enum OrderError {
     OrderDuplicate: b256,
     OrderNotFound: b256,
     PriceTooSmall: (u64, u64),
-    ZeroOrderAmount: (),
+    OrderSizeTooSmall: u64,
     ZeroLockAmount: (),
     ZeroUnlockAmount: (),
     ZeroTransferAmount: (),

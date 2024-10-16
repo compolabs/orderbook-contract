@@ -34,7 +34,6 @@ impl Order {
         protocol_maker_fee: u64,
         protocol_taker_fee: u64,
     ) -> Self {
-        require(amount != 0, OrderError::ZeroOrderAmount);
         require(asset_type == AssetType::Base, AssetError::InvalidAsset);
         let price_minimum = 1_u64;
         require(

@@ -121,6 +121,7 @@ mod success {
         let order_type = OrderType::Buy;
         let price = 70000 * 10_u64.pow(defaults.price_decimals);
 
+        let _ = contract.set_min_order_size(order_amount).await?;
         let _ = contract.deposit(deposit_amount, asset_to_pay_wth).await;
 
         let user_account = contract.account(owner.identity()).await?.value;
@@ -210,6 +211,8 @@ mod success {
         let asset = assets.base.id;
         let order_type = OrderType::Sell;
         let price = 70_000_000_000_000_u64;
+
+        let _ = contract.set_min_order_size(order_amount).await?;
 
         let balance = _user.wallet.get_asset_balance(&assets.base.id).await?;
         let _ = contract
@@ -413,6 +416,39 @@ mod revert {
 
         // minimum price is 0.000000001 i.e. 1 / 1e9
         let price = 0;
+
+        let _ = contract
+            .deposit(deposit_amount, deposit_asset)
+            .await
+            .unwrap();
+
+        // Revert
+        contract
+            .open_order(order_amount, order_type, price)
+            .await
+            .unwrap();
+    }
+
+    #[tokio::test]
+    #[should_panic(expected = "OrderSizeTooSmall")]
+    async fn when_size_too_small() {
+        let defaults = Defaults::default();
+        let (contract, _owner, _user, _, _, assets) = setup(
+            defaults.base_decimals,
+            defaults.quote_decimals,
+            defaults.price_decimals,
+        )
+        .await
+        .unwrap();
+
+        let deposit_amount = 10;
+        let order_amount = 100;
+        let deposit_asset = assets.quote.id;
+        let order_type = OrderType::Sell;
+
+        let price = 1_000_000;
+
+        let _ = contract.set_min_order_size(order_amount + 1).await.unwrap();
 
         let _ = contract
             .deposit(deposit_amount, deposit_asset)

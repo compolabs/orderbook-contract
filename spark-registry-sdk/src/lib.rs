@@ -67,10 +67,10 @@ impl SparkRegistryContract {
         _self
     }
 
-    pub async fn with_account(&self, account: &WalletUnlocked) -> anyhow::Result<Self> {
-        Ok(Self {
+    pub fn with_account(&self, account: &WalletUnlocked) -> Self {
+        Self {
             instance: self.instance.clone().with_account(account.clone()),
-        })
+        }
     }
 
     pub fn id(&self) -> Bytes32 {

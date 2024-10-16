@@ -79,3 +79,7 @@ pub struct SetMatcherRewardEvent {
 pub struct SetStoreOrderChangeInfoEvent {
     pub store: bool,
 }
+
+pub struct SetMinOrderSizeEvent {
+    pub size: u64,
+}
