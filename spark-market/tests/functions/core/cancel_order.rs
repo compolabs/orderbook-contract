@@ -208,17 +208,19 @@ mod success {
         }];
         let _ = contract.set_protocol_fee(protocol_fee.clone()).await?;
 
-        let deposit_amount = 70000;
+        let order_amount = 100;
+        let price = 70_000;
+        let deposit_amount =
+            order_amount * price / 10_u64.pow(defaults.base_decimals - defaults.quote_decimals);
         let deposit_amount = deposit_amount
             + deposit_amount * std::cmp::max(protocol_fee[0].maker_fee, protocol_fee[0].taker_fee)
                 / 10_000
             + matcher_fee;
         let expected_account = create_account(0, deposit_amount, 0, 0);
 
-        let order_amount = 100;
         let asset_to_pay_wth = assets.quote.id;
         let order_type = OrderType::Buy;
-        let price = 70000 * 10_u64.pow(defaults.price_decimals);
+        let price = price * 10_u64.pow(defaults.price_decimals);
         let expected_id = contract
             .order_id(
                 order_type.clone(),

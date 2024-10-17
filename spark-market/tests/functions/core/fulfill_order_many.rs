@@ -57,8 +57,8 @@ mod success_gtc {
 
         let base_deposit = base_amount * 5;
         let quote_deposit =
-            2 * price1 / to_quote_scale * base_amount + 3 * price2 / to_quote_scale * base_amount;
-        let quote_delta = 3 * (price2 - price1) / to_quote_scale * base_amount;
+            2 * price1 * base_amount / to_quote_scale + 3 * price2 * base_amount / to_quote_scale;
+        let quote_delta = 3 * (price2 - price1) * base_amount / to_quote_scale;
 
         contract
             .with_account(&user0.wallet)
@@ -155,9 +155,9 @@ mod success_gtc {
 
         let base_deposit = base_amount * 5;
         let quote_deposit =
-            2 * price1 / to_quote_scale * base_amount + 4 * price2 / to_quote_scale * base_amount;
-        let quote_delta = 3 * (price2 - price1) / to_quote_scale * base_amount;
-        let quote_locked = price2 / to_quote_scale * base_amount;
+            2 * price1 * base_amount / to_quote_scale + 4 * price2 * base_amount / to_quote_scale;
+        let quote_delta = 3 * (price2 - price1) * base_amount / to_quote_scale;
+        let quote_locked = price2 * base_amount / to_quote_scale;
 
         contract
             .with_account(&user0.wallet)
@@ -260,8 +260,8 @@ mod success_gtc {
         let base_buy = base_amount * 5;
         let base_deposit = base_amount * 6;
         let quote_deposit =
-            2 * price1 / to_quote_scale * base_amount + 3 * price2 / to_quote_scale * base_amount;
-        let quote_delta = 3 * (price2 - price1) / to_quote_scale * base_amount;
+            2 * price1 * base_amount / to_quote_scale + 3 * price2 * base_amount / to_quote_scale;
+        let quote_delta = 3 * (price2 - price1) * base_amount / to_quote_scale;
 
         contract
             .with_account(&user0.wallet)
@@ -471,11 +471,11 @@ mod success_gtc {
         let total_matcher_fee = matcher_fee * order_configs.len() as u64;
 
         let base_deposit = base_amount * 5;
-        let quote_deposit = 2 * price1 / to_quote_scale * base_amount
-            + 3 * price2 / to_quote_scale * base_amount
+        let quote_deposit = 2 * price1 * base_amount / to_quote_scale
+            + 3 * price2 * base_amount / to_quote_scale
             + total_matcher_fee;
 
-        let quote_delta = 3 * (price2 - price1) / to_quote_scale * base_amount;
+        let quote_delta = 3 * (price2 - price1) * base_amount / to_quote_scale;
 
         // Deposit initial amounts for users
         contract
@@ -526,8 +526,8 @@ mod success_gtc {
         let expected_account0 = create_account(base_deposit, quote_delta, 0, 0);
         let expected_account1 = create_account(0, quote_deposit - quote_delta, 0, 0);
 
-        let fill_amount = total_fill_amount * (price1 / 10_u64.pow(defaults.price_decimals)) / 100;
-        let calculated_matcher_fee = quote_deposit - quote_delta - fill_amount;
+        let total_fill_amount_in_quote = total_fill_amount * price1 / to_quote_scale;
+        let calculated_matcher_fee = quote_deposit - quote_delta - total_fill_amount_in_quote;
 
         // Assert matcher fee is as expected
         assert_eq!(total_matcher_fee, calculated_matcher_fee);
@@ -601,8 +601,8 @@ mod success_ioc {
 
         let base_deposit = base_amount * 5;
         let quote_deposit =
-            2 * price1 / to_quote_scale * base_amount + 3 * price2 / to_quote_scale * base_amount;
-        let quote_delta = 3 * (price2 - price1) / to_quote_scale * base_amount;
+            2 * price1 * base_amount / to_quote_scale + 3 * price2 * base_amount / to_quote_scale;
+        let quote_delta = 3 * (price2 - price1) * base_amount / to_quote_scale;
 
         contract
             .with_account(&user0.wallet)
@@ -697,9 +697,9 @@ mod success_ioc {
 
         let base_deposit = base_amount * 5;
         let quote_deposit =
-            2 * price1 / to_quote_scale * base_amount + 4 * price2 / to_quote_scale * base_amount;
-        let quote_delta = 3 * (price2 - price1) / to_quote_scale * base_amount;
-        let quote_locked = price2 / to_quote_scale * base_amount;
+            2 * price1 * base_amount / to_quote_scale + 4 * price2 * base_amount / to_quote_scale;
+        let quote_delta = 3 * (price2 - price1) * base_amount / to_quote_scale;
+        let quote_locked = price2 * base_amount / to_quote_scale;
 
         contract
             .with_account(&user0.wallet)
@@ -799,9 +799,9 @@ mod success_ioc {
 
         let base_deposit = base_amount * 4;
         let quote_deposit =
-            2 * price1 / to_quote_scale * base_amount + 3 * price2 / to_quote_scale * base_amount;
-        let quote_delta = 2 * (price2 - price1) / to_quote_scale * base_amount;
-        let quote_locked = price2 / to_quote_scale * base_amount;
+            2 * price1 * base_amount / to_quote_scale + 3 * price2 * base_amount / to_quote_scale;
+        let quote_delta = 2 * (price2 - price1) * base_amount / to_quote_scale;
+        let quote_locked = price2 * base_amount / to_quote_scale;
 
         contract
             .with_account(&user0.wallet)
@@ -1008,11 +1008,11 @@ mod success_ioc {
         let total_matcher_fee = matcher_fee * order_configs.len() as u64;
 
         let base_deposit = base_amount * 5;
-        let quote_deposit = 2 * price1 / to_quote_scale * base_amount
-            + 3 * price2 / to_quote_scale * base_amount
+        let quote_deposit = 2 * price1 * base_amount / to_quote_scale
+            + 3 * price2 * base_amount / to_quote_scale
             + total_matcher_fee;
 
-        let quote_delta = 3 * (price2 - price1) / to_quote_scale * base_amount;
+        let quote_delta = 3 * (price2 - price1) * base_amount / to_quote_scale;
 
         // Deposit initial amounts for users
         contract
@@ -1063,8 +1063,8 @@ mod success_ioc {
         let expected_account0 = create_account(base_deposit, quote_delta, 0, 0);
         let expected_account1 = create_account(0, quote_deposit - quote_delta, 0, 0);
 
-        let fill_amount = total_fill_amount * (price1 / 10_u64.pow(defaults.price_decimals)) / 100;
-        let calculated_matcher_fee = quote_deposit - quote_delta - fill_amount;
+        let total_fill_amount_in_quote = total_fill_amount * price1 / to_quote_scale;
+        let calculated_matcher_fee = quote_deposit - quote_delta - total_fill_amount_in_quote;
 
         // Assert matcher fee is as expected
         assert_eq!(total_matcher_fee, calculated_matcher_fee);
@@ -1138,8 +1138,8 @@ mod success_fok {
 
         let base_deposit = base_amount * 5;
         let quote_deposit =
-            2 * price1 / to_quote_scale * base_amount + 3 * price2 / to_quote_scale * base_amount;
-        let quote_delta = 3 * (price2 - price1) / to_quote_scale * base_amount;
+            2 * price1 * base_amount / to_quote_scale + 3 * price2 * base_amount / to_quote_scale;
+        let quote_delta = 3 * (price2 - price1) * base_amount / to_quote_scale;
 
         contract
             .with_account(&user0.wallet)
@@ -1234,9 +1234,9 @@ mod success_fok {
 
         let base_deposit = base_amount * 5;
         let quote_deposit =
-            2 * price1 / to_quote_scale * base_amount + 4 * price2 / to_quote_scale * base_amount;
-        let quote_delta = 3 * (price2 - price1) / to_quote_scale * base_amount;
-        let quote_locked = price2 / to_quote_scale * base_amount;
+            2 * price1 * base_amount / to_quote_scale + 4 * price2 * base_amount / to_quote_scale;
+        let quote_delta = 3 * (price2 - price1) * base_amount / to_quote_scale;
+        let quote_locked = price2 * base_amount / to_quote_scale;
 
         contract
             .with_account(&user0.wallet)
@@ -1336,9 +1336,9 @@ mod success_fok {
 
         let base_deposit = base_amount * 4;
         let quote_deposit =
-            2 * price1 / to_quote_scale * base_amount + 3 * price2 / to_quote_scale * base_amount;
-        let quote_delta = 2 * (price2 - price1) / to_quote_scale * base_amount;
-        let quote_locked = price2 / to_quote_scale * base_amount;
+            2 * price1 * base_amount / to_quote_scale + 3 * price2 * base_amount / to_quote_scale;
+        let quote_delta = 2 * (price2 - price1) * base_amount / to_quote_scale;
+        let quote_locked = price2 * base_amount / to_quote_scale;
 
         contract
             .with_account(&user0.wallet)
@@ -1445,12 +1445,12 @@ mod success_fok {
 
         // Calculate deposits
         let base_deposit = base_amount * 5;
-        let quote_deposit = 2 * price1 / to_quote_scale * base_amount
-            + 3 * price2 / to_quote_scale * base_amount
+        let quote_deposit = 2 * price1 * base_amount / to_quote_scale
+            + 3 * price2 * base_amount / to_quote_scale
             + total_matcher_fee;
 
         // Calculate quote delta
-        let quote_delta = 3 * (price2 - price1) / to_quote_scale * base_amount;
+        let quote_delta = 3 * (price2 - price1) * base_amount / to_quote_scale;
 
         // Deposit initial amounts for users
         contract
@@ -1502,8 +1502,7 @@ mod success_fok {
         let expected_account1 = create_account(0, quote_deposit - quote_delta, 0, 0);
 
         // Verify matcher fee
-        let total_fill_amount_in_quote =
-            total_fill_amount * (price1 / 10_u64.pow(defaults.price_decimals)) / 100;
+        let total_fill_amount_in_quote = total_fill_amount * price1 / to_quote_scale;
         let calculated_matcher_fee = quote_deposit - quote_delta - total_fill_amount_in_quote;
         assert_eq!(total_matcher_fee, calculated_matcher_fee);
 
@@ -1572,7 +1571,7 @@ mod success_fok {
         // Calculate deposits
         let base_deposit = fulfill_order_config.amount;
         let quote_deposit =
-            2 * price1 / to_quote_scale * base_amount + 3 * price2 / to_quote_scale * base_amount;
+            2 * price1 * base_amount / to_quote_scale + 3 * price2 * base_amount / to_quote_scale;
         let max_protocol_fee = quote_deposit
             * std::cmp::max(protocol_fee[0].maker_fee, protocol_fee[0].taker_fee)
             / 10_000;
@@ -1873,7 +1872,7 @@ mod revert {
 
         let base_deposit = base_amount * 6;
         let quote_deposit =
-            2 * price1 / to_quote_scale * base_amount + 3 * price2 / to_quote_scale * base_amount;
+            2 * price1 * base_amount / to_quote_scale + 3 * price2 * base_amount / to_quote_scale;
 
         contract
             .with_account(&user0.wallet)

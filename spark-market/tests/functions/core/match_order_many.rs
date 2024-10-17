@@ -224,7 +224,7 @@ mod success {
         ];
 
         let base_deposit = 440_000_u64;
-        let quote_deposit = 100_000_000_000_u64;
+        let quote_deposit = 1_000_000_000_000_u64;
 
         contract
             .with_account(&user0.wallet)
@@ -386,7 +386,7 @@ mod success {
         let to_quote_scale =
             10_u64.pow(defaults.price_decimals + defaults.base_decimals - defaults.quote_decimals);
 
-        let base_amount = 1_000_u64; // 0.00001 BTC
+        let base_amount = 10_000_u64; // 0.0001 BTC
         let price1 = 70_000_000_000_000_u64; // 70,000$ price
         let price2 = 75_000_000_000_000_u64; // 75,000$ price
 

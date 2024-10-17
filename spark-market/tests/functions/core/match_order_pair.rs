@@ -437,8 +437,9 @@ mod success_same_asset_type {
 
         let to_quote_scale =
             10_u64.pow(defaults.price_decimals + defaults.base_decimals - defaults.quote_decimals);
-        let price = 70_000 * 10_u64.pow(defaults.price_decimals);
-        let base_amount = 100_000_u64; // 0.001 BTC
+        let price = 70_000;
+        let price = price * 10_u64.pow(defaults.price_decimals);
+        let base_amount = 10_u64.pow(defaults.base_decimals); // 1 whole coin
         let quote_amount = price / to_quote_scale * base_amount + matcher_fee;
         contract
             .with_account(&user0.wallet)
@@ -745,10 +746,11 @@ mod success_same_asset_type {
 
         let to_quote_scale =
             10_u64.pow(defaults.price_decimals + defaults.base_decimals - defaults.quote_decimals);
-        let price = 70000000000000;
-        let base_amount = 10_u64; // 0.0000001 BTC
-        let deposit_quote_amount = 10_000;
+        let price = 70_000;
+        let price = price * 10_u64.pow(defaults.price_decimals);
+        let base_amount = 100_u64; // 0.000001 BTC
         let quote_amount = price / to_quote_scale * base_amount;
+        let deposit_quote_amount = quote_amount * 3u64 / 2u64;
         let taker_protocol_fee = quote_amount * 15 / 10_000;
         let quote_amount = quote_amount + taker_protocol_fee + matcher_fee;
         contract.deposit(base_amount, assets.base.id).await?;
@@ -806,12 +808,13 @@ mod success_same_asset_type {
         // Increase the epoch and duration
         let _ = contract.set_epoch(tai64_epoch, epoch_duration).await?;
 
+        let price = 70_000;
         let to_quote_scale =
             10_u64.pow(defaults.price_decimals + defaults.base_decimals - defaults.quote_decimals);
-        let price = 70_000 * 10_u64.pow(defaults.price_decimals);
+        let price = price * 10_u64.pow(defaults.price_decimals);
 
         // Adjust base_amount to ensure the trade crosses a volume threshold
-        let base_amount = 10_u64.pow(8); // 1 BTC
+        let base_amount = 10_u64.pow(defaults.base_decimals); // 1 whole coin
 
         // Calculate quote_amount based on price and base_amount
         let quote_amount = price / to_quote_scale * base_amount;

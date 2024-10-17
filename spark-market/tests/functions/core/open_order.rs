@@ -112,14 +112,17 @@ mod success {
         let matcher_fee = 100_u64;
         let _ = contract.set_matcher_fee(matcher_fee).await?;
 
-        let deposit_amount = 70000 + matcher_fee;
+        let order_amount = 100;
+        let price = 70_000;
+        let deposit_amount = order_amount * price
+            / 10_u64.pow(defaults.base_decimals - defaults.quote_decimals)
+            + matcher_fee;
         let expected_account = create_account(0, deposit_amount, 0, 0);
 
-        let order_amount = 100;
         let asset_to_buy = assets.base.id;
         let asset_to_pay_wth = assets.quote.id;
         let order_type = OrderType::Buy;
-        let price = 70000 * 10_u64.pow(defaults.price_decimals);
+        let price = price * 10_u64.pow(defaults.price_decimals);
 
         let _ = contract.set_min_order_size(order_amount).await?;
         let _ = contract.deposit(deposit_amount, asset_to_pay_wth).await;
@@ -368,11 +371,13 @@ mod revert {
         .await
         .unwrap();
 
-        let deposit_amount = 70000;
         let order_amount = 100;
+        let price = 70_000;
+        let deposit_amount =
+            order_amount * price / 10_u64.pow(defaults.base_decimals - defaults.quote_decimals);
         let asset_to_pay_wth = assets.quote.id;
         let order_type = OrderType::Buy;
-        let price = 70000 * 10_u64.pow(defaults.price_decimals);
+        let price = price * 10_u64.pow(defaults.price_decimals);
 
         let _ = contract.deposit(deposit_amount, asset_to_pay_wth).await;
 
