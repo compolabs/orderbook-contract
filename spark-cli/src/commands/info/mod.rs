@@ -3,6 +3,7 @@ pub(crate) mod cli;
 pub(crate) mod config;
 pub(crate) mod epoch;
 pub(crate) mod matcher_fee;
+pub(crate) mod min_order_size;
 pub(crate) mod order;
 pub(crate) mod order_id;
 pub(crate) mod protocol_fee;

@@ -32,16 +32,16 @@ spark-cli batch deploy-all \
 ```
 
 Sample output:
-Spark CLI v0.6.1
+Spark CLI v0.6.2
 
-BTC/USDC Market version 0.6.1 (1537) deployed to: 0x9492dfe08f7da2ff6366304bed64ab64b5208593657852d5b22f2c12f256785e
-Deployment cost: 6089
+BTC/USDC Market version 0.6.2 (1538) deployed to: 0x81acb82a64ff799836c19f4e7f9871cf6d13a1e5d286e815f91c26a1b92a8195
+Deployment cost: 6324
 
-ETH/USDC Market version 0.6.1 (1537) deployed to: 0xcb021899e5a3178069b7caeb6e0b2391b9acf631f77733ee52500a55dc00736d
-Deployment cost: 6089
+ETH/USDC Market version 0.6.2 (1538) deployed to: 0x3830aa30ddd4843dd13b6af7ae4fb59d8c5933b1a98cba9a80897c8ba5557307
+Deployment cost: 6324
 
-MarketRegistry version 0.6.1 (1537) deployed to: 0xd6474c9d90a4a4bcdb762f48d38afc8283799799d7e48e1055fb373ff87fb9d7
-Deployment cost: 7487
+MarketRegistry version 0.6.2 (1538) deployed to: 0xd76662328e464549b6f619401992127bed9b5cff3b46a3516e6b509d810b7035
+Deployment cost: 7723
 
 ### Deploy BTC-USDC market
 
@@ -56,7 +56,7 @@ spark-cli core deploy \
 ```
 
 Sample output:
-Market deployed to: 0x9492dfe08f7da2ff6366304bed64ab64b5208593657852d5b22f2c12f256785e
+Market deployed to: 0x81acb82a64ff799836c19f4e7f9871cf6d13a1e5d286e815f91c26a1b92a8195
 Deployment cost: 0
 Owner address: fuel173lqaa6y4jxfjd2suq730uwys3zfg4f6zt9vzx4cc45v3xvlmwlszdvdpz
                0xf47e0ef744ac8c993550e03d17f1c4844494553a12cac11ab8c568c8999fdbbf
@@ -74,7 +74,7 @@ spark-cli core deploy \
 ```
 
 Sample output:
-SparkMarket deployed to: 0xcb021899e5a3178069b7caeb6e0b2391b9acf631f77733ee52500a55dc00736d
+SparkMarket deployed to: 0x3830aa30ddd4843dd13b6af7ae4fb59d8c5933b1a98cba9a80897c8ba5557307
 Deployment cost: 0
 Owner address: fuel173lqaa6y4jxfjd2suq730uwys3zfg4f6zt9vzx4cc45v3xvlmwlszdvdpz
                0xf47e0ef744ac8c993550e03d17f1c4844494553a12cac11ab8c568c8999fdbbf
@@ -86,7 +86,7 @@ spark-cli core deposit \
     --asset-type base \
     --amount 10 \
     --rpc "testnet.fuel.network" \
-    --contract-id 0x9492dfe08f7da2ff6366304bed64ab64b5208593657852d5b22f2c12f256785e
+    --contract-id 0x81acb82a64ff799836c19f4e7f9871cf6d13a1e5d286e815f91c26a1b92a8195
 ```
 
 ```
@@ -94,7 +94,7 @@ spark-cli core deposit \
     --asset-type quote \
     --amount 10000 \
     --rpc "testnet.fuel.network" \
-    --contract-id 0x9492dfe08f7da2ff6366304bed64ab64b5208593657852d5b22f2c12f256785e
+    --contract-id 0x81acb82a64ff799836c19f4e7f9871cf6d13a1e5d286e815f91c26a1b92a8195
 ```
 
 ## Deposit For
@@ -106,7 +106,7 @@ spark-cli core deposit-for \
     --account-type address \
     --account-id 0xf47e0ef744ac8c993550e03d17f1c4844494553a12cac11ab8c568c8999fdbbf \
     --rpc "testnet.fuel.network" \
-    --contract-id 0x9492dfe08f7da2ff6366304bed64ab64b5208593657852d5b22f2c12f256785e
+    --contract-id 0x81acb82a64ff799836c19f4e7f9871cf6d13a1e5d286e815f91c26a1b92a8195
 ```
 
 ## Withdraw
@@ -116,7 +116,7 @@ spark-cli core withdraw \
     --asset-type base \
     --amount 10 \
     --rpc "testnet.fuel.network" \
-    --contract-id 0x9492dfe08f7da2ff6366304bed64ab64b5208593657852d5b22f2c12f256785e
+    --contract-id 0x81acb82a64ff799836c19f4e7f9871cf6d13a1e5d286e815f91c26a1b92a8195
 ```
 
 ```
@@ -124,7 +124,7 @@ spark-cli core withdraw \
     --asset-type quote \
     --amount 7000 \
     --rpc "testnet.fuel.network" \
-    --contract-id 0x9492dfe08f7da2ff6366304bed64ab64b5208593657852d5b22f2c12f256785e
+    --contract-id 0x81acb82a64ff799836c19f4e7f9871cf6d13a1e5d286e815f91c26a1b92a8195
 ```
 
 ## Withdraw To Market
@@ -133,9 +133,9 @@ spark-cli core withdraw \
 spark-cli core withdraw-to-market \
     --asset-type quote \
     --amount 7000 \
-    --market-id 0xcb021899e5a3178069b7caeb6e0b2391b9acf631f77733ee52500a55dc00736d \
+    --market-id 0x3830aa30ddd4843dd13b6af7ae4fb59d8c5933b1a98cba9a80897c8ba5557307 \
     --rpc "testnet.fuel.network" \
-    --contract-id 0x9492dfe08f7da2ff6366304bed64ab64b5208593657852d5b22f2c12f256785e
+    --contract-id 0x81acb82a64ff799836c19f4e7f9871cf6d13a1e5d286e815f91c26a1b92a8195
 ```
 
 ## Open Order
@@ -146,7 +146,7 @@ spark-cli core open \
     --order-type buy \
     --price 70000000000000 \
     --rpc "testnet.fuel.network" \
-    --contract-id 0x9492dfe08f7da2ff6366304bed64ab64b5208593657852d5b22f2c12f256785e
+    --contract-id 0x81acb82a64ff799836c19f4e7f9871cf6d13a1e5d286e815f91c26a1b92a8195
 ```
 
 ```
@@ -155,7 +155,7 @@ spark-cli core open \
     --order-type sell \
     --price 70000000000000 \
     --rpc "testnet.fuel.network" \
-    --contract-id 0x9492dfe08f7da2ff6366304bed64ab64b5208593657852d5b22f2c12f256785e
+    --contract-id 0x81acb82a64ff799836c19f4e7f9871cf6d13a1e5d286e815f91c26a1b92a8195
 ```
 
 ## Cancel Order
@@ -164,7 +164,7 @@ spark-cli core open \
 spark-cli core cancel \
     --order-id e950192bd177292dd7b98c69e6f85a46f5d59d93a0ba2f84af1f9d06d1fdf821 \
     --rpc "testnet.fuel.network" \
-    --contract-id 0x9492dfe08f7da2ff6366304bed64ab64b5208593657852d5b22f2c12f256785e
+    --contract-id 0x81acb82a64ff799836c19f4e7f9871cf6d13a1e5d286e815f91c26a1b92a8195
 ```
 
 ## Match Order Pair
@@ -174,7 +174,7 @@ spark-cli core match-pair \
     --orders f8051a6f690347e7446eb9a777e883b68a1f825b7a55d021a91412abacfca48a \
     --orders 3d66b9caf0628903e037eaa65318d926fb63bf34e7277d7413e349edddd5b0f0 \
     --rpc "testnet.fuel.network" \
-    --contract-id 0x9492dfe08f7da2ff6366304bed64ab64b5208593657852d5b22f2c12f256785e
+    --contract-id 0x81acb82a64ff799836c19f4e7f9871cf6d13a1e5d286e815f91c26a1b92a8195
 ```
 
 ## Match Order Many
@@ -184,7 +184,7 @@ spark-cli core match-many \
     --orders 0a96241df0a2606ead475af4cf66f89097bcbec27fdb59ff5cdb30a7525393e2 \
     --orders 2a6273b795e682f9fc4723097e682e0097c29c16f0419d7dc6132f77151e27ca \
     --rpc "testnet.fuel.network" \
-    --contract-id 0x9492dfe08f7da2ff6366304bed64ab64b5208593657852d5b22f2c12f256785e
+    --contract-id 0x81acb82a64ff799836c19f4e7f9871cf6d13a1e5d286e815f91c26a1b92a8195
 ```
 
 ## Fulfill Order Many
@@ -199,7 +199,7 @@ spark-cli core fulfill-many \
     --orders 0d0d7540d7350222b39a453452067cb3e1d1a29773a1678293771c9a0a12fe6f \
     --orders 12e7c70e34d437960fe455ce41ee9f839a93f5b317d19a9708c3ef51dffb89d0 \
     --rpc "testnet.fuel.network" \
-    --contract-id 0x9492dfe08f7da2ff6366304bed64ab64b5208593657852d5b22f2c12f256785e
+    --contract-id 0x81acb82a64ff799836c19f4e7f9871cf6d13a1e5d286e815f91c26a1b92a8195
 ```
 
 ## Set Protocol Fee
@@ -215,7 +215,7 @@ spark-cli core set-protocol-fee \
     --fee "2,7,500000000000" \
     --fee "1,5,1000000000000" \
     --rpc "testnet.fuel.network" \
-    --contract-id 0x9492dfe08f7da2ff6366304bed64ab64b5208593657852d5b22f2c12f256785e
+    --contract-id 0x81acb82a64ff799836c19f4e7f9871cf6d13a1e5d286e815f91c26a1b92a8195
 ```
 
 ## Set Matcher Fee
@@ -226,7 +226,7 @@ Sets a matcher fee for the market
 spark-cli core set-matcher-fee \
     --amount 1000 \
     --rpc "testnet.fuel.network" \
-    --contract-id 0x9492dfe08f7da2ff6366304bed64ab64b5208593657852d5b22f2c12f256785e
+    --contract-id 0x81acb82a64ff799836c19f4e7f9871cf6d13a1e5d286e815f91c26a1b92a8195
 ```
 
 ## Set Epoch
@@ -238,7 +238,7 @@ spark-cli core set-epoch \
     --epoch 4611686020155120000 \
     --epoch-duration 2332800 \
     --rpc "testnet.fuel.network" \
-    --contract-id 0x9492dfe08f7da2ff6366304bed64ab64b5208593657852d5b22f2c12f256785e
+    --contract-id 0x81acb82a64ff799836c19f4e7f9871cf6d13a1e5d286e815f91c26a1b92a8195
 ```
 
 ## Set Store Order Change Info
@@ -249,8 +249,20 @@ Sets a store order change info for the market
 spark-cli core set-store-order-change-info \
     --store \
     --rpc "testnet.fuel.network" \
-    --contract-id 0x9492dfe08f7da2ff6366304bed64ab64b5208593657852d5b22f2c12f256785e
+    --contract-id 0x81acb82a64ff799836c19f4e7f9871cf6d13a1e5d286e815f91c26a1b92a8195
 ```
+
+## Set Minimum Order Size
+
+Sets a minimum order size for the market
+
+```
+spark-cli core set-min-order-size \
+    --size 1500 \
+    --rpc "testnet.fuel.network" \
+    --contract-id 0x81acb82a64ff799836c19f4e7f9871cf6d13a1e5d286e815f91c26a1b92a8195
+```
+
 
 
 
@@ -265,7 +277,7 @@ spark-cli info account \
     --account-type address \
     --account-id 0xf47e0ef744ac8c993550e03d17f1c4844494553a12cac11ab8c568c8999fdbbf \
     --rpc "testnet.fuel.network" \
-    --contract-id 0x9492dfe08f7da2ff6366304bed64ab64b5208593657852d5b22f2c12f256785e
+    --contract-id 0x81acb82a64ff799836c19f4e7f9871cf6d13a1e5d286e815f91c26a1b92a8195
 ```
 
 ## Config
@@ -273,7 +285,7 @@ spark-cli info account \
 ```
 spark-cli info config \
     --rpc "testnet.fuel.network" \
-    --contract-id 0x9492dfe08f7da2ff6366304bed64ab64b5208593657852d5b22f2c12f256785e
+    --contract-id 0x81acb82a64ff799836c19f4e7f9871cf6d13a1e5d286e815f91c26a1b92a8195
 ```
 
 ## Epoch
@@ -281,7 +293,7 @@ spark-cli info config \
 ```
 spark-cli info epoch \
     --rpc "testnet.fuel.network" \
-    --contract-id 0x9492dfe08f7da2ff6366304bed64ab64b5208593657852d5b22f2c12f256785e
+    --contract-id 0x81acb82a64ff799836c19f4e7f9871cf6d13a1e5d286e815f91c26a1b92a8195
 ```
 
 ## Protocol Fee
@@ -291,7 +303,7 @@ Protocol fee
 ```
 spark-cli info protocol-fee \
     --rpc "testnet.fuel.network" \
-    --contract-id 0x9492dfe08f7da2ff6366304bed64ab64b5208593657852d5b22f2c12f256785e
+    --contract-id 0x81acb82a64ff799836c19f4e7f9871cf6d13a1e5d286e815f91c26a1b92a8195
 ```
 
 ## Protocol Fee User
@@ -303,7 +315,7 @@ spark-cli info protocol-fee-user \
     --account-type address \
     --account-id 0xf47e0ef744ac8c993550e03d17f1c4844494553a12cac11ab8c568c8999fdbbf \
     --rpc "testnet.fuel.network" \
-    --contract-id 0x9492dfe08f7da2ff6366304bed64ab64b5208593657852d5b22f2c12f256785e
+    --contract-id 0x81acb82a64ff799836c19f4e7f9871cf6d13a1e5d286e815f91c26a1b92a8195
 ```
 
 ## Protocol Fee User Amount
@@ -316,7 +328,7 @@ spark-cli info protocol-fee-user-amount \
     --account-type address \
     --account-id 0xf47e0ef744ac8c993550e03d17f1c4844494553a12cac11ab8c568c8999fdbbf \
     --rpc "testnet.fuel.network" \
-    --contract-id 0x9492dfe08f7da2ff6366304bed64ab64b5208593657852d5b22f2c12f256785e
+    --contract-id 0x81acb82a64ff799836c19f4e7f9871cf6d13a1e5d286e815f91c26a1b92a8195
 ```
 
 ## Matcher Fee
@@ -326,7 +338,17 @@ Matcher Fee for the market
 ```
 spark-cli info matcher-fee \
     --rpc "testnet.fuel.network" \
-    --contract-id 0x9492dfe08f7da2ff6366304bed64ab64b5208593657852d5b22f2c12f256785e
+    --contract-id 0x81acb82a64ff799836c19f4e7f9871cf6d13a1e5d286e815f91c26a1b92a8195
+```
+
+## Minimum Order Size
+
+Minimum Order Size for the market
+
+```
+spark-cli info min-order-size \
+    --rpc "testnet.fuel.network" \
+    --contract-id 0x81acb82a64ff799836c19f4e7f9871cf6d13a1e5d286e815f91c26a1b92a8195
 ```
 
 ## Order ID
@@ -339,7 +361,7 @@ spark-cli info order-id \
     --price 70000000000000 \
     --block-height 10000 \
     --rpc "testnet.fuel.network" \
-    --contract-id 0x9492dfe08f7da2ff6366304bed64ab64b5208593657852d5b22f2c12f256785e
+    --contract-id 0x81acb82a64ff799836c19f4e7f9871cf6d13a1e5d286e815f91c26a1b92a8195
 ```
 
 ## Order
@@ -348,7 +370,7 @@ spark-cli info order-id \
 spark-cli info order \
     --order-id 769663aef01812de5e5b4a4cd96f31a1641d4924cd26bdf7665fc00708487007 \
     --rpc "testnet.fuel.network" \
-    --contract-id 0x9492dfe08f7da2ff6366304bed64ab64b5208593657852d5b22f2c12f256785e
+    --contract-id 0x81acb82a64ff799836c19f4e7f9871cf6d13a1e5d286e815f91c26a1b92a8195
 ```
 
 ## Store Order Change Info
@@ -358,7 +380,7 @@ Store Order Change Info for the market
 ```
 spark-cli info store-order-change-info \
     --rpc "testnet.fuel.network" \
-    --contract-id 0x9492dfe08f7da2ff6366304bed64ab64b5208593657852d5b22f2c12f256785e
+    --contract-id 0x81acb82a64ff799836c19f4e7f9871cf6d13a1e5d286e815f91c26a1b92a8195
 ```
 
 ## User Orders
@@ -368,7 +390,7 @@ spark-cli info user-orders \
     --account-type address \
     --account-id 0xf47e0ef744ac8c993550e03d17f1c4844494553a12cac11ab8c568c8999fdbbf \
     --rpc "testnet.fuel.network" \
-    --contract-id 0x9492dfe08f7da2ff6366304bed64ab64b5208593657852d5b22f2c12f256785e
+    --contract-id 0x81acb82a64ff799836c19f4e7f9871cf6d13a1e5d286e815f91c26a1b92a8195
 ```
 
 ## Deploy Market Registry
@@ -379,7 +401,7 @@ spark-cli registry deploy \
 ```
 
 Output:
-SparkRegistry deployed to: 0xd6474c9d90a4a4bcdb762f48d38afc8283799799d7e48e1055fb373ff87fb9d7
+SparkRegistry deployed to: 0xd76662328e464549b6f619401992127bed9b5cff3b46a3516e6b509d810b7035
 Deployment cost: 0
 Owner address: fuel173lqaa6y4jxfjd2suq730uwys3zfg4f6zt9vzx4cc45v3xvlmwlszdvdpz
                0xf47e0ef744ac8c993550e03d17f1c4844494553a12cac11ab8c568c8999fdbbf
@@ -388,18 +410,18 @@ Owner address: fuel173lqaa6y4jxfjd2suq730uwys3zfg4f6zt9vzx4cc45v3xvlmwlszdvdpz
 
 ```
 spark-cli registry register \
-    --market 0x9492dfe08f7da2ff6366304bed64ab64b5208593657852d5b22f2c12f256785e \
+    --market 0x81acb82a64ff799836c19f4e7f9871cf6d13a1e5d286e815f91c26a1b92a8195 \
     --rpc "testnet.fuel.network" \
-    --contract-id 0xd6474c9d90a4a4bcdb762f48d38afc8283799799d7e48e1055fb373ff87fb9d7
+    --contract-id 0xd76662328e464549b6f619401992127bed9b5cff3b46a3516e6b509d810b7035
 ```
 
 ## Unregister a market
 
 ```
 spark-cli registry unregister \
-    --market 0x9492dfe08f7da2ff6366304bed64ab64b5208593657852d5b22f2c12f256785e \
+    --market 0x81acb82a64ff799836c19f4e7f9871cf6d13a1e5d286e815f91c26a1b92a8195 \
     --rpc "testnet.fuel.network" \
-    --contract-id 0xd6474c9d90a4a4bcdb762f48d38afc8283799799d7e48e1055fb373ff87fb9d7
+    --contract-id 0xd76662328e464549b6f619401992127bed9b5cff3b46a3516e6b509d810b7035
 ```
 
 ## Get registered markets by assets
@@ -409,7 +431,7 @@ spark-cli registry markets \
     --base 0x38e4ca985b22625fff93205e997bfc5cc8453a953da638ad297ca60a9f2600bc \
     --quote 0x336b7c06352a4b736ff6f688ba6885788b3df16e136e95310ade51aa32dc6f05 \
     --rpc "testnet.fuel.network" \
-    --contract-id 0xd6474c9d90a4a4bcdb762f48d38afc8283799799d7e48e1055fb373ff87fb9d7
+    --contract-id 0xd76662328e464549b6f619401992127bed9b5cff3b46a3516e6b509d810b7035
 ```
 
 ## Config
@@ -417,5 +439,5 @@ spark-cli registry markets \
 ```
 spark-cli registry config \
     --rpc "testnet.fuel.network" \
-    --contract-id 0xd6474c9d90a4a4bcdb762f48d38afc8283799799d7e48e1055fb373ff87fb9d7
+    --contract-id 0xd76662328e464549b6f619401992127bed9b5cff3b46a3516e6b509d810b7035
 ```

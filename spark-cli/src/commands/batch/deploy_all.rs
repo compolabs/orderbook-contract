@@ -28,7 +28,7 @@ impl DeployAllCommand {
         let quote_decimals = 6;
         let price_decimals = 9;
         let version = SparkMarketContract::sdk_version();
-        let matcher_fee = 1_000;
+        let matcher_fee = 1_000; // 0.001 USDC
 
         // multi tier protocol fee structure
         let protocol_fee = vec![
@@ -91,6 +91,7 @@ impl DeployAllCommand {
         // 1. Deploy BTC/USDC market contract
         let base_asset = AssetId::from_str(&btc).unwrap();
         let base_decimals = 8;
+        let min_size = 1_500; // 0.000015 BTC
 
         // Initial balance prior to contract call
         let balance = wallet
@@ -111,6 +112,7 @@ impl DeployAllCommand {
         let _ = contract.set_matcher_fee(matcher_fee).await?;
         let _ = contract.set_protocol_fee(protocol_fee.clone()).await?;
         let _ = contract.set_epoch(epoch, epoch_duration).await?;
+        let _ = contract.set_min_order_size(min_size).await?;
 
         // Balance post-deployment
         let new_balance = wallet
@@ -129,6 +131,7 @@ impl DeployAllCommand {
         // 2. Deploy ETH/USDC market contract
         let base_asset = AssetId::from_str(&eth).unwrap();
         let base_decimals = 9;
+        let min_size = 400_000; // 0.0004 ETH
 
         // Initial balance prior to contract call
         let balance = wallet
@@ -149,6 +152,7 @@ impl DeployAllCommand {
         let _ = contract.set_matcher_fee(matcher_fee).await?;
         let _ = contract.set_protocol_fee(protocol_fee.clone()).await?;
         let _ = contract.set_epoch(epoch, epoch_duration).await?;
+        let _ = contract.set_min_order_size(min_size).await?;
 
         // Balance post-deployment
         let new_balance = wallet
