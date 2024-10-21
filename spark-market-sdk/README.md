@@ -280,9 +280,38 @@ Owner sets minimum order price in QUOTE_ASSET whole coin multiplied on 10 ^ pric
 Returns a call result
 
 
+### Transfer Ownership
+
+```rust
+pub async fn transfer_ownership(
+        &self,
+        new_owner: Identity,
+    ) -> anyhow::Result<CallResponse<()>>
+```
+
+Transfers ownership of market.
+
+`self` The SparkMarketContract instance.
+`new_owner` The new owner identity.
+
+Returns a call result
+
+
 
 
 ## SparkMarketContract Getter Methods
+
+### Owner
+
+```rust
+pub async fn owner(&self) -> anyhow::Result<CallResponse<State>>
+```
+
+Retrieves contract owner.
+
+Returns a State of contract owner
+
+
 
 ### Configurable Info
 
