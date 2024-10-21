@@ -266,6 +266,20 @@ Owner sets minimum order size in BASE_ASSET units.
 Returns a call result
 
 
+### Set Minimum Order Price
+
+```rust
+pub async fn set_order_price(&self, amount: u64) -> anyhow::Result<CallResponse<()>>
+```
+
+Owner sets minimum order price in QUOTE_ASSET whole coin multiplied on 10 ^ price decimals.
+
+`self` The SparkMarketContract instance
+`size` The minimum order price
+
+Returns a call result
+
+
 
 
 ## SparkMarketContract Getter Methods
@@ -448,3 +462,16 @@ Retrieves minimum order size set by Market owner.
 `self` The SparkMarketContract instance
 
 Returns minimum order size
+
+
+### Minimum Order Price Info
+
+```rust
+pub async fn min_order_price(&self) -> anyhow::Result<CallResponse<u64>>
+```
+
+Retrieves minimum order price set by Market owner.
+
+`self` The SparkMarketContract instance
+
+Returns minimum order price

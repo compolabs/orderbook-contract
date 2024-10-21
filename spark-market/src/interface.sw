@@ -61,6 +61,9 @@ abi SparkMarket {
 
     #[storage(read, write)]
     fn set_min_order_size(size: u64);
+
+    #[storage(read, write)]
+    fn set_min_order_price(price: u64);
 }
 
 abi SparkMarketInfo {
@@ -96,6 +99,9 @@ abi SparkMarketInfo {
 
     #[storage(read)]
     fn min_order_size() -> u64;
+
+    #[storage(read)]
+    fn min_order_price() -> u64;
 
     fn config() -> (AssetId, u32, AssetId, u32, Option<Identity>, u32, u32);
 

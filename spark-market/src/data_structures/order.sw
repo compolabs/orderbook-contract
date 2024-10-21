@@ -33,12 +33,12 @@ impl Order {
         matcher_fee: u64,
         protocol_maker_fee: u64,
         protocol_taker_fee: u64,
+        min_order_price: u64,
     ) -> Self {
         require(asset_type == AssetType::Base, AssetError::InvalidAsset);
-        let price_minimum = 1_u64;
         require(
-            price >= price_minimum,
-            OrderError::PriceTooSmall((price, price_minimum)),
+            price >= min_order_price,
+            OrderError::PriceTooSmall((price, min_order_price)),
         );
 
         Self {

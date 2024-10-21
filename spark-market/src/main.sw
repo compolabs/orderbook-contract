@@ -26,6 +26,7 @@ use ::events::{
     OpenOrderEvent,
     SetEpochEvent,
     SetMatcherRewardEvent,
+    SetMinOrderPriceEvent,
     SetMinOrderSizeEvent,
     SetProtocolFeeEvent,
     SetStoreOrderChangeInfoEvent,
@@ -75,6 +76,8 @@ storage {
     epoch_duration: u64 = ONE_MONTH_SECONDS,
     /// Minimum  order size in BASE_ASSET units
     min_order_size: u64 = ZERO_VALUE,
+    /// Minimum  order size in BASE_ASSET units
+    min_order_price: u64 = ZERO_VALUE,
     /// Disable storing an order change info.
     store_order_change_info: bool = TRUE_VALUE,
     /// Balance of each user.
@@ -599,7 +602,7 @@ impl SparkMarket for Contract {
         log(SetMatcherRewardEvent { amount });
     }
 
-    /// Sets the matcher fee to a specified amount.
+    /// Sets storing change info flag.
     ///
     /// ### Additional Information
     ///
@@ -625,13 +628,13 @@ impl SparkMarket for Contract {
         log(SetStoreOrderChangeInfoEvent { store });
     }
 
-    /// Sets the minimum of order amount.
+    /// Sets the minimum of order size.
     ///
     /// ### Additional Information
     ///
     /// This function allows the contract owner to update the minimum of an order amount.
-    /// It checks that the new amount is different from the current one to avoid redundant updates.
-    /// The function is restricted to the contract owner and logs an event after the matcher fee is set.
+    /// It checks that the new size is different from the current one to avoid redundant updates.
+    /// The function is restricted to the contract owner.
     ///
     /// ### Arguments
     ///
@@ -648,6 +651,34 @@ impl SparkMarket for Contract {
         storage.min_order_size.write(size);
 
         log(SetMinOrderSizeEvent { size });
+    }
+
+    /// Sets the minimum of order price.
+    ///
+    /// ### Additional Information
+    ///
+    /// This function allows the contract owner to update the minimum of an order price.
+    /// It checks that the new price is different from the current one to avoid redundant updates.
+    /// The function is restricted to the contract owner.
+    ///
+    /// ### Arguments
+    ///
+    /// * `amount`: [u64] The new the minimum of an order amount to be set. It must be different from the current the minimum of an order amount.
+    ///
+    /// ### Reverts
+    ///
+    /// * When called by non-owner.
+    /// * When `min_order_price` is same as set before.
+    #[storage(read, write)]
+    fn set_min_order_price(price: u64) {
+        only_owner();
+        require(
+            price != read_min_order_price(),
+            ValueError::InvalidValueSame,
+        );
+        storage.min_order_price.write(price);
+
+        log(SetMinOrderPriceEvent { price });
     }
 }
 
@@ -785,10 +816,20 @@ impl SparkMarketInfo for Contract {
     ///
     /// ### Returns
     ///
-    /// * [u64] - A minimum order type size.
+    /// * [u64] - A minimum order size.
     #[storage(read)]
     fn min_order_size() -> u64 {
         read_min_order_size()
+    }
+
+    /// Get the minimum order price in QUOTE_ASSET whole coin * 10 ^ price_decimals.
+    ///
+    /// ### Returns
+    ///
+    /// * [u64] - A minimum order price.
+    #[storage(read)]
+    fn min_order_price() -> u64 {
+        read_min_order_price()
     }
 
     /// Get contract configurables.
@@ -838,6 +879,7 @@ impl SparkMarketInfo for Contract {
             price,
             block_height,
             order_height,
+            0,
             0,
             0,
             0,
@@ -896,6 +938,11 @@ fn read_store_order_change_info() -> bool {
 #[storage(read)]
 fn read_min_order_size() -> u64 {
     storage.min_order_size.try_read().unwrap_or(ZERO_VALUE)
+}
+
+#[storage(read)]
+fn read_min_order_price() -> u64 {
+    storage.min_order_price.try_read().unwrap_or(ZERO_VALUE)
 }
 
 fn owner_identity() -> Identity {
@@ -1046,6 +1093,7 @@ fn open_order_internal(
         matcher_fee,
         protocol_maker_fee,
         protocol_taker_fee,
+        read_min_order_price(),
     );
 
     let order_id = order.id();
