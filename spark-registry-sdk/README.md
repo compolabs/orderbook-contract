@@ -34,7 +34,7 @@ pub async fn register_market(&self, market: ContractId) -> anyhow::Result<CallRe
 
 Registers a new market by owner.
 
-`self` The SparkMarketContract instance.
+`self` The SparkRegistryContract instance.
 `market` The market contract id.
 
 Returns a call result
@@ -48,10 +48,28 @@ pub async fn unregister_market(&self, market: ContractId) -> anyhow::Result<Call
 
 Unregisters a market by owner.
 
-`self` The SparkMarketContract instance.
+`self` The SparkRegistryContract instance.
 `market` The market contract id.
 
 Returns a call result
+
+
+### Transfer Ownership
+
+```rust
+pub async fn transfer_ownership(
+        &self,
+        new_owner: Identity,
+    ) -> anyhow::Result<CallResponse<()>>
+```
+
+Transfers ownership of regsitry.
+
+`self` The SparkRegistryContract instance.
+`new_owner` The new owner identity.
+
+Returns a call result
+
 
 
 ## SparkRegistryContract Getter Methods
@@ -67,18 +85,31 @@ pub async fn markets(
 
 Retrieves user account inforamtion.
 
-`self` The SparkMarketContract instance.
+`self` The SparkRegistryContract instance.
 `assets` The asset pair array [(base_asst_id, quote_asset_id)].
 
 Returns an asset pair and optional market contract id array
+
+### Owner
+
+```rust
+pub async fn owner(&self) -> anyhow::Result<CallResponse<State>>
+```
+
+Retrieves contract owner.
+`self` The SparkRegistryContract instance.
+
+
+Returns a State of contract owner
 
 
 ### Config
 
 ```rust
-pub fn config() -> (Option<Identity>, u32);
+pub fn config(&self) -> (Option<Identity>, u32);
 ```
 
 Retrieves contract configurables.
+`self` The SparkRegistryContract instance.
 
 Returns an Option of owner identity and contract version

@@ -83,3 +83,7 @@ pub struct SetStoreOrderChangeInfoEvent {
 pub struct SetMinOrderSizeEvent {
     pub size: u64,
 }
+
+pub struct SetMinOrderPriceEvent {
+    pub price: u64,
+}

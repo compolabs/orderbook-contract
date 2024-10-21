@@ -420,6 +420,8 @@ mod revert {
         let order_type = OrderType::Sell;
 
         // minimum price is 0.000000001 i.e. 1 / 1e9
+        let _ = contract.set_min_order_price(1).await.unwrap();
+
         let price = 0;
 
         let _ = contract

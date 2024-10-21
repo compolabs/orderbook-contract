@@ -26,6 +26,7 @@ use ::events::{
     OpenOrderEvent,
     SetEpochEvent,
     SetMatcherRewardEvent,
+    SetMinOrderPriceEvent,
     SetMinOrderSizeEvent,
     SetProtocolFeeEvent,
     SetStoreOrderChangeInfoEvent,
@@ -48,7 +49,15 @@ use std::{
     tx::tx_id,
 };
 
-use sway_libs::reentrancy::*;
+use sway_libs::{
+    ownership::{
+        _owner as ownership_owner,
+        initialize_ownership as ownership_initialize_ownership,
+        only_owner as ownership_only_owner,
+        transfer_ownership as ownership_transfer_ownership,
+    },
+    reentrancy::reentrancy_guard,
+};
 use standards::src5::{AccessError, SRC5, State};
 
 const ZERO_VALUE = 0;
@@ -61,7 +70,6 @@ configurable {
     BASE_ASSET_DECIMALS: u32 = 9,
     QUOTE_ASSET: AssetId = AssetId::zero(),
     QUOTE_ASSET_DECIMALS: u32 = 9,
-    OWNER: State = State::Uninitialized,
     PRICE_DECIMALS: u32 = 9,
     VERSION: u32 = 0,
 }
@@ -75,6 +83,8 @@ storage {
     epoch_duration: u64 = ONE_MONTH_SECONDS,
     /// Minimum  order size in BASE_ASSET units
     min_order_size: u64 = ZERO_VALUE,
+    /// Minimum  order size in BASE_ASSET units
+    min_order_price: u64 = ZERO_VALUE,
     /// Disable storing an order change info.
     store_order_change_info: bool = TRUE_VALUE,
     /// Balance of each user.
@@ -103,11 +113,21 @@ impl SRC5 for Contract {
     /// * [State] - Represents the state of ownership for this contract.
     #[storage(read)]
     fn owner() -> State {
-        OWNER
+        ownership_owner()
     }
 }
 
 impl SparkMarket for Contract {
+    #[storage(read, write)]
+    fn initialize_ownership(new_owner: Identity) {
+        ownership_initialize_ownership(new_owner);
+    }
+
+    #[storage(read, write)]
+    fn transfer_ownership(new_owner: Identity) {
+        ownership_transfer_ownership(new_owner);
+    }
+
     /// Deposits a specified amount of an asset into the caller's account.
     ///
     /// ### Additional Information
@@ -514,7 +534,7 @@ impl SparkMarket for Contract {
     /// * When epoch end less than current time.
     #[storage(write)]
     fn set_epoch(epoch: u64, epoch_duration: u64) {
-        only_owner();
+        ownership_only_owner();
 
         let current_epoch = read_epoch();
         let now = block_timestamp();
@@ -553,7 +573,7 @@ impl SparkMarket for Contract {
     /// * When `protocol_fee` vector contains non-sorted volumes or volume duplicates.
     #[storage(write)]
     fn set_protocol_fee(protocol_fee: Vec<ProtocolFee>) {
-        only_owner();
+        ownership_only_owner();
 
         if protocol_fee.len() > 0 {
             require(
@@ -592,14 +612,14 @@ impl SparkMarket for Contract {
     /// * When `matcher_fee` is same as set before.
     #[storage(read, write)]
     fn set_matcher_fee(amount: u64) {
-        only_owner();
+        ownership_only_owner();
         require(amount != read_matcher_fee(), ValueError::InvalidValueSame);
         storage.matcher_fee.write(amount);
 
         log(SetMatcherRewardEvent { amount });
     }
 
-    /// Sets the matcher fee to a specified amount.
+    /// Sets storing change info flag.
     ///
     /// ### Additional Information
     ///
@@ -615,7 +635,7 @@ impl SparkMarket for Contract {
     /// * When `store` is same as set before.
     #[storage(read, write)]
     fn set_store_order_change_info(store: bool) {
-        only_owner();
+        ownership_only_owner();
         require(
             store != read_store_order_change_info(),
             ValueError::InvalidValueSame,
@@ -625,13 +645,13 @@ impl SparkMarket for Contract {
         log(SetStoreOrderChangeInfoEvent { store });
     }
 
-    /// Sets the minimum of order amount.
+    /// Sets the minimum of order size.
     ///
     /// ### Additional Information
     ///
     /// This function allows the contract owner to update the minimum of an order amount.
-    /// It checks that the new amount is different from the current one to avoid redundant updates.
-    /// The function is restricted to the contract owner and logs an event after the matcher fee is set.
+    /// It checks that the new size is different from the current one to avoid redundant updates.
+    /// The function is restricted to the contract owner.
     ///
     /// ### Arguments
     ///
@@ -643,11 +663,39 @@ impl SparkMarket for Contract {
     /// * When `min_order_size` is same as set before.
     #[storage(read, write)]
     fn set_min_order_size(size: u64) {
-        only_owner();
+        ownership_only_owner();
         require(size != read_min_order_size(), ValueError::InvalidValueSame);
         storage.min_order_size.write(size);
 
         log(SetMinOrderSizeEvent { size });
+    }
+
+    /// Sets the minimum of order price.
+    ///
+    /// ### Additional Information
+    ///
+    /// This function allows the contract owner to update the minimum of an order price.
+    /// It checks that the new price is different from the current one to avoid redundant updates.
+    /// The function is restricted to the contract owner.
+    ///
+    /// ### Arguments
+    ///
+    /// * `amount`: [u64] The new the minimum of an order amount to be set. It must be different from the current the minimum of an order amount.
+    ///
+    /// ### Reverts
+    ///
+    /// * When called by non-owner.
+    /// * When `min_order_price` is same as set before.
+    #[storage(read, write)]
+    fn set_min_order_price(price: u64) {
+        ownership_only_owner();
+        require(
+            price != read_min_order_price(),
+            ValueError::InvalidValueSame,
+        );
+        storage.min_order_price.write(price);
+
+        log(SetMinOrderPriceEvent { price });
     }
 }
 
@@ -785,10 +833,20 @@ impl SparkMarketInfo for Contract {
     ///
     /// ### Returns
     ///
-    /// * [u64] - A minimum order type size.
+    /// * [u64] - A minimum order size.
     #[storage(read)]
     fn min_order_size() -> u64 {
         read_min_order_size()
+    }
+
+    /// Get the minimum order price in QUOTE_ASSET whole coin * 10 ^ price_decimals.
+    ///
+    /// ### Returns
+    ///
+    /// * [u64] - A minimum order price.
+    #[storage(read)]
+    fn min_order_price() -> u64 {
+        read_min_order_price()
     }
 
     /// Get contract configurables.
@@ -797,13 +855,14 @@ impl SparkMarketInfo for Contract {
     ///
     /// * [AssetId, u32, AssetId, u32, Option<Identity>, u32, u32)] - The BASE_ASSET, BASE_ASSET_DECIMALS,
     ///     QUOTE_ASSET, QUOTE_ASSET_DECIMALS, OWNER.owner(), PRICE_DECIMALS, VERSION.
+    #[storage(read)]
     fn config() -> (AssetId, u32, AssetId, u32, Option<Identity>, u32, u32) {
         (
             BASE_ASSET,
             BASE_ASSET_DECIMALS,
             QUOTE_ASSET,
             QUOTE_ASSET_DECIMALS,
-            OWNER.owner(),
+            ownership_owner().owner(),
             PRICE_DECIMALS,
             VERSION,
         )
@@ -841,6 +900,7 @@ impl SparkMarketInfo for Contract {
             0,
             0,
             0,
+            0,
         ).id()
     }
 
@@ -853,17 +913,6 @@ impl SparkMarketInfo for Contract {
     fn store_order_change_info() -> bool {
         read_store_order_change_info()
     }
-}
-
-fn only_owner() {
-    require(
-        OWNER
-            .is_initialized() && msg_sender()
-            .unwrap() == OWNER
-            .owner()
-            .unwrap(),
-        AccessError::NotOwner,
-    );
 }
 
 #[storage(read)]
@@ -898,8 +947,14 @@ fn read_min_order_size() -> u64 {
     storage.min_order_size.try_read().unwrap_or(ZERO_VALUE)
 }
 
+#[storage(read)]
+fn read_min_order_price() -> u64 {
+    storage.min_order_price.try_read().unwrap_or(ZERO_VALUE)
+}
+
+#[storage(read)]
 fn owner_identity() -> Identity {
-    match OWNER {
+    match ownership_owner() {
         State::Initialized(identity) => identity,
         _ => Identity::Address(Address::zero()),
     }
@@ -1046,6 +1101,7 @@ fn open_order_internal(
         matcher_fee,
         protocol_maker_fee,
         protocol_taker_fee,
+        read_min_order_price(),
     );
 
     let order_id = order.id();
