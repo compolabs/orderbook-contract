@@ -8,9 +8,16 @@ use events::*;
 
 use std::hash::{Hash, sha256};
 use standards::src5::{AccessError, SRC5, State};
+use sway_libs::{
+    ownership::{
+        _owner as ownership_owner,
+        initialize_ownership as ownership_initialize_ownership,
+        only_owner as ownership_only_owner,
+        transfer_ownership as ownership_transfer_ownership,
+    },
+};
 
 configurable {
-    OWNER: State = State::Uninitialized,
     VERSION: u32 = 0,
 }
 
@@ -18,7 +25,16 @@ storage {
     markets: StorageMap<b256, ContractId> = StorageMap {},
 }
 
+abi Ownership {
+    #[storage(read, write)]
+    fn initialize_ownership(new_owner: Identity);
+
+    #[storage(read, write)]
+    fn transfer_ownership(new_owner: Identity);
+}
+
 abi SparkMarketInfoConfig {
+    #[storage(read)]
     fn config() -> (AssetId, u32, AssetId, u32, Identity, u32, u32);
 }
 
@@ -32,6 +48,7 @@ abi SparkRegistry {
     #[storage(read)]
     fn markets(market_assets: Vec<(AssetId, AssetId)>) -> Vec<(AssetId, AssetId, Option<ContractId>)>;
 
+    #[storage(read)]
     fn config() -> (Option<Identity>, u32);
 }
 
@@ -43,7 +60,19 @@ impl SRC5 for Contract {
     /// * [State] - Represents the state of ownership for this contract.
     #[storage(read)]
     fn owner() -> State {
-        OWNER
+        ownership_owner()
+    }
+}
+
+impl Ownership for Contract {
+    #[storage(read, write)]
+    fn initialize_ownership(new_owner: Identity) {
+        ownership_initialize_ownership(new_owner);
+    }
+
+    #[storage(read, write)]
+    fn transfer_ownership(new_owner: Identity) {
+        ownership_transfer_ownership(new_owner);
     }
 }
 
@@ -66,7 +95,7 @@ impl SparkRegistry for Contract {
     /// * When a token pair market already registered
     #[storage(read, write)]
     fn register_market(market: ContractId) {
-        only_owner();
+        ownership_only_owner();
 
         let (base, quote) = market_assets(market);
         let id = market_id(base, quote);
@@ -104,7 +133,7 @@ impl SparkRegistry for Contract {
     /// * When a market is not registered
     #[storage(write)]
     fn unregister_market(market: ContractId) {
-        only_owner();
+        ownership_only_owner();
 
         let (base, quote) = market_assets(market);
         let id = market_id(base, quote);
@@ -157,8 +186,9 @@ impl SparkRegistry for Contract {
     /// ### Returns
     ///
     /// * [(Option<Identity>, u32)] - A tuple containing the Otion of owner's Identity and the contract's version number as a 'u32'.
+    #[storage(read)]
     fn config() -> (Option<Identity>, u32) {
-        (OWNER.owner(), VERSION)
+        (ownership_owner().owner(), VERSION)
     }
 }
 
@@ -169,15 +199,4 @@ fn market_assets(market: ContractId) -> (AssetId, AssetId) {
 
 fn market_id(base: AssetId, quote: AssetId) -> b256 {
     sha256((base, quote))
-}
-
-fn only_owner() {
-    require(
-        OWNER
-            .is_initialized() && msg_sender()
-            .unwrap() == OWNER
-            .owner()
-            .unwrap(),
-        AccessError::NotOwner,
-    );
 }

@@ -32,8 +32,6 @@ impl SparkRegistryContract {
             .add_slot_overrides_from_file(root.join(SPARK_REGISTRY_CONTRACT_STORAGE_PATH));
 
         let configurables = SparkRegistryConfigurables::default()
-            .with_OWNER(State::Initialized(owner.address().into()))
-            .unwrap()
             .with_VERSION(version)
             .unwrap();
 
@@ -50,6 +48,12 @@ impl SparkRegistryContract {
         .await?;
 
         let market_registry = SparkRegistry::new(contract_id.clone(), owner.clone());
+
+        market_registry
+            .methods()
+            .initialize_ownership(owner.address().into())
+            .call()
+            .await?;
 
         Ok(Self {
             instance: market_registry,
@@ -131,6 +135,39 @@ impl SparkRegistryContract {
             .unregister_market(market)
             .with_contract_ids(&[market.into()])
             .call()
+            .await?)
+    }
+
+    pub async fn initialize_ownership(
+        &self,
+        new_owner: Identity,
+    ) -> anyhow::Result<CallResponse<()>> {
+        Ok(self
+            .instance
+            .methods()
+            .initialize_ownership(new_owner)
+            .call()
+            .await?)
+    }
+
+    pub async fn transfer_ownership(
+        &self,
+        new_owner: Identity,
+    ) -> anyhow::Result<CallResponse<()>> {
+        Ok(self
+            .instance
+            .methods()
+            .transfer_ownership(new_owner)
+            .call()
+            .await?)
+    }
+
+    pub async fn owner(&self) -> anyhow::Result<CallResponse<State>> {
+        Ok(self
+            .instance
+            .methods()
+            .owner()
+            .simulate(Execution::StateReadOnly)
             .await?)
     }
 

@@ -11,6 +11,12 @@ use ::data_structures::{
 };
 
 abi SparkMarket {
+    #[storage(read, write)]
+    fn initialize_ownership(new_owner: Identity);
+
+    #[storage(read, write)]
+    fn transfer_ownership(new_owner: Identity);
+
     #[payable]
     #[storage(read, write)]
     fn deposit();
@@ -103,6 +109,7 @@ abi SparkMarketInfo {
     #[storage(read)]
     fn min_order_price() -> u64;
 
+    #[storage(read)]
     fn config() -> (AssetId, u32, AssetId, u32, Option<Identity>, u32, u32);
 
     fn order_id(

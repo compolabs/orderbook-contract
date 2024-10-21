@@ -53,8 +53,6 @@ impl SparkMarketContract {
             .unwrap()
             .with_QUOTE_ASSET_DECIMALS(quote_decimals)
             .unwrap()
-            .with_OWNER(State::Initialized(owner.address().into()))
-            .unwrap()
             .with_PRICE_DECIMALS(price_decimals)
             .unwrap()
             .with_VERSION(version)
@@ -73,6 +71,12 @@ impl SparkMarketContract {
         .await?;
 
         let market = SparkMarket::new(contract_id.clone(), owner.clone());
+
+        market
+            .methods()
+            .initialize_ownership(owner.address().into())
+            .call()
+            .await?;
 
         Ok(Self {
             instance: market,
@@ -434,6 +438,42 @@ impl SparkMarketContract {
             .set_min_order_price(price)
             .with_contract_ids(&[self.implementation.into()])
             .call()
+            .await?)
+    }
+
+    pub async fn initialize_ownership(
+        &self,
+        new_owner: Identity,
+    ) -> anyhow::Result<CallResponse<()>> {
+        Ok(self
+            .instance
+            .methods()
+            .initialize_ownership(new_owner)
+            .with_contract_ids(&[self.implementation.into()])
+            .call()
+            .await?)
+    }
+
+    pub async fn transfer_ownership(
+        &self,
+        new_owner: Identity,
+    ) -> anyhow::Result<CallResponse<()>> {
+        Ok(self
+            .instance
+            .methods()
+            .transfer_ownership(new_owner)
+            .with_contract_ids(&[self.implementation.into()])
+            .call()
+            .await?)
+    }
+
+    pub async fn owner(&self) -> anyhow::Result<CallResponse<State>> {
+        Ok(self
+            .instance
+            .methods()
+            .owner()
+            .with_contract_ids(&[self.implementation.into()])
+            .simulate(Execution::StateReadOnly)
             .await?)
     }
 
