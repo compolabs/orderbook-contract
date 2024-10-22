@@ -20,15 +20,26 @@ impl DeployAllCommand {
     pub(crate) async fn run(&self) -> anyhow::Result<()> {
         let wallet = setup(&self.rpc).await?;
 
-        let eth = "0xf8f8b6283d7fa5b672b530cbb84fcccb4ff8dc40f8176ef4544ddb1f1952ad07";
-        let btc = "0x38e4ca985b22625fff93205e997bfc5cc8453a953da638ad297ca60a9f2600bc";
-        let usdc = "0x336b7c06352a4b736ff6f688ba6885788b3df16e136e95310ade51aa32dc6f05";
+        let (eth, btc, usdc) = match &*self.rpc {
+            "testnet.fuel.network" => (
+                "0xf8f8b6283d7fa5b672b530cbb84fcccb4ff8dc40f8176ef4544ddb1f1952ad07",
+                "0x38e4ca985b22625fff93205e997bfc5cc8453a953da638ad297ca60a9f2600bc",
+                "0x336b7c06352a4b736ff6f688ba6885788b3df16e136e95310ade51aa32dc6f05",
+            ),
+            "mainnet.fuel.network" => (
+                "0xf169e13e98ae8908199148380684894458b7916f074b85ebad2aaad489ce0d54",
+                "0x0dc8cdbe2798cb45ebc99180afc0bc514ffb505a80f122004378955c1d23892c",
+                "0x22dfb618b9fc621a7d53f0f599dd427fb5688e280062a8de8883a27819d3f276",
+            ),
+            _ => ("", "", ""),
+        };
 
         let quote_asset = AssetId::from_str(&usdc).unwrap();
         let quote_decimals = 6;
         let price_decimals = 9;
         let version = SparkMarketContract::sdk_version();
         let matcher_fee = 1_000; // 0.001 USDC
+        let min_price = 500_000_000; // 500 USDC
 
         // multi tier protocol fee structure
         let protocol_fee = vec![
@@ -113,6 +124,7 @@ impl DeployAllCommand {
         let _ = contract.set_protocol_fee(protocol_fee.clone()).await?;
         let _ = contract.set_epoch(epoch, epoch_duration).await?;
         let _ = contract.set_min_order_size(min_size).await?;
+        let _ = contract.set_min_order_price(min_price).await?;
 
         // Balance post-deployment
         let new_balance = wallet
@@ -153,6 +165,7 @@ impl DeployAllCommand {
         let _ = contract.set_protocol_fee(protocol_fee.clone()).await?;
         let _ = contract.set_epoch(epoch, epoch_duration).await?;
         let _ = contract.set_min_order_size(min_size).await?;
+        let _ = contract.set_min_order_price(min_price).await?;
 
         // Balance post-deployment
         let new_balance = wallet
