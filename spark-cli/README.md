@@ -32,16 +32,16 @@ spark-cli batch deploy-all \
 ```
 
 Sample output:
-Spark CLI v0.6.2
+Spark CLI v0.6.3
 
-BTC/USDC Market version 0.6.2 (1538) deployed to: 0x81acb82a64ff799836c19f4e7f9871cf6d13a1e5d286e815f91c26a1b92a8195
-Deployment cost: 6324
+BTC/USDC Market version 0.6.3 (1539) deployed to: 0xc5ed0d9b17beedd1c6c10a84bb496f12a5082aa3ce2ad55630bbcac22c64fcf4
+Deployment cost: 6729
 
-ETH/USDC Market version 0.6.2 (1538) deployed to: 0x3830aa30ddd4843dd13b6af7ae4fb59d8c5933b1a98cba9a80897c8ba5557307
-Deployment cost: 6324
+ETH/USDC Market version 0.6.3 (1539) deployed to: 0x944a3d62e65f3aefa7ac4a065eb9390a98806ef254aaece6df239ee78e6c2998
+Deployment cost: 6729
 
-MarketRegistry version 0.6.2 (1538) deployed to: 0xd76662328e464549b6f619401992127bed9b5cff3b46a3516e6b509d810b7035
-Deployment cost: 7723
+MarketRegistry version 0.6.3 (1539) deployed to: 0x0c26b7134516773469cd02030a783e43776d1fd26e0698b51af3cef4938e2925
+Deployment cost: 8433
 
 ### Deploy BTC-USDC market
 
