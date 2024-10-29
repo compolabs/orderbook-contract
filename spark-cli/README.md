@@ -99,6 +99,26 @@ Market version 0.6.3 (1539) deployed to: 0x9e71d92577e2771ebe526fc683b69576f5c46
 Deployment cost: 7308
 Owner address: fuel1rmu7c4gjycy4qtvj8798sv04ptq9uq4a6eq9y23w7x8apundtlrs0u000t
                0x1ef9ec55122609502d923f8a7831f50ac05e02bdd640522a2ef18fd0f26d5fc7
+
+### Deploy TRMP-KMLA market
+
+```
+spark-cli core deploy \
+    --base-asset 0x0b2d808a898cdae8b8661d398a98f8ff45e1e0f536ba2e498f6c7e53a71932cd \
+    --base-decimals 9 \
+    --quote-asset 0x368f9275e7d072794527b57d5b54688300008a400f41d926a013195e7074029c \
+    --quote-decimals 9 \
+    --price-decimals 9 \
+    --rpc "mainnet.fuel.network"
+```
+
+Sample output:
+Spark CLI v0.6.3
+
+Market version 0.6.3 (1539) deployed to: 0x12a5f8666279f841e5900500297ce3c8bcf40103dd191c56dd3ec86f92b9217b
+Deployment cost: 6197
+Owner address: fuel1rmu7c4gjycy4qtvj8798sv04ptq9uq4a6eq9y23w7x8apundtlrs0u000t
+               0x1ef9ec55122609502d923f8a7831f50ac05e02bdd640522a2ef18fd0f26d5fc7
 ## Deposit
 
 ```
@@ -162,11 +182,11 @@ spark-cli core withdraw-to-market \
 
 ```
 spark-cli core open \
-    --amount 10 \
+    --amount 20000 \
     --order-type buy \
-    --price 70000000000000 \
-    --rpc "testnet.fuel.network" \
-    --contract-id 0x81acb82a64ff799836c19f4e7f9871cf6d13a1e5d286e815f91c26a1b92a8195
+    --price 1000000000 \
+    --rpc "mainnet.fuel.network" \
+    --contract-id 0x12a5f8666279f841e5900500297ce3c8bcf40103dd191c56dd3ec86f92b9217b
 ```
 
 ```
@@ -191,10 +211,10 @@ spark-cli core cancel \
 
 ```
 spark-cli core match-pair \
-    --orders f8051a6f690347e7446eb9a777e883b68a1f825b7a55d021a91412abacfca48a \
-    --orders 3d66b9caf0628903e037eaa65318d926fb63bf34e7277d7413e349edddd5b0f0 \
-    --rpc "testnet.fuel.network" \
-    --contract-id 0x81acb82a64ff799836c19f4e7f9871cf6d13a1e5d286e815f91c26a1b92a8195
+    --orders b51e154e4b975fe86c126faa08ca5da1bfcb1b81535b6cca14433f7f255cfc88 \
+    --orders 51e7fb9b58c88e0e5f70bf33b023dff09628d474caacbf6830bc81ee11939412 \
+    --rpc "mainnet.fuel.network" \
+    --contract-id 0x12a5f8666279f841e5900500297ce3c8bcf40103dd191c56dd3ec86f92b9217b
 ```
 
 ## Match Order Many
@@ -256,9 +276,9 @@ Sets a epoch and duration for the market
 ```
 spark-cli core set-epoch \
     --epoch 4611686020155120000 \
-    --epoch-duration 2332800 \
-    --rpc "testnet.fuel.network" \
-    --contract-id 0x81acb82a64ff799836c19f4e7f9871cf6d13a1e5d286e815f91c26a1b92a8195
+    --epoch-duration 5020000 \
+    --rpc "mainnet.fuel.network" \
+    --contract-id 0x12a5f8666279f841e5900500297ce3c8bcf40103dd191c56dd3ec86f92b9217b
 ```
 
 ## Set Store Order Change Info
@@ -278,11 +298,22 @@ Sets a minimum order size for the market
 
 ```
 spark-cli core set-min-order-size \
-    --size 1500 \
-    --rpc "testnet.fuel.network" \
-    --contract-id 0x81acb82a64ff799836c19f4e7f9871cf6d13a1e5d286e815f91c26a1b92a8195
+    --size 1000 \
+    --rpc "mainnet.fuel.network" \
+    --contract-id 0x12a5f8666279f841e5900500297ce3c8bcf40103dd191c56dd3ec86f92b9217b
 ```
 
+
+## Set Minimum Order Price
+
+Sets a minimum order size for the market
+
+```
+spark-cli core set-min-order-price \
+    --price 1000000000 \
+    --rpc "mainnet.fuel.network" \
+    --contract-id 0x12a5f8666279f841e5900500297ce3c8bcf40103dd191c56dd3ec86f92b9217b
+```
 
 
 
@@ -371,6 +402,16 @@ spark-cli info min-order-size \
     --contract-id 0x81acb82a64ff799836c19f4e7f9871cf6d13a1e5d286e815f91c26a1b92a8195
 ```
 
+## Minimum Order Price
+
+Minimum Order Price for the market
+
+```
+spark-cli info min-order-price \
+    --rpc "mainnet.fuel.network" \
+    --contract-id 0x12a5f8666279f841e5900500297ce3c8bcf40103dd191c56dd3ec86f92b9217b
+```
+
 ## Order ID
 
 ```
@@ -430,9 +471,9 @@ Owner address: fuel173lqaa6y4jxfjd2suq730uwys3zfg4f6zt9vzx4cc45v3xvlmwlszdvdpz
 
 ```
 spark-cli registry register \
-    --market 0x81acb82a64ff799836c19f4e7f9871cf6d13a1e5d286e815f91c26a1b92a8195 \
-    --rpc "testnet.fuel.network" \
-    --contract-id 0xd76662328e464549b6f619401992127bed9b5cff3b46a3516e6b509d810b7035
+    --market 0x12a5f8666279f841e5900500297ce3c8bcf40103dd191c56dd3ec86f92b9217b \
+    --rpc "mainnet.fuel.network" \
+    --contract-id 0xbb91b7f9d31ee562b24e35d756ce20913f9752600582f51008c63b2d3792926b
 ```
 
 ## Unregister a market

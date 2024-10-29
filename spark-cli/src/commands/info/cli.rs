@@ -1,8 +1,8 @@
 use crate::commands::info::{
     account::AccountCommand, config::ConfigCommand, epoch::EpochCommand,
-    matcher_fee::MatcherFeeCommand, min_order_size::MinOrderSizeCommand, order::OrderCommand,
-    order_id::OrderIdCommand, protocol_fee::ProtocolFeeCommand,
-    protocol_fee_user::ProtocolFeeUserCommand,
+    matcher_fee::MatcherFeeCommand, min_order_price::MinOrderPriceCommand,
+    min_order_size::MinOrderSizeCommand, order::OrderCommand, order_id::OrderIdCommand,
+    protocol_fee::ProtocolFeeCommand, protocol_fee_user::ProtocolFeeUserCommand,
     protocol_fee_user_amount::ProtocolFeeUserAmountCommand,
     store_order_change_info::StoreOrderChangeInfoCommand, user_orders::UserOrdersCommand,
 };
@@ -41,6 +41,10 @@ pub(crate) enum InfoCommands {
     /// Query minimum order size of the market contract
     #[clap(short_flag = 'N')]
     MinOrderSize(MinOrderSizeCommand),
+
+    /// Query minimum order price of the market contract
+    #[clap(short_flag = 'P')]
+    MinOrderPrice(MinOrderPriceCommand),
 
     /// Calculate the order id given the provided arguments
     #[clap(short_flag = 'I')]

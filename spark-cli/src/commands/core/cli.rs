@@ -2,8 +2,8 @@ use crate::commands::core::{
     cancel_order::CancelCommand, deploy::DeployCommand, deposit::DepositCommand,
     deposit_for::DepositForCommand, fulfill_many::FulfillManyCommand, match_many::MatchManyCommand,
     match_pair::MatchPairCommand, open_order::OpenCommand, set_epoch::SetEpochCommand,
-    set_matcher_fee::SetMatcherFeeCommand, set_min_order_size::SetMinOrderSizeCommand,
-    set_protocol_fee::SetProtocolFeeCommand,
+    set_matcher_fee::SetMatcherFeeCommand, set_min_order_price::SetMinOrderPriceCommand,
+    set_min_order_size::SetMinOrderSizeCommand, set_protocol_fee::SetProtocolFeeCommand,
     set_store_order_change_info::SetStoreOrderChangeInfoCommand, withdraw::WithdrawCommand,
     withdraw_to_market::WithdrawToMarketCommand,
 };
@@ -46,6 +46,10 @@ pub(crate) enum CoreCommands {
     /// Set a protocol fee
     #[clap(short_flag = 'E')]
     SetEpoch(SetEpochCommand),
+
+    /// Set a minimum order price for the market
+    #[clap(short_flag = 'P')]
+    SetMinOrderPrice(SetMinOrderPriceCommand),
 
     /// Set a protocol fee
     #[clap(short_flag = 'S')]
