@@ -5560,6 +5560,7 @@ dependencies = [
  "dotenv",
  "fuels",
  "spark-market-sdk 0.6.3 (registry+https://github.com/rust-lang/crates.io-index)",
+ "spark-proxy-sdk",
  "spark-registry-sdk 0.6.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "tokio",
 ]

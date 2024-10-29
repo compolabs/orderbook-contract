@@ -17,6 +17,7 @@ dotenv = "0.15.0"
 fuels = { workspace = true }
 spark-market-sdk = { version = "0.6.3" }
 spark-registry-sdk = { version = "0.6.3" }
+spark-proxy-sdk = { path = "../spark-proxy-sdk" }
 tokio = { workspace = true }
 
 [[bin]]

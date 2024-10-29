@@ -79,6 +79,26 @@ Deployment cost: 0
 Owner address: fuel173lqaa6y4jxfjd2suq730uwys3zfg4f6zt9vzx4cc45v3xvlmwlszdvdpz
                0xf47e0ef744ac8c993550e03d17f1c4844494553a12cac11ab8c568c8999fdbbf
 
+### Deploy Proxy market
+
+```
+spark-cli batch deploy-proxy \
+    --base-asset 0x0b2d808a898cdae8b8661d398a98f8ff45e1e0f536ba2e498f6c7e53a71932cd \
+    --base-decimals 9 \
+    --quote-asset 0x368f9275e7d072794527b57d5b54688300008a400f41d926a013195e7074029c \
+    --quote-decimals 9 \
+    --price-decimals 9 \
+    --rpc "mainnet.fuel.network"
+```
+
+Sample output:
+Spark CLI v0.6.3
+
+Market version 0.6.3 (1539) deployed to: 0x9e71d92577e2771ebe526fc683b69576f5c4622e60663300fc79f028cf035eda
+               Proxy deployed to: 0xdeca3101bd9c7e6c053b49597244afd3e51c9476e457c51d894fd390b3b1746b
+Deployment cost: 7308
+Owner address: fuel1rmu7c4gjycy4qtvj8798sv04ptq9uq4a6eq9y23w7x8apundtlrs0u000t
+               0x1ef9ec55122609502d923f8a7831f50ac05e02bdd640522a2ef18fd0f26d5fc7
 ## Deposit
 
 ```
