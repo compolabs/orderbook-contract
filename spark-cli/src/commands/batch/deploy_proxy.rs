@@ -74,9 +74,7 @@ impl DeployProxyCommand {
         let target: ContractId = contract.contract_id().into();
         let proxy = SparkProxyContract::deploy(target, wallet.clone()).await?;
 
-        let market =
-            SparkMarketContract::new_proxied(proxy.contract_id().into(), target, wallet.clone())
-                .await;
+        let market = SparkMarketContract::new(proxy.contract_id().into(), wallet.clone()).await;
         let _ = market.initialize_ownership(wallet.address().into()).await?;
 
         let epoch = 4611686020155120000; // 10/01/2024

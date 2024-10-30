@@ -176,12 +176,8 @@ pub(crate) async fn setup(
                     ProxyOwner::Initialized(Identity::from(Address::from(owner.address())))
                 );
 
-                let market = SparkMarketContract::new_proxied(
-                    proxy.contract_id().into(),
-                    target,
-                    owner.clone(),
-                )
-                .await;
+                let market =
+                    SparkMarketContract::new(proxy.contract_id().into(), owner.clone()).await;
 
                 let _ = market.initialize_ownership(owner.address().into()).await?;
                 assert_eq!(

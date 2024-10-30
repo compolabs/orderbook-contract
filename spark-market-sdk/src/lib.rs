@@ -13,10 +13,16 @@ use fuels::{
 use rand::Rng;
 use std::path::PathBuf;
 
-abigen!(Contract(
-    name = "SparkMarket",
-    abi = "spark-market/out/release/spark-market-abi.json"
-));
+abigen!(
+    Contract(
+        name = "SparkMarket",
+        abi = "spark-market/out/release/spark-market-abi.json"
+    ),
+    Contract(
+        name = "SparkProxy",
+        abi = "spark-proxy/out/release/spark-proxy-abi.json"
+    )
+);
 
 const MARKET_CONTRACT_BINARY_PATH: &str = "spark-market/out/release/spark-market.bin";
 const MARKET_CONTRACT_STORAGE_PATH: &str =
@@ -85,25 +91,19 @@ impl SparkMarketContract {
     }
 
     pub async fn new(contract_id: ContractId, wallet: WalletUnlocked) -> Self {
+        let proxy = SparkProxy::new(contract_id, wallet.clone());
+        let result = proxy
+            .methods()
+            .proxy_target()
+            .simulate(Execution::StateReadOnly)
+            .await;
+        let implementation = match result {
+            Ok(response) => response.value.unwrap(),
+            Err(_) => contract_id,
+        };
         let _self = Self {
             instance: SparkMarket::new(contract_id, wallet),
-            implementation: contract_id,
-        };
-        assert!(
-            _self.contract_version().await.unwrap() & 0xFF0000 == Self::sdk_version() & 0xFF0000,
-            "Market contract version mismatch with SDK version"
-        );
-        _self
-    }
-
-    pub async fn new_proxied(
-        proxy: ContractId,
-        contract_id: ContractId,
-        wallet: WalletUnlocked,
-    ) -> Self {
-        let _self = Self {
-            instance: SparkMarket::new(proxy, wallet),
-            implementation: contract_id,
+            implementation: implementation,
         };
         assert!(
             _self.contract_version().await.unwrap() & 0xFF0000 == Self::sdk_version() & 0xFF0000,

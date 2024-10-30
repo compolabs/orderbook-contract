@@ -11,6 +11,7 @@ readme = "README.md"
 keywords = ["fuel", "sdk", "spark", "market", "orderbook"]
 include = [
     "spark-market/out/release/*",
+    "spark-proxy/out/release/*",
     "src/lib.rs",
     "Cargo.toml",
     "README.md"

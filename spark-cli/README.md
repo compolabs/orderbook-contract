@@ -83,12 +83,12 @@ Owner address: fuel173lqaa6y4jxfjd2suq730uwys3zfg4f6zt9vzx4cc45v3xvlmwlszdvdpz
 
 ```
 spark-cli batch deploy-proxy \
-    --base-asset 0x0b2d808a898cdae8b8661d398a98f8ff45e1e0f536ba2e498f6c7e53a71932cd \
-    --base-decimals 9 \
-    --quote-asset 0x368f9275e7d072794527b57d5b54688300008a400f41d926a013195e7074029c \
-    --quote-decimals 9 \
+    --base-asset 0x38e4ca985b22625fff93205e997bfc5cc8453a953da638ad297ca60a9f2600bc \
+    --base-decimals 8 \
+    --quote-asset 0x336b7c06352a4b736ff6f688ba6885788b3df16e136e95310ade51aa32dc6f05 \
+    --quote-decimals 6 \
     --price-decimals 9 \
-    --rpc "mainnet.fuel.network"
+    --rpc "testnet.fuel.network"
 ```
 
 Sample output:
