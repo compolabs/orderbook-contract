@@ -37,7 +37,7 @@ impl ConfigCommand {
         println!("Base Asset Decimals: {}", base_asset_decimals);
         println!("Quote Asset: 0x{}", quote_asset);
         println!("Quote Asset Decimals: {}", quote_asset_decimals);
-        println!("Owner: 0x{:?}", owner);
+        println!("Owner: {:?}", owner);
         println!("Price Decimals: {}", price_decimals);
         println!(
             "Version: {}.{}.{}",

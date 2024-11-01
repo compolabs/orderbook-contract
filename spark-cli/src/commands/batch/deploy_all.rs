@@ -39,7 +39,7 @@ impl DeployAllCommand {
         let price_decimals = 9;
         let version = SparkMarketContract::sdk_version();
         let matcher_fee = 1_000; // 0.001 USDC
-        let min_price = 500_000_000; // 500 USDC
+        let min_price = 500_000_000_000; // 500 USDC
 
         // multi tier protocol fee structure
         let protocol_fee = vec![
