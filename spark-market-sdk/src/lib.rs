@@ -131,6 +131,10 @@ impl SparkMarketContract {
         self.instance.contract_id()
     }
 
+    pub fn implementation_contract_id(&self) -> Bech32ContractId {
+        self.implementation.into()
+    }
+
     pub async fn contract_version(&self) -> anyhow::Result<u32> {
         let (_, _, _, _, _, _, version) = self.config().await?.value;
         Ok(version)

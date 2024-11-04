@@ -10,6 +10,7 @@ repository = "https://github.com/compolabs/orderbook-contract"
 readme = "README.md"
 keywords = ["fuel", "sdk", "spark", "registry", "orderbook"]
 include = [
+    "spark-proxy/out/release/*",
     "spark-registry/out/release/*",
     "src/lib.rs",
     "Cargo.toml",

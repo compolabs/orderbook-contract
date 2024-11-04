@@ -9,10 +9,16 @@ use fuels::{
 use rand::Rng;
 use std::path::PathBuf;
 
-abigen!(Contract(
-    name = "SparkRegistry",
-    abi = "spark-registry/out/release/spark-registry-abi.json"
-));
+abigen!(
+    Contract(
+        name = "SparkRegistry",
+        abi = "spark-registry/out/release/spark-registry-abi.json"
+    ),
+    Contract(
+        name = "SparkProxy",
+        abi = "spark-proxy/out/release/spark-proxy-abi.json"
+    )
+);
 
 const SPARK_REGISTRY_CONTRACT_BINARY_PATH: &str = "spark-registry/out/release/spark-registry.bin";
 const SPARK_REGISTRY_CONTRACT_STORAGE_PATH: &str =
@@ -118,22 +124,46 @@ impl SparkRegistryContract {
         env!("CARGO_PKG_VERSION").into()
     }
 
+    async fn market_implementation(&self, market: ContractId) -> ContractId {
+        let proxy = SparkProxy::new(market, self.instance.account().clone());
+        let result = proxy
+            .methods()
+            .proxy_target()
+            .simulate(Execution::StateReadOnly)
+            .await;
+        match result {
+            Ok(response) => response.value.unwrap(),
+            Err(_) => market,
+        }
+    }
     pub async fn register_market(&self, market: ContractId) -> anyhow::Result<CallResponse<()>> {
+        let implementation = self.market_implementation(market).await;
+        let contract_ids = if implementation == market {
+            vec![market.into()]
+        } else {
+            vec![market.into(), implementation.into()]
+        };
         Ok(self
             .instance
             .methods()
             .register_market(market)
-            .with_contract_ids(&[market.into()])
+            .with_contract_ids(&contract_ids)
             .call()
             .await?)
     }
 
     pub async fn unregister_market(&self, market: ContractId) -> anyhow::Result<CallResponse<()>> {
+        let implementation = self.market_implementation(market).await;
+        let contract_ids = if implementation == market {
+            vec![market.into()]
+        } else {
+            vec![market.into(), implementation.into()]
+        };
         Ok(self
             .instance
             .methods()
             .unregister_market(market)
-            .with_contract_ids(&[market.into()])
+            .with_contract_ids(&contract_ids)
             .call()
             .await?)
     }
