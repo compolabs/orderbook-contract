@@ -22,3 +22,4 @@ anyhow = { workspace = true }
 fuels = { workspace = true }
 rand = "0.8.5"
 tokio = { workspace = true }
+arbitrary = { version = "1.4.0", default-features = false }
