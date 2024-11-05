@@ -6,6 +6,7 @@ mod initialize_ownership;
 mod match_order_many;
 mod match_order_pair;
 mod open_order;
+mod pause;
 mod set_epoch;
 mod set_matcher_fee;
 mod set_min_order_price;

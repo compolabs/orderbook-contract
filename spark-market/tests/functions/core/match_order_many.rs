@@ -539,4 +539,68 @@ mod revert {
 
         contract.match_order_many(order_ids).await.unwrap();
     }
+
+    #[tokio::test]
+    #[should_panic(expected = "Paused")]
+    async fn when_paused() {
+        let defaults = Defaults::default();
+        let (contract, _, user0, _, _, assets) = setup(
+            defaults.base_decimals,
+            defaults.quote_decimals,
+            defaults.price_decimals,
+        )
+        .await
+        .unwrap();
+
+        let base_amount = 1_000_u64; // 0.00001 BTC
+        let price1 = 70_000_000_000_000_u64; // 70,000$ price
+        let price2 = 75_000_000_000_000_u64; // 75,000$ price
+
+        let order_configs: Vec<OrderConfig> = vec![
+            OrderConfig {
+                amount: base_amount,
+                order_type: OrderType::Sell,
+                price: price1,
+            },
+            OrderConfig {
+                amount: base_amount,
+                order_type: OrderType::Sell,
+                price: price2,
+            },
+            OrderConfig {
+                amount: base_amount,
+                order_type: OrderType::Sell,
+                price: price2,
+            },
+            OrderConfig {
+                amount: base_amount,
+                order_type: OrderType::Sell,
+                price: price1,
+            },
+        ];
+
+        let base_deposit = base_amount * 4;
+
+        contract
+            .with_account(&user0.wallet)
+            .deposit(base_deposit, assets.base.id)
+            .await
+            .unwrap();
+
+        let mut order_ids: Vec<Bits256> = Vec::new();
+        for config in order_configs {
+            order_ids.push(
+                contract
+                    .with_account(&user0.wallet)
+                    .open_order(config.amount, config.order_type, config.price)
+                    .await
+                    .unwrap()
+                    .value,
+            );
+        }
+
+        contract.pause().await.unwrap();
+
+        contract.match_order_many(order_ids).await.unwrap();
+    }
 }

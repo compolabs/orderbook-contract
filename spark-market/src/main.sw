@@ -56,6 +56,14 @@ use sway_libs::{
         only_owner as ownership_only_owner,
         transfer_ownership as ownership_transfer_ownership,
     },
+    pausable::{
+        Pausable,
+        _pause,
+        _unpause,
+        _is_paused,
+        require_not_paused,
+        require_paused,
+    },
     reentrancy::reentrancy_guard,
 };
 use standards::src5::{AccessError, SRC5, State};
@@ -117,6 +125,27 @@ impl SRC5 for Contract {
     }
 }
 
+impl Pausable for Contract {
+    #[storage(write)]
+    fn pause() {
+        ownership_only_owner();
+        require_not_paused();
+        _pause();
+    }
+
+    #[storage(write)]
+    fn unpause() {
+        ownership_only_owner();
+        require_paused();
+        _unpause();
+    }
+
+    #[storage(read)]
+    fn is_paused() -> bool {
+        _is_paused()
+    }
+}
+
 impl SparkMarket for Contract {
     #[storage(read, write)]
     fn initialize_ownership(new_owner: Identity) {
@@ -141,6 +170,7 @@ impl SparkMarket for Contract {
     #[payable]
     #[storage(read, write)]
     fn deposit() {
+        require_not_paused();
         reentrancy_guard();
 
         let user = msg_sender().unwrap();
@@ -173,6 +203,7 @@ impl SparkMarket for Contract {
     #[payable]
     #[storage(read, write)]
     fn deposit_for(user: Identity) {
+        require_not_paused();
         reentrancy_guard();
 
         let caller = msg_sender().unwrap();
@@ -278,6 +309,7 @@ impl SparkMarket for Contract {
     /// * When `price` == 0.
     #[storage(read, write)]
     fn open_order(amount: u64, order_type: OrderType, price: u64) -> b256 {
+        require_not_paused();
         reentrancy_guard();
 
         open_order_internal(amount, order_type, price, read_matcher_fee())
@@ -314,6 +346,7 @@ impl SparkMarket for Contract {
     /// * When order buy price lower than order sell price.
     #[storage(read, write)]
     fn match_order_pair(order0_id: b256, order1_id: b256) {
+        require_not_paused();
         reentrancy_guard();
 
         let order0 = storage.orders.get(order0_id).try_read();
@@ -348,6 +381,7 @@ impl SparkMarket for Contract {
     /// * When no any orders can be matched.
     #[storage(read, write)]
     fn match_order_many(orders: Vec<b256>) {
+        require_not_paused();
         reentrancy_guard();
 
         require(orders.len() >= 2, ValueError::InvalidArrayLength);
@@ -452,6 +486,7 @@ impl SparkMarket for Contract {
         slippage: u64,
         orders: Vec<b256>,
     ) -> b256 {
+        require_not_paused();
         reentrancy_guard();
 
         require(orders.len() > 0, ValueError::InvalidArrayLength);

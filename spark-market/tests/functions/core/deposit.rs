@@ -221,4 +221,27 @@ mod revert {
             .await
             .unwrap();
     }
+
+    #[tokio::test]
+    #[should_panic(expected = "Paused")]
+    async fn when_paused() {
+        let defaults = Defaults::default();
+        let (contract, _owner, _user, _, _, assets) = setup(
+            defaults.base_decimals,
+            defaults.quote_decimals,
+            defaults.price_decimals,
+        )
+        .await
+        .unwrap();
+
+        contract.pause().await.unwrap();
+
+        let deposit_amount = 100;
+
+        // Revert
+        contract
+            .deposit(deposit_amount, assets.random.id)
+            .await
+            .unwrap();
+    }
 }

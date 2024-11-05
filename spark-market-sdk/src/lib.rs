@@ -538,6 +538,36 @@ impl SparkMarketContract {
             .await?)
     }
 
+    pub async fn pause(&self) -> anyhow::Result<CallResponse<()>> {
+        Ok(self
+            .instance
+            .methods()
+            .pause()
+            .with_contract_ids(&[self.implementation.into()])
+            .call()
+            .await?)
+    }
+
+    pub async fn unpause(&self) -> anyhow::Result<CallResponse<()>> {
+        Ok(self
+            .instance
+            .methods()
+            .unpause()
+            .with_contract_ids(&[self.implementation.into()])
+            .call()
+            .await?)
+    }
+
+    pub async fn is_paused(&self) -> anyhow::Result<CallResponse<bool>> {
+        Ok(self
+            .instance
+            .methods()
+            .is_paused()
+            .with_contract_ids(&[self.implementation.into()])
+            .simulate(Execution::StateReadOnly)
+            .await?)
+    }
+
     pub async fn store_order_change_info(&self) -> anyhow::Result<CallResponse<bool>> {
         Ok(self
             .instance

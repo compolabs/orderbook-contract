@@ -1665,6 +1665,93 @@ mod revert {
     }
 
     #[tokio::test]
+    #[should_panic(expected = "Paused")]
+    async fn when_paused() {
+        let defaults = Defaults::default();
+        let (contract, user0, user1, _, _, assets) = setup(
+            defaults.base_decimals,
+            defaults.quote_decimals,
+            defaults.price_decimals,
+        )
+        .await
+        .unwrap();
+
+        let to_quote_scale =
+            10_u64.pow(defaults.price_decimals + defaults.base_decimals - defaults.quote_decimals);
+
+        let base_amount = 1_000_u64; // 0.00001 BTC
+        let price1 = 70_000_000_000_000_u64; // 70,000$ price
+        let price2 = 70_500_000_000_000_u64; // 70,500$ price
+
+        let order_configs: Vec<OrderConfig> = vec![
+            OrderConfig {
+                amount: 2 * base_amount,
+                order_type: OrderType::Buy,
+                price: price1,
+            },
+            OrderConfig {
+                amount: 4 * base_amount,
+                order_type: OrderType::Buy,
+                price: price2,
+            },
+        ];
+
+        let fulfill_order_config = OrderConfig {
+            amount: base_amount * 5,
+            order_type: OrderType::Buy,
+            price: price1,
+        };
+
+        let quote_deposit =
+            2 * price1 / to_quote_scale * base_amount + 4 * price2 / to_quote_scale * base_amount;
+
+        contract
+            .with_account(&user0.wallet)
+            .deposit(quote_deposit, assets.quote.id)
+            .await
+            .unwrap();
+        contract
+            .with_account(&user1.wallet)
+            .deposit(quote_deposit, assets.quote.id)
+            .await
+            .unwrap();
+
+        let mut order_ids: Vec<Bits256> = Vec::new();
+        for config in order_configs {
+            order_ids.push(
+                contract
+                    .with_account(&user0.wallet)
+                    .open_order(config.amount, config.order_type, config.price)
+                    .await
+                    .unwrap()
+                    .value,
+            );
+        }
+
+        let expected_account0 = create_account(0, 0, 0, quote_deposit);
+
+        assert_eq!(
+            contract.account(user0.identity()).await.unwrap().value,
+            expected_account0
+        );
+
+        contract.pause().await.unwrap();
+
+        contract
+            .with_account(&user1.wallet)
+            .fulfill_many(
+                fulfill_order_config.amount,
+                fulfill_order_config.order_type,
+                LimitType::IOC,
+                fulfill_order_config.price,
+                100,
+                order_ids,
+            )
+            .await
+            .unwrap();
+    }
+
+    #[tokio::test]
     #[should_panic(expected = "CantFulfillMany")]
     async fn fulfill_order_many_ioc_same_asset_type_same_direction() {
         let defaults = Defaults::default();
