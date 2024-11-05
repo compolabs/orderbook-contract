@@ -1040,4 +1040,63 @@ mod revert {
 
         contract.match_order_pair(id0, id1).await.unwrap();
     }
+
+    #[tokio::test]
+    #[should_panic(expected = "Paused")]
+    async fn when_paused() {
+        let defaults = Defaults::default();
+        let (contract, _, user0, user1, _, assets) = setup(
+            defaults.base_decimals,
+            defaults.quote_decimals,
+            defaults.price_decimals,
+        )
+        .await
+        .unwrap();
+
+        let to_quote_scale =
+            10_u64.pow(defaults.price_decimals + defaults.base_decimals - defaults.quote_decimals);
+        let sell_price = 70_000 * 10_u64.pow(defaults.price_decimals); // 70,000$ price
+        let buy_price = 67_000 * 10_u64.pow(defaults.price_decimals); // 67,000$ price
+        let base_amount = 100_000_u64; // 0.001 BTC
+        let quote_amount = buy_price / to_quote_scale * base_amount;
+        contract
+            .with_account(&user0.wallet)
+            .deposit(base_amount, assets.base.id)
+            .await
+            .unwrap();
+        contract
+            .with_account(&user1.wallet)
+            .deposit(quote_amount, assets.quote.id)
+            .await
+            .unwrap();
+
+        let id0 = contract
+            .with_account(&user0.wallet)
+            .open_order(base_amount, OrderType::Sell, sell_price)
+            .await
+            .unwrap()
+            .value;
+        let id1 = contract
+            .with_account(&user1.wallet)
+            .open_order(base_amount, OrderType::Buy, buy_price)
+            .await
+            .unwrap()
+            .value;
+
+        let expected_account0 = create_account(0, 0, base_amount, 0);
+        let expected_account1 = create_account(0, 0, 0, quote_amount);
+
+        assert_eq!(
+            contract.account(user0.identity()).await.unwrap().value,
+            expected_account0
+        );
+        assert_eq!(
+            contract.account(user1.identity()).await.unwrap().value,
+            expected_account1
+        );
+
+        contract.pause().await.unwrap();
+
+        contract.match_order_pair(id0, id1).await.unwrap();
+    }
 }

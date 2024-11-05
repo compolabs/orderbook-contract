@@ -276,6 +276,8 @@ mod revert {
             .await
             .unwrap();
 
+        contract.pause().await.unwrap();
+
         // Revert
         contract
             .withdraw(deposit_amount + 1, AssetType::Quote)

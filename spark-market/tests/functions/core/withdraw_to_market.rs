@@ -320,6 +320,8 @@ mod revert {
             .await
             .unwrap();
 
+        contract.pause().await.unwrap();
+
         // Revert
         contract
             .withdraw_to_market(deposit_amount + 1, AssetType::Quote, market.contract_id())

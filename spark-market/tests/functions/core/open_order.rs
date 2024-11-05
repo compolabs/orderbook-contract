@@ -468,4 +468,39 @@ mod revert {
             .await
             .unwrap();
     }
+
+    #[tokio::test]
+    #[should_panic(expected = "Paused")]
+    async fn when_paused() {
+        let defaults = Defaults::default();
+        let (contract, _owner, _user, _, _, assets) = setup(
+            defaults.base_decimals,
+            defaults.quote_decimals,
+            defaults.price_decimals,
+        )
+        .await
+        .unwrap();
+
+        let deposit_amount = 10;
+        let order_amount = 100;
+        let deposit_asset = assets.quote.id;
+        let order_type = OrderType::Sell;
+
+        let price = 1_000_000;
+
+        let _ = contract.set_min_order_size(order_amount + 1).await.unwrap();
+
+        let _ = contract
+            .deposit(deposit_amount, deposit_asset)
+            .await
+            .unwrap();
+
+        contract.pause().await.unwrap();
+
+        // Revert
+        contract
+            .open_order(order_amount, order_type, price)
+            .await
+            .unwrap();
+    }
 }
