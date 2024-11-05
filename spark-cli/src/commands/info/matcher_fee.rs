@@ -25,10 +25,10 @@ impl MatcherFeeCommand {
 
         let matcher_fee = contract.matcher_fee().await?.value;
 
-        let implementation = contract.implementation_contract_id();
+        /*let implementation = contract.implementation_contract_id();
         if *contract.contract_id() != implementation {
             println!("\nProxied Implememntation: 0x{}", implementation.hash);
-        }
+        }*/
         println!("\nMatcher Fee: {}", matcher_fee);
 
         Ok(())
