@@ -15,7 +15,7 @@ authors = ["ComposabilityLabs"]
 version = "0.6.4"
 edition = "2021"
 license = "Apache-2.0"
-rust-version = "1.79.0"
+rust-version = "1.82.0"
 
 [workspace.dependencies]
 anyhow = "1.0.92"
