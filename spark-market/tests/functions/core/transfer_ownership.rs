@@ -4,7 +4,7 @@ use fuels::types::Identity;
 mod success {
 
     use super::*;
-    use spark_market_sdk::{OwnershipTransferred, State};
+    use spark_market_sdk::OwnershipTransferred;
 
     #[tokio::test]
     async fn transfer_ownership() -> anyhow::Result<()> {
@@ -31,7 +31,7 @@ mod success {
                 previous_owner: owner.wallet.address().into(),
             }
         );
-        assert_eq!(contract.owner().await?.value, State::Initialized(new_owner));
+        assert_eq!(contract.config().await?.value.4.unwrap(), new_owner);
 
         let _ = contract
             .with_account(&user.wallet)
