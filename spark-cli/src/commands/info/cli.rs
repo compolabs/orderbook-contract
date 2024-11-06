@@ -4,8 +4,9 @@ use crate::commands::info::{
     min_order_size::MinOrderSizeCommand, order::OrderCommand, order_id::OrderIdCommand,
     paused::PausedCommand, protocol_fee::ProtocolFeeCommand,
     protocol_fee_user::ProtocolFeeUserCommand,
-    protocol_fee_user_amount::ProtocolFeeUserAmountCommand, proxy_target::ProxyTargetCommand,
-    store_order_change_info::StoreOrderChangeInfoCommand, user_orders::UserOrdersCommand,
+    protocol_fee_user_amount::ProtocolFeeUserAmountCommand, proxy_owner::ProxyOwnerCommand,
+    proxy_target::ProxyTargetCommand, store_order_change_info::StoreOrderChangeInfoCommand,
+    user_orders::UserOrdersCommand,
 };
 use clap::Subcommand;
 
@@ -63,11 +64,15 @@ pub(crate) enum InfoCommands {
     #[clap(short_flag = 'S')]
     StoreOrderChangeInfo(StoreOrderChangeInfoCommand),
 
-    /// Query fee information for a proxy target
+    /// Query information for a proxy target
     #[clap(short_flag = 'T')]
     ProxyTarget(ProxyTargetCommand),
 
     /// Query orders associated with an
     #[clap(short_flag = 'U')]
     UserOrders(UserOrdersCommand),
+
+    /// Query information for a proxy owner
+    #[clap(short_flag = 'V')]
+    ProxyOwner(ProxyOwnerCommand),
 }

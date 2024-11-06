@@ -11,6 +11,7 @@ pub(crate) mod paused;
 pub(crate) mod protocol_fee;
 pub(crate) mod protocol_fee_user;
 pub(crate) mod protocol_fee_user_amount;
+pub(crate) mod proxy_owner;
 pub(crate) mod proxy_target;
 pub(crate) mod store_order_change_info;
 pub(crate) mod user_orders;

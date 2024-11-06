@@ -23,6 +23,7 @@ async fn main() -> anyhow::Result<()> {
     match cli.command {
         Command::Batch(args) => match args.commands {
             BatchCommands::DeployAll(args) => args.run().await,
+            BatchCommands::DeployEthUsdcProxy(args) => args.run().await,
             BatchCommands::DeployProxy(args) => args.run().await,
             BatchCommands::DeployTethTusdcImpl(args) => args.run().await,
             BatchCommands::DeployTethTusdcProxy(args) => args.run().await,
@@ -61,6 +62,7 @@ async fn main() -> anyhow::Result<()> {
             InfoCommands::Order(args) => args.run().await,
             InfoCommands::Paused(args) => args.run().await,
             InfoCommands::StoreOrderChangeInfo(args) => args.run().await,
+            InfoCommands::ProxyOwner(args) => args.run().await,
             InfoCommands::ProxyTarget(args) => args.run().await,
             InfoCommands::UserOrders(args) => args.run().await,
         },

@@ -135,6 +135,22 @@ Deployment cost: 6395
 Owner address: fuel1rmu7c4gjycy4qtvj8798sv04ptq9uq4a6eq9y23w7x8apundtlrs0u000t
                0x1ef9ec55122609502d923f8a7831f50ac05e02bdd640522a2ef18fd0f26d5fc7
 
+
+### Deploy ETH-USDC market proxy + implementation
+
+```
+spark-cli batch deploy-eth-usdc-proxy
+
+```
+
+Spark CLI v0.6.5
+
+Market version 0.6.5 (1541) deployed to: 0x580cec81fe8086336a5e01405233b5a1324bcfd55da3b151aa6bee9bd9992f44
+               Proxy deployed to: 0xfe2c524ad8e088f33d232a45dbea43e792861640b71aa1814b30506bf8430ee5
+Deployment cost: 7798
+Owner address: fuel1rmu7c4gjycy4qtvj8798sv04ptq9uq4a6eq9y23w7x8apundtlrs0u000t
+               0x1ef9ec55122609502d923f8a7831f50ac05e02bdd640522a2ef18fd0f26d5fc7
+
 ## Deposit
 
 ```
@@ -142,7 +158,7 @@ spark-cli core deposit \
     --asset-type base \
     --amount 1000000000 \
     --rpc "mainnet.fuel.network" \
-    --contract-id 0x4c9010a055ab636c38caa0e4c7cf9eb4ad8d6f44ff6e094f23b3dcdd291ee093
+    --contract-id 0x1b3aec515957737fe9bc12aab47e55aedfc9f182369b5cb79732872f9ae78889
 ```
 
 ```
@@ -364,7 +380,7 @@ spark-cli info account \
 ```
 spark-cli info config \
     --rpc "mainnet.fuel.network" \
-    --contract-id 0x4c9010a055ab636c38caa0e4c7cf9eb4ad8d6f44ff6e094f23b3dcdd291ee093
+    --contract-id 0xfe2c524ad8e088f33d232a45dbea43e792861640b71aa1814b30506bf8430ee5
 ```
 
 ## Paused
@@ -372,7 +388,7 @@ spark-cli info config \
 ```
 spark-cli info paused \
     --rpc "mainnet.fuel.network" \
-    --contract-id 0x4c9010a055ab636c38caa0e4c7cf9eb4ad8d6f44ff6e094f23b3dcdd291ee093
+    --contract-id 0x1b3aec515957737fe9bc12aab47e55aedfc9f182369b5cb79732872f9ae78889
 ```
 
 ## Epoch
@@ -418,16 +434,6 @@ spark-cli info protocol-fee-user-amount \
     --contract-id 0x81acb82a64ff799836c19f4e7f9871cf6d13a1e5d286e815f91c26a1b92a8195
 ```
 
-## Proxy Target
-
-Proxy target market
-
-```
-spark-cli info proxy-target \
-    --rpc "mainnet.fuel.network" \
-    --contract-id 0x4c9010a055ab636c38caa0e4c7cf9eb4ad8d6f44ff6e094f23b3dcdd291ee093
-```
-
 ## Matcher Fee
 
 Matcher Fee for the market
@@ -436,6 +442,26 @@ Matcher Fee for the market
 spark-cli info matcher-fee \
     --rpc "mainnet.fuel.network" \
     --contract-id 0x4c9010a055ab636c38caa0e4c7cf9eb4ad8d6f44ff6e094f23b3dcdd291ee093
+```
+
+## Proxy Target
+
+Proxy target market
+
+```
+spark-cli info proxy-target \
+    --rpc "mainnet.fuel.network" \
+    --contract-id 0xfe2c524ad8e088f33d232a45dbea43e792861640b71aa1814b30506bf8430ee5
+```
+
+## Proxy Owner
+
+Proxy owner market
+
+```
+spark-cli info proxy-owner \
+    --rpc "mainnet.fuel.network" \
+    --contract-id 0xfe2c524ad8e088f33d232a45dbea43e792861640b71aa1814b30506bf8430ee5
 ```
 
 ## Minimum Order Size
