@@ -1,7 +1,7 @@
 [package]
 name = "spark-cli"
 description = "Spark Rust CLI for Market & Orderbook contract interactions"
-version = "0.6.3"
+version = "0.6.5"
 authors = { workspace = true }
 edition = { workspace = true }
 license = { workspace = true }
@@ -15,9 +15,9 @@ anyhow = { workspace = true }
 clap = { version = "4.5.20", features = ["derive"] }
 dotenv = "0.15.0"
 fuels = { workspace = true }
-spark-market-sdk = { version = "0.6.3" }
-spark-registry-sdk = { version = "0.6.3" }
-spark-proxy-sdk = { path = "../spark-proxy-sdk" }
+spark-market-sdk = { version = "0.6.5" }
+spark-registry-sdk = { version = "0.6.4" }
+spark-proxy-sdk = { version = "0.0.2" }
 tokio = { workspace = true }
 
 [[bin]]

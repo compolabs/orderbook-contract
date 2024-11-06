@@ -1,6 +1,6 @@
 use crate::setup::{create_account, setup, Defaults};
 use rand::Rng;
-use spark_market_sdk::{/*AssetType,*/ OrderType};
+use spark_market_sdk::{OrderType, ProtocolFee};
 
 mod success {
 
@@ -93,6 +93,91 @@ mod success {
             contract.account(user0.identity()).await?.value,
             expected_account0
         );
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn match_order_many_protocol_fee() -> anyhow::Result<()> {
+        let defaults = Defaults::default();
+        let (contract, owner, user0, _, _, assets) = setup(
+            defaults.base_decimals,
+            defaults.quote_decimals,
+            defaults.price_decimals,
+        )
+        .await?;
+
+        let price = 50_000_000_000_u64;
+        let base_amount = 100_000_000_u64; // 1 BTC
+        let order_size = 90_000_000_u64; // 0.9 BTC
+        let quote_amount = 50_000_000_u64; // 500 USDC
+        let quote_locked = 45_000_000_u64; // 450 USDC
+        let taker_fee = 67_500_u64; // taker fee
+
+        let protocol_fee = vec![ProtocolFee {
+            maker_fee: 10,
+            taker_fee: 15,
+            volume_threshold: 0,
+        }];
+        let _ = contract.set_protocol_fee(protocol_fee.clone()).await?;
+
+        let matcher_fee = 1000_u64;
+        let _ = contract.set_matcher_fee(matcher_fee).await?;
+
+        let epoch = 4611686020157800000; // 11/01/2024
+        let epoch_duration = 2600000; // 30 days
+        let min_size = 400_000; // 0.0004 ETH
+
+        let _ = contract.set_epoch(epoch, epoch_duration).await?;
+        let _ = contract.set_min_order_size(min_size).await?;
+        let _ = contract.set_min_order_price(price).await?;
+
+        contract
+            .with_account(&owner.wallet)
+            .deposit(base_amount, assets.base.id)
+            .await?;
+        contract
+            .with_account(&owner.wallet)
+            .deposit(quote_amount, assets.quote.id)
+            .await?;
+
+        let id0 = contract
+            .with_account(&owner.wallet)
+            .open_order(order_size, OrderType::Sell, price)
+            .await?
+            .value;
+        let id1 = contract
+            .with_account(&owner.wallet)
+            .open_order(order_size, OrderType::Buy, price)
+            .await?
+            .value;
+
+        let expected_account = create_account(
+            base_amount - order_size,
+            quote_amount - quote_locked - taker_fee - matcher_fee,
+            order_size,
+            quote_locked + taker_fee + matcher_fee,
+        );
+
+        assert_eq!(
+            contract.account(owner.identity()).await?.value,
+            expected_account
+        );
+
+        let expected_account = create_account(base_amount, quote_amount - 2 * matcher_fee, 0, 0);
+
+        contract
+            .with_account(&user0.wallet)
+            .match_order_many(vec![id0, id1])
+            .await?;
+
+        assert_eq!(
+            contract.account(owner.identity()).await?.value,
+            expected_account
+        );
+
+        assert!(contract.order(id0).await?.value.is_none());
+        assert!(contract.order(id1).await?.value.is_none());
 
         Ok(())
     }

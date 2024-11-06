@@ -57,10 +57,10 @@ use sway_libs::{
         transfer_ownership as ownership_transfer_ownership,
     },
     pausable::{
-        Pausable,
+        _is_paused,
         _pause,
         _unpause,
-        _is_paused,
+        Pausable,
         require_not_paused,
         require_paused,
     },
@@ -111,18 +111,6 @@ storage {
     user_volumes: StorageMap<Identity, UserVolume> = StorageMap {},
     /// Order height.
     order_heights: StorageMap<Identity, u64> = StorageMap {},
-}
-
-impl SRC5 for Contract {
-    /// Returns the owner.
-    ///
-    /// # Returns
-    ///
-    /// * [State] - Represents the state of ownership for this contract.
-    #[storage(read)]
-    fn owner() -> State {
-        ownership_owner()
-    }
 }
 
 impl Pausable for Contract {

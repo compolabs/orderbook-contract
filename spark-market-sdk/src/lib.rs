@@ -68,13 +68,23 @@ impl SparkMarketContract {
             .with_storage_configuration(storage_configuration?)
             .with_configurables(configurables);
 
-        let contract_id = Contract::load_from(
+        let contract = Contract::load_from(
             root.join(MARKET_CONTRACT_BINARY_PATH),
             contract_configuration,
         )?
-        .with_salt(salt)
-        .deploy(&owner, TxPolicies::default())
-        .await?;
+        .with_salt(salt);
+
+        /*let max_allowed = owner
+            .provider()
+            .unwrap()
+            .consensus_parameters()
+            .contract_params()
+            .contract_max_size();
+
+        let code_size = contract.code().len() as u64;
+        assert!(code_size <= max_allowed, "{} - {}", code_size, max_allowed);*/
+
+        let contract_id = contract.deploy(&owner, TxPolicies::default()).await?;
 
         let market = SparkMarket::new(contract_id.clone(), owner.clone());
 
@@ -468,16 +478,6 @@ impl SparkMarketContract {
             .transfer_ownership(new_owner)
             .with_contract_ids(&[self.implementation.into()])
             .call()
-            .await?)
-    }
-
-    pub async fn owner(&self) -> anyhow::Result<CallResponse<State>> {
-        Ok(self
-            .instance
-            .methods()
-            .owner()
-            .with_contract_ids(&[self.implementation.into()])
-            .simulate(Execution::StateReadOnly)
             .await?)
     }
 

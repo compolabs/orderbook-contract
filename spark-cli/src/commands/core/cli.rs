@@ -3,7 +3,8 @@ use crate::commands::core::{
     deposit_for::DepositForCommand, fulfill_many::FulfillManyCommand, match_many::MatchManyCommand,
     match_pair::MatchPairCommand, open_order::OpenCommand, set_epoch::SetEpochCommand,
     set_matcher_fee::SetMatcherFeeCommand, set_min_order_price::SetMinOrderPriceCommand,
-    set_min_order_size::SetMinOrderSizeCommand, set_protocol_fee::SetProtocolFeeCommand,
+    set_min_order_size::SetMinOrderSizeCommand, set_paused::SetPausedCommand,
+    set_protocol_fee::SetProtocolFeeCommand, set_proxy_target::SetProxyTargetCommand,
     set_store_order_change_info::SetStoreOrderChangeInfoCommand, withdraw::WithdrawCommand,
     withdraw_to_market::WithdrawToMarketCommand,
 };
@@ -51,6 +52,10 @@ pub(crate) enum CoreCommands {
     #[clap(short_flag = 'P')]
     SetMinOrderPrice(SetMinOrderPriceCommand),
 
+    /// Set a minimum order price for the market
+    #[clap(short_flag = 'Q')]
+    SetPaused(SetPausedCommand),
+
     /// Set a protocol fee
     #[clap(short_flag = 'S')]
     SetProtocolFee(SetProtocolFeeCommand),
@@ -74,4 +79,8 @@ pub(crate) enum CoreCommands {
     /// Withdraw from the market contract
     #[clap(short_flag = 'X')]
     WithdrawToMarket(WithdrawToMarketCommand),
+
+    /// Set a proxy target market contract
+    #[clap(short_flag = 'Z')]
+    SetProxyTarget(SetProxyTargetCommand),
 }
