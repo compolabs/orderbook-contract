@@ -24,6 +24,7 @@ async fn main() -> anyhow::Result<()> {
         Command::Batch(args) => match args.commands {
             BatchCommands::DeployAll(args) => args.run().await,
             BatchCommands::DeployProxy(args) => args.run().await,
+            BatchCommands::DeployTethTusdcImpl(args) => args.run().await,
             BatchCommands::DeployTethTusdcProxy(args) => args.run().await,
         },
         Command::Core(args) => match args.commands {
@@ -40,6 +41,8 @@ async fn main() -> anyhow::Result<()> {
             CoreCommands::SetMatcherFee(args) => args.run().await,
             CoreCommands::SetMinOrderPrice(args) => args.run().await,
             CoreCommands::SetMinOrderSize(args) => args.run().await,
+            CoreCommands::SetPaused(args) => args.run().await,
+            CoreCommands::SetProxyTarget(args) => args.run().await,
             CoreCommands::SetStoreOrderChangeInfo(args) => args.run().await,
             CoreCommands::Withdraw(args) => args.run().await,
             CoreCommands::WithdrawToMarket(args) => args.run().await,
@@ -56,7 +59,9 @@ async fn main() -> anyhow::Result<()> {
             InfoCommands::MinOrderSize(args) => args.run().await,
             InfoCommands::OrderId(args) => args.run().await,
             InfoCommands::Order(args) => args.run().await,
+            InfoCommands::Paused(args) => args.run().await,
             InfoCommands::StoreOrderChangeInfo(args) => args.run().await,
+            InfoCommands::ProxyTarget(args) => args.run().await,
             InfoCommands::UserOrders(args) => args.run().await,
         },
         Command::Registry(args) => match args.commands {

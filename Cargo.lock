@@ -5553,33 +5553,33 @@ dependencies = [
 
 [[package]]
 name = "spark-cli"
-version = "0.6.4"
+version = "0.6.5"
 dependencies = [
  "anyhow",
  "clap",
  "dotenv",
  "fuels",
- "spark-market-sdk 0.6.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "spark-market-sdk 0.6.5 (registry+https://github.com/rust-lang/crates.io-index)",
  "spark-proxy-sdk",
- "spark-registry-sdk 0.6.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "spark-registry-sdk 0.6.4",
  "tokio",
 ]
 
 [[package]]
 name = "spark-market"
-version = "0.6.4"
+version = "0.6.5"
 dependencies = [
  "anyhow",
  "fuels",
  "rand",
- "spark-market-sdk 0.6.4",
+ "spark-market-sdk 0.6.5",
  "spark-proxy-sdk",
  "tokio",
 ]
 
 [[package]]
 name = "spark-market-sdk"
-version = "0.6.4"
+version = "0.6.5"
 dependencies = [
  "anyhow",
  "fuels",
@@ -5589,9 +5589,9 @@ dependencies = [
 
 [[package]]
 name = "spark-market-sdk"
-version = "0.6.4"
+version = "0.6.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "74399a900d577a35375d10440d32f02fccc34005c7a4297732da4ec04bae4ad3"
+checksum = "805a5a1ed5626060410f9e05097af6641f01ceceb13603f6ac8f6db7d2f2a20b"
 dependencies = [
  "anyhow",
  "fuels",
@@ -5601,7 +5601,7 @@ dependencies = [
 
 [[package]]
 name = "spark-proxy"
-version = "0.6.4"
+version = "0.6.5"
 dependencies = [
  "anyhow",
  "fuels",
@@ -5621,18 +5621,20 @@ dependencies = [
 
 [[package]]
 name = "spark-registry"
-version = "0.6.4"
+version = "0.6.5"
 dependencies = [
  "anyhow",
  "fuels",
- "spark-market-sdk 0.6.4",
- "spark-registry-sdk 0.6.4",
+ "spark-market-sdk 0.6.5",
+ "spark-registry-sdk 0.6.5",
  "tokio",
 ]
 
 [[package]]
 name = "spark-registry-sdk"
 version = "0.6.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d0436a1723bc041197367b5aa581290691e47f8e1b80427d63d4440800c40679"
 dependencies = [
  "anyhow",
  "fuels",
@@ -5642,9 +5644,7 @@ dependencies = [
 
 [[package]]
 name = "spark-registry-sdk"
-version = "0.6.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d0436a1723bc041197367b5aa581290691e47f8e1b80427d63d4440800c40679"
+version = "0.6.5"
 dependencies = [
  "anyhow",
  "fuels",
