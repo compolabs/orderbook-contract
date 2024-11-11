@@ -179,14 +179,10 @@ impl SparkMarketContract {
     }
 
     pub async fn deposit(&self, amount: u64, asset: AssetId) -> anyhow::Result<CallResponse<()>> {
-        Ok(self
-            .deposit_call_handler(amount, asset)
-            .await
-            .call()
-            .await?)
+        Ok(self.deposit_call_handler(amount, asset).call().await?)
     }
 
-    pub async fn deposit_call_handler(
+    pub fn deposit_call_handler(
         &self,
         amount: u64,
         asset: AssetId,
@@ -209,12 +205,11 @@ impl SparkMarketContract {
     ) -> anyhow::Result<CallResponse<()>> {
         Ok(self
             .deposit_for_call_handler(amount, asset, user)
-            .await
             .call()
             .await?)
     }
 
-    pub async fn deposit_for_call_handler(
+    pub fn deposit_for_call_handler(
         &self,
         amount: u64,
         asset: AssetId,
@@ -237,13 +232,12 @@ impl SparkMarketContract {
     ) -> anyhow::Result<CallResponse<()>> {
         Ok(self
             .withdraw_call_handler(amount, asset_type)
-            .await
             .with_variable_output_policy(VariableOutputPolicy::Exactly(1))
             .call()
             .await?)
     }
 
-    pub async fn withdraw_call_handler(
+    pub fn withdraw_call_handler(
         &self,
         amount: u64,
         asset_type: AssetType,
@@ -262,13 +256,12 @@ impl SparkMarketContract {
     ) -> anyhow::Result<CallResponse<()>> {
         Ok(self
             .withdraw_to_market_call_handler(amount, asset_type, market)
-            .await
             .with_variable_output_policy(VariableOutputPolicy::Exactly(1))
             .call()
             .await?)
     }
 
-    pub async fn withdraw_to_market_call_handler(
+    pub fn withdraw_to_market_call_handler(
         &self,
         amount: u64,
         asset_type: AssetType,
@@ -288,12 +281,11 @@ impl SparkMarketContract {
     ) -> anyhow::Result<CallResponse<Bits256>> {
         Ok(self
             .open_order_call_handler(amount, order_type, price)
-            .await
             .call()
             .await?)
     }
 
-    pub async fn open_order_call_handler(
+    pub fn open_order_call_handler(
         &self,
         amount: u64,
         order_type: OrderType,
@@ -308,13 +300,12 @@ impl SparkMarketContract {
     pub async fn cancel_order(&self, order_id: Bits256) -> anyhow::Result<CallResponse<()>> {
         Ok(self
             .cancel_order_call_handler(order_id)
-            .await
             .with_variable_output_policy(VariableOutputPolicy::Exactly(1))
             .call()
             .await?)
     }
 
-    pub async fn cancel_order_call_handler(
+    pub fn cancel_order_call_handler(
         &self,
         order_id: Bits256,
     ) -> CallHandler<WalletUnlocked, ContractCall, ()> {
@@ -331,13 +322,12 @@ impl SparkMarketContract {
     ) -> anyhow::Result<CallResponse<()>> {
         Ok(self
             .match_order_pair_call_handler(order_id0, order_id1)
-            .await
             .with_variable_output_policy(VariableOutputPolicy::Exactly(1))
             .call()
             .await?)
     }
 
-    pub async fn match_order_pair_call_handler(
+    pub fn match_order_pair_call_handler(
         &self,
         order_id0: Bits256,
         order_id1: Bits256,
@@ -351,13 +341,12 @@ impl SparkMarketContract {
     pub async fn match_order_many(&self, orders: Vec<Bits256>) -> anyhow::Result<CallResponse<()>> {
         Ok(self
             .match_order_many_call_handler(orders)
-            .await
             .with_variable_output_policy(VariableOutputPolicy::Exactly(1))
             .call()
             .await?)
     }
 
-    pub async fn match_order_many_call_handler(
+    pub fn match_order_many_call_handler(
         &self,
         orders: Vec<Bits256>,
     ) -> CallHandler<WalletUnlocked, ContractCall, ()> {
@@ -378,13 +367,12 @@ impl SparkMarketContract {
     ) -> anyhow::Result<CallResponse<Bits256>> {
         Ok(self
             .fulfill_many_call_handler(amount, order_type, limit_type, price, slippage, orders)
-            .await
             .with_variable_output_policy(VariableOutputPolicy::Exactly(1))
             .call()
             .await?)
     }
 
-    pub async fn fulfill_many_call_handler(
+    pub fn fulfill_many_call_handler(
         &self,
         amount: u64,
         order_type: OrderType,
