@@ -151,6 +151,22 @@ Deployment cost: 7798
 Owner address: fuel1rmu7c4gjycy4qtvj8798sv04ptq9uq4a6eq9y23w7x8apundtlrs0u000t
                0x1ef9ec55122609502d923f8a7831f50ac05e02bdd640522a2ef18fd0f26d5fc7
 
+### Deploy USDC-USDT market proxy + implementation
+
+```
+spark-cli batch deploy-usdc-usdt-proxy
+
+```
+
+Spark CLI v0.6.7
+
+Market version 0.6.6 (1542) deployed to: 0x9db501e5627c8ac90fc8ec8d44f884264180028453642dde3f743b00d5edc39e
+               Proxy deployed to: 0xdafe498b31f24ea5577055e86bf77e96bcba2c39a7ae47abaa819c303a45a352
+Deployment cost: 7798
+Owner address: fuel1rmu7c4gjycy4qtvj8798sv04ptq9uq4a6eq9y23w7x8apundtlrs0u000t
+               0x1ef9ec55122609502d923f8a7831f50ac05e02bdd640522a2ef18fd0f26d5fc7
+
+
 ## Deposit
 
 ```
@@ -380,7 +396,7 @@ spark-cli info account \
 ```
 spark-cli info config \
     --rpc "mainnet.fuel.network" \
-    --contract-id 0xfe2c524ad8e088f33d232a45dbea43e792861640b71aa1814b30506bf8430ee5
+    --contract-id 0xdafe498b31f24ea5577055e86bf77e96bcba2c39a7ae47abaa819c303a45a352
 ```
 
 ## Paused
@@ -388,7 +404,7 @@ spark-cli info config \
 ```
 spark-cli info paused \
     --rpc "mainnet.fuel.network" \
-    --contract-id 0x1b3aec515957737fe9bc12aab47e55aedfc9f182369b5cb79732872f9ae78889
+    --contract-id 0xdafe498b31f24ea5577055e86bf77e96bcba2c39a7ae47abaa819c303a45a352
 ```
 
 ## Epoch

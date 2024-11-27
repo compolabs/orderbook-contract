@@ -2,6 +2,7 @@ use crate::commands::batch::{
     deploy_all::DeployAllCommand, deploy_eth_usdc_proxy::DeployEthUsdcProxyCommand,
     deploy_proxy::DeployProxyCommand, deploy_teth_tusdc_impl::DeployTethTusdcImplCommand,
     deploy_teth_tusdc_proxy::DeployTethTusdcProxyCommand,
+    deploy_usdc_usdt_proxy::DeployUsdcUsdtProxyCommand,
 };
 use clap::Subcommand;
 
@@ -26,4 +27,8 @@ pub(crate) enum BatchCommands {
     /// Deploy a new teth/tusdc market and proxy contracts and setup them
     #[clap(short_flag = 'T')]
     DeployTethTusdcProxy(DeployTethTusdcProxyCommand),
+
+    /// Deploy a new usdc/usdt market proxy
+    #[clap(short_flag = 'U')]
+    DeployUsdcUsdtProxy(DeployUsdcUsdtProxyCommand),
 }

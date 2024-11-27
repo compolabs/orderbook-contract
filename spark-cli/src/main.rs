@@ -27,6 +27,7 @@ async fn main() -> anyhow::Result<()> {
             BatchCommands::DeployProxy(args) => args.run().await,
             BatchCommands::DeployTethTusdcImpl(args) => args.run().await,
             BatchCommands::DeployTethTusdcProxy(args) => args.run().await,
+            BatchCommands::DeployUsdcUsdtProxy(args) => args.run().await,
         },
         Command::Core(args) => match args.commands {
             CoreCommands::Cancel(args) => args.run().await,
