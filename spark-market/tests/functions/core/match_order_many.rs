@@ -124,7 +124,7 @@ mod success {
         let matcher_fee = 1000_u64;
         let _ = contract.set_matcher_fee(matcher_fee).await?;
 
-        let epoch = 4611686020157800000; // 11/01/2024
+        let epoch = 4611686030157800000;
         let epoch_duration = 2600000; // 30 days
         let min_size = 400_000; // 0.0004 ETH
 
