@@ -1,0 +1,39 @@
+name: Bug Report
+description: Use this template to report a bug.
+title: "[BUG] Title of the bug"
+labels: ["bug", "needs triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Please fill out the following details:**
+  - type: input
+    id: summary
+    attributes:
+      label: Brief summary of the issue
+      description: A short description of the bug.
+      placeholder: Describe the bug in one or two sentences.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: Provide the steps to reproduce the bug.
+      placeholder: Step 1, Step 2, ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What did you expect to happen?
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior
+      description: What actually happened?
+    validations:
+      required: true
