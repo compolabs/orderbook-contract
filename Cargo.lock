@@ -5582,6 +5582,7 @@ name = "spark-market-sdk"
 version = "0.6.6"
 dependencies = [
  "anyhow",
+ "arbitrary",
  "fuels",
  "rand",
  "tokio",
