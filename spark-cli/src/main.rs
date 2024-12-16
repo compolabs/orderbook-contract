@@ -24,6 +24,7 @@ async fn main() -> anyhow::Result<()> {
         Command::Batch(args) => match args.commands {
             BatchCommands::DeployAll(args) => args.run().await,
             BatchCommands::DeployEthUsdcProxy(args) => args.run().await,
+            BatchCommands::DeployFuelUsdcProxy(args) => args.run().await,
             BatchCommands::DeployProxy(args) => args.run().await,
             BatchCommands::DeployTethTusdcImpl(args) => args.run().await,
             BatchCommands::DeployTethTusdcProxy(args) => args.run().await,

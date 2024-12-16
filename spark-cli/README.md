@@ -19,8 +19,8 @@ Create `.env` file in the project root and initialize `WALLET_SECRET=` with Fuel
 ## Deploy
 
 ETH address 0xf8f8b6283d7fa5b672b530cbb84fcccb4ff8dc40f8176ef4544ddb1f1952ad07
-BTC address 0x38e4ca985b22625fff93205e997bfc5cc8453a953da638ad297ca60a9f2600bc
-USDC address 0x336b7c06352a4b736ff6f688ba6885788b3df16e136e95310ade51aa32dc6f05
+TBTC address 0x38e4ca985b22625fff93205e997bfc5cc8453a953da638ad297ca60a9f2600bc
+TUSDC address 0x336b7c06352a4b736ff6f688ba6885788b3df16e136e95310ade51aa32dc6f05
 
 ### Batch Deploy
 
@@ -167,6 +167,22 @@ Owner address: fuel1rmu7c4gjycy4qtvj8798sv04ptq9uq4a6eq9y23w7x8apundtlrs0u000t
                0x1ef9ec55122609502d923f8a7831f50ac05e02bdd640522a2ef18fd0f26d5fc7
 
 
+### Deploy FUEL-USDC market proxy + implementation
+
+```
+spark-cli batch deploy-fuel-usdc-proxy
+
+```
+
+Spark CLI v0.6.8
+
+Market version 0.6.6 (1542) deployed to: 0xee459fbb07d7afa5feeac4ecd54cb83bf0c9d7d0ec292a34dbab2ec558728f7f
+               Proxy deployed to: 0x81e83f73530c262b0dbf5414649a875c48a48144de3c08ff68cb9d54b36f2eaa
+Deployment cost: 7798
+Owner address: fuel1rmu7c4gjycy4qtvj8798sv04ptq9uq4a6eq9y23w7x8apundtlrs0u000t
+               0x1ef9ec55122609502d923f8a7831f50ac05e02bdd640522a2ef18fd0f26d5fc7
+
+
 ## Deposit
 
 ```
@@ -290,6 +306,15 @@ spark-cli core fulfill-many \
     --contract-id 0x81acb82a64ff799836c19f4e7f9871cf6d13a1e5d286e815f91c26a1b92a8195
 ```
 
+## Set Paused
+
+```
+spark-cli core set-paused \
+    --paused \
+    --rpc "mainnet.fuel.network" \
+    --contract-id 0xee459fbb07d7afa5feeac4ecd54cb83bf0c9d7d0ec292a34dbab2ec558728f7f
+```
+
 ## Set Protocol Fee
 
 Sets protocol fee
@@ -396,7 +421,7 @@ spark-cli info account \
 ```
 spark-cli info config \
     --rpc "mainnet.fuel.network" \
-    --contract-id 0xdafe498b31f24ea5577055e86bf77e96bcba2c39a7ae47abaa819c303a45a352
+    --contract-id 0x81e83f73530c262b0dbf5414649a875c48a48144de3c08ff68cb9d54b36f2eaa
 ```
 
 ## Paused
@@ -404,7 +429,7 @@ spark-cli info config \
 ```
 spark-cli info paused \
     --rpc "mainnet.fuel.network" \
-    --contract-id 0xdafe498b31f24ea5577055e86bf77e96bcba2c39a7ae47abaa819c303a45a352
+    --contract-id 0xee459fbb07d7afa5feeac4ecd54cb83bf0c9d7d0ec292a34dbab2ec558728f7f
 ```
 
 ## Epoch
@@ -421,8 +446,8 @@ Protocol fee
 
 ```
 spark-cli info protocol-fee \
-    --rpc "testnet.fuel.network" \
-    --contract-id 0x81acb82a64ff799836c19f4e7f9871cf6d13a1e5d286e815f91c26a1b92a8195
+    --rpc "mainnet.fuel.network" \
+    --contract-id 0x81e83f73530c262b0dbf5414649a875c48a48144de3c08ff68cb9d54b36f2eaa
 ```
 
 ## Protocol Fee User
@@ -559,7 +584,7 @@ Owner address: fuel173lqaa6y4jxfjd2suq730uwys3zfg4f6zt9vzx4cc45v3xvlmwlszdvdpz
 
 ```
 spark-cli registry register \
-    --market 0xdafe498b31f24ea5577055e86bf77e96bcba2c39a7ae47abaa819c303a45a352 \
+    --market 0x81e83f73530c262b0dbf5414649a875c48a48144de3c08ff68cb9d54b36f2eaa \
     --rpc "mainnet.fuel.network" \
     --contract-id 0xbb91b7f9d31ee562b24e35d756ce20913f9752600582f51008c63b2d3792926b
 ```
