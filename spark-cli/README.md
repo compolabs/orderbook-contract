@@ -559,7 +559,7 @@ Owner address: fuel173lqaa6y4jxfjd2suq730uwys3zfg4f6zt9vzx4cc45v3xvlmwlszdvdpz
 
 ```
 spark-cli registry register \
-    --market 0x12a5f8666279f841e5900500297ce3c8bcf40103dd191c56dd3ec86f92b9217b \
+    --market 0xdafe498b31f24ea5577055e86bf77e96bcba2c39a7ae47abaa819c303a45a352 \
     --rpc "mainnet.fuel.network" \
     --contract-id 0xbb91b7f9d31ee562b24e35d756ce20913f9752600582f51008c63b2d3792926b
 ```
