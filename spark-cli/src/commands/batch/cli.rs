@@ -1,9 +1,15 @@
 use crate::commands::batch::{
     deploy_all::DeployAllCommand, deploy_eth_usdc_proxy::DeployEthUsdcProxyCommand,
+    deploy_ezeth_usdc_proxy::DeployEzethUsdcProxyCommand,
+    deploy_fuel_eth_proxy::DeployFuelEthProxyCommand,
     deploy_fuel_usdc_proxy::DeployFuelUsdcProxyCommand, deploy_proxy::DeployProxyCommand,
+    deploy_pzeth_usdc_proxy::DeployPzethUsdcProxyCommand,
     deploy_teth_tusdc_impl::DeployTethTusdcImplCommand,
     deploy_teth_tusdc_proxy::DeployTethTusdcProxyCommand,
+    deploy_trump_eth_proxy::DeployTrumpEthProxyCommand,
     deploy_usdc_usdt_proxy::DeployUsdcUsdtProxyCommand,
+    deploy_usdt_usdc_proxy::DeployUsdtUsdcProxyCommand,
+    deploy_weth_usdc_proxy::DeployWethUsdcProxyCommand,
 };
 use clap::Subcommand;
 
@@ -17,6 +23,14 @@ pub(crate) enum BatchCommands {
     #[clap(short_flag = 'E')]
     DeployEthUsdcProxy(DeployEthUsdcProxyCommand),
 
+    /// Deploy a new ezeth/usdc market proxy
+    #[clap(short_flag = 'H')]
+    DeployEzethUsdcProxy(DeployEzethUsdcProxyCommand),
+
+    /// Deploy a new fuel/usdc market proxy
+    #[clap(short_flag = 'G')]
+    DeployFuelEthProxy(DeployFuelEthProxyCommand),
+
     /// Deploy a new fuel/usdc market proxy
     #[clap(short_flag = 'F')]
     DeployFuelUsdcProxy(DeployFuelUsdcProxyCommand),
@@ -24,6 +38,10 @@ pub(crate) enum BatchCommands {
     /// Deploy a new market and proxy contracts and setup them
     #[clap(short_flag = 'P')]
     DeployProxy(DeployProxyCommand),
+
+    /// Deploy a new ezeth/usdc market proxy
+    #[clap(short_flag = 'Q')]
+    DeployPzethUsdcProxy(DeployPzethUsdcProxyCommand),
 
     /// Deploy a new teth/tusdc market implementtion
     #[clap(short_flag = 'I')]
@@ -33,7 +51,19 @@ pub(crate) enum BatchCommands {
     #[clap(short_flag = 'T')]
     DeployTethTusdcProxy(DeployTethTusdcProxyCommand),
 
+    /// Deploy a new trump/eth market and proxy contracts and setup them
+    #[clap(short_flag = 'X')]
+    DeployTrumpEthProxy(DeployTrumpEthProxyCommand),
+
     /// Deploy a new usdc/usdt market proxy
     #[clap(short_flag = 'U')]
     DeployUsdcUsdtProxy(DeployUsdcUsdtProxyCommand),
+
+    /// Deploy a new usdt/usdc market proxy
+    #[clap(short_flag = 'V')]
+    DeployUsdtUsdcProxy(DeployUsdtUsdcProxyCommand),
+
+    /// Deploy a new usdt/usdc market proxy
+    #[clap(short_flag = 'W')]
+    DeployWethUsdcProxy(DeployWethUsdcProxyCommand),
 }

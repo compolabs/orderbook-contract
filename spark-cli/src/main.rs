@@ -24,11 +24,17 @@ async fn main() -> anyhow::Result<()> {
         Command::Batch(args) => match args.commands {
             BatchCommands::DeployAll(args) => args.run().await,
             BatchCommands::DeployEthUsdcProxy(args) => args.run().await,
+            BatchCommands::DeployEzethUsdcProxy(args) => args.run().await,
+            BatchCommands::DeployPzethUsdcProxy(args) => args.run().await,
+            BatchCommands::DeployFuelEthProxy(args) => args.run().await,
             BatchCommands::DeployFuelUsdcProxy(args) => args.run().await,
             BatchCommands::DeployProxy(args) => args.run().await,
             BatchCommands::DeployTethTusdcImpl(args) => args.run().await,
             BatchCommands::DeployTethTusdcProxy(args) => args.run().await,
+            BatchCommands::DeployTrumpEthProxy(args) => args.run().await,
             BatchCommands::DeployUsdcUsdtProxy(args) => args.run().await,
+            BatchCommands::DeployUsdtUsdcProxy(args) => args.run().await,
+            BatchCommands::DeployWethUsdcProxy(args) => args.run().await,
         },
         Command::Core(args) => match args.commands {
             CoreCommands::Cancel(args) => args.run().await,

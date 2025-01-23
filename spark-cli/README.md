@@ -183,6 +183,102 @@ Owner address: fuel1rmu7c4gjycy4qtvj8798sv04ptq9uq4a6eq9y23w7x8apundtlrs0u000t
                0x1ef9ec55122609502d923f8a7831f50ac05e02bdd640522a2ef18fd0f26d5fc7
 
 
+### Deploy ezETH-USDC market proxy + implementation
+
+```
+spark-cli batch deploy-ezeth-usdc-proxy
+
+```
+
+Spark CLI v0.6.9
+
+Market version 0.6.6 (1542) deployed to: 0x581bbe2ff52afa6164b2a532066462d9a4fbaccec771d91182e2e7f1aea33b19
+               Proxy deployed to: 0xe4f64c6a9facdce0c055ecade9379c8f425411ec3f9523a472d14ce8a4fbce38
+Deployment cost: 7798
+Owner address: fuel1rmu7c4gjycy4qtvj8798sv04ptq9uq4a6eq9y23w7x8apundtlrs0u000t
+               0x1ef9ec55122609502d923f8a7831f50ac05e02bdd640522a2ef18fd0f26d5fc7
+
+
+### Deploy FUEL-ETH market proxy + implementation
+
+```
+spark-cli batch deploy-fuel-eth-proxy
+
+```
+
+Spark CLI v0.6.9
+
+Market version 0.6.6 (1542) deployed to: 0x710b8bc874982703de5c2b1fa40e6fb250ca1417c9f7c20c2b9126a9e51802e6
+               Proxy deployed to: 0x4391b39d9165917faffb9dcc69d19b6952a6ebf02db593747cf2f5d8298d28c7
+Deployment cost: 7798
+Owner address: fuel1rmu7c4gjycy4qtvj8798sv04ptq9uq4a6eq9y23w7x8apundtlrs0u000t
+               0x1ef9ec55122609502d923f8a7831f50ac05e02bdd640522a2ef18fd0f26d5fc7
+
+
+### Deploy pzETH-USDC market proxy + implementation
+
+```
+spark-cli batch deploy-pzeth-usdc-proxy
+
+```
+
+Spark CLI v0.6.9
+
+Market version 0.6.6 (1542) deployed to: 0x23c6760a788369b5bb0e8e62b357dbfce7c0f5873df800be5cb784a4eab0a5c2
+               Proxy deployed to: 0x12f52412e0ef50d4e38e1d03fd80d0a88fbaa7253e47f0cc48ba4e3049bd9ce4
+Deployment cost: 7798
+Owner address: fuel1rmu7c4gjycy4qtvj8798sv04ptq9uq4a6eq9y23w7x8apundtlrs0u000t
+               0x1ef9ec55122609502d923f8a7831f50ac05e02bdd640522a2ef18fd0f26d5fc7
+
+
+### Deploy TRUMP-ETH market proxy + implementation
+
+```
+spark-cli batch deploy-trump-eth-proxy
+
+```
+
+Spark CLI v0.6.9
+
+Market version 0.6.6 (1542) deployed to: 0x9fa52a1d8a2f7af1fbbd8c5a571ac5163e97da5dc0a0f722cb723cb4e1dc4d02
+               Proxy deployed to: 0x272bc2c2d065e8ca22f0473e328f403bb1ba2e85d71f5fa51dcb83393714ff01
+Deployment cost: 7798
+Owner address: fuel1rmu7c4gjycy4qtvj8798sv04ptq9uq4a6eq9y23w7x8apundtlrs0u000t
+               0x1ef9ec55122609502d923f8a7831f50ac05e02bdd640522a2ef18fd0f26d5fc7
+
+
+### Deploy USDT-USDC market proxy + implementation
+
+```
+spark-cli batch deploy-usdt-usdc-proxy
+
+```
+
+Spark CLI v0.6.9
+
+Market version 0.6.6 (1542) deployed to: 0xd509b80e7fecc8891d21cf49f0dc6e2aeb676af88c5d5f04189fe2b4da62975a
+               Proxy deployed to: 0xe4e4844f78e2e470b590d0c76ffc9f4422a87317377813a181a02c60a60bc774
+Deployment cost: 7798
+Owner address: fuel1rmu7c4gjycy4qtvj8798sv04ptq9uq4a6eq9y23w7x8apundtlrs0u000t
+               0x1ef9ec55122609502d923f8a7831f50ac05e02bdd640522a2ef18fd0f26d5fc7
+
+
+### Deploy WETH-USDC market proxy + implementation
+
+```
+spark-cli batch deploy-weth-usdc-proxy
+
+```
+
+Spark CLI v0.6.9
+
+Market version 0.6.6 (1542) deployed to: 0x72b6e18c2aee9c418209f2716bdcfb6c776a609dcfe7c73912dba9d85c90ddd1
+               Proxy deployed to: 0x0bef6eb3018d901818978175feccf650b65dee8e3a8f5b59e138bcf1cf1d0db9
+Deployment cost: 7798
+Owner address: fuel1rmu7c4gjycy4qtvj8798sv04ptq9uq4a6eq9y23w7x8apundtlrs0u000t
+               0x1ef9ec55122609502d923f8a7831f50ac05e02bdd640522a2ef18fd0f26d5fc7
+
+
 ## Deposit
 
 ```

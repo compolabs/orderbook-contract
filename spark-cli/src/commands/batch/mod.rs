@@ -1,8 +1,14 @@
 pub(crate) mod cli;
 pub(crate) mod deploy_all;
 pub(crate) mod deploy_eth_usdc_proxy;
+pub(crate) mod deploy_ezeth_usdc_proxy;
+pub(crate) mod deploy_fuel_eth_proxy;
 pub(crate) mod deploy_fuel_usdc_proxy;
 pub(crate) mod deploy_proxy;
+pub(crate) mod deploy_pzeth_usdc_proxy;
 pub(crate) mod deploy_teth_tusdc_impl;
 pub(crate) mod deploy_teth_tusdc_proxy;
+pub(crate) mod deploy_trump_eth_proxy;
 pub(crate) mod deploy_usdc_usdt_proxy;
+pub(crate) mod deploy_usdt_usdc_proxy;
+pub(crate) mod deploy_weth_usdc_proxy;

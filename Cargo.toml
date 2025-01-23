@@ -12,13 +12,13 @@ members = [
 
 [workspace.package]
 authors = ["ComposabilityLabs"]
-version = "0.6.8"
+version = "0.6.9"
 edition = "2021"
 license = "Apache-2.0"
 rust-version = "1.82.0"
 
 [workspace.dependencies]
-anyhow = "1.0.94"
+anyhow = "1.0.95"
 fuels = { version = "0.66.10", features = ["fuel-core-lib"] }
-tokio = { version = "1.42.0", features = ["rt", "macros"] }
+tokio = { version = "1.43.0", features = ["rt", "macros"] }
 
