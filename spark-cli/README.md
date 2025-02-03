@@ -279,6 +279,57 @@ Owner address: fuel1rmu7c4gjycy4qtvj8798sv04ptq9uq4a6eq9y23w7x8apundtlrs0u000t
                0x1ef9ec55122609502d923f8a7831f50ac05e02bdd640522a2ef18fd0f26d5fc7
 
 
+### Deploy PSYCHO-USDC market proxy + implementation
+
+```
+spark-cli batch deploy-psycho-usdc-proxy
+
+```
+
+Spark CLI v0.6.10
+
+Market version 0.6.6 (1542) deployed to: 0xb217e7d6d722948e77909e675a9a2932caaa4b73635842d09c00060cc02344ba
+               Proxy deployed to: 0x2eece85eb7c8ec5fd95e639fd6bb7e9dd7103a99d7321521848da246ecef5270
+Deployment cost: 77931
+Owner address: fuel1rmu7c4gjycy4qtvj8798sv04ptq9uq4a6eq9y23w7x8apundtlrs0u000t
+               0x1ef9ec55122609502d923f8a7831f50ac05e02bdd640522a2ef18fd0f26d5fc7
+Block height: 12996694
+
+
+### Deploy USDF-USDC market proxy + implementation
+
+```
+spark-cli batch deploy-usdf-usdc-proxy
+
+```
+
+Spark CLI v0.6.10
+
+Market version 0.6.6 (1542) deployed to: 0xb8d5e5871bbd4d4712b687e83f44f2fc132c1a4a1f135f79837e78adadb83ae3
+               Proxy deployed to: 0x59020aadb448c59b48136a3cef110f1ddd2865000146514924f19b83f061ceba
+Deployment cost: 77931
+Owner address: fuel1rmu7c4gjycy4qtvj8798sv04ptq9uq4a6eq9y23w7x8apundtlrs0u000t
+               0x1ef9ec55122609502d923f8a7831f50ac05e02bdd640522a2ef18fd0f26d5fc7
+Block height: 12997072
+
+
+### Deploy USDT-ETH market proxy + implementation
+
+```
+spark-cli batch deploy-usdf-usdc-proxy
+
+```
+
+Spark CLI v0.6.10
+
+Market version 0.6.6 (1542) deployed to: 0x328ab520aa6a07fa288261d37c8186eba9f4dc1492f62f4eb56702dd4817a188
+               Proxy deployed to: 0x979ea6b1e15c1ec8e79eb76b587af89dd2620b383082e9b2c16049b78e97e4e8
+Deployment cost: 77931
+Owner address: fuel1rmu7c4gjycy4qtvj8798sv04ptq9uq4a6eq9y23w7x8apundtlrs0u000t
+               0x1ef9ec55122609502d923f8a7831f50ac05e02bdd640522a2ef18fd0f26d5fc7
+Block height: 12997252
+
+
 ## Deposit
 
 ```

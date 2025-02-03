@@ -5553,7 +5553,7 @@ dependencies = [
 
 [[package]]
 name = "spark-cli"
-version = "0.6.9"
+version = "0.6.10"
 dependencies = [
  "anyhow",
  "clap",
@@ -5567,12 +5567,12 @@ dependencies = [
 
 [[package]]
 name = "spark-market"
-version = "0.6.9"
+version = "0.6.10"
 dependencies = [
  "anyhow",
  "fuels",
  "rand",
- "spark-market-sdk 0.6.9",
+ "spark-market-sdk 0.6.10",
  "spark-proxy-sdk 0.0.2",
  "tokio",
 ]
@@ -5591,7 +5591,7 @@ dependencies = [
 
 [[package]]
 name = "spark-market-sdk"
-version = "0.6.9"
+version = "0.6.10"
 dependencies = [
  "anyhow",
  "fuels",
@@ -5601,7 +5601,7 @@ dependencies = [
 
 [[package]]
 name = "spark-proxy"
-version = "0.6.9"
+version = "0.6.10"
 dependencies = [
  "anyhow",
  "fuels",
@@ -5633,12 +5633,12 @@ dependencies = [
 
 [[package]]
 name = "spark-registry"
-version = "0.6.9"
+version = "0.6.10"
 dependencies = [
  "anyhow",
  "fuels",
- "spark-market-sdk 0.6.9",
- "spark-registry-sdk 0.6.9",
+ "spark-market-sdk 0.6.10",
+ "spark-registry-sdk 0.6.10",
  "tokio",
 ]
 
@@ -5656,7 +5656,7 @@ dependencies = [
 
 [[package]]
 name = "spark-registry-sdk"
-version = "0.6.9"
+version = "0.6.10"
 dependencies = [
  "anyhow",
  "fuels",
