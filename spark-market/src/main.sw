@@ -320,6 +320,16 @@ impl SparkMarket for Contract {
         cancel_order_internal(order_id);
     }
 
+    #[storage(read, write)]
+    fn cancel_small_order(order_id: b256) {
+        reentrancy_guard();
+
+        require(
+            cancel_if_small_order(order_id),
+            OrderError::OrderSizeNotSmall,
+        );
+    }
+
     /// Matches two orders identified by their respective order IDs.
     ///
     /// ### Arguments

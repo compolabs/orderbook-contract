@@ -1,4 +1,5 @@
 mod cancel_order;
+mod cancel_small_order;
 mod deposit;
 mod deposit_for;
 mod fulfill_order_many;

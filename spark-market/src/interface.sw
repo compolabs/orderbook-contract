@@ -38,6 +38,9 @@ abi SparkMarket {
     fn cancel_order(order_id: b256);
 
     #[storage(read, write)]
+    fn cancel_small_order(order_id: b256);
+
+    #[storage(read, write)]
     fn match_order_pair(order0_id: b256, order1_id: b256);
 
     #[storage(read, write)]

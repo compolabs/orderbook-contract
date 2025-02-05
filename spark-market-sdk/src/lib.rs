@@ -315,6 +315,24 @@ impl SparkMarketContract {
             .with_contract_ids(&[self.implementation.into()])
     }
 
+    pub async fn cancel_small_order(&self, order_id: Bits256) -> anyhow::Result<CallResponse<()>> {
+        Ok(self
+            .cancel_small_order_call_handler(order_id)
+            .with_variable_output_policy(VariableOutputPolicy::Exactly(1))
+            .call()
+            .await?)
+    }
+
+    pub fn cancel_small_order_call_handler(
+        &self,
+        order_id: Bits256,
+    ) -> CallHandler<WalletUnlocked, ContractCall, ()> {
+        self.instance
+            .methods()
+            .cancel_small_order(order_id)
+            .with_contract_ids(&[self.implementation.into()])
+    }
+
     pub async fn match_order_pair(
         &self,
         order_id0: Bits256,

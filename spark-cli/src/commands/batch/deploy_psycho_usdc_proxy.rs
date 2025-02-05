@@ -141,7 +141,15 @@ impl DeployPsychoUsdcProxyCommand {
         println!("               0x{}", wallet.address().hash());
         println!(
             "Block height: {}",
-            wallet.try_provider().unwrap().chain_info().await.unwrap().latest_block.header.height,
+            wallet
+                .try_provider()
+                .unwrap()
+                .chain_info()
+                .await
+                .unwrap()
+                .latest_block
+                .header
+                .height,
         );
 
         Ok(())
