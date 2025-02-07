@@ -1,6 +1,6 @@
 use crate::commands::{
     batch::cli::BatchCommands, core::cli::CoreCommands, info::cli::InfoCommands,
-    registry::cli::RegistryCommands,
+    registry::cli::RegistryCommands, upgrade::cli::UpgradeCommands,
 };
 use clap::{Args, Parser, Subcommand};
 
@@ -28,6 +28,10 @@ pub(crate) enum Command {
     ///
     #[clap(short_flag = 'R')]
     Registry(Registry),
+
+    ///
+    #[clap(short_flag = 'U')]
+    Upgrade(Upgrade),
 }
 
 #[derive(Args, Clone)]
@@ -52,4 +56,10 @@ pub(crate) struct Info {
 pub(crate) struct Registry {
     #[clap(subcommand)]
     pub(crate) commands: RegistryCommands,
+}
+
+#[derive(Args, Clone)]
+pub(crate) struct Upgrade {
+    #[clap(subcommand)]
+    pub(crate) commands: UpgradeCommands,
 }

@@ -333,29 +333,6 @@ impl SparkMarketContract {
             .with_contract_ids(&[self.implementation.into()])
     }
 
-    pub async fn match_order_pair(
-        &self,
-        order_id0: Bits256,
-        order_id1: Bits256,
-    ) -> anyhow::Result<CallResponse<()>> {
-        Ok(self
-            .match_order_pair_call_handler(order_id0, order_id1)
-            .with_variable_output_policy(VariableOutputPolicy::Exactly(1))
-            .call()
-            .await?)
-    }
-
-    pub fn match_order_pair_call_handler(
-        &self,
-        order_id0: Bits256,
-        order_id1: Bits256,
-    ) -> CallHandler<WalletUnlocked, ContractCall, ()> {
-        self.instance
-            .methods()
-            .match_order_pair(order_id0, order_id1)
-            .with_contract_ids(&[self.implementation.into()])
-    }
-
     pub async fn match_order_many(&self, orders: Vec<Bits256>) -> anyhow::Result<CallResponse<()>> {
         Ok(self
             .match_order_many_call_handler(orders)

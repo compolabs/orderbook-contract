@@ -330,43 +330,6 @@ impl SparkMarket for Contract {
         );
     }
 
-    /// Matches two orders identified by their respective order IDs.
-    ///
-    /// ### Arguments
-    ///
-    /// * `order0_id`: [b256] - The unique identifier of the first order to be matched.
-    /// * `order1_id`: [b256] - The unique identifier of the second order to be matched.
-    ///
-    /// ### Reverts
-    ///
-    /// * When orders with `order0_id` or `order1_id` not found.
-    /// * When orders are in same direction ([sell, sell] or [buy, buy]).
-    /// * When order buy price lower than order sell price.
-    #[storage(read, write)]
-    fn match_order_pair(order0_id: b256, order1_id: b256) {
-        require_not_paused();
-        reentrancy_guard();
-
-        let order0 = storage.orders.get(order0_id).try_read();
-        require(order0.is_some(), OrderError::OrderNotFound(order0_id));
-        let order1 = storage.orders.get(order1_id).try_read();
-        require(order1.is_some(), OrderError::OrderNotFound(order1_id));
-        let (match_result, _) = match_order_internal(
-            order0_id,
-            order0
-                .unwrap(),
-            LimitType::GTC,
-            order1_id,
-            order1
-                .unwrap(),
-            LimitType::GTC,
-        );
-        require(
-            match_result != MatchResult::ZeroMatch,
-            MatchError::CantMatch((order0_id, order1_id)),
-        );
-    }
-
     /// Attempts to match multiple orders provided in a list.
     ///
     /// ### Arguments

@@ -6,7 +6,6 @@ pub(crate) mod deposit;
 pub(crate) mod deposit_for;
 pub(crate) mod fulfill_many;
 pub(crate) mod match_many;
-pub(crate) mod match_pair;
 pub(crate) mod open_order;
 pub(crate) mod set_epoch;
 pub(crate) mod set_matcher_fee;

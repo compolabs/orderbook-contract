@@ -5,7 +5,6 @@ mod deposit_for;
 mod fulfill_order_many;
 mod initialize_ownership;
 mod match_order_many;
-mod match_order_pair;
 mod open_order;
 mod pause;
 mod set_epoch;

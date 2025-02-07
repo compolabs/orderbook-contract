@@ -8,6 +8,7 @@ use commands::{
     core::cli::CoreCommands,
     info::cli::InfoCommands,
     registry::cli::RegistryCommands,
+    upgrade::cli::UpgradeCommands,
 };
 use dotenv::dotenv;
 
@@ -48,7 +49,6 @@ async fn main() -> anyhow::Result<()> {
             CoreCommands::FulfillMany(args) => args.run().await,
             CoreCommands::Open(args) => args.run().await,
             CoreCommands::MatchMany(args) => args.run().await,
-            CoreCommands::MatchPair(args) => args.run().await,
             CoreCommands::SetEpoch(args) => args.run().await,
             CoreCommands::SetProtocolFee(args) => args.run().await,
             CoreCommands::SetMatcherFee(args) => args.run().await,
@@ -84,6 +84,9 @@ async fn main() -> anyhow::Result<()> {
             RegistryCommands::Markets(args) => args.run().await,
             RegistryCommands::Register(args) => args.run().await,
             RegistryCommands::Unregister(args) => args.run().await,
+        },
+        Command::Upgrade(args) => match args.commands {
+            UpgradeCommands::UpgradeFuelUsdcProxy(args) => args.run().await,
         },
     }
 }

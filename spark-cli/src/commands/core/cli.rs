@@ -1,9 +1,7 @@
 use crate::commands::core::{
-    cancel_order::CancelCommand,
-    cancel_small_order::CancelSmallCommand,
-    deploy::DeployCommand, deposit::DepositCommand,
-    deposit_for::DepositForCommand, fulfill_many::FulfillManyCommand, match_many::MatchManyCommand,
-    match_pair::MatchPairCommand, open_order::OpenCommand, set_epoch::SetEpochCommand,
+    cancel_order::CancelCommand, cancel_small_order::CancelSmallCommand, deploy::DeployCommand,
+    deposit::DepositCommand, deposit_for::DepositForCommand, fulfill_many::FulfillManyCommand,
+    match_many::MatchManyCommand, open_order::OpenCommand, set_epoch::SetEpochCommand,
     set_matcher_fee::SetMatcherFeeCommand, set_min_order_price::SetMinOrderPriceCommand,
     set_min_order_size::SetMinOrderSizeCommand, set_paused::SetPausedCommand,
     set_protocol_fee::SetProtocolFeeCommand, set_proxy_target::SetProxyTargetCommand,
@@ -41,10 +39,6 @@ pub(crate) enum CoreCommands {
     /// Match multiple orders
     #[clap(short_flag = 'M')]
     MatchMany(MatchManyCommand),
-
-    /// Match a pair of orders
-    #[clap(short_flag = 'A')]
-    MatchPair(MatchPairCommand),
 
     /// Open an order
     #[clap(short_flag = 'O')]
