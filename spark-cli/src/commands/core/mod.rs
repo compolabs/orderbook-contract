@@ -1,4 +1,5 @@
 pub(crate) mod cancel_order;
+pub(crate) mod cancel_small_order;
 pub(crate) mod cli;
 pub(crate) mod deploy;
 pub(crate) mod deposit;

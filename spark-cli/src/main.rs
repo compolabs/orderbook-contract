@@ -41,6 +41,7 @@ async fn main() -> anyhow::Result<()> {
         },
         Command::Core(args) => match args.commands {
             CoreCommands::Cancel(args) => args.run().await,
+            CoreCommands::CancelSmall(args) => args.run().await,
             CoreCommands::Deploy(args) => args.run().await,
             CoreCommands::Deposit(args) => args.run().await,
             CoreCommands::DepositFor(args) => args.run().await,

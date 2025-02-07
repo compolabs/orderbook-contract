@@ -1,5 +1,7 @@
 use crate::commands::core::{
-    cancel_order::CancelCommand, deploy::DeployCommand, deposit::DepositCommand,
+    cancel_order::CancelCommand,
+    cancel_small_order::CancelSmallCommand,
+    deploy::DeployCommand, deposit::DepositCommand,
     deposit_for::DepositForCommand, fulfill_many::FulfillManyCommand, match_many::MatchManyCommand,
     match_pair::MatchPairCommand, open_order::OpenCommand, set_epoch::SetEpochCommand,
     set_matcher_fee::SetMatcherFeeCommand, set_min_order_price::SetMinOrderPriceCommand,
@@ -15,6 +17,10 @@ pub(crate) enum CoreCommands {
     /// Cancel an open order
     #[clap(short_flag = 'C')]
     Cancel(CancelCommand),
+
+    /// Cancel an open order
+    #[clap(short_flag = 'F')]
+    CancelSmall(CancelSmallCommand),
 
     /// Deploy a new market contract
     #[clap(short_flag = 'D')]

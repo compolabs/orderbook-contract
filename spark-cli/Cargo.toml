@@ -12,10 +12,10 @@ keywords = ["fuel", "sdk", "spark", "cli", "orderbook"]
 
 [dependencies]
 anyhow = { workspace = true }
-clap = { version = "4.5.27", features = ["derive"] }
+clap = { version = "4.5.28", features = ["derive"] }
 dotenv = "0.15.0"
 fuels = { workspace = true }
-spark-market-sdk = { version = "0.6.6" }
+spark-market-sdk = { version = "0.6.10" }
 spark-registry-sdk = { version = "0.6.4" }
 spark-proxy-sdk = { version = "0.0.2" }
 tokio = { workspace = true }
