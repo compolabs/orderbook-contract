@@ -66,12 +66,44 @@ impl UpgradeFuelUsdcProxyCommand {
 
         let _ = contract.pause().await?;
 
+        println!("\nNew target deployed: {:?}", contract.contract_id());
+
+        let proxy = SparkProxyContract::new(contract_id, wallet.clone()).await;
+        let _ = proxy.set_proxy_target(contract.contract_id().into()).await?;
+        let proxy_target = proxy.proxy_target().await?.value;
+
+        let proxy = SparkMarketContract::new(contract_id, wallet.clone()).await;
+
+        let (
+            base_asset,
+            base_asset_decimals,
+            quote_asset,
+            quote_asset_decimals,
+            owner,
+            price_decimals,
+            version,
+        ) = proxy.config().await?.value;
+
+        println!("\nNew proxy target: {:?}", proxy_target);
+        println!("Base Asset: 0x{}", base_asset);
+        println!("Base Asset Decimals: {}", base_asset_decimals);
+        println!("Quote Asset: 0x{}", quote_asset);
+        println!("Quote Asset Decimals: {}", quote_asset_decimals);
+        println!("Owner: {:?}", owner);
+        println!("Price Decimals: {}", price_decimals);
         println!(
-            "\nMarket {} upgraded to version {} ({}) with target 0x{}",
+            "Version: {}.{}.{}",
+            (version & 0xFF0000) >> 16,
+            (version & 0xFF00) >> 8,
+            version & 0xFF
+        );
+
+        println!(
+            "\nMarket {} upgraded to version {} ({}) with target {:?}",
             contract_id_str,
             contract.contract_str_version().await?,
             version,
-            contract.id(),
+            proxy_target,
         );
 
         // Balance post-deployment
