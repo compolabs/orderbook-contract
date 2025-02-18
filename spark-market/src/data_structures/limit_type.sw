@@ -6,6 +6,7 @@ pub enum LimitType {
     GTC: (),
     IOC: (),
     FOK: (),
+    MKT: (),
 }
 
 impl core::ops::Eq for LimitType {
@@ -14,6 +15,7 @@ impl core::ops::Eq for LimitType {
             (Self::GTC, Self::GTC) => true,
             (Self::IOC, Self::IOC) => true,
             (Self::FOK, Self::FOK) => true,
+            (Self::MKT, Self::MKT) => true,
             _ => false,
         }
     }
@@ -30,6 +32,9 @@ impl Hash for LimitType {
             }
             Self::FOK => {
                 2_u8.hash(state);
+            }
+            Self::MKT => {
+                3_u8.hash(state);
             }
         }
     }

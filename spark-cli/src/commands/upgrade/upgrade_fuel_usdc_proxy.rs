@@ -69,7 +69,9 @@ impl UpgradeFuelUsdcProxyCommand {
         println!("\nNew target deployed: {:?}", contract.contract_id());
 
         let proxy = SparkProxyContract::new(contract_id, wallet.clone()).await;
-        let _ = proxy.set_proxy_target(contract.contract_id().into()).await?;
+        let _ = proxy
+            .set_proxy_target(contract.contract_id().into())
+            .await?;
         let proxy_target = proxy.proxy_target().await?.value;
 
         let proxy = SparkMarketContract::new(contract_id, wallet.clone()).await;

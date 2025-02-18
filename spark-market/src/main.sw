@@ -111,6 +111,8 @@ storage {
     user_volumes: StorageMap<Identity, UserVolume> = StorageMap {},
     /// Order height.
     order_heights: StorageMap<Identity, u64> = StorageMap {},
+    /// All of the currently open market orders.
+    market_orders: StorageMap<b256, bool> = StorageMap {},
 }
 
 impl Pausable for Contract {
@@ -300,7 +302,45 @@ impl SparkMarket for Contract {
         require_not_paused();
         reentrancy_guard();
 
-        open_order_internal(amount, order_type, price, read_matcher_fee())
+        open_order_internal(
+            amount,
+            order_type,
+            price,
+            read_matcher_fee(),
+            LimitType::GTC,
+        )
+    }
+
+    /// Opens a new market order with a specified amount, order type, and price.
+    ///
+    /// ### Arguments
+    ///
+    /// * `amount`: [u64] - The amount of the asset to be used in the order.
+    /// * `order_type`: [OrderType] - The type of the order being created (e.g., buy or sell).
+    /// * `price`: [u64] - The price at which the order should be placed.
+    ///
+    /// ### Returns
+    ///
+    /// * [b256] - The unique identifier of the newly opened order.
+    ///
+    /// ### Reverts
+    ///
+    /// * When `amount` == 0 or `amount` exeeds user unlocked asset amount.
+    /// * When `price` == 0.
+    #[storage(read, write)]
+    fn open_market_order(amount: u64, order_type: OrderType, price: u64) -> b256 {
+        require_not_paused();
+        reentrancy_guard();
+
+        let id = open_order_internal(
+            amount,
+            order_type,
+            price,
+            read_matcher_fee(),
+            LimitType::MKT,
+        );
+        storage.market_orders.insert(id, true);
+        id
     }
 
     /// Cancels an existing order with the specified order ID.
@@ -379,11 +419,13 @@ impl SparkMarket for Contract {
                 id0,
                 order0
                     .unwrap(),
-                LimitType::GTC,
+                non_limit_order_type(id0)
+                    .unwrap(),
                 id1,
                 order1
                     .unwrap(),
-                LimitType::GTC,
+                non_limit_order_type(id1)
+                    .unwrap(),
             );
 
             match match_result {
@@ -453,7 +495,7 @@ impl SparkMarket for Contract {
         require(orders.len() > 0, ValueError::InvalidArrayLength);
         require(slippage <= HUNDRED_PERCENT, ValueError::InvalidSlippage);
 
-        let id0 = open_order_internal(amount, order_type, price, 0);
+        let id0 = open_order_internal(amount, order_type, price, 0, limit_type);
         let len = orders.len();
         let mut idx1 = 0;
         let mut matched = MatchResult::ZeroMatch;
@@ -470,7 +512,15 @@ impl SparkMarket for Contract {
                         || (order_type == OrderType::Buy
                             && distance(price, order1.price) <= slippage)
                 {
-                    let (match_result, partial_order_id) = match_order_internal(id0, order0, limit_type, id1, order1, LimitType::GTC);
+                    let (match_result, partial_order_id) = match_order_internal(
+                        id0,
+                        order0,
+                        limit_type,
+                        id1,
+                        order1,
+                        non_limit_order_type(id1)
+                            .unwrap(),
+                    );
                     match match_result {
                         MatchResult::ZeroMatch => {}
                         MatchResult::PartialMatch => {
@@ -615,32 +665,6 @@ impl SparkMarket for Contract {
         log(SetMatcherRewardEvent { amount });
     }
 
-    /// Sets storing change info flag.
-    ///
-    /// ### Additional Information
-    ///
-    /// This function allows the contract owner to enable or disable storing of order change info.
-    ///
-    /// ### Arguments
-    ///
-    /// * `store`: [bool] The new store boolean value.
-    ///
-    /// ### Reverts
-    ///
-    /// * When called by non-owner.
-    /// * When `store` is same as set before.
-    #[storage(read, write)]
-    fn set_store_order_change_info(store: bool) {
-        ownership_only_owner();
-        require(
-            store != read_store_order_change_info(),
-            ValueError::InvalidValueSame,
-        );
-        storage.store_order_change_info.write(store);
-
-        log(SetStoreOrderChangeInfoEvent { store });
-    }
-
     /// Sets the minimum of order size.
     ///
     /// ### Additional Information
@@ -783,6 +807,20 @@ impl SparkMarketInfo for Contract {
         storage.orders.get(order).try_read()
     }
 
+    /// Get the info of market order.
+    ///
+    /// ### Arguments
+    ///
+    /// * `order`: [b256] The order_id.
+    ///
+    /// ### Returns
+    ///
+    /// * [Option<bool>] - The Some<true> if market orderm Some(false) if limit order, None if not found by id.
+    #[storage(read)]
+    fn market_order(order: b256) -> Option<bool> {
+        market_order(order)
+    }
+
     /// Get user order list.
     ///
     /// ### Arguments
@@ -809,20 +847,6 @@ impl SparkMarketInfo for Contract {
     #[storage(read)]
     fn user_order_height(user: Identity) -> u64 {
         storage.order_heights.get(user).try_read().unwrap_or(0)
-    }
-
-    /// Get order change list.
-    ///
-    /// ### Arguments
-    ///
-    /// * `order_id`: [b256] The order id.
-    ///
-    /// ### Returns
-    ///
-    /// * [Vec<OrderChangeInfo>] - The vector of order change info.
-    #[storage(read)]
-    fn order_change_info(order_id: b256) -> Vec<OrderChangeInfo> {
-        storage.order_change_info.get(order_id).load_vec()
     }
 
     /// Get the minimum order size in BASE_ASSET units.
@@ -899,15 +923,27 @@ impl SparkMarketInfo for Contract {
             0,
         ).id()
     }
+}
 
-    /// Get order change info flag.
-    ///
-    /// ### Returns
-    ///
-    /// * [bool] - The True if order change info stores otherwise false.
-    #[storage(read)]
-    fn store_order_change_info() -> bool {
-        read_store_order_change_info()
+#[storage(read)]
+fn market_order(order: b256) -> Option<bool> {
+    match storage.orders.get(order).try_read() {
+        Some(o) => match storage.market_orders.get(order).try_read() {
+            Some(m) => Some(true),
+            _ => Some(false),
+        },
+        _ => None,
+    }
+}
+
+#[storage(read)]
+fn non_limit_order_type(order: b256) -> Option<LimitType> {
+    match market_order(order) {
+        Some(is_market) => Some(match is_market {
+            true => LimitType::MKT,
+            _ => LimitType::GTC,
+        }),
+        _ => None,
     }
 }
 
@@ -931,11 +967,6 @@ fn read_epoch() -> u64 {
 #[storage(read)]
 fn read_epoch_duration() -> u64 {
     storage.epoch_duration.try_read().unwrap_or(ONE_MONTH_SECONDS)
-}
-
-#[storage(read)]
-fn read_store_order_change_info() -> bool {
-    storage.store_order_change_info.try_read().unwrap_or(TRUE_VALUE)
 }
 
 #[storage(read)]
@@ -1076,6 +1107,7 @@ fn open_order_internal(
     order_type: OrderType,
     price: u64,
     matcher_fee: u64,
+    limit_type: LimitType,
 ) -> b256 {
     let user = msg_sender().unwrap();
     let (protocol_maker_fee, protocol_taker_fee) = protocol_fee_user(user);
@@ -1133,28 +1165,15 @@ fn open_order_internal(
     // Update the state of the user's account
     storage.account.insert(user, account);
 
-    let asset = get_asset_id(asset_type);
-
-    store_order_change_info(
-        order_id,
-        OrderChangeInfo::new(
-            OrderChangeType::OrderOpened,
-            block_height(),
-            user,
-            tx_id(),
-            0,
-            order.amount,
-        ),
-    );
-
     log(OpenOrderEvent {
         amount,
-        asset,
+        asset: BASE_ASSET,
         order_type,
         order_id,
         price,
         user,
         balance: account,
+        limit_type,
     });
     order_id
 }
@@ -1188,18 +1207,6 @@ fn cancel_read_order(order_id: b256, order: Order) {
 
     remove_order(user, order_id);
     storage.account.insert(user, account);
-
-    store_order_change_info(
-        order_id,
-        OrderChangeInfo::new(
-            OrderChangeType::OrderCancelled,
-            block_height(),
-            user,
-            tx_id(),
-            order.amount,
-            0,
-        ),
-    );
 
     log(CancelOrderEvent {
         order_id,
@@ -1247,6 +1254,7 @@ fn remove_order(user: Identity, order_id: b256) {
             .remove(order_id),
         OrderError::FailedToRemove(order_id),
     );
+    storage.market_orders.remove(order_id);
 
     let index = storage.user_order_indexes.get(user).get(order_id).read();
     let order_count = storage.user_orders.get(user).len();
@@ -1536,7 +1544,6 @@ fn update_order_storage(
     (MatchResult::FullMatch, b256::zero())
 }
 
-#[storage(read, write)]
 fn emit_match_events(
     s_id: b256,
     s_order: Order,
@@ -1551,36 +1558,6 @@ fn emit_match_events(
     s_account: Account,
     b_account: Account,
 ) {
-    // Emit events for the first order
-    store_order_change_info(
-        s_id,
-        OrderChangeInfo::new(
-            OrderChangeType::OrderMatched,
-            block_height(),
-            matcher,
-            tx_id(),
-            s_order
-                .amount,
-            s_order
-                .amount - s_amount,
-        ),
-    );
-
-    // Emit events for the second order
-    store_order_change_info(
-        b_id,
-        OrderChangeInfo::new(
-            OrderChangeType::OrderMatched,
-            block_height(),
-            matcher,
-            tx_id(),
-            b_order
-                .amount,
-            b_order
-                .amount - b_amount,
-        ),
-    );
-
     // Emit event for the trade execution
     log(TradeOrderEvent {
         base_sell_order_id: s_id,
@@ -1598,11 +1575,4 @@ fn emit_match_events(
         b_balance: b_account,
         seller_is_maker: s_order.is_maker(b_order),
     });
-}
-
-#[storage(read, write)]
-fn store_order_change_info(order_id: b256, change_info: OrderChangeInfo) {
-    if read_store_order_change_info() {
-        storage.order_change_info.get(order_id).push(change_info);
-    }
 }

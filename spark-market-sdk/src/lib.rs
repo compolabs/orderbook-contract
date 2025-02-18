@@ -285,6 +285,18 @@ impl SparkMarketContract {
             .await?)
     }
 
+    pub async fn open_market_order(
+        &self,
+        amount: u64,
+        order_type: OrderType,
+        price: u64,
+    ) -> anyhow::Result<CallResponse<Bits256>> {
+        Ok(self
+            .open_market_order_call_handler(amount, order_type, price)
+            .call()
+            .await?)
+    }
+
     pub fn open_order_call_handler(
         &self,
         amount: u64,
@@ -294,6 +306,18 @@ impl SparkMarketContract {
         self.instance
             .methods()
             .open_order(amount, order_type, price)
+            .with_contract_ids(&[self.implementation.into()])
+    }
+
+    pub fn open_market_order_call_handler(
+        &self,
+        amount: u64,
+        order_type: OrderType,
+        price: u64,
+    ) -> CallHandler<WalletUnlocked, ContractCall, Bits256> {
+        self.instance
+            .methods()
+            .open_market_order(amount, order_type, price)
             .with_contract_ids(&[self.implementation.into()])
     }
 
@@ -400,19 +424,6 @@ impl SparkMarketContract {
             .instance
             .methods()
             .set_matcher_fee(amount)
-            .with_contract_ids(&[self.implementation.into()])
-            .call()
-            .await?)
-    }
-
-    pub async fn set_store_order_change_info(
-        &self,
-        store: bool,
-    ) -> anyhow::Result<CallResponse<()>> {
-        Ok(self
-            .instance
-            .methods()
-            .set_store_order_change_info(store)
             .with_contract_ids(&[self.implementation.into()])
             .call()
             .await?)
@@ -551,16 +562,6 @@ impl SparkMarketContract {
             .await?)
     }
 
-    pub async fn store_order_change_info(&self) -> anyhow::Result<CallResponse<bool>> {
-        Ok(self
-            .instance
-            .methods()
-            .store_order_change_info()
-            .with_contract_ids(&[self.implementation.into()])
-            .simulate(Execution::StateReadOnly)
-            .await?)
-    }
-
     pub async fn get_epoch(&self) -> anyhow::Result<CallResponse<(u64, u64)>> {
         Ok(self
             .instance
@@ -595,6 +596,16 @@ impl SparkMarketContract {
             .await?)
     }
 
+    pub async fn market_order(&self, order: Bits256) -> anyhow::Result<CallResponse<Option<bool>>> {
+        Ok(self
+            .instance
+            .methods()
+            .market_order(order)
+            .with_contract_ids(&[self.implementation.into()])
+            .simulate(Execution::StateReadOnly)
+            .await?)
+    }
+
     pub async fn user_orders(&self, user: Identity) -> anyhow::Result<CallResponse<Vec<Bits256>>> {
         Ok(self
             .instance
@@ -610,19 +621,6 @@ impl SparkMarketContract {
             .instance
             .methods()
             .user_order_height(user)
-            .with_contract_ids(&[self.implementation.into()])
-            .simulate(Execution::StateReadOnly)
-            .await?)
-    }
-
-    pub async fn order_change_info(
-        &self,
-        order_id: Bits256,
-    ) -> anyhow::Result<CallResponse<Vec<OrderChangeInfo>>> {
-        Ok(self
-            .instance
-            .methods()
-            .order_change_info(order_id)
             .with_contract_ids(&[self.implementation.into()])
             .simulate(Execution::StateReadOnly)
             .await?)
