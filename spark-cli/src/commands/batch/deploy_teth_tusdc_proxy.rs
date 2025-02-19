@@ -5,7 +5,7 @@ use fuels::{
     types::{AssetId, ContractId},
 };
 use spark_market_sdk::SparkMarketContract;
-use spark_proxy_sdk::SparkProxyContract;
+use spark_proxy_sdk::{SparkProxyContract, State};
 use std::str::FromStr;
 
 #[derive(Args, Clone)]
@@ -60,8 +60,12 @@ impl DeployTethTusdcProxyCommand {
         )
         .await?;
 
+        let _ = contract.pause().await?;
+
         let target: ContractId = contract.contract_id().into();
         let proxy = SparkProxyContract::deploy(target, wallet.clone()).await?;
+
+        assert!(proxy.proxy_owner().await?.value == State::Initialized(wallet.address().into()));
 
         let market = SparkMarketContract::new(proxy.contract_id().into(), wallet.clone()).await;
         let _ = market.initialize_ownership(wallet.address().into()).await?;

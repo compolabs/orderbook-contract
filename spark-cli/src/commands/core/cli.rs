@@ -1,11 +1,11 @@
 use crate::commands::core::{
     cancel_order::CancelCommand, cancel_small_order::CancelSmallCommand, deploy::DeployCommand,
     deposit::DepositCommand, deposit_for::DepositForCommand, fulfill_many::FulfillManyCommand,
-    match_many::MatchManyCommand, open_order::OpenCommand, set_epoch::SetEpochCommand,
-    set_matcher_fee::SetMatcherFeeCommand, set_min_order_price::SetMinOrderPriceCommand,
-    set_min_order_size::SetMinOrderSizeCommand, set_paused::SetPausedCommand,
-    set_protocol_fee::SetProtocolFeeCommand, set_proxy_target::SetProxyTargetCommand,
-    set_store_order_change_info::SetStoreOrderChangeInfoCommand, withdraw::WithdrawCommand,
+    match_many::MatchManyCommand, open_market_order::OpenMarketCommand, open_order::OpenCommand,
+    set_epoch::SetEpochCommand, set_matcher_fee::SetMatcherFeeCommand,
+    set_min_order_price::SetMinOrderPriceCommand, set_min_order_size::SetMinOrderSizeCommand,
+    set_paused::SetPausedCommand, set_protocol_fee::SetProtocolFeeCommand,
+    set_proxy_target::SetProxyTargetCommand, withdraw::WithdrawCommand,
     withdraw_to_market::WithdrawToMarketCommand,
 };
 use clap::Subcommand;
@@ -41,6 +41,10 @@ pub(crate) enum CoreCommands {
     MatchMany(MatchManyCommand),
 
     /// Open an order
+    #[clap(short_flag = 'N')]
+    OpenMarket(OpenMarketCommand),
+
+    /// Open an order
     #[clap(short_flag = 'O')]
     Open(OpenCommand),
 
@@ -63,10 +67,6 @@ pub(crate) enum CoreCommands {
     /// Set a matcher fee for the market
     #[clap(short_flag = 'T')]
     SetMatcherFee(SetMatcherFeeCommand),
-
-    /// Set a matcher fee for the market
-    #[clap(short_flag = 'U')]
-    SetStoreOrderChangeInfo(SetStoreOrderChangeInfoCommand),
 
     /// Set a minimum order size for the market
     #[clap(short_flag = 'V')]

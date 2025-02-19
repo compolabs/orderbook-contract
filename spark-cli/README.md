@@ -151,6 +151,13 @@ Owner address: fuel1rmu7c4gjycy4qtvj8798sv04ptq9uq4a6eq9y23w7x8apundtlrs0u000t
                0x1ef9ec55122609502d923f8a7831f50ac05e02bdd640522a2ef18fd0f26d5fc7
 
 
+Spark CLI v0.7.0
+
+Market version 0.7.0 (1792) deployed to: 0x544ae99c3beb0a63599334fe2c7e49bfa43c69ceb716ca9913e60513a71a1c97
+Deployment cost: 6216
+Owner address: fuel1rmu7c4gjycy4qtvj8798sv04ptq9uq4a6eq9y23w7x8apundtlrs0u000t
+               0x1ef9ec55122609502d923f8a7831f50ac05e02bdd640522a2ef18fd0f26d5fc7
+
 ### Deploy ETH-USDC market proxy + implementation
 
 ```
@@ -424,6 +431,17 @@ spark-cli core open \
     --contract-id 0x81acb82a64ff799836c19f4e7f9871cf6d13a1e5d286e815f91c26a1b92a8195
 ```
 
+## Open Market Order
+
+```
+spark-cli core open-market \
+    --amount 900000000 \
+    --order-type buy \
+    --price 500000000000 \
+    --rpc "mainnet.fuel.network" \
+    --contract-id 0xb4d0cb6591fd480404bc389b90f86c05afdaf29bad9378faf45a797b9bfd847b
+```
+
 ## Cancel Order
 
 ```
@@ -513,17 +531,6 @@ spark-cli core set-epoch \
     --contract-id 0x12a5f8666279f841e5900500297ce3c8bcf40103dd191c56dd3ec86f92b9217b
 ```
 
-## Set Store Order Change Info
-
-Sets a store order change info for the market
-
-```
-spark-cli core set-store-order-change-info \
-    --store \
-    --rpc "testnet.fuel.network" \
-    --contract-id 0x81acb82a64ff799836c19f4e7f9871cf6d13a1e5d286e815f91c26a1b92a8195
-```
-
 ## Set Minimum Order Size
 
 Sets a minimum order size for the market
@@ -580,7 +587,7 @@ spark-cli info account \
 ```
 spark-cli info config \
     --rpc "mainnet.fuel.network" \
-    --contract-id 0x81e83f73530c262b0dbf5414649a875c48a48144de3c08ff68cb9d54b36f2eaa
+    --contract-id 0x544ae99c3beb0a63599334fe2c7e49bfa43c69ceb716ca9913e60513a71a1c97
 ```
 
 ## Paused
@@ -697,21 +704,20 @@ spark-cli info order-id \
     --contract-id 0x81acb82a64ff799836c19f4e7f9871cf6d13a1e5d286e815f91c26a1b92a8195
 ```
 
-## Order
+## Market Order
 
 ```
-spark-cli info order \
+spark-cli info market-order \
     --order-id 769663aef01812de5e5b4a4cd96f31a1641d4924cd26bdf7665fc00708487007 \
     --rpc "testnet.fuel.network" \
     --contract-id 0x81acb82a64ff799836c19f4e7f9871cf6d13a1e5d286e815f91c26a1b92a8195
 ```
 
-## Store Order Change Info
-
-Store Order Change Info for the market
+## Order
 
 ```
-spark-cli info store-order-change-info \
+spark-cli info order \
+    --order-id 769663aef01812de5e5b4a4cd96f31a1641d4924cd26bdf7665fc00708487007 \
     --rpc "testnet.fuel.network" \
     --contract-id 0x81acb82a64ff799836c19f4e7f9871cf6d13a1e5d286e815f91c26a1b92a8195
 ```
@@ -743,7 +749,7 @@ Owner address: fuel173lqaa6y4jxfjd2suq730uwys3zfg4f6zt9vzx4cc45v3xvlmwlszdvdpz
 
 ```
 spark-cli registry register \
-    --market 0x81e83f73530c262b0dbf5414649a875c48a48144de3c08ff68cb9d54b36f2eaa \
+    --market 0x544ae99c3beb0a63599334fe2c7e49bfa43c69ceb716ca9913e60513a71a1c97 \
     --rpc "mainnet.fuel.network" \
     --contract-id 0xbb91b7f9d31ee562b24e35d756ce20913f9752600582f51008c63b2d3792926b
 ```
@@ -752,19 +758,19 @@ spark-cli registry register \
 
 ```
 spark-cli registry unregister \
-    --market 0x81acb82a64ff799836c19f4e7f9871cf6d13a1e5d286e815f91c26a1b92a8195 \
-    --rpc "testnet.fuel.network" \
-    --contract-id 0xd76662328e464549b6f619401992127bed9b5cff3b46a3516e6b509d810b7035
+    --market 0x4c9010a055ab636c38caa0e4c7cf9eb4ad8d6f44ff6e094f23b3dcdd291ee093 \
+    --rpc "mainnet.fuel.network" \
+    --contract-id 0xbb91b7f9d31ee562b24e35d756ce20913f9752600582f51008c63b2d3792926b
 ```
 
 ## Get registered markets by assets
 
 ```
 spark-cli registry markets \
-    --base 0x38e4ca985b22625fff93205e997bfc5cc8453a953da638ad297ca60a9f2600bc \
-    --quote 0x336b7c06352a4b736ff6f688ba6885788b3df16e136e95310ade51aa32dc6f05 \
-    --rpc "testnet.fuel.network" \
-    --contract-id 0xd76662328e464549b6f619401992127bed9b5cff3b46a3516e6b509d810b7035
+    --base 0xf169e13e98ae8908199148380684894458b7916f074b85ebad2aaad489ce0d54 \
+    --quote 0x22dfb618b9fc621a7d53f0f599dd427fb5688e280062a8de8883a27819d3f276 \
+    --rpc "mainnet.fuel.network" \
+    --contract-id 0xbb91b7f9d31ee562b24e35d756ce20913f9752600582f51008c63b2d3792926b
 ```
 
 ## Config
