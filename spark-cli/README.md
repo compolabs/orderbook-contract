@@ -36,6 +36,7 @@ WETH-USDC 0x0bef6eb3018d901818978175feccf650b65dee8e3a8f5b59e138bcf1cf1d0db9
 PSYCHO-USDC 0x2eece85eb7c8ec5fd95e639fd6bb7e9dd7103a99d7321521848da246ecef5270
 USDF-USDC 0x59020aadb448c59b48136a3cef110f1ddd2865000146514924f19b83f061ceba
 USDT-ETH 0x979ea6b1e15c1ec8e79eb76b587af89dd2620b383082e9b2c16049b78e97e4e8
+TETH-TUSDC 0x6eb7a35c43a8eae0a2aeaf8c68b7d2d1cc7d2481d97abb8f68e4fb3cbab86a2a
 
 ### Batch Deploy
 
@@ -351,23 +352,37 @@ Owner address: fuel1rmu7c4gjycy4qtvj8798sv04ptq9uq4a6eq9y23w7x8apundtlrs0u000t
                0x1ef9ec55122609502d923f8a7831f50ac05e02bdd640522a2ef18fd0f26d5fc7
 Block height: 12997252
 
+### Deploy USDT-ETH market proxy + implementation
+
+```
+spark-cli batch deploy-teth-tusdc-proxy
+
+```
+
+Spark CLI v0.7.0
+
+Market version 0.7.0 (1792) deployed to: 0xb6b32862fae03d7dc25b5d916912df5293eb017acc1ba4fa31fda26323fe892e
+               Proxy deployed to: 0x6eb7a35c43a8eae0a2aeaf8c68b7d2d1cc7d2481d97abb8f68e4fb3cbab86a2a
+Deployment cost: 7321
+Owner address: fuel1rmu7c4gjycy4qtvj8798sv04ptq9uq4a6eq9y23w7x8apundtlrs0u000t
+               0x1ef9ec55122609502d923f8a7831f50ac05e02bdd640522a2ef18fd0f26d5fc7
 
 ## Deposit
 
 ```
 spark-cli core deposit \
     --asset-type base \
-    --amount 1000000000 \
+    --amount 1000000 \
     --rpc "mainnet.fuel.network" \
-    --contract-id 0x1b3aec515957737fe9bc12aab47e55aedfc9f182369b5cb79732872f9ae78889
+    --contract-id 0x6eb7a35c43a8eae0a2aeaf8c68b7d2d1cc7d2481d97abb8f68e4fb3cbab86a2a
 ```
 
 ```
 spark-cli core deposit \
     --asset-type quote \
-    --amount 10000 \
-    --rpc "testnet.fuel.network" \
-    --contract-id 0x81acb82a64ff799836c19f4e7f9871cf6d13a1e5d286e815f91c26a1b92a8195
+    --amount 1000000 \
+    --rpc "mainnet.fuel.network" \
+    --contract-id 0x6eb7a35c43a8eae0a2aeaf8c68b7d2d1cc7d2481d97abb8f68e4fb3cbab86a2a
 ```
 
 ## Deposit For
@@ -415,11 +430,11 @@ spark-cli core withdraw-to-market \
 
 ```
 spark-cli core open \
-    --amount 900000000 \
+    --amount 100000 \
     --order-type buy \
-    --price 500000000000 \
+    --price 3000000000000 \
     --rpc "mainnet.fuel.network" \
-    --contract-id 0xb4d0cb6591fd480404bc389b90f86c05afdaf29bad9378faf45a797b9bfd847b
+    --contract-id 0x6eb7a35c43a8eae0a2aeaf8c68b7d2d1cc7d2481d97abb8f68e4fb3cbab86a2a
 ```
 
 ```
@@ -439,7 +454,7 @@ spark-cli core open-market \
     --order-type buy \
     --price 500000000000 \
     --rpc "mainnet.fuel.network" \
-    --contract-id 0xb4d0cb6591fd480404bc389b90f86c05afdaf29bad9378faf45a797b9bfd847b
+    --contract-id 0x6eb7a35c43a8eae0a2aeaf8c68b7d2d1cc7d2481d97abb8f68e4fb3cbab86a2a
 ```
 
 ## Cancel Order
@@ -537,9 +552,9 @@ Sets a minimum order size for the market
 
 ```
 spark-cli core set-min-order-size \
-    --size 1000 \
+    --size 100000 \
     --rpc "mainnet.fuel.network" \
-    --contract-id 0x12a5f8666279f841e5900500297ce3c8bcf40103dd191c56dd3ec86f92b9217b
+    --contract-id 0x6eb7a35c43a8eae0a2aeaf8c68b7d2d1cc7d2481d97abb8f68e4fb3cbab86a2a
 ```
 
 
@@ -579,7 +594,7 @@ spark-cli info account \
     --account-type address \
     --account-id 0x1Ef9Ec55122609502D923F8A7831f50ac05E02bdD640522A2EF18Fd0F26d5Fc7 \
     --rpc "mainnet.fuel.network" \
-    --contract-id 0x4c9010a055ab636c38caa0e4c7cf9eb4ad8d6f44ff6e094f23b3dcdd291ee093
+    --contract-id 0x6eb7a35c43a8eae0a2aeaf8c68b7d2d1cc7d2481d97abb8f68e4fb3cbab86a2a
 ```
 
 ## Config
@@ -595,7 +610,7 @@ spark-cli info config \
 ```
 spark-cli info paused \
     --rpc "mainnet.fuel.network" \
-    --contract-id 0xee459fbb07d7afa5feeac4ecd54cb83bf0c9d7d0ec292a34dbab2ec558728f7f
+    --contract-id 0x6eb7a35c43a8eae0a2aeaf8c68b7d2d1cc7d2481d97abb8f68e4fb3cbab86a2a
 ```
 
 ## Epoch
@@ -658,7 +673,7 @@ Proxy target market
 ```
 spark-cli info proxy-target \
     --rpc "mainnet.fuel.network" \
-    --contract-id 0x81e83f73530c262b0dbf5414649a875c48a48144de3c08ff68cb9d54b36f2eaa
+    --contract-id 0x6eb7a35c43a8eae0a2aeaf8c68b7d2d1cc7d2481d97abb8f68e4fb3cbab86a2a
 ```
 
 ## Proxy Owner
@@ -668,7 +683,7 @@ Proxy owner market
 ```
 spark-cli info proxy-owner \
     --rpc "mainnet.fuel.network" \
-    --contract-id 0x81e83f73530c262b0dbf5414649a875c48a48144de3c08ff68cb9d54b36f2eaa
+    --contract-id 0x544ae99c3beb0a63599334fe2c7e49bfa43c69ceb716ca9913e60513a71a1c97
 ```
 
 ## Minimum Order Size
@@ -749,7 +764,7 @@ Owner address: fuel173lqaa6y4jxfjd2suq730uwys3zfg4f6zt9vzx4cc45v3xvlmwlszdvdpz
 
 ```
 spark-cli registry register \
-    --market 0x544ae99c3beb0a63599334fe2c7e49bfa43c69ceb716ca9913e60513a71a1c97 \
+    --market 0x6eb7a35c43a8eae0a2aeaf8c68b7d2d1cc7d2481d97abb8f68e4fb3cbab86a2a \
     --rpc "mainnet.fuel.network" \
     --contract-id 0xbb91b7f9d31ee562b24e35d756ce20913f9752600582f51008c63b2d3792926b
 ```
@@ -758,7 +773,7 @@ spark-cli registry register \
 
 ```
 spark-cli registry unregister \
-    --market 0x4c9010a055ab636c38caa0e4c7cf9eb4ad8d6f44ff6e094f23b3dcdd291ee093 \
+    --market 0x544ae99c3beb0a63599334fe2c7e49bfa43c69ceb716ca9913e60513a71a1c97 \
     --rpc "mainnet.fuel.network" \
     --contract-id 0xbb91b7f9d31ee562b24e35d756ce20913f9752600582f51008c63b2d3792926b
 ```
