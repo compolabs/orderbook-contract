@@ -155,9 +155,9 @@ dependencies = [
 
 [[package]]
 name = "anyhow"
-version = "1.0.95"
+version = "1.0.96"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "34ac096ce696dc2fcabef30516bb13c0a68a11d30131d3df6f04711467681b04"
+checksum = "6b964d184e89d9b6b67dd2715bc8e74cf3107fb2b529990c90cf517326150bf4"
 
 [[package]]
 name = "arbitrary"
@@ -676,9 +676,9 @@ dependencies = [
 
 [[package]]
 name = "clap"
-version = "4.5.30"
+version = "4.5.31"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "92b7b18d71fad5313a1e320fa9897994228ce274b60faa4d694fe0ea89cd9e6d"
+checksum = "027bb0d98429ae334a8698531da7077bdf906419543a35a55c2cb1b66437d767"
 dependencies = [
  "clap_builder",
  "clap_derive",
@@ -686,9 +686,9 @@ dependencies = [
 
 [[package]]
 name = "clap_builder"
-version = "4.5.30"
+version = "4.5.31"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a35db2071778a7344791a4fb4f95308b5673d219dee3ae348b86642574ecc90c"
+checksum = "5589e0cba072e0f3d23791efac0fd8627b49c829c196a492e88168e6a669d863"
 dependencies = [
  "anstream",
  "anstyle",
@@ -5553,13 +5553,13 @@ dependencies = [
 
 [[package]]
 name = "spark-cli"
-version = "0.7.0"
+version = "0.7.1"
 dependencies = [
  "anyhow",
  "clap",
  "dotenv",
  "fuels",
- "spark-market-sdk 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "spark-market-sdk 0.7.0",
  "spark-proxy-sdk 0.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "spark-registry-sdk 0.6.4",
  "tokio",
@@ -5567,23 +5567,13 @@ dependencies = [
 
 [[package]]
 name = "spark-market"
-version = "0.7.0"
+version = "0.7.1"
 dependencies = [
  "anyhow",
  "fuels",
  "rand",
- "spark-market-sdk 0.7.0",
+ "spark-market-sdk 0.7.1",
  "spark-proxy-sdk 0.0.2",
- "tokio",
-]
-
-[[package]]
-name = "spark-market-sdk"
-version = "0.7.0"
-dependencies = [
- "anyhow",
- "fuels",
- "rand",
  "tokio",
 ]
 
@@ -5600,8 +5590,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "spark-market-sdk"
+version = "0.7.1"
+dependencies = [
+ "anyhow",
+ "fuels",
+ "rand",
+ "tokio",
+]
+
+[[package]]
 name = "spark-proxy"
-version = "0.7.0"
+version = "0.7.1"
 dependencies = [
  "anyhow",
  "fuels",
@@ -5633,12 +5633,12 @@ dependencies = [
 
 [[package]]
 name = "spark-registry"
-version = "0.7.0"
+version = "0.7.1"
 dependencies = [
  "anyhow",
  "fuels",
- "spark-market-sdk 0.7.0",
- "spark-registry-sdk 0.7.0",
+ "spark-market-sdk 0.7.1",
+ "spark-registry-sdk 0.7.1",
  "tokio",
 ]
 
@@ -5656,7 +5656,7 @@ dependencies = [
 
 [[package]]
 name = "spark-registry-sdk"
-version = "0.7.0"
+version = "0.7.1"
 dependencies = [
  "anyhow",
  "fuels",

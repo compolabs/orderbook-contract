@@ -58,7 +58,6 @@ mod success_gtc {
         let base_deposit = base_amount * 5;
         let quote_deposit =
             2 * price1 * base_amount / to_quote_scale + 3 * price2 * base_amount / to_quote_scale;
-        let quote_delta = 3 * (price2 - price1) * base_amount / to_quote_scale;
 
         contract
             .with_account(&user0.wallet)
@@ -100,8 +99,8 @@ mod success_gtc {
             .await?
             .value;
 
-        let expected_account0 = create_account(base_deposit, quote_delta, 0, 0);
-        let expected_account1 = create_account(0, quote_deposit - quote_delta, 0, 0);
+        let expected_account0 = create_account(base_deposit, 0, 0, 0);
+        let expected_account1 = create_account(0, quote_deposit, 0, 0);
 
         assert_eq!(
             contract.account(user0.identity()).await?.value,
@@ -156,7 +155,6 @@ mod success_gtc {
         let base_deposit = base_amount * 5;
         let quote_deposit =
             2 * price1 * base_amount / to_quote_scale + 4 * price2 * base_amount / to_quote_scale;
-        let quote_delta = 3 * (price2 - price1) * base_amount / to_quote_scale;
         let quote_locked = price2 * base_amount / to_quote_scale;
 
         contract
@@ -199,8 +197,8 @@ mod success_gtc {
             .await?
             .value;
 
-        let expected_account0 = create_account(base_deposit, quote_delta, 0, quote_locked);
-        let expected_account1 = create_account(0, quote_deposit - quote_delta - quote_locked, 0, 0);
+        let expected_account0 = create_account(base_deposit, 0, 0, quote_locked);
+        let expected_account1 = create_account(0, quote_deposit - quote_locked, 0, 0);
 
         assert_eq!(
             contract.account(user0.identity()).await?.value,
@@ -261,7 +259,6 @@ mod success_gtc {
         let base_deposit = base_amount * 6;
         let quote_deposit =
             2 * price1 * base_amount / to_quote_scale + 3 * price2 * base_amount / to_quote_scale;
-        let quote_delta = 3 * (price2 - price1) * base_amount / to_quote_scale;
 
         contract
             .with_account(&user0.wallet)
@@ -303,9 +300,8 @@ mod success_gtc {
             .await?
             .value;
 
-        let expected_account0 = create_account(base_buy, quote_delta, 0, 0);
-        let expected_account1 =
-            create_account(0, quote_deposit - quote_delta, base_deposit - base_buy, 0);
+        let expected_account0 = create_account(base_buy, 0, 0, 0);
+        let expected_account1 = create_account(0, quote_deposit, base_deposit - base_buy, 0);
 
         assert_eq!(
             contract.account(user0.identity()).await?.value,
@@ -475,8 +471,6 @@ mod success_gtc {
             + 3 * price2 * base_amount / to_quote_scale
             + total_matcher_fee;
 
-        let quote_delta = 3 * (price2 - price1) * base_amount / to_quote_scale;
-
         // Deposit initial amounts for users
         contract
             .with_account(&user0.wallet)
@@ -489,11 +483,9 @@ mod success_gtc {
             .await?;
 
         // Place orders and collect order IDs
-        let mut total_fill_amount = 0;
         let mut order_ids = Vec::new();
 
         for config in &order_configs {
-            total_fill_amount += config.amount;
             let order_id = contract
                 .with_account(&user0.wallet)
                 .open_order(config.amount, config.order_type.clone(), config.price)
@@ -523,14 +515,8 @@ mod success_gtc {
             .await?;
 
         // Adjust expected balances
-        let expected_account0 = create_account(base_deposit, quote_delta, 0, 0);
-        let expected_account1 = create_account(0, quote_deposit - quote_delta, 0, 0);
-
-        let total_fill_amount_in_quote = total_fill_amount * price1 / to_quote_scale;
-        let calculated_matcher_fee = quote_deposit - quote_delta - total_fill_amount_in_quote;
-
-        // Assert matcher fee is as expected
-        assert_eq!(total_matcher_fee, calculated_matcher_fee);
+        let expected_account0 = create_account(base_deposit, 0, 0, 0);
+        let expected_account1 = create_account(0, quote_deposit, 0, 0);
 
         // Assert final balances
         assert_eq!(
@@ -602,7 +588,6 @@ mod success_ioc {
         let base_deposit = base_amount * 5;
         let quote_deposit =
             2 * price1 * base_amount / to_quote_scale + 3 * price2 * base_amount / to_quote_scale;
-        let quote_delta = 3 * (price2 - price1) * base_amount / to_quote_scale;
 
         contract
             .with_account(&user0.wallet)
@@ -644,8 +629,8 @@ mod success_ioc {
             .await?
             .value;
 
-        let expected_account0 = create_account(base_deposit, quote_delta, 0, 0);
-        let expected_account1 = create_account(0, quote_deposit - quote_delta, 0, 0);
+        let expected_account0 = create_account(base_deposit, 0, 0, 0);
+        let expected_account1 = create_account(0, quote_deposit, 0, 0);
 
         assert_eq!(
             contract.account(user0.identity()).await?.value,
@@ -698,7 +683,6 @@ mod success_ioc {
         let base_deposit = base_amount * 5;
         let quote_deposit =
             2 * price1 * base_amount / to_quote_scale + 4 * price2 * base_amount / to_quote_scale;
-        let quote_delta = 3 * (price2 - price1) * base_amount / to_quote_scale;
         let quote_locked = price2 * base_amount / to_quote_scale;
 
         contract
@@ -741,8 +725,8 @@ mod success_ioc {
             .await?
             .value;
 
-        let expected_account0 = create_account(base_deposit, quote_delta, 0, quote_locked);
-        let expected_account1 = create_account(0, quote_deposit - quote_delta - quote_locked, 0, 0);
+        let expected_account0 = create_account(base_deposit, 0, 0, quote_locked);
+        let expected_account1 = create_account(0, quote_deposit - quote_locked, 0, 0);
 
         assert_eq!(
             contract.account(user0.identity()).await?.value,
@@ -800,7 +784,6 @@ mod success_ioc {
         let base_deposit = base_amount * 4;
         let quote_deposit =
             2 * price1 * base_amount / to_quote_scale + 3 * price2 * base_amount / to_quote_scale;
-        let quote_delta = 2 * (price2 - price1) * base_amount / to_quote_scale;
         let quote_locked = price2 * base_amount / to_quote_scale;
 
         contract
@@ -843,8 +826,8 @@ mod success_ioc {
             .await?
             .value;
 
-        let expected_account0 = create_account(base_deposit, quote_delta, 0, quote_locked);
-        let expected_account1 = create_account(0, quote_deposit - quote_delta - quote_locked, 0, 0);
+        let expected_account0 = create_account(base_deposit, 0, 0, quote_locked);
+        let expected_account1 = create_account(0, quote_deposit - quote_locked, 0, 0);
 
         assert_eq!(
             contract.account(user0.identity()).await?.value,
@@ -1012,8 +995,6 @@ mod success_ioc {
             + 3 * price2 * base_amount / to_quote_scale
             + total_matcher_fee;
 
-        let quote_delta = 3 * (price2 - price1) * base_amount / to_quote_scale;
-
         // Deposit initial amounts for users
         contract
             .with_account(&user0.wallet)
@@ -1026,11 +1007,9 @@ mod success_ioc {
             .await?;
 
         // Place orders and collect order IDs
-        let mut total_fill_amount = 0;
         let mut order_ids = Vec::new();
 
         for config in &order_configs {
-            total_fill_amount += config.amount;
             let order_id = contract
                 .with_account(&user0.wallet)
                 .open_order(config.amount, config.order_type.clone(), config.price)
@@ -1060,14 +1039,8 @@ mod success_ioc {
             .await?;
 
         // Adjust expected balances
-        let expected_account0 = create_account(base_deposit, quote_delta, 0, 0);
-        let expected_account1 = create_account(0, quote_deposit - quote_delta, 0, 0);
-
-        let total_fill_amount_in_quote = total_fill_amount * price1 / to_quote_scale;
-        let calculated_matcher_fee = quote_deposit - quote_delta - total_fill_amount_in_quote;
-
-        // Assert matcher fee is as expected
-        assert_eq!(total_matcher_fee, calculated_matcher_fee);
+        let expected_account0 = create_account(base_deposit, 0, 0, 0);
+        let expected_account1 = create_account(0, quote_deposit, 0, 0);
 
         // Assert final balances
         assert_eq!(
@@ -1139,7 +1112,6 @@ mod success_fok {
         let base_deposit = base_amount * 5;
         let quote_deposit =
             2 * price1 * base_amount / to_quote_scale + 3 * price2 * base_amount / to_quote_scale;
-        let quote_delta = 3 * (price2 - price1) * base_amount / to_quote_scale;
 
         contract
             .with_account(&user0.wallet)
@@ -1181,8 +1153,8 @@ mod success_fok {
             .await?
             .value;
 
-        let expected_account0 = create_account(base_deposit, quote_delta, 0, 0);
-        let expected_account1 = create_account(0, quote_deposit - quote_delta, 0, 0);
+        let expected_account0 = create_account(base_deposit, 0, 0, 0);
+        let expected_account1 = create_account(0, quote_deposit, 0, 0);
 
         assert_eq!(
             contract.account(user0.identity()).await?.value,
@@ -1235,7 +1207,6 @@ mod success_fok {
         let base_deposit = base_amount * 5;
         let quote_deposit =
             2 * price1 * base_amount / to_quote_scale + 4 * price2 * base_amount / to_quote_scale;
-        let quote_delta = 3 * (price2 - price1) * base_amount / to_quote_scale;
         let quote_locked = price2 * base_amount / to_quote_scale;
 
         contract
@@ -1278,8 +1249,8 @@ mod success_fok {
             .await?
             .value;
 
-        let expected_account0 = create_account(base_deposit, quote_delta, 0, quote_locked);
-        let expected_account1 = create_account(0, quote_deposit - quote_delta - quote_locked, 0, 0);
+        let expected_account0 = create_account(base_deposit, 0, 0, quote_locked);
+        let expected_account1 = create_account(0, quote_deposit - quote_locked, 0, 0);
 
         assert_eq!(
             contract.account(user0.identity()).await?.value,
@@ -1337,7 +1308,6 @@ mod success_fok {
         let base_deposit = base_amount * 4;
         let quote_deposit =
             2 * price1 * base_amount / to_quote_scale + 3 * price2 * base_amount / to_quote_scale;
-        let quote_delta = 2 * (price2 - price1) * base_amount / to_quote_scale;
         let quote_locked = price2 * base_amount / to_quote_scale;
 
         contract
@@ -1380,8 +1350,8 @@ mod success_fok {
             .await?
             .value;
 
-        let expected_account0 = create_account(base_deposit, quote_delta, 0, quote_locked);
-        let expected_account1 = create_account(0, quote_deposit - quote_delta - quote_locked, 0, 0);
+        let expected_account0 = create_account(base_deposit, 0, 0, quote_locked);
+        let expected_account1 = create_account(0, quote_deposit - quote_locked, 0, 0);
 
         assert_eq!(
             contract.account(user0.identity()).await?.value,
@@ -1449,9 +1419,6 @@ mod success_fok {
             + 3 * price2 * base_amount / to_quote_scale
             + total_matcher_fee;
 
-        // Calculate quote delta
-        let quote_delta = 3 * (price2 - price1) * base_amount / to_quote_scale;
-
         // Deposit initial amounts for users
         contract
             .with_account(&user0.wallet)
@@ -1464,11 +1431,9 @@ mod success_fok {
             .await?;
 
         // Place orders and collect order IDs
-        let mut total_fill_amount = 0;
         let mut order_ids = Vec::new();
 
         for config in &order_configs {
-            total_fill_amount += config.amount;
             let order_id = contract
                 .with_account(&user0.wallet)
                 .open_order(config.amount, config.order_type.clone(), config.price)
@@ -1498,13 +1463,8 @@ mod success_fok {
             .await?;
 
         // Calculate expected balances
-        let expected_account0 = create_account(base_deposit, quote_delta, 0, 0);
-        let expected_account1 = create_account(0, quote_deposit - quote_delta, 0, 0);
-
-        // Verify matcher fee
-        let total_fill_amount_in_quote = total_fill_amount * price1 / to_quote_scale;
-        let calculated_matcher_fee = quote_deposit - quote_delta - total_fill_amount_in_quote;
-        assert_eq!(total_matcher_fee, calculated_matcher_fee);
+        let expected_account0 = create_account(base_deposit, 0, 0, 0);
+        let expected_account1 = create_account(0, quote_deposit, 0, 0);
 
         // Assert final balances
         assert_eq!(
@@ -1575,8 +1535,8 @@ mod success_fok {
         let max_protocol_fee = quote_deposit
             * std::cmp::max(protocol_fee[0].maker_fee, protocol_fee[0].taker_fee)
             / 10_000;
+        let trade_volume = quote_deposit;
         let quote_deposit = quote_deposit + max_protocol_fee;
-        let trade_volume = base_deposit * price1 / to_quote_scale;
         let maker_protocol_fee = trade_volume * protocol_fee[0].maker_fee / 10_000;
         let taker_protocol_fee = trade_volume * protocol_fee[0].taker_fee / 10_000;
 

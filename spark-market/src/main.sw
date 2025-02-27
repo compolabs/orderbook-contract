@@ -72,6 +72,7 @@ const ZERO_VALUE = 0;
 const TRUE_VALUE = true;
 // 1 month (86400 * 365.25 / 12)
 const ONE_MONTH_SECONDS = 2629800;
+const MARKET_ORDER_EXPIRATION = 10;
 
 configurable {
     BASE_ASSET: AssetId = AssetId::zero(),
@@ -928,8 +929,8 @@ impl SparkMarketInfo for Contract {
 #[storage(read)]
 fn market_order(order: b256) -> Option<bool> {
     match storage.orders.get(order).try_read() {
-        Some(o) => match storage.market_orders.get(order).try_read() {
-            Some(m) => Some(true),
+        Some(_) => match storage.market_orders.get(order).try_read() {
+            Some(_) => Some(true),
             _ => Some(false),
         },
         _ => None,
@@ -1182,10 +1183,17 @@ fn open_order_internal(
 fn cancel_order_internal(order_id: b256) {
     // Order must exist to be cancelled
     let order = read_order(order_id);
-    let user = msg_sender().unwrap();
 
+    let market_order_expired = match market_order(order_id) {
+        Some(is_market_order) => is_market_order && block_height() >= order.block_height + MARKET_ORDER_EXPIRATION,
+        _ => false,
+    };
     // Only the owner of the order may cancel their order
-    require(user == order.owner, AuthError::Unauthorized);
+    require(
+        market_order_expired || msg_sender()
+            .unwrap() == order.owner,
+        AuthError::Unauthorized,
+    );
 
     cancel_read_order(order_id, order);
 }
@@ -1302,11 +1310,12 @@ fn execute_trade(
     s_order: Order,
     b_order: Order,
     trade_size: u64,
+    trade_price: u64,
     matcher: Identity,
 ) -> (u64, u64, u64) {
     let asset_type = s_order.asset_type;
     // The volume of the trade for the seller
-    let s_trade_volume = quote_of_base_amount(trade_size, s_order.price);
+    let s_trade_volume = quote_of_base_amount(trade_size, trade_price);
     // The volume of the trade reserved by the buyer for the trade size
     let b_trade_volume = quote_of_base_amount(trade_size, b_order.price);
     // The difference in trade volumes between the buyer and seller
@@ -1462,12 +1471,18 @@ fn match_order_internal(
         return (MatchResult::ZeroMatch, b256::zero());
     }
 
-    let trade_price = s_order.price;
+    // Determine trade price based on the order time submissions
+    let trade_price = if s_order.is_maker(b_order) {
+        s_order.price
+    } else {
+        b_order.price
+    };
+
     // Determine trade amounts based on the minimum available
     let trade_size = min(s_order.amount, b_order.amount);
 
     // Execute the trade and update balances
-    let (trade_volume, s_order_matcher_fee, b_order_matcher_fee) = execute_trade(s_order, b_order, trade_size, matcher);
+    let (trade_volume, s_order_matcher_fee, b_order_matcher_fee) = execute_trade(s_order, b_order, trade_size, trade_price, matcher);
 
     increase_user_volume(s_order.owner, trade_volume);
     increase_user_volume(b_order.owner, trade_volume);
@@ -1484,7 +1499,6 @@ fn match_order_internal(
         b_id,
         b_order,
         b_limit,
-        trade_size,
         matcher,
         trade_price,
         s_account,
@@ -1548,11 +1562,10 @@ fn emit_match_events(
     s_id: b256,
     s_order: Order,
     s_limit: LimitType,
-    s_amount: u64,
+    trade_size: u64,
     b_id: b256,
     b_order: Order,
     b_limit: LimitType,
-    b_amount: u64,
     matcher: Identity,
     match_price: u64,
     s_account: Account,
@@ -1565,7 +1578,7 @@ fn emit_match_events(
         base_sell_order_limit: s_limit,
         base_buy_order_limit: b_limit,
         order_matcher: matcher,
-        trade_size: s_amount,
+        trade_size: trade_size,
         trade_price: match_price,
         block_height: block_height(),
         tx_id: tx_id(),
