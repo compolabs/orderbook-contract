@@ -5559,7 +5559,7 @@ dependencies = [
  "clap",
  "dotenv",
  "fuels",
- "spark-market-sdk 0.7.0",
+ "spark-market-sdk 0.7.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "spark-proxy-sdk 0.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "spark-registry-sdk 0.6.4",
  "tokio",
@@ -5579,9 +5579,7 @@ dependencies = [
 
 [[package]]
 name = "spark-market-sdk"
-version = "0.7.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b8be8fa020faac6c495cfa78e56cddd17e5735818b92704b594f9c9e2381e69a"
+version = "0.7.1"
 dependencies = [
  "anyhow",
  "fuels",
@@ -5592,6 +5590,8 @@ dependencies = [
 [[package]]
 name = "spark-market-sdk"
 version = "0.7.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bad09bbc3a123eb89a00c7bec1561ab4a20c805e2a45b2088744ee95c3ae8d83"
 dependencies = [
  "anyhow",
  "fuels",

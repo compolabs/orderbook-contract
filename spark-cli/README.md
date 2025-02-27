@@ -367,6 +367,35 @@ Deployment cost: 7321
 Owner address: fuel1rmu7c4gjycy4qtvj8798sv04ptq9uq4a6eq9y23w7x8apundtlrs0u000t
                0x1ef9ec55122609502d923f8a7831f50ac05e02bdd640522a2ef18fd0f26d5fc7
 
+----------------------
+Spark CLI v0.7.1
+
+Proxy target: Some(b6b32862fae03d7dc25b5d916912df5293eb017acc1ba4fa31fda26323fe892e)
+Base Asset: 0xf169e13e98ae8908199148380684894458b7916f074b85ebad2aaad489ce0d54
+Base Asset Decimals: 9
+Quote Asset: 0x22dfb618b9fc621a7d53f0f599dd427fb5688e280062a8de8883a27819d3f276
+Quote Asset Decimals: 6
+Owner: Some(Address(1ef9ec55122609502d923f8a7831f50ac05e02bdd640522a2ef18fd0f26d5fc7))
+Price Decimals: 9
+Version: 0.7.0
+
+New target deployed: Bech32ContractId { hrp: "fuel", hash: d080a3ac06876d8fe70408b1d163f05a021518eab9ad45c21e37723a462d09f4 }
+
+New proxy target: Some(d080a3ac06876d8fe70408b1d163f05a021518eab9ad45c21e37723a462d09f4)
+Base Asset: 0xf169e13e98ae8908199148380684894458b7916f074b85ebad2aaad489ce0d54
+Base Asset Decimals: 9
+Quote Asset: 0x22dfb618b9fc621a7d53f0f599dd427fb5688e280062a8de8883a27819d3f276
+Quote Asset Decimals: 6
+Owner: Some(Address(1ef9ec55122609502d923f8a7831f50ac05e02bdd640522a2ef18fd0f26d5fc7))
+Price Decimals: 9
+Version: 0.7.1
+
+Market 0x6eb7a35c43a8eae0a2aeaf8c68b7d2d1cc7d2481d97abb8f68e4fb3cbab86a2a upgraded to version 0.7.1 (1793) with target Some(d080a3ac06876d8fe70408b1d163f05a021518eab9ad45c21e37723a462d09f4)
+
+Deployment cost: 6343
+Owner address: fuel1rmu7c4gjycy4qtvj8798sv04ptq9uq4a6eq9y23w7x8apundtlrs0u000t
+               0x1ef9ec55122609502d923f8a7831f50ac05e02bdd640522a2ef18fd0f26d5fc7
+
 ## Deposit
 
 ```

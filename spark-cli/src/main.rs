@@ -87,6 +87,7 @@ async fn main() -> anyhow::Result<()> {
         },
         Command::Upgrade(args) => match args.commands {
             UpgradeCommands::UpgradeFuelUsdcProxy(args) => args.run().await,
+            UpgradeCommands::UpgradeTethTusdcProxy(args) => args.run().await,
         },
     }
 }
