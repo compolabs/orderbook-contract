@@ -174,6 +174,41 @@ Deployment cost: 7798
 Owner address: fuel1rmu7c4gjycy4qtvj8798sv04ptq9uq4a6eq9y23w7x8apundtlrs0u000t
                0x1ef9ec55122609502d923f8a7831f50ac05e02bdd640522a2ef18fd0f26d5fc7
 
+### Upgrade ETH-USDC market with a new implementation
+
+```
+./target/release/spark-cli upgrade upgrade-eth-usdc-proxy
+
+```
+
+Spark CLI v0.7.1
+
+Proxy target: Some(580cec81fe8086336a5e01405233b5a1324bcfd55da3b151aa6bee9bd9992f44)
+Base Asset: 0xf8f8b6283d7fa5b672b530cbb84fcccb4ff8dc40f8176ef4544ddb1f1952ad07
+Base Asset Decimals: 9
+Quote Asset: 0x286c479da40dc953bddc3bb4c453b608bba2e0ac483b077bd475174115395e6b
+Quote Asset Decimals: 6
+Owner: Some(Address(1ef9ec55122609502d923f8a7831f50ac05e02bdd640522a2ef18fd0f26d5fc7))
+Price Decimals: 9
+Version: 0.6.5
+
+New target deployed: Bech32ContractId { hrp: "fuel", hash: 79cb71872715125548bc8474f16241590a7a97b53fd27491b0e06824620057d3 }
+
+New proxy target: Some(79cb71872715125548bc8474f16241590a7a97b53fd27491b0e06824620057d3)
+Base Asset: 0xf8f8b6283d7fa5b672b530cbb84fcccb4ff8dc40f8176ef4544ddb1f1952ad07
+Base Asset Decimals: 9
+Quote Asset: 0x286c479da40dc953bddc3bb4c453b608bba2e0ac483b077bd475174115395e6b
+Quote Asset Decimals: 6
+Owner: Some(Address(1ef9ec55122609502d923f8a7831f50ac05e02bdd640522a2ef18fd0f26d5fc7))
+Price Decimals: 9
+Version: 0.7.1
+
+Market 0xfe2c524ad8e088f33d232a45dbea43e792861640b71aa1814b30506bf8430ee5 upgraded to version 0.7.1 (1793) with target Some(79cb71872715125548bc8474f16241590a7a97b53fd27491b0e06824620057d3)
+
+Deployment cost: 6343
+Owner address: fuel1rmu7c4gjycy4qtvj8798sv04ptq9uq4a6eq9y23w7x8apundtlrs0u000t
+               0x1ef9ec55122609502d923f8a7831f50ac05e02bdd640522a2ef18fd0f26d5fc7
+
 ### Deploy USDC-USDT market proxy + implementation
 
 ```
@@ -189,6 +224,40 @@ Deployment cost: 7798
 Owner address: fuel1rmu7c4gjycy4qtvj8798sv04ptq9uq4a6eq9y23w7x8apundtlrs0u000t
                0x1ef9ec55122609502d923f8a7831f50ac05e02bdd640522a2ef18fd0f26d5fc7
 
+### Upgrade USDC-USDT market with a new implementation
+
+```
+./target/release/spark-cli upgrade upgrade-usdc-usdt-proxy
+
+```
+
+Spark CLI v0.7.1
+
+Proxy target: Some(9db501e5627c8ac90fc8ec8d44f884264180028453642dde3f743b00d5edc39e)
+Base Asset: 0x286c479da40dc953bddc3bb4c453b608bba2e0ac483b077bd475174115395e6b
+Base Asset Decimals: 6
+Quote Asset: 0xa0265fb5c32f6e8db3197af3c7eb05c48ae373605b8165b6f4a51c5b0ba4812e
+Quote Asset Decimals: 6
+Owner: Some(Address(1ef9ec55122609502d923f8a7831f50ac05e02bdd640522a2ef18fd0f26d5fc7))
+Price Decimals: 9
+Version: 0.6.6
+
+New target deployed: Bech32ContractId { hrp: "fuel", hash: aa208ec71203f84dc431848932a8ee4c8cf9826399ad6386450f6f1a9c3926e2 }
+
+New proxy target: Some(aa208ec71203f84dc431848932a8ee4c8cf9826399ad6386450f6f1a9c3926e2)
+Base Asset: 0x286c479da40dc953bddc3bb4c453b608bba2e0ac483b077bd475174115395e6b
+Base Asset Decimals: 6
+Quote Asset: 0xa0265fb5c32f6e8db3197af3c7eb05c48ae373605b8165b6f4a51c5b0ba4812e
+Quote Asset Decimals: 6
+Owner: Some(Address(1ef9ec55122609502d923f8a7831f50ac05e02bdd640522a2ef18fd0f26d5fc7))
+Price Decimals: 9
+Version: 0.7.1
+
+Market 0xdafe498b31f24ea5577055e86bf77e96bcba2c39a7ae47abaa819c303a45a352 upgraded to version 0.7.1 (1793) with target Some(aa208ec71203f84dc431848932a8ee4c8cf9826399ad6386450f6f1a9c3926e2)
+
+Deployment cost: 6343
+Owner address: fuel1rmu7c4gjycy4qtvj8798sv04ptq9uq4a6eq9y23w7x8apundtlrs0u000t
+               0x1ef9ec55122609502d923f8a7831f50ac05e02bdd640522a2ef18fd0f26d5fc7
 
 ### Deploy FUEL-USDC market proxy + implementation
 
@@ -206,6 +275,41 @@ Owner address: fuel1rmu7c4gjycy4qtvj8798sv04ptq9uq4a6eq9y23w7x8apundtlrs0u000t
                0x1ef9ec55122609502d923f8a7831f50ac05e02bdd640522a2ef18fd0f26d5fc7
 
 
+### Upgrade FUEL-USDC market with a new implementation
+
+```
+./target/release/spark-cli upgrade upgrade-fuel-usdc-proxy
+
+```
+
+Spark CLI v0.7.1
+
+Proxy target: Some(cf1290fc83812c53a8043bb291b543937e42a9ac24397ce3b2ba36de540b9bc6)
+Base Asset: 0x1d5d97005e41cae2187a895fd8eab0506111e0e2f3331cd3912c15c24e3c1d82
+Base Asset Decimals: 9
+Quote Asset: 0x286c479da40dc953bddc3bb4c453b608bba2e0ac483b077bd475174115395e6b
+Quote Asset Decimals: 6
+Owner: Some(Address(1ef9ec55122609502d923f8a7831f50ac05e02bdd640522a2ef18fd0f26d5fc7))
+Price Decimals: 9
+Version: 0.6.11
+
+New target deployed: Bech32ContractId { hrp: "fuel", hash: 7973b86d63a07bc1adddafc5ce1e82817daac4bd66d1589432b4efb180b8588c }
+
+New proxy target: Some(7973b86d63a07bc1adddafc5ce1e82817daac4bd66d1589432b4efb180b8588c)
+Base Asset: 0x1d5d97005e41cae2187a895fd8eab0506111e0e2f3331cd3912c15c24e3c1d82
+Base Asset Decimals: 9
+Quote Asset: 0x286c479da40dc953bddc3bb4c453b608bba2e0ac483b077bd475174115395e6b
+Quote Asset Decimals: 6
+Owner: Some(Address(1ef9ec55122609502d923f8a7831f50ac05e02bdd640522a2ef18fd0f26d5fc7))
+Price Decimals: 9
+Version: 0.7.1
+
+Market 0x81e83f73530c262b0dbf5414649a875c48a48144de3c08ff68cb9d54b36f2eaa upgraded to version 0.7.1 (1793) with target Some(7973b86d63a07bc1adddafc5ce1e82817daac4bd66d1589432b4efb180b8588c)
+
+Deployment cost: 6343
+Owner address: fuel1rmu7c4gjycy4qtvj8798sv04ptq9uq4a6eq9y23w7x8apundtlrs0u000t
+               0x1ef9ec55122609502d923f8a7831f50ac05e02bdd640522a2ef18fd0f26d5fc7
+
 ### Deploy ezETH-USDC market proxy + implementation
 
 ```
@@ -218,6 +322,41 @@ Spark CLI v0.6.9
 Market version 0.6.6 (1542) deployed to: 0x581bbe2ff52afa6164b2a532066462d9a4fbaccec771d91182e2e7f1aea33b19
                Proxy deployed to: 0xe4f64c6a9facdce0c055ecade9379c8f425411ec3f9523a472d14ce8a4fbce38
 Deployment cost: 7798
+Owner address: fuel1rmu7c4gjycy4qtvj8798sv04ptq9uq4a6eq9y23w7x8apundtlrs0u000t
+               0x1ef9ec55122609502d923f8a7831f50ac05e02bdd640522a2ef18fd0f26d5fc7
+
+### Upgrade ezETH-USDC market with a new implementation
+
+```
+./target/release/spark-cli upgrade upgrade-ezeth-usdc-proxy
+
+```
+
+Spark CLI v0.7.1
+
+Proxy target: Some(581bbe2ff52afa6164b2a532066462d9a4fbaccec771d91182e2e7f1aea33b19)
+Base Asset: 0x91b3559edb2619cde8ffb2aa7b3c3be97efd794ea46700db7092abeee62281b0
+Base Asset Decimals: 9
+Quote Asset: 0x286c479da40dc953bddc3bb4c453b608bba2e0ac483b077bd475174115395e6b
+Quote Asset Decimals: 6
+Owner: Some(Address(1ef9ec55122609502d923f8a7831f50ac05e02bdd640522a2ef18fd0f26d5fc7))
+Price Decimals: 9
+Version: 0.6.6
+
+New target deployed: Bech32ContractId { hrp: "fuel", hash: e04df1e7589a71196a47ed2c0bfbb6303fa3eda4478b06c3e7639b3648ecac20 }
+
+New proxy target: Some(e04df1e7589a71196a47ed2c0bfbb6303fa3eda4478b06c3e7639b3648ecac20)
+Base Asset: 0x91b3559edb2619cde8ffb2aa7b3c3be97efd794ea46700db7092abeee62281b0
+Base Asset Decimals: 9
+Quote Asset: 0x286c479da40dc953bddc3bb4c453b608bba2e0ac483b077bd475174115395e6b
+Quote Asset Decimals: 6
+Owner: Some(Address(1ef9ec55122609502d923f8a7831f50ac05e02bdd640522a2ef18fd0f26d5fc7))
+Price Decimals: 9
+Version: 0.7.1
+
+Market 0xe4f64c6a9facdce0c055ecade9379c8f425411ec3f9523a472d14ce8a4fbce38 upgraded to version 0.7.1 (1793) with target Some(e04df1e7589a71196a47ed2c0bfbb6303fa3eda4478b06c3e7639b3648ecac20)
+
+Deployment cost: 6343
 Owner address: fuel1rmu7c4gjycy4qtvj8798sv04ptq9uq4a6eq9y23w7x8apundtlrs0u000t
                0x1ef9ec55122609502d923f8a7831f50ac05e02bdd640522a2ef18fd0f26d5fc7
 
@@ -237,6 +376,40 @@ Deployment cost: 7798
 Owner address: fuel1rmu7c4gjycy4qtvj8798sv04ptq9uq4a6eq9y23w7x8apundtlrs0u000t
                0x1ef9ec55122609502d923f8a7831f50ac05e02bdd640522a2ef18fd0f26d5fc7
 
+### Upgrade FUEL-ETH market with a new implementation
+
+```
+./target/release/spark-cli upgrade upgrade-fuel-eth-proxy
+
+```
+
+Spark CLI v0.7.1
+
+Proxy target: Some(710b8bc874982703de5c2b1fa40e6fb250ca1417c9f7c20c2b9126a9e51802e6)
+Base Asset: 0x1d5d97005e41cae2187a895fd8eab0506111e0e2f3331cd3912c15c24e3c1d82
+Base Asset Decimals: 9
+Quote Asset: 0xf8f8b6283d7fa5b672b530cbb84fcccb4ff8dc40f8176ef4544ddb1f1952ad07
+Quote Asset Decimals: 9
+Owner: Some(Address(1ef9ec55122609502d923f8a7831f50ac05e02bdd640522a2ef18fd0f26d5fc7))
+Price Decimals: 9
+Version: 0.6.6
+
+New target deployed: Bech32ContractId { hrp: "fuel", hash: ab547ade4dd54ad1b78b80c26e94af2192f1224f4b27795055f326353bac7042 }
+
+New proxy target: Some(ab547ade4dd54ad1b78b80c26e94af2192f1224f4b27795055f326353bac7042)
+Base Asset: 0x1d5d97005e41cae2187a895fd8eab0506111e0e2f3331cd3912c15c24e3c1d82
+Base Asset Decimals: 9
+Quote Asset: 0xf8f8b6283d7fa5b672b530cbb84fcccb4ff8dc40f8176ef4544ddb1f1952ad07
+Quote Asset Decimals: 9
+Owner: Some(Address(1ef9ec55122609502d923f8a7831f50ac05e02bdd640522a2ef18fd0f26d5fc7))
+Price Decimals: 9
+Version: 0.7.1
+
+Market 0x4391b39d9165917faffb9dcc69d19b6952a6ebf02db593747cf2f5d8298d28c7 upgraded to version 0.7.1 (1793) with target Some(ab547ade4dd54ad1b78b80c26e94af2192f1224f4b27795055f326353bac7042)
+
+Deployment cost: 6343
+Owner address: fuel1rmu7c4gjycy4qtvj8798sv04ptq9uq4a6eq9y23w7x8apundtlrs0u000t
+               0x1ef9ec55122609502d923f8a7831f50ac05e02bdd640522a2ef18fd0f26d5fc7
 
 ### Deploy pzETH-USDC market proxy + implementation
 
@@ -253,6 +426,40 @@ Deployment cost: 7798
 Owner address: fuel1rmu7c4gjycy4qtvj8798sv04ptq9uq4a6eq9y23w7x8apundtlrs0u000t
                0x1ef9ec55122609502d923f8a7831f50ac05e02bdd640522a2ef18fd0f26d5fc7
 
+### Upgrade pzETH-USDC market with a new implementation
+
+```
+./target/release/spark-cli upgrade upgrade-pzeth-usdc-proxy
+
+```
+
+Spark CLI v0.7.1
+
+Proxy target: Some(23c6760a788369b5bb0e8e62b357dbfce7c0f5873df800be5cb784a4eab0a5c2)
+Base Asset: 0x1493d4ec82124de8f9b625682de69dcccda79e882b89a55a8c737b12de67bd68
+Base Asset Decimals: 9
+Quote Asset: 0x286c479da40dc953bddc3bb4c453b608bba2e0ac483b077bd475174115395e6b
+Quote Asset Decimals: 6
+Owner: Some(Address(1ef9ec55122609502d923f8a7831f50ac05e02bdd640522a2ef18fd0f26d5fc7))
+Price Decimals: 9
+Version: 0.6.6
+
+New target deployed: Bech32ContractId { hrp: "fuel", hash: 37976c818ea22a417f252a83d86bd6108ab962bcd15bff5bdc03206fade5adf3 }
+
+New proxy target: Some(37976c818ea22a417f252a83d86bd6108ab962bcd15bff5bdc03206fade5adf3)
+Base Asset: 0x1493d4ec82124de8f9b625682de69dcccda79e882b89a55a8c737b12de67bd68
+Base Asset Decimals: 9
+Quote Asset: 0x286c479da40dc953bddc3bb4c453b608bba2e0ac483b077bd475174115395e6b
+Quote Asset Decimals: 6
+Owner: Some(Address(1ef9ec55122609502d923f8a7831f50ac05e02bdd640522a2ef18fd0f26d5fc7))
+Price Decimals: 9
+Version: 0.7.1
+
+Market 0x12f52412e0ef50d4e38e1d03fd80d0a88fbaa7253e47f0cc48ba4e3049bd9ce4 upgraded to version 0.7.1 (1793) with target Some(37976c818ea22a417f252a83d86bd6108ab962bcd15bff5bdc03206fade5adf3)
+
+Deployment cost: 6343
+Owner address: fuel1rmu7c4gjycy4qtvj8798sv04ptq9uq4a6eq9y23w7x8apundtlrs0u000t
+               0x1ef9ec55122609502d923f8a7831f50ac05e02bdd640522a2ef18fd0f26d5fc7
 
 ### Deploy TRUMP-ETH market proxy + implementation
 
@@ -285,6 +492,40 @@ Deployment cost: 7798
 Owner address: fuel1rmu7c4gjycy4qtvj8798sv04ptq9uq4a6eq9y23w7x8apundtlrs0u000t
                0x1ef9ec55122609502d923f8a7831f50ac05e02bdd640522a2ef18fd0f26d5fc7
 
+### Upgrade USDT-USDC market with a new implementation
+
+```
+./target/release/spark-cli upgrade upgrade-usdt-usdc-proxy
+
+```
+
+Spark CLI v0.7.1
+
+Proxy target: Some(d509b80e7fecc8891d21cf49f0dc6e2aeb676af88c5d5f04189fe2b4da62975a)
+Base Asset: 0xa0265fb5c32f6e8db3197af3c7eb05c48ae373605b8165b6f4a51c5b0ba4812e
+Base Asset Decimals: 6
+Quote Asset: 0x286c479da40dc953bddc3bb4c453b608bba2e0ac483b077bd475174115395e6b
+Quote Asset Decimals: 6
+Owner: Some(Address(1ef9ec55122609502d923f8a7831f50ac05e02bdd640522a2ef18fd0f26d5fc7))
+Price Decimals: 9
+Version: 0.6.6
+
+New target deployed: Bech32ContractId { hrp: "fuel", hash: 3036ddda246b47b19227617b1eeccba1fd8e579b93452609bb61ded529badbd8 }
+
+New proxy target: Some(3036ddda246b47b19227617b1eeccba1fd8e579b93452609bb61ded529badbd8)
+Base Asset: 0xa0265fb5c32f6e8db3197af3c7eb05c48ae373605b8165b6f4a51c5b0ba4812e
+Base Asset Decimals: 6
+Quote Asset: 0x286c479da40dc953bddc3bb4c453b608bba2e0ac483b077bd475174115395e6b
+Quote Asset Decimals: 6
+Owner: Some(Address(1ef9ec55122609502d923f8a7831f50ac05e02bdd640522a2ef18fd0f26d5fc7))
+Price Decimals: 9
+Version: 0.7.1
+
+Market 0xe4e4844f78e2e470b590d0c76ffc9f4422a87317377813a181a02c60a60bc774 upgraded to version 0.7.1 (1793) with target Some(3036ddda246b47b19227617b1eeccba1fd8e579b93452609bb61ded529badbd8)
+
+Deployment cost: 6343
+Owner address: fuel1rmu7c4gjycy4qtvj8798sv04ptq9uq4a6eq9y23w7x8apundtlrs0u000t
+               0x1ef9ec55122609502d923f8a7831f50ac05e02bdd640522a2ef18fd0f26d5fc7
 
 ### Deploy WETH-USDC market proxy + implementation
 
@@ -301,6 +542,40 @@ Deployment cost: 7798
 Owner address: fuel1rmu7c4gjycy4qtvj8798sv04ptq9uq4a6eq9y23w7x8apundtlrs0u000t
                0x1ef9ec55122609502d923f8a7831f50ac05e02bdd640522a2ef18fd0f26d5fc7
 
+### Upgrade WETH-USDC market with a new implementation
+
+```
+./target/release/spark-cli upgrade upgrade-weth-usdc-proxy
+
+```
+
+Spark CLI v0.7.1
+
+Proxy target: Some(72b6e18c2aee9c418209f2716bdcfb6c776a609dcfe7c73912dba9d85c90ddd1)
+Base Asset: 0xa38a5a8beeb08d95744bc7f58528073f4052b254def59eba20c99c202b5acaa3
+Base Asset Decimals: 9
+Quote Asset: 0x286c479da40dc953bddc3bb4c453b608bba2e0ac483b077bd475174115395e6b
+Quote Asset Decimals: 6
+Owner: Some(Address(1ef9ec55122609502d923f8a7831f50ac05e02bdd640522a2ef18fd0f26d5fc7))
+Price Decimals: 9
+Version: 0.6.6
+
+New target deployed: Bech32ContractId { hrp: "fuel", hash: a6fbb341ce173bf1fb2b8ea3ff4b072dd00d816e9ffdc859c0505c90298612e1 }
+
+New proxy target: Some(a6fbb341ce173bf1fb2b8ea3ff4b072dd00d816e9ffdc859c0505c90298612e1)
+Base Asset: 0xa38a5a8beeb08d95744bc7f58528073f4052b254def59eba20c99c202b5acaa3
+Base Asset Decimals: 9
+Quote Asset: 0x286c479da40dc953bddc3bb4c453b608bba2e0ac483b077bd475174115395e6b
+Quote Asset Decimals: 6
+Owner: Some(Address(1ef9ec55122609502d923f8a7831f50ac05e02bdd640522a2ef18fd0f26d5fc7))
+Price Decimals: 9
+Version: 0.7.1
+
+Market 0x0bef6eb3018d901818978175feccf650b65dee8e3a8f5b59e138bcf1cf1d0db9 upgraded to version 0.7.1 (1793) with target Some(a6fbb341ce173bf1fb2b8ea3ff4b072dd00d816e9ffdc859c0505c90298612e1)
+
+Deployment cost: 6343
+Owner address: fuel1rmu7c4gjycy4qtvj8798sv04ptq9uq4a6eq9y23w7x8apundtlrs0u000t
+               0x1ef9ec55122609502d923f8a7831f50ac05e02bdd640522a2ef18fd0f26d5fc7
 
 ### Deploy PSYCHO-USDC market proxy + implementation
 
@@ -318,6 +593,40 @@ Owner address: fuel1rmu7c4gjycy4qtvj8798sv04ptq9uq4a6eq9y23w7x8apundtlrs0u000t
                0x1ef9ec55122609502d923f8a7831f50ac05e02bdd640522a2ef18fd0f26d5fc7
 Block height: 12996694
 
+### Upgrade PSYCHO-USDC market with a new implementation
+
+```
+./target/release/spark-cli upgrade upgrade-psycho-usdc-proxy
+
+```
+
+Spark CLI v0.7.1
+
+Proxy target: Some(b217e7d6d722948e77909e675a9a2932caaa4b73635842d09c00060cc02344ba)
+Base Asset: 0x86fa05e9fef64f76fa61c03f5906c87a03cb9148120b6171910566173d36fc9e
+Base Asset Decimals: 9
+Quote Asset: 0x286c479da40dc953bddc3bb4c453b608bba2e0ac483b077bd475174115395e6b
+Quote Asset Decimals: 6
+Owner: Some(Address(1ef9ec55122609502d923f8a7831f50ac05e02bdd640522a2ef18fd0f26d5fc7))
+Price Decimals: 9
+Version: 0.6.6
+
+New target deployed: Bech32ContractId { hrp: "fuel", hash: ecc352b9939b132228f21b4b495dd45f9989e709c20e96d1498b80ae4f3ee6b7 }
+
+New proxy target: Some(ecc352b9939b132228f21b4b495dd45f9989e709c20e96d1498b80ae4f3ee6b7)
+Base Asset: 0x86fa05e9fef64f76fa61c03f5906c87a03cb9148120b6171910566173d36fc9e
+Base Asset Decimals: 9
+Quote Asset: 0x286c479da40dc953bddc3bb4c453b608bba2e0ac483b077bd475174115395e6b
+Quote Asset Decimals: 6
+Owner: Some(Address(1ef9ec55122609502d923f8a7831f50ac05e02bdd640522a2ef18fd0f26d5fc7))
+Price Decimals: 9
+Version: 0.7.1
+
+Market 0x2eece85eb7c8ec5fd95e639fd6bb7e9dd7103a99d7321521848da246ecef5270 upgraded to version 0.7.1 (1793) with target Some(ecc352b9939b132228f21b4b495dd45f9989e709c20e96d1498b80ae4f3ee6b7)
+
+Deployment cost: 6343
+Owner address: fuel1rmu7c4gjycy4qtvj8798sv04ptq9uq4a6eq9y23w7x8apundtlrs0u000t
+               0x1ef9ec55122609502d923f8a7831f50ac05e02bdd640522a2ef18fd0f26d5fc7
 
 ### Deploy USDF-USDC market proxy + implementation
 
@@ -335,6 +644,40 @@ Owner address: fuel1rmu7c4gjycy4qtvj8798sv04ptq9uq4a6eq9y23w7x8apundtlrs0u000t
                0x1ef9ec55122609502d923f8a7831f50ac05e02bdd640522a2ef18fd0f26d5fc7
 Block height: 12997072
 
+### Upgrade USDF-USDC market with a new implementation
+
+```
+./target/release/spark-cli upgrade upgrade-usdf-usdc-proxy
+
+```
+
+Spark CLI v0.7.1
+
+Proxy target: Some(b8d5e5871bbd4d4712b687e83f44f2fc132c1a4a1f135f79837e78adadb83ae3)
+Base Asset: 0x33a6d90877f12c7954cca6d65587c25e9214c7bed2231c188981c7114c1bdb78
+Base Asset Decimals: 9
+Quote Asset: 0x286c479da40dc953bddc3bb4c453b608bba2e0ac483b077bd475174115395e6b
+Quote Asset Decimals: 6
+Owner: Some(Address(1ef9ec55122609502d923f8a7831f50ac05e02bdd640522a2ef18fd0f26d5fc7))
+Price Decimals: 9
+Version: 0.6.6
+
+New target deployed: Bech32ContractId { hrp: "fuel", hash: cc3fbfea841f852f977a2f5fdd9b3e9fd9c087f518031a0b48f59ab8c579491e }
+
+New proxy target: Some(cc3fbfea841f852f977a2f5fdd9b3e9fd9c087f518031a0b48f59ab8c579491e)
+Base Asset: 0x33a6d90877f12c7954cca6d65587c25e9214c7bed2231c188981c7114c1bdb78
+Base Asset Decimals: 9
+Quote Asset: 0x286c479da40dc953bddc3bb4c453b608bba2e0ac483b077bd475174115395e6b
+Quote Asset Decimals: 6
+Owner: Some(Address(1ef9ec55122609502d923f8a7831f50ac05e02bdd640522a2ef18fd0f26d5fc7))
+Price Decimals: 9
+Version: 0.7.1
+
+Market 0x59020aadb448c59b48136a3cef110f1ddd2865000146514924f19b83f061ceba upgraded to version 0.7.1 (1793) with target Some(cc3fbfea841f852f977a2f5fdd9b3e9fd9c087f518031a0b48f59ab8c579491e)
+
+Deployment cost: 6343
+Owner address: fuel1rmu7c4gjycy4qtvj8798sv04ptq9uq4a6eq9y23w7x8apundtlrs0u000t
+               0x1ef9ec55122609502d923f8a7831f50ac05e02bdd640522a2ef18fd0f26d5fc7
 
 ### Deploy USDT-ETH market proxy + implementation
 
@@ -352,7 +695,42 @@ Owner address: fuel1rmu7c4gjycy4qtvj8798sv04ptq9uq4a6eq9y23w7x8apundtlrs0u000t
                0x1ef9ec55122609502d923f8a7831f50ac05e02bdd640522a2ef18fd0f26d5fc7
 Block height: 12997252
 
-### Deploy USDT-ETH market proxy + implementation
+### Upgrade USDT-ETH market with a new implementation
+
+```
+./target/release/spark-cli upgrade upgrade-usdt-eth-proxy
+
+```
+
+Spark CLI v0.7.1
+
+Proxy target: Some(328ab520aa6a07fa288261d37c8186eba9f4dc1492f62f4eb56702dd4817a188)
+Base Asset: 0xa0265fb5c32f6e8db3197af3c7eb05c48ae373605b8165b6f4a51c5b0ba4812e
+Base Asset Decimals: 6
+Quote Asset: 0xf8f8b6283d7fa5b672b530cbb84fcccb4ff8dc40f8176ef4544ddb1f1952ad07
+Quote Asset Decimals: 9
+Owner: Some(Address(1ef9ec55122609502d923f8a7831f50ac05e02bdd640522a2ef18fd0f26d5fc7))
+Price Decimals: 9
+Version: 0.6.6
+
+New target deployed: Bech32ContractId { hrp: "fuel", hash: d9b76d97ba5f6dfd5ed5d7c110de9685480801a4030a0066264c9b666699dffc }
+
+New proxy target: Some(d9b76d97ba5f6dfd5ed5d7c110de9685480801a4030a0066264c9b666699dffc)
+Base Asset: 0xa0265fb5c32f6e8db3197af3c7eb05c48ae373605b8165b6f4a51c5b0ba4812e
+Base Asset Decimals: 6
+Quote Asset: 0xf8f8b6283d7fa5b672b530cbb84fcccb4ff8dc40f8176ef4544ddb1f1952ad07
+Quote Asset Decimals: 9
+Owner: Some(Address(1ef9ec55122609502d923f8a7831f50ac05e02bdd640522a2ef18fd0f26d5fc7))
+Price Decimals: 9
+Version: 0.7.1
+
+Market 0x979ea6b1e15c1ec8e79eb76b587af89dd2620b383082e9b2c16049b78e97e4e8 upgraded to version 0.7.1 (1793) with target Some(d9b76d97ba5f6dfd5ed5d7c110de9685480801a4030a0066264c9b666699dffc)
+
+Deployment cost: 6343
+Owner address: fuel1rmu7c4gjycy4qtvj8798sv04ptq9uq4a6eq9y23w7x8apundtlrs0u000t
+               0x1ef9ec55122609502d923f8a7831f50ac05e02bdd640522a2ef18fd0f26d5fc7
+
+### Deploy TETH-TUSDC market proxy + implementation
 
 ```
 spark-cli batch deploy-teth-tusdc-proxy

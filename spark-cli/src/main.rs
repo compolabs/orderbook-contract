@@ -86,8 +86,18 @@ async fn main() -> anyhow::Result<()> {
             RegistryCommands::Unregister(args) => args.run().await,
         },
         Command::Upgrade(args) => match args.commands {
+            UpgradeCommands::UpgradeEthUsdcProxy(args) => args.run().await,
+            UpgradeCommands::UpgradeEzethUsdcProxy(args) => args.run().await,
+            UpgradeCommands::UpgradeFuelEthProxy(args) => args.run().await,
             UpgradeCommands::UpgradeFuelUsdcProxy(args) => args.run().await,
+            UpgradeCommands::UpgradePsychoUsdcProxy(args) => args.run().await,
+            UpgradeCommands::UpgradePzethUsdcProxy(args) => args.run().await,
             UpgradeCommands::UpgradeTethTusdcProxy(args) => args.run().await,
+            UpgradeCommands::UpgradeUsdcUsdtProxy(args) => args.run().await,
+            UpgradeCommands::UpgradeUsdfUsdcProxy(args) => args.run().await,
+            UpgradeCommands::UpgradeUsdtEthProxy(args) => args.run().await,
+            UpgradeCommands::UpgradeUsdtUsdcProxy(args) => args.run().await,
+            UpgradeCommands::UpgradeWethUsdcProxy(args) => args.run().await,
         },
     }
 }
