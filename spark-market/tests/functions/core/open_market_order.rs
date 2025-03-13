@@ -46,7 +46,7 @@ mod success {
         assert_eq!(contract.market_order(expected_id).await?.value, None);
 
         let response = contract
-            .open_order(order_amount, order_type.clone(), price)
+            .open_market_order(order_amount, order_type.clone(), price)
             .await?;
         let id = response.value;
 
@@ -77,7 +77,7 @@ mod success {
                 price,
                 user: owner.identity(),
                 balance: expected_account.clone(),
-                limit_type: LimitType::GTC,
+                limit_type: LimitType::MKT,
             }
         );
 
@@ -87,7 +87,7 @@ mod success {
         assert_eq!(id, expected_id);
         assert_eq!(stored_id, expected_id);
         assert_eq!(contract.user_order_height(owner.identity()).await?.value, 1);
-        assert_eq!(contract.market_order(id).await?.value, Some(false));
+        assert_eq!(contract.market_order(id).await?.value, Some(true));
 
         Ok(())
     }
@@ -126,7 +126,7 @@ mod success {
         assert_eq!(orders, vec![]);
 
         let response = contract
-            .open_order(order_amount, order_type.clone(), price)
+            .open_market_order(order_amount, order_type.clone(), price)
             .await?;
         let id = response.value;
         let expected_id = contract
@@ -167,7 +167,7 @@ mod success {
                 price,
                 user: owner.identity(),
                 balance: expected_account.clone(),
-                limit_type: LimitType::GTC,
+                limit_type: LimitType::MKT,
             }
         );
 
@@ -226,7 +226,7 @@ mod success {
 
         let response = contract
             .with_account(&_user.wallet)
-            .open_order(order_amount, order_type.clone(), price)
+            .open_market_order(order_amount, order_type.clone(), price)
             .await?;
 
         let id = response.value;
@@ -262,7 +262,7 @@ mod success {
                 price,
                 user: _user.identity(),
                 balance: expected_account.clone(),
-                limit_type: LimitType::GTC,
+                limit_type: LimitType::MKT,
             }
         );
 
@@ -313,7 +313,7 @@ mod revert {
         // Revert
         contract
             .with_account(&user.wallet)
-            .open_order(order_amount, order_type, price)
+            .open_market_order(order_amount, order_type, price)
             .await
             .unwrap();
     }
@@ -383,7 +383,7 @@ mod revert {
 
         // Revert
         contract
-            .open_order(order_amount, order_type, price)
+            .open_market_order(order_amount, order_type, price)
             .await
             .unwrap();
     }
@@ -417,7 +417,7 @@ mod revert {
 
         // Revert
         contract
-            .open_order(order_amount, order_type, price)
+            .open_market_order(order_amount, order_type, price)
             .await
             .unwrap();
     }
@@ -450,7 +450,7 @@ mod revert {
 
         // Revert
         contract
-            .open_order(order_amount, order_type, price)
+            .open_market_order(order_amount, order_type, price)
             .await
             .unwrap();
     }
@@ -485,7 +485,7 @@ mod revert {
 
         // Revert
         contract
-            .open_order(order_amount, order_type, price)
+            .open_market_order(order_amount, order_type, price)
             .await
             .unwrap();
     }

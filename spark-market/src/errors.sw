@@ -23,6 +23,7 @@ pub enum OrderError {
     OrderNotFound: b256,
     PriceTooSmall: (u64, u64),
     OrderSizeTooSmall: u64,
+    OrderSizeNotSmall: (),
     ZeroLockAmount: (),
     ZeroUnlockAmount: (),
     ZeroTransferAmount: (),

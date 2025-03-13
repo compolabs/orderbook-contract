@@ -8,6 +8,7 @@ use commands::{
     core::cli::CoreCommands,
     info::cli::InfoCommands,
     registry::cli::RegistryCommands,
+    upgrade::cli::UpgradeCommands,
 };
 use dotenv::dotenv;
 
@@ -41,13 +42,14 @@ async fn main() -> anyhow::Result<()> {
         },
         Command::Core(args) => match args.commands {
             CoreCommands::Cancel(args) => args.run().await,
+            CoreCommands::CancelSmall(args) => args.run().await,
             CoreCommands::Deploy(args) => args.run().await,
             CoreCommands::Deposit(args) => args.run().await,
             CoreCommands::DepositFor(args) => args.run().await,
             CoreCommands::FulfillMany(args) => args.run().await,
             CoreCommands::Open(args) => args.run().await,
+            CoreCommands::OpenMarket(args) => args.run().await,
             CoreCommands::MatchMany(args) => args.run().await,
-            CoreCommands::MatchPair(args) => args.run().await,
             CoreCommands::SetEpoch(args) => args.run().await,
             CoreCommands::SetProtocolFee(args) => args.run().await,
             CoreCommands::SetMatcherFee(args) => args.run().await,
@@ -55,7 +57,6 @@ async fn main() -> anyhow::Result<()> {
             CoreCommands::SetMinOrderSize(args) => args.run().await,
             CoreCommands::SetPaused(args) => args.run().await,
             CoreCommands::SetProxyTarget(args) => args.run().await,
-            CoreCommands::SetStoreOrderChangeInfo(args) => args.run().await,
             CoreCommands::Withdraw(args) => args.run().await,
             CoreCommands::WithdrawToMarket(args) => args.run().await,
         },
@@ -70,9 +71,9 @@ async fn main() -> anyhow::Result<()> {
             InfoCommands::MinOrderPrice(args) => args.run().await,
             InfoCommands::MinOrderSize(args) => args.run().await,
             InfoCommands::OrderId(args) => args.run().await,
+            InfoCommands::MarketOrder(args) => args.run().await,
             InfoCommands::Order(args) => args.run().await,
             InfoCommands::Paused(args) => args.run().await,
-            InfoCommands::StoreOrderChangeInfo(args) => args.run().await,
             InfoCommands::ProxyOwner(args) => args.run().await,
             InfoCommands::ProxyTarget(args) => args.run().await,
             InfoCommands::UserOrders(args) => args.run().await,
@@ -83,6 +84,20 @@ async fn main() -> anyhow::Result<()> {
             RegistryCommands::Markets(args) => args.run().await,
             RegistryCommands::Register(args) => args.run().await,
             RegistryCommands::Unregister(args) => args.run().await,
+        },
+        Command::Upgrade(args) => match args.commands {
+            UpgradeCommands::UpgradeEthUsdcProxy(args) => args.run().await,
+            UpgradeCommands::UpgradeEzethUsdcProxy(args) => args.run().await,
+            UpgradeCommands::UpgradeFuelEthProxy(args) => args.run().await,
+            UpgradeCommands::UpgradeFuelUsdcProxy(args) => args.run().await,
+            UpgradeCommands::UpgradePsychoUsdcProxy(args) => args.run().await,
+            UpgradeCommands::UpgradePzethUsdcProxy(args) => args.run().await,
+            UpgradeCommands::UpgradeTethTusdcProxy(args) => args.run().await,
+            UpgradeCommands::UpgradeUsdcUsdtProxy(args) => args.run().await,
+            UpgradeCommands::UpgradeUsdfUsdcProxy(args) => args.run().await,
+            UpgradeCommands::UpgradeUsdtEthProxy(args) => args.run().await,
+            UpgradeCommands::UpgradeUsdtUsdcProxy(args) => args.run().await,
+            UpgradeCommands::UpgradeWethUsdcProxy(args) => args.run().await,
         },
     }
 }

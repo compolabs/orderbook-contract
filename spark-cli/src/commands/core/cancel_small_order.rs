@@ -4,11 +4,11 @@ use fuels::{accounts::ViewOnlyAccount, types::Bits256};
 use spark_market_sdk::SparkMarketContract;
 
 #[derive(Args, Clone)]
-#[command(about = "Matches a pair of orders")]
-pub(crate) struct MatchPairCommand {
+#[command(about = "Cancels a small open order")]
+pub(crate) struct CancelSmallCommand {
     /// The b256 id of the order
     #[clap(long)]
-    pub(crate) orders: Vec<String>,
+    pub(crate) order_id: String,
 
     /// The contract id of the market
     #[clap(long)]
@@ -20,18 +20,14 @@ pub(crate) struct MatchPairCommand {
     pub(crate) rpc: String,
 }
 
-impl MatchPairCommand {
+impl CancelSmallCommand {
     pub(crate) async fn run(&self) -> anyhow::Result<()> {
         let wallet = setup(&self.rpc).await?;
         let contract_id = validate_contract_id(&self.contract_id)?;
+        let order_id = Bits256::from_hex_str(&self.order_id)?;
 
-        if self.orders.len() != 2 {
-            anyhow::bail!("Invalid order array length <> 2");
-        }
-
-        let mut order_ids: Vec<Bits256> = Vec::new();
-        for order in self.orders.clone() {
-            order_ids.push(Bits256::from_hex_str(&order).expect("Invalid order_id"));
+        if self.order_id.len() as u64 != 64 {
+            anyhow::bail!("Invalid order id length");
         }
 
         // Initial balance prior to contract call - used to calculate contract interaction cost
@@ -42,22 +38,14 @@ impl MatchPairCommand {
         // Connect to the deployed contract via the rpc
         let contract = SparkMarketContract::new(contract_id, wallet.clone()).await;
 
-        let _ = contract
-            .match_order_pair(order_ids[0], order_ids[1])
-            .await?;
+        let _ = contract.cancel_small_order(order_id).await?;
 
         // Balance post-call
         let new_balance = wallet
             .get_asset_balance(&wallet.provider().unwrap().base_asset_id())
             .await?;
 
-        println!(
-            "Order pair matched: {} : {}",
-            self.orders[0], self.orders[1]
-        );
-
-        // TODO: replace println with tracing
-        println!("Contract call cost: {}", balance - new_balance);
+        println!("\nContract call cost: {}", balance - new_balance);
 
         Ok(())
     }

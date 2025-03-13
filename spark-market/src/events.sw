@@ -24,6 +24,7 @@ pub struct OpenOrderEvent {
     pub price: u64,
     pub user: Identity,
     pub balance: Account,
+    pub limit_type: LimitType,
 }
 
 pub struct CancelOrderEvent {

@@ -25,7 +25,7 @@ impl ProxyTargetCommand {
 
         let proxy_target = contract.proxy_target().await?.value;
 
-        println!("Proxy target: 0x{:?}", proxy_target);
+        println!("Proxy target: {:?}", proxy_target);
 
         Ok(())
     }

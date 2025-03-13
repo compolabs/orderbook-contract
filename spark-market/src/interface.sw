@@ -35,10 +35,13 @@ abi SparkMarket {
     fn open_order(amount: u64, order_type: OrderType, price: u64) -> b256;
 
     #[storage(read, write)]
+    fn open_market_order(amount: u64, order_type: OrderType, price: u64) -> b256;
+
+    #[storage(read, write)]
     fn cancel_order(order_id: b256);
 
     #[storage(read, write)]
-    fn match_order_pair(order0_id: b256, order1_id: b256);
+    fn cancel_small_order(order_id: b256);
 
     #[storage(read, write)]
     fn match_order_many(orders: Vec<b256>);
@@ -61,9 +64,6 @@ abi SparkMarket {
 
     #[storage(read, write)]
     fn set_matcher_fee(amount: u64);
-
-    #[storage(read, write)]
-    fn set_store_order_change_info(store: bool);
 
     #[storage(read, write)]
     fn set_min_order_size(size: u64);
@@ -95,13 +95,13 @@ abi SparkMarketInfo {
     fn order(order: b256) -> Option<Order>;
 
     #[storage(read)]
+    fn market_order(order: b256) -> Option<bool>;
+
+    #[storage(read)]
     fn user_orders(user: Identity) -> Vec<b256>;
 
     #[storage(read)]
     fn user_order_height(user: Identity) -> u64;
-
-    #[storage(read)]
-    fn order_change_info(order_id: b256) -> Vec<OrderChangeInfo>;
 
     #[storage(read)]
     fn min_order_size() -> u64;
@@ -119,7 +119,4 @@ abi SparkMarketInfo {
         block_height: u32,
         order_height: u64,
     ) -> b256;
-
-    #[storage(read)]
-    fn store_order_change_info() -> bool;
 }

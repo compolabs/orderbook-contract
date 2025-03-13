@@ -1,12 +1,11 @@
 use crate::commands::info::{
     account::AccountCommand, config::ConfigCommand, epoch::EpochCommand,
-    matcher_fee::MatcherFeeCommand, min_order_price::MinOrderPriceCommand,
-    min_order_size::MinOrderSizeCommand, order::OrderCommand, order_id::OrderIdCommand,
-    paused::PausedCommand, protocol_fee::ProtocolFeeCommand,
-    protocol_fee_user::ProtocolFeeUserCommand,
+    market_order::MarketOrderCommand, matcher_fee::MatcherFeeCommand,
+    min_order_price::MinOrderPriceCommand, min_order_size::MinOrderSizeCommand,
+    order::OrderCommand, order_id::OrderIdCommand, paused::PausedCommand,
+    protocol_fee::ProtocolFeeCommand, protocol_fee_user::ProtocolFeeUserCommand,
     protocol_fee_user_amount::ProtocolFeeUserAmountCommand, proxy_owner::ProxyOwnerCommand,
-    proxy_target::ProxyTargetCommand, store_order_change_info::StoreOrderChangeInfoCommand,
-    user_orders::UserOrdersCommand,
+    proxy_target::ProxyTargetCommand, user_orders::UserOrdersCommand,
 };
 use clap::Subcommand;
 
@@ -52,6 +51,10 @@ pub(crate) enum InfoCommands {
     #[clap(short_flag = 'I')]
     OrderId(OrderIdCommand),
 
+    /// Query market order information
+    #[clap(short_flag = 'M')]
+    MarketOrder(MarketOrderCommand),
+
     /// Query order information
     #[clap(short_flag = 'O')]
     Order(OrderCommand),
@@ -59,10 +62,6 @@ pub(crate) enum InfoCommands {
     /// Query paused market state
     #[clap(short_flag = 'P')]
     Paused(PausedCommand),
-
-    /// Query orders associated with an
-    #[clap(short_flag = 'S')]
-    StoreOrderChangeInfo(StoreOrderChangeInfoCommand),
 
     /// Query information for a proxy target
     #[clap(short_flag = 'T')]

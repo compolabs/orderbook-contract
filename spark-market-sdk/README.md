@@ -140,25 +140,6 @@ Cancels order and refunds matcher fee from market caller account.
 Returns a call result
 
 
-### Match Order Pair
-
-```rust
-pub async fn match_order_pair(
-        &self,
-        order_id0: Bits256,
-        order_id1: Bits256,
-    ) -> anyhow::Result<CallResponse<()>>
-```
-
-Matches GoodTillCancel order pair, should be different direction.
-
-`self` The SparkMarketContract instance
-`order_id0` The first order id for matching
-`order_id1` The second order id for matching
-
-Returns a call result
-
-
 ### Match Orders
 
 ```rust
